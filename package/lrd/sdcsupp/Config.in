@@ -1,0 +1,26 @@
+config BR2_PACKAGE_SDCSUPP
+	bool "SDC Supplicant"
+	select BR2_PACKAGE_LIBNL
+	select BR2_PACKAGE_SUMMIT_SUPPLICANT_BINARIES if !BR2_LRD_DEVEL_BUILD && !BR2_LRD_NO_RADIO
+	help
+	  SDC Supplicant
+
+if BR2_PACKAGE_SDCSUPP
+
+config BR2_PACKAGE_SDCSUPP_WPA_CLI
+	bool "Install wpa_cli binary"
+	help
+	  Install wpa_cli command line utility
+
+config BR2_PACKAGE_SDCSUPP_WPA_PASSPHRASE
+	bool "Install wpa_passphrase binary"
+	help
+	  Install wpa_passphrase command line utility.
+
+config BR2_PACKAGE_SDCSUPP_LEGACY
+	bool "SDC Supplicant Legacy"
+
+config BR2_PACKAGE_SDCSUPP_LIBS_ONLY
+	bool "Internal build of closed source libraries only"
+
+endif

@@ -20,8 +20,11 @@ define SUMMIT_SUPPLICANT_BINARIES_INSTALL_TARGET_CMDS
 	tar -xjf $($(PKG)_DL_DIR)/$(SUMMIT_SUPPLICANT_BINARIES_EXTRA_DOWNLOADS) -C $(TARGET_DIR) --keep-directory-symlink --no-overwrite-dir --touch --exclude=usr/include --exclude=usr/lib/libsdc_sdk.so
 endef
 
+ifeq ($(BR2_PACKAGE_LRD_LEGACY),y)
+SUMMIT_SUPPLICANT_BINARIES_EXTRACT=usr/include
+endif
 define SUMMIT_SUPPLICANT_BINARIES_INSTALL_STAGING_CMDS
-	tar -xjf $($(PKG)_DL_DIR)/$(SUMMIT_SUPPLICANT_BINARIES_EXTRA_DOWNLOADS) -C $(STAGING_DIR) --keep-directory-symlink --no-overwrite-dir --touch --wildcards usr/include usr/lib/lib*
+	tar -xjf $($(PKG)_DL_DIR)/$(SUMMIT_SUPPLICANT_BINARIES_EXTRA_DOWNLOADS) -C $(STAGING_DIR) --keep-directory-symlink --no-overwrite-dir --touch --wildcards $(SUMMIT_SUPPLICANT_BINARIES_EXTRACT) usr/lib/lib*
 endef
 
 endif

@@ -21,24 +21,19 @@ TARGETS = \
 	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain
 
 TARGETS_COMPONENT_all = mfg60n  regLWB5plus regLWBplus regLWB6x\
-	summit_supplicant summit_supplicant_openssl_1_0_2 \
-	summit_supplicant_openssl_3_0 \
+	summit_supplicant_libs \
 	adaptive_ww adaptive_bt
 
 TARGETS_COMPONENT_lrd = reg45n reg50n regCypress \
-	summit_supplicant_legacy summit_supplicant_legacy_fips \
-	summit_supplicant_legacy_openssl_1_0_2 laird_openssl_fips \
-	summit_supplicant_legacy_openssl_3_0
+	laird_openssl_fips \
+	summit_supplicant_libs_legacy
 
 TARGETS_COMPONENT = \
 	$(call MAKE_TARGETS,all) $(call MAKE_TARGETS,lrd) \
 	backports backports-test firmware \
-	regCypress-aarch64 \
-	sterling_supplicant-x86 sterling_supplicant-arm \
-	summit_supplicant_fips-arm-eabihf
+	regCypress-aarch64
 
-# NOTE, summit_supplicant is *NOT* released as source
-TARGETS_SRC = sterling_supplicant-src lrd-network-manager-src adaptive_bt-src linux-docs
+TARGETS_SRC = summit_supplicant-src lrd-network-manager-src adaptive_bt-src linux-docs
 
 #**************************************************************************
 
@@ -102,13 +97,18 @@ lrd-network-manager-src:
 		--owner=root --group=root \
 		-cJf $(OUTPUT_DIR)/$@/images/$@$(RELEASE_SUFFIX).tar.xz .
 
-sterling_supplicant-src:
-	mkdir -p $(OUTPUT_DIR)/$@/images
-	tar -C $(BR_DIR)/../som-external/package/lrd/externals/sterling_supplicant --exclude=.git \
-		--transform "s,^,sterling_supplicant$(RELEASE_SUFFIX)/," \
-		--owner=root --group=root \
-		-czf $(OUTPUT_DIR)/$@/images/$@$(RELEASE_SUFFIX).tar.gz \
-		README COPYING CONTRIBUTIONS src wpa_supplicant hs20 laird
+# NOTE, summit_supplicant-src excludes closed source laird directory
+summit_supplicant-src:
+	if [ ! -d $(BR_DIR)/../lrd-closed-source-external/package/externals/wpa_supplicant/laird/libsdcsupp ]; then \
+		echo "Cannot create summit_supplicant-src -- not opensource"; \
+	else \
+		mkdir -p $(OUTPUT_DIR)/$@/images; \
+		tar -C $(BR_DIR)/../lrd-closed-source-external/package/externals/wpa_supplicant --exclude=.git --exclude=laird \
+			--transform "s,^,summit_supplicant$(RELEASE_SUFFIX)/," \
+			--owner=root --group=root \
+			-czf $(OUTPUT_DIR)/$@/images/$@$(RELEASE_SUFFIX).tar.gz \
+			README COPYING CONTRIBUTIONS src wpa_supplicant hs20 hostapd; \
+	fi
 
 adaptive_bt-src:
 	mkdir -p $(OUTPUT_DIR)/$@/images

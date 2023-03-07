@@ -35,6 +35,8 @@ case "${BR2_LRD_PRODUCT}" in
 		usr/include/lrd_sdk_eni.h \
 		usr/lib/libsdc_sdk.so
 	;;
+*libs*)
+	;;
 *)
 	tar -uf "${RELEASE_FILE}" -C "${STAGING_DIR}" \
 		--owner=0 --group=0 --numeric-owner \
