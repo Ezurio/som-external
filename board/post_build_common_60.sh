@@ -143,7 +143,21 @@ rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -rf "${TARGET_DIR}/usr/share/gobject-introspection-1.0/"
 rm -rf "${TARGET_DIR}/usr/lib/gobject-introspection/"
 
+rm -f ${TARGET_DIR}/usr/lib/systemd/system/swupdate-progress.service
+rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
+
+# No need to start swupdate service automatically, it will start by socket
+if [ -f ${TARGET_DIR}/usr/lib/systemd ]; then
+	echo "disable swupdate.service" > ${TARGET_DIR}/usr/lib/systemd/system-preset/50-swupdate.preset
+fi
+
 if [ "${BUILD_TYPE}" != ig60 ]; then
+
+# Configure public key if swupdate signature check is enabled
+if grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+	mkdir -p ${TARGET_DIR}/etc/swupdate/conf.d
+	echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > ${TARGET_DIR}/etc/swupdate/conf.d/99-signing.conf
+fi
 
 # Path to common image files
 CCONF_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/configs-common/image)"
@@ -169,20 +183,6 @@ else
 	ln -rsf ${CCONF_DIR}/boot.scr ${BINARIES_DIR}/boot.scr
 
 	cp -f ${CCONF_DIR}/kernel.its ${BINARIES_DIR}/kernel.its
-fi
-
-rm -f ${TARGET_DIR}/usr/lib/systemd/system/swupdate-progress.service
-rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
-
-# No need to start swupdate service automatically, it will start by socket
-if [ -f ${TARGET_DIR}/usr/lib/systemd ]; then
-	echo "disable swupdate.service" > ${TARGET_DIR}/usr/lib/systemd/system-preset/50-swupdate.preset
-fi
-
-# Configure public key if swupdate signature check is enabled
-if grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
-	mkdir -p ${TARGET_DIR}/etc/swupdate/conf.d
-	echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > ${TARGET_DIR}/etc/swupdate/conf.d/99-signing.conf
 fi
 
 if ${SD} ; then
