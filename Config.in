@@ -8,6 +8,14 @@ menu "Laird Connectivity"
 	  so they should set this flag to directly build from the closed
 	  source repositories under $BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH/package.
 
+	config BR2_SUMMIT_SECURE_BOOT
+	bool "Summit Secure Boot"
+	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	help
+	  This enables "traditional" (down to kernel) secure boot
+	  rootfs security provided by BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
+
+
 	menu "Radio Stack"
 		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/Config.in"
 	endmenu

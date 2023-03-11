@@ -20,6 +20,9 @@ esac
 grep -qF "BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
 	&& ENCRYPTED_TOOLKIT=true || ENCRYPTED_TOOLKIT=false
 
+grep -qF "BR2_SUMMIT_SECURE_BOOT=y" ${BR2_CONFIG} \
+	&& SECURE_BOOT=true || SECURE_BOOT=false
+
 # Create default firmware description file.
 # This may be overwritten by a proper release file.
 LOCRELSTR="${LAIRD_RELEASE_STRING}"
@@ -164,7 +167,7 @@ CCONF_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/configs-common/image)"
 CSCRIPT_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/scripts-common)"
 
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
-if ${ENCRYPTED_TOOLKIT} ; then
+if ${SECURE_BOOT} ; then
 	# Copy keys if present
 	if [ -f ${ENCRYPTED_TOOLKIT_DIR}/dev.key ]; then
 		ln -rsf ${ENCRYPTED_TOOLKIT_DIR} ${BINARIES_DIR}
@@ -172,17 +175,21 @@ if ${ENCRYPTED_TOOLKIT} ; then
 
 	# Copy the u-boot.its
 	ln -rsf ${CCONF_DIR}/u-boot-enc.its ${BINARIES_DIR}/u-boot.its
-	# Use verity boot script
-	ln -rsf ${CCONF_DIR}/boot_verity.scr ${BINARIES_DIR}/boot.scr
 
 	cp -f ${CCONF_DIR}/kernel-enc.its ${BINARIES_DIR}/kernel.its
 else
 	# Copy the u-boot.its
 	ln -rsf ${CCONF_DIR}/u-boot.its ${BINARIES_DIR}/u-boot.its
-	# Use standard boot script
-	ln -rsf ${CCONF_DIR}/boot.scr ${BINARIES_DIR}/boot.scr
 
 	cp -f ${CCONF_DIR}/kernel.its ${BINARIES_DIR}/kernel.its
+fi
+
+if ${ENCRYPTED_TOOLKIT} ; then
+	# Use verity boot script
+	ln -rsf ${CCONF_DIR}/boot_verity.scr ${BINARIES_DIR}/boot.scr
+else
+	# Use standard boot script
+	ln -rsf ${CCONF_DIR}/boot.scr ${BINARIES_DIR}/boot.scr
 fi
 
 if ${SD} ; then

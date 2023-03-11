@@ -34,6 +34,7 @@ echo "${BR2_LRD_PRODUCT^^} POST IMAGE SECURE script: starting..."
 BOARD_DIR="${1}"
 SWU_FILES="${2}"
 SWUPDATE_SIG="${3}"
+SD=${4:=false}
 
 # enable tracing and exit on errors
 set -x -e
@@ -46,14 +47,22 @@ veritysetup=${HOST_DIR}/sbin/veritysetup
 
 die() { echo "$@" >&2; exit 1; }
 
-test -x ${mkimage} || \
+grep -q SALT ${BINARIES_DIR}/boot.scr && SECURE_ROOTFS=true || SECURE_ROOTFS=false
+
+[ -x ${mkimage} ] || \
 	die "No mkimage found (uboot has not been built?)"
-test -x ${atmel_pmecc_params} || \
-	die "no atmel_pmecc_params found (uboot has not been built?)"
-test -x ${openssl} || \
+[ -x ${openssl} ] || \
 	die "no openssl found (host-openssl has not been built?)"
-test -x ${veritysetup} || \
+
+if ! ${SD} ; then
+[ -x ${atmel_pmecc_params} ] || \
+	die "no atmel_pmecc_params found (uboot has not been built?)"
+fi
+
+if ${SECURE_ROOTFS} ; then
+[ -x ${veritysetup} ] || \
 	die "No veritysetup found (host-cryptsetup has not been built?)"
+fi
 
 echo "# entering ${BINARIES_DIR} for this script"
 cd ${BINARIES_DIR}
@@ -73,23 +82,26 @@ mkdir -p unsecured_images
 cp -ft unsecured_images u-boot.dtb u-boot-spl.dtb
 
 # Backup kernel boot script (with no verity hash) for release artifacts
-cp boot.scr boot.scr.nohash
+cp -f boot.scr boot.scr.nohash
 
-# Generate the hash table for squashfs
-rm -f $rootfs.verity
-${veritysetup} format rootfs.squashfs rootfs.verity > rootfs.verity.header
-# Get the root hash
-HASH="$(awk '/Root hash:/ {print $3}' rootfs.verity.header)"
-SALT="$(awk '/Salt:/ {print $2}' rootfs.verity.header)"
-BLOCKS="$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)"
-SIZE=$((${BLOCKS} * 8))
-OFFSET=$((${BLOCKS} + 1))
+# Check if we are creating secure rootfs
+if ${SECURE_ROOTFS} ; then
+	# Generate the hash table for squashfs
+	rm -f $rootfs.verity
+	${veritysetup} format rootfs.squashfs rootfs.verity > rootfs.verity.header
+	# Get the root hash
+	HASH="$(awk '/Root hash:/ {print $3}' rootfs.verity.header)"
+	SALT="$(awk '/Salt:/ {print $2}' rootfs.verity.header)"
+	BLOCKS="$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)"
+	SIZE=$((${BLOCKS} * 8))
+	OFFSET=$((${BLOCKS} + 1))
 
-# Generate a combined rootfs
-cat rootfs.squashfs rootfs.verity > rootfs.bin
+	# Generate a combined rootfs
+	cat rootfs.squashfs rootfs.verity > rootfs.bin
 
-# Generate the kernel boot script
-sed -i -e "s/SALT/${SALT}/g" -e "s/HASH/${HASH}/g" -e "s/BLOCKS/${BLOCKS}/g" -e "s/SIZE/${SIZE}/g" -e "s/OFFSET/${OFFSET}/g" boot.scr
+	# Generate the kernel boot script
+	sed -i -e "s/SALT/${SALT}/g" -e "s/HASH/${HASH}/g" -e "s/BLOCKS/${BLOCKS}/g" -e "s/SIZE/${SIZE}/g" -e "s/OFFSET/${OFFSET}/g" boot.scr
+fi
 
 # Create Kernel FIT image, and store signature in u-boot
 ${mkimage} -f kernel.its kernel-nosig.itb
@@ -101,24 +113,27 @@ ${mkimage} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
 # Create final SPL FIT with appended keyed DTB
 cat u-boot-spl-nodtb.bin u-boot-spl.dtb > u-boot-spl.bin
 
-# Generate Atmel PMECC boot.bin from SPL
-${mkimage} -T atmelimage -n $(${atmel_pmecc_params}) -d u-boot-spl.bin boot.bin
-
-# Save off the raw PMECC header
-dd if=boot.bin of=pmecc.bin bs=208 count=1
+if ${SD} ; then
+	${mkimage} -T atmelimage -d ${BINARIES_DIR}/u-boot-spl.bin ${BINARIES_DIR}/boot.bin
+else
+	# Generate Atmel PMECC boot.bin from SPL
+	${mkimage} -T atmelimage -n $(${atmel_pmecc_params}) -d u-boot-spl.bin boot.bin
+	# Save off the raw PMECC header
+	dd if=boot.bin of=pmecc.bin bs=208 count=1
+fi
 
 # Restore unsecured components
 mv -ft ./ unsecured_images/*
 rm -rf unsecured_images/
 mv -f boot.scr.nohash boot.scr
 
-[ -f sw-description ] && have_swdesc=1 || have_swdesc=0
-[ -f sw-description-full ] && have_swdescf=1 || have_swdescf=0
+[ -f sw-description ] && have_swdesc=true || have_swdesc=false
+[ -f sw-description-full ] && have_swdescf=true || have_swdescf=false
 
 # Backup incoming sw-description* and restore prior to exit
 # Caller needs unprocessed versions for further use
-[ ${have_swdesc} -eq 1 ] && cp sw-description sw-description-saved
-[ ${have_swdescf} -eq 1 ] && cp sw-description-full sw-description-full-saved
+${have_swdesc} && cp sw-description sw-description-saved
+${have_swdescf} && cp sw-description-full sw-description-full-saved
 
 # Embed component hashes in SWU scripts
 for i in ${SWU_FILES/sw-description /}
@@ -127,21 +142,21 @@ do
 	component_sha="@${i}.sha256"
 	echo "${i}          ${sha_value}"
 
-	[ ${have_swdesc} -eq 0 ] || \
+	${have_swdesc} && \
 		sed -i -e "s/${component_sha}/${sha_value}/g" sw-description
 
-	[ ${have_swdescf} -eq 0 ] || \
+	${have_swdescf} && \
 		sed -i -e "s/${component_sha}/${sha_value}/g" sw-description-full
 
-	if [ ${i} == rootfs.bin ] || [ ${i} == kernel.itb ]; then
+	if [ "${i}" = rootfs.bin ] || [ "${i}" = kernel.itb ]; then
 		md5_value=$(md5sum $i | awk '{print $1}')
 		component_md5sum="@${i}.md5sum"
 		echo "${i}          ${md5_value}"
 
-		[ ${have_swdesc} -eq 0 ] || \
+		${have_swdesc} && \
 			sed -i -e "s/${component_md5sum}/${md5_value}/g" sw-description
 
-		[ ${have_swdescf} -eq 0 ] || \
+		${have_swdescf} && \
 			sed -i -e "s/${component_md5sum}/${md5_value}/g" sw-description-full
 	fi
 done
@@ -154,7 +169,7 @@ fi
 SWU_FILE_STR="${ALL_SWU_FILES// /\\n}"
 
 # Generate partial SWU (no bootloaders)
-if [ ${have_swdesc} -ne 0 ]; then
+if ${have_swdesc} ; then
 	case "${SWUPDATE_SIG}" in
 	cms)
 		${openssl} cms -sign -in sw-description -out sw-description.sig \
@@ -171,7 +186,7 @@ if [ ${have_swdesc} -ne 0 ]; then
 fi
 
 # Generate full SWU (with bootloaders)
-if [ ${have_swdescf} -ne 0 ]; then
+if ${have_swdescf} ; then
 	mv -f sw-description-full sw-description
 
 	case "${SWUPDATE_SIG}" in
@@ -189,8 +204,8 @@ if [ ${have_swdescf} -ne 0 ]; then
 	rm -f sw-description.sig
 fi
 
-[ ${have_swdesc} -eq 1 ] && mv -f sw-description-saved sw-description
-[ ${have_swdescf} -eq 1 ] && mv -f sw-description-full-saved sw-description-full
+${have_swdesc} && mv -f sw-description-saved sw-description
+${have_swdescf} && mv -f sw-description-full-saved sw-description-full
 
 cd -
 

@@ -19,11 +19,13 @@ esac
 grep -qF "BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
 	&& ENCRYPTED_TOOLKIT=true || ENCRYPTED_TOOLKIT=false
 
+grep -qF "BR2_SUMMIT_SECURE_BOOT=y" ${BR2_CONFIG} \
+	&& SECURE_BOOT=true || SECURE_BOOT=false
+
 # Tooling checks
 mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
 atmel_pmecc_params=${BUILD_DIR}/uboot-custom/tools/atmel_pmecc_params
 mkenvimage=${BUILD_DIR}/uboot-custom/tools/mkenvimage
-
 fipshmac=${HOST_DIR}/bin/fipshmac
 
 die() { echo "$@" >&2; exit 1; }
@@ -91,12 +93,15 @@ fi
 
 ALL_SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
 
-if ! ${ENCRYPTED_TOOLKIT} ; then
+if ! ${SECURE_BOOT} ; then
 	# Generate non-secured artifacts
 	echo "# entering ${BINARIES_DIR} for the next command"
 	(cd ${BINARIES_DIR} && ${mkimage} -f kernel.its kernel.itb && ${mkimage} -f u-boot.its u-boot.itb) || exit 1
 	cat "${BINARIES_DIR}/u-boot-spl-nodtb.bin" "${BINARIES_DIR}/u-boot-spl.dtb" > "${BINARIES_DIR}/u-boot-spl.bin"
-	if ! ${SD} ; then
+
+	if ${SD} ; then
+		${mkimage} -T atmelimage -d ${BINARIES_DIR}/u-boot-spl.bin ${BINARIES_DIR}/boot.bin
+	else
 		[ -x ${atmel_pmecc_params} ] || \
 			die "no atmel_pmecc_params found (uboot has not been built?)"
 
@@ -111,7 +116,7 @@ if ! ${ENCRYPTED_TOOLKIT} ; then
 	fi
 else
 	# Generate all secured artifacts (NAND, SWU packages)
-	"${BOARD_DIR}/../post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}"
+	"${BOARD_DIR}/../post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
 fi
 
 size_check () {
@@ -127,34 +132,52 @@ else
 	RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird.tar"
 fi
 
-if ! ${SD} ; then
-	tar -C ${BINARIES_DIR} -chf ${RELEASE_FILE} \
-		boot.bin u-boot.itb kernel.itb rootfs.bin ${BR2_LRD_PRODUCT}.swu
+tar -C ${BINARIES_DIR} -chf ${RELEASE_FILE} \
+	--owner=root --group=root \
+	boot.bin u-boot.itb kernel.itb
+
+if ${SECURE_BOOT} ; then
+	tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+		u-boot-spl.dtb u-boot-spl-nodtb.bin u-boot.dtb \
+		u-boot-nodtb.bin u-boot.its boot.scr
+
+	tar -C ${HOST_DIR}/usr/bin -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+		fdtget fdtput
+
+	tar -C ${BUILD_DIR}/uboot-custom/tools -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+		mkimage
+fi
+
+if ${SD} ; then
+	tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+		uboot.env rootfs.tar mksdcard.sh mksdimg.sh
+else
+	tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+		rootfs.bin ${BR2_LRD_PRODUCT}.swu
+
+	if ${SECURE_BOOT} ; then
+		tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
+			--owner=root --group=root \
+			pmecc.bin uboot.env erase_data.sh sw-description
+	fi
 
 	if ${ENCRYPTED_TOOLKIT} ; then
 		DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' ${BINARIES_DIR}/kernel.its)
 		tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
-			--owner=0 --group=0 --numeric-owner \
-			pmecc.bin u-boot-spl.dtb u-boot-spl-nodtb.bin u-boot.dtb \
-			u-boot-nodtb.bin u-boot.its u-boot.scr.itb uboot.env \
-			Image.gz "${DTB}" boot.scr kernel.its \
-			sw-description rootfs.verity erase_data.sh
+			--owner=root --group=root \
+			u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity
 
 		tar -C ${HOST_DIR}/usr/bin -rhf ${RELEASE_FILE} \
-			--owner=0 --group=0 --numeric-owner \
-			fdtget fdtput fscryptctl
-
-		tar -C ${BUILD_DIR}/uboot-custom/tools -rhf ${RELEASE_FILE} \
-			--owner=0 --group=0 --numeric-owner \
-			mkimage
+			--owner=root --group=root \
+			fscryptctl
 	fi
-
-	bzip2 -f ${RELEASE_FILE}
-else
-	tar -C ${BINARIES_DIR} -chjf ${RELEASE_FILE}.bz2 \
-		--owner=0 --group=0 --numeric-owner \
-		u-boot-spl.bin u-boot.itb uboot.env kernel.itb rootfs.tar \
-		mksdcard.sh mksdimg.sh
 fi
+
+bzip2 -f ${RELEASE_FILE}
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
