@@ -133,54 +133,30 @@ create_bcm4373_usb_usb_firmware_archive()
 
 create_60_firmware_archive()
 {
-	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_${1^^}60_${2^^}_${3^^}=y" ${BR2_CONFIG} || return
+	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_${1^^}_${2^^}_${3^^}=y" ${BR2_CONFIG} || return
 
 	local FW_FILE=$(basename ${FW_DIR}/lrdmwl/88W8997_${1}_${2}_${3}_*.bin)
-	[ "${1}" == "SU" ] && FW_PROD=summit60 || FW_PROD=sterling60
+	FW_PROD=${1^^^}
 
 	ln -rsf ${FW_DIR}/lrdmwl/${FW_FILE} ${FW_DIR}/lrdmwl/88W8997_${2}.bin
 	ln -rsf ${FW_DIR}/regulatory_${FW_PROD}.db ${FW_DIR}/regulatory.db
 	ln -rsf ${FW_DIR}/lrdmwl/regpwr_60.db ${FW_DIR}/lrdmwl/regpwr.db
 
-	tar -cjf "${BINARIES_DIR}/laird-${FW_PROD}-firmware-${2}-${3}${RELEASE_SUFFIX}.tar.bz2" \
+	tar -cjf "${BINARIES_DIR}/laird-${FW_PROD}-radio-firmware-${2}-${3}${RELEASE_SUFFIX}.tar.bz2" \
 		-C ${TARGET_DIR} \
 		--owner=0 --group=0 --numeric-owner \
 		lib/firmware/lrdmwl/88W8997_${2}.bin \
 		lib/firmware/lrdmwl/${FW_FILE} \
 		lib/firmware/lrdmwl/regpwr_60.db lib/firmware/lrdmwl/regpwr.db \
 		lib/firmware/regulatory_${FW_PROD}.db lib/firmware/regulatory.db
-
 }
 
-create_60_firmware_archive ST sdio uart
-create_60_firmware_archive ST sdio sdio
-create_60_firmware_archive ST pcie uart
-create_60_firmware_archive ST pcie usb
-create_60_firmware_archive ST usb uart
-create_60_firmware_archive ST usb usb
-
-create_60_firmware_archive SU sdio uart
-create_60_firmware_archive SU sdio sdio
-create_60_firmware_archive SU pcie uart
-create_60_firmware_archive SU pcie usb
-create_60_firmware_archive SU usb uart
-create_60_firmware_archive SU usb usb
-
-if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_SOM60=y" ${BR2_CONFIG}; then
-	FW_FILE=$(basename ${FW_DIR}/lrdmwl/88W8997_SOM_sdio_uart_*.bin)
-
-	ln -rsf ${FW_DIR}/lrdmwl/${FW_FILE} ${FW_DIR}/lrdmwl/88W8997_sdio.bin
-	ln -rsf ${FW_DIR}/regulatory_summit60.db ${FW_DIR}/regulatory.db
-	ln -rsf ${FW_DIR}/lrdmwl/regpwr_60.db ${FW_DIR}/lrdmwl/regpwr.db
-
-	tar -cjf "${BINARIES_DIR}/laird-som60-radio-firmware${RELEASE_SUFFIX}.tar.bz2" \
-		-C ${TARGET_DIR} \
-		--owner=0 --group=0 --numeric-owner \
-		lib/firmware/lrdmwl/88W8997_sdio.bin \
-		lib/firmware/lrdmwl/${FW_FILE} \
-		lib/firmware/lrdmwl/regpwr_60.db lib/firmware/lrdmwl/regpwr.db \
-		lib/firmware/regulatory_summit60.db lib/firmware/regulatory.db
-fi
+create_60_firmware_archive 60 sdio uart
+create_60_firmware_archive 60 sdio sdio
+create_60_firmware_archive 60 pcie uart
+create_60_firmware_archive 60 pcie usb
+create_60_firmware_archive 60 usb uart
+create_60_firmware_archive 60 usb usb
 
 if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_SOM8MP=y" ${BR2_CONFIG}; then
 	ln -rsf ${FW_DIR}/lrdmwl/88W8997_SOM8MP_sdio_uart_*.bin ${FW_DIR}/lrdmwl/88W8997_sdio.bin
