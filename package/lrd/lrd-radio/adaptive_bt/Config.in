@@ -1,6 +1,6 @@
 config BR2_PACKAGE_ADAPTIVE_BT
 	bool "Adaptive Bluetooth Power Service"
-	depends on BR2_PACKAGE_BLUEZ5_UTILS || BR2_PACKAGE_BLUEZ_UTILS
+	select BR2_PACKAGE_BLUEZ5_UTILS_HEADERS
 	select BR2_PACKAGE_LIBNL
 	help
 		Laird Connectivity 60 Series Radio's Adaptive Bluetooth Power Control
