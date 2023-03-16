@@ -2,20 +2,10 @@
 
 MAC_ADDRESS_PARAM_LEN=17
 
-. /etc/os-release
-case "${ID}" in
-*wbx3)
-        fw_opt="-c /etc/fw_env_flash.config"
-        ;;
-*)
-        fw_opt=
-        ;;
-esac
-
 usage()
 {
-	echo "usage: write: ${0##*/} [-f] [xx:xx:xx:xx:xx:xx]"
-	echo "       read: ${0##*/}"
+	echo "usage: write: ${0##*/} [-nand] [-f] [xx:xx:xx:xx:xx:xx]"
+	echo "       read: ${0##*/} [-nand]"
 }
 
 read_mac()
@@ -40,9 +30,10 @@ write_macs()
 	fi
 }
 
-
+fw_opt=
 enable_write=false
 
+[ "${1}" = "-nand" ] && shift && fw_opt="-c /etc/fw_env_flash.config"
 [ "${1}" = "-f" ] && shift && enable_write=true
 
 [ "${#}" -eq "0" ] && print_macs && exit
