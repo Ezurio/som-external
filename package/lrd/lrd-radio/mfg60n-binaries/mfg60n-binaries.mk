@@ -26,11 +26,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_MFG60N_BINARIES_REGULATORY),y)
 
-ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS),y)
-define MFG60N_BINARIES_BTLRU_INSTALL_TARGET_CMD
-	$(INSTALL) -D -m 755 $(@D)/files/btlru $(TARGET_DIR)/usr/bin/btlru
-endef
-else ifeq ($(BR2_PACKAGE_BLUEZ_UTILS),y)
+ifneq ($(BR2_PACKAGE_BLUEZ5_UTILS)$(BR2_PACKAGE_BLUEZ4_UTILS),)
 define MFG60N_BINARIES_BTLRU_INSTALL_TARGET_CMD
 	$(INSTALL) -D -m 755 $(@D)/files/btlru $(TARGET_DIR)/usr/bin/btlru
 endef

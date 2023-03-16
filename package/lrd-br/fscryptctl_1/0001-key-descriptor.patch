@@ -1,0 +1,45 @@
+--- a/fscryptctl.c	2017-09-13 00:54:54.000000000 +0800
++++ b/fscryptctl.c	2020-02-24 11:44:52.754186717 +0800
+@@ -136,6 +136,8 @@
+       "            for use with an ext4 filesystem before kernel v4.8\n"
+       "        --f2fs\n"
+       "            for use with an F2FS filesystem before kernel v4.6\n"
++      "        --desc=<desc>\n"
++      "            Customize key descriptor\n"
+       "    set_policy\n"
+       "        --contents=<mode>\n"
+       "            contents encryption mode (default: AES-256-XTS)\n"
+@@ -362,9 +364,11 @@
+   static const struct option insert_key_options[] = {
+       {"ext4", no_argument, NULL, 'e'},
+       {"f2fs", no_argument, NULL, 'f'},
++      {"desc", required_argument, NULL, 'd'},
+       {NULL, 0, NULL, 0}};
+ 
+   int ch;
++  char descriptor[FS_KEY_DESCRIPTOR_HEX_SIZE] = {0};
+   while ((ch = getopt_long(argc, argv, "", insert_key_options, NULL)) != -1) {
+     switch (ch) {
+       case 'e':
+@@ -373,6 +377,9 @@
+       case 'f':
+         service_prefix = F2FS_KEY_DESC_PREFIX;
+         break;
++      case 'd':
++	strncpy(descriptor, optarg, FS_KEY_DESCRIPTOR_HEX_SIZE);
++        break;
+       default:
+         usage(stderr);
+     }
+@@ -391,8 +398,9 @@
+     goto cleanup;
+   }
+ 
+-  char descriptor[FS_KEY_DESCRIPTOR_HEX_SIZE];
+-  compute_descriptor(key, descriptor);
++  if (strlen(descriptor) <= 0) {
++    compute_descriptor(key, descriptor);
++  }
+   if (insert_logon_key(key, descriptor, service_prefix)) {
+     fprintf(stderr, "error: inserting key: %s\n", strerror(errno));
+     ret = EXIT_FAILURE;

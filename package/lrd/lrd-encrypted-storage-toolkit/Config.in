@@ -3,8 +3,8 @@ config BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
 	select BR2_SUMMIT_SECURE_BOOT
 	select BR2_PACKAGE_KEYUTILS
 	select BR2_PACKAGE_HOST_CRYPTSETUP
-	select BR2_PACKAGE_FSCRYPTCTL
-	select BR2_PACKAGE_HOST_FSCRYPTCTL
+	select BR2_PACKAGE_FSCRYPTCTL_1
+	select BR2_PACKAGE_HOST_FSCRYPTCTL_1
 	help
 	  Toolkit for implementing Laird's U-Boot encryption
 	  with Linux per directory encryption. This is part of

@@ -12,6 +12,9 @@ else
 LRD_LINUX_BACKPORTS_VERSION = $(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE))
 endif
 
+LRD_LINUX_BACKPORTS_MINIMAL_KVER_MAJOR = 3
+LRD_LINUX_BACKPORTS_MINIMAL_KVER_MINOR = 0
+
 LRD_LINUX_BACKPORTS_SOURCE = backports-laird-$(LRD_LINUX_BACKPORTS_VERSION).tar.bz2
 BR_NO_CHECK_HASH_FOR += $(LRD_LINUX_BACKPORTS_SOURCE)
 
@@ -122,11 +125,18 @@ $(LRD_LINUX_BACKPORTS_DIR)/$(LRD_LINUX_BACKPORTS_KCONFIG_STAMP_DOTCONFIG): $(LRD
 .SECONDEXPANSION:
 $(LRD_LINUX_BACKPORTS_DIR)/.stamp_check_kernel_version: $$(LINUX_DIR)/$$(LINUX_KCONFIG_STAMP_DOTCONFIG) | linux
 	$(Q)KVER=$(LINUX_VERSION_PROBED); \
+	MIN_KVER_MAJOR=$(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MAJOR); \
+	MIN_KVER_MINOR=$(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MINOR); \
 	KVER_MAJOR=`echo $${KVER} | sed 's/^\([0-9]*\)\..*/\1/'`; \
 	KVER_MINOR=`echo $${KVER} | sed 's/^[0-9]*\.\([0-9]*\).*/\1/'`; \
-	if [ $${KVER_MAJOR} -lt 3 -o \( $${KVER_MAJOR} -eq 3 -a $${KVER_MINOR} -lt 0 \) ]; then \
-		printf "Linux version '%s' is too old for lrd-linux-backports (needs 3.0 or later)\n" \
-			"$${KVER}"; \
+	if [ $${KVER_MAJOR} -lt $(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MAJOR) \
+		-o \( $${KVER_MAJOR} -eq $(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MAJOR) \
+			-a $${KVER_MINOR} -lt $(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MINOR) \
+		\) ]; then \
+		printf "Linux version '%s' is too old for linux-backports (needs %s.%s or later)\n" \
+			"$${KVER}" \
+			"$(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MAJOR)" \
+			"$(LRD_LINUX_BACKPORTS_MINIMAL_KVER_MINOR)"; \
 		exit 1; \
 	fi
 	$(Q)touch $(@)

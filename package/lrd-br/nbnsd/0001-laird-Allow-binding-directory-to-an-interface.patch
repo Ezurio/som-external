@@ -1,0 +1,27 @@
+From bd6cdb5866f29a06f0d23b14b5a6775ea379b9e8 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@lairdtech.com>
+Date: Fri, 21 Apr 2017 14:06:37 +0100
+Subject: [PATCH] laird: Allow binding directory to an interface
+
+---
+ nbnsd.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/nbnsd.c b/nbnsd.c
+index cd1d2ea..cefbcff 100644
+--- a/nbnsd.c
++++ b/nbnsd.c
+@@ -292,6 +292,10 @@ main (int argc, char **argv)
+     fprintf (stderr, "%s: failed to turn on SO_REUSEADDR on port %d (%s)\n",
+       prog_name, port, strerror (errno));
+
++  if (setsockopt (sd, SOL_SOCKET, SO_BINDTODEVICE, netdev, strlen(netdev)+1))
++    fprintf (stderr, "%s: failed to turn on SO_BINDTODEVICE on port %d (%s)\n",
++      prog_name, port, strerror (errno));
++
+   ret = bind (sd, (struct sockaddr*) &sin, sizeof (sin));
+   if (ret < 0)
+     {
+--
+2.7.4
+

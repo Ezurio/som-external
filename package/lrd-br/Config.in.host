@@ -1,4 +1,4 @@
-source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/composer/Config.in.host"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/backports/Config.in.host"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/backports-test/Config.in.host"
-
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/composer/Config.in.host"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/fscryptctl_1/Config.in.host"

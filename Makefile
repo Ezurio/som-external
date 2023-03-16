@@ -18,7 +18,7 @@ TARGETS = \
 	som60sd_fips_dev_dbg som60x2sd_fips_dev_dbg \
 	ig60ll ig60llsd	ig60sd-wbx3 \
 	bdimx6_rdvk \
-	som60_toolchain wb4x_toolchain
+	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain
 
 TARGETS_COMPONENT_all = mfg60n  regLWB5plus regLWBplus regLWB6x\
 	summit_supplicant summit_supplicant_openssl_1_0_2 \

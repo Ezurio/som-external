@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Minimal NetBIOS responder.
+#
+
+start() {
+    echo -n "Starting nbnsd services: "
+    nbnsd -i eth0 &
+    nbnsd -i wlan0 &
+    echo "done"
+}
+
+stop() {
+    echo -n "Shutting down nbnsd services: "
+    kill -9 `pidof nbnsd`
+    echo "done"
+}
+
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|reload}"
+        exit 1
+esac
+
+exit $?

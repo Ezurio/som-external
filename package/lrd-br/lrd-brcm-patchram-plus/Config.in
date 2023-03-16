@@ -1,6 +1,6 @@
 config BR2_PACKAGE_LRD_BRCM_PATCHRAM_PLUS
 	bool "lrd-brcm-patchram-plus"
-	depends on BR2_PACKAGE_BLUEZ5_UTILS || BR2_PACKAGE_BLUEZ_UTILS
+	depends on BR2_PACKAGE_BLUEZ5_UTILS || BR2_PACKAGE_BLUEZ4_UTILS
 	help
 	  Broadcom utility to flash Bluetooth firmwares, extended with
 	  per-device Low Power Mode configuration.
