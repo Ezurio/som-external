@@ -1,11 +1,17 @@
 #!/bin/sh
 
 MAC_ADDRESS_PARAM_LEN=17
+fw_opt=
+enable_write=false
+writes="1 2"
 
 usage()
 {
-	echo "usage: write: ${0##*/} [-nand] [-f] [xx:xx:xx:xx:xx:xx]"
-	echo "       read: ${0##*/} [-nand]"
+	echo "usage: write: ${0##*/} [-nand] [-f] [-s] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
+	echo "       read:  ${0##*/} [-nand]"
+	echo "-nand - uses uboot environment blocks in NAND"
+	echo "-f    - writes addresses into uboot environment
+	echo "-s    - writes only once (programs only single block)
 }
 
 read_mac()
@@ -21,27 +27,35 @@ print_macs()
 write_macs()
 {
 	mac1="${1}"
-	enable_write="${2}"
+
 	if "${enable_write}"; then
-		fw_setenv ${fw_opt} ethaddr "${mac1}"
+		for i in ${writes} ; do
+			fw_setenv ${fw_opt} ethaddr "${mac1}"
+		done
 	else
 		printf "simulate write Eth0: %s\n" "${mac1}"
 		printf "(specify -f to write)\n"
 	fi
 }
 
-fw_opt=
-enable_write=false
-
 [ "${1}" = "-nand" ] && shift && fw_opt="-c /etc/fw_env_flash.config"
 [ "${1}" = "-f" ] && shift && enable_write=true
+[ "${1}" = "-s" ] && shift && writes="1"
 
 [ "${#}" -eq "0" ] && print_macs && exit
 [ "${#}" -ne "1" ] && usage && exit
 
-MAC_ADDRESS="${1}"
+# Support MAC address from bar code scanner (without ':'), production request
+case "${1}" in
+	*:*)
+		MAC_ADDRESS="${1}"
+		;;
+	*)
+		MAC_ADDRESS=$(echo "${1}" | sed 's/../&:/g;s/:$//')
+		;;
+esac
 
 [ "${#MAC_ADDRESS}" -ne "${MAC_ADDRESS_PARAM_LEN}" ] && usage && exit
 
-write_macs "${MAC_ADDRESS}" ${enable_write}
+write_macs "${MAC_ADDRESS}"
 print_macs
