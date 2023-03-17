@@ -10,8 +10,8 @@ usage()
 	echo "usage: write: ${0##*/} [-nand] [-f] [-s] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
 	echo "       read:  ${0##*/} [-nand]"
 	echo "-nand - uses uboot environment blocks in NAND"
-	echo "-f    - writes addresses into uboot environment
-	echo "-s    - writes only once (programs only single block)
+	echo "-f    - writes addresses into uboot environment"
+	echo "-s    - writes only once (programs only single block)"
 }
 
 read_mac()
