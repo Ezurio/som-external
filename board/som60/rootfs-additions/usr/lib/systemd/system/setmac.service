@@ -3,14 +3,15 @@
 
 [Unit]
 Description=Set Ethernet controller MAC addresses
+ConditionPathExists=/boot
+RequiresMountsFor=/boot
 After=local-fs.target
 Before=network-pre.target
 Wants=network-pre.target
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/setmac-service.sh
+ExecStart=/usr/bin/setmac.sh
 
 [Install]
 WantedBy=network.target

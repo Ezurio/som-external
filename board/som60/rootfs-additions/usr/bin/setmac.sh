@@ -1,16 +1,38 @@
 #!/bin/sh
 
-case "${DEVPATH}" in
-*/f0028000.ethernet/*)
-    mac="$(fw_printenv -n ethaddr)"
-    ;;
-*/f802c000.ethernet/*)
-    mac="$(fw_printenv -n eth1addr)"
-    ;;
-*)
-    echo "unrecognized device ${DEVPATH}"
-    exit
-    ;;
-esac
+get_macb_interface() {
+    ls "${1}"
+}
 
-[ -n "${mac}" ] && ip link set "${INTERFACE}" address "${mac}"
+set_mac() {
+    # $1 - macb_device
+    # $2 - uboot env var
+    [ -n "${1}" ] || return
+
+    macb_address="$(fw_printenv -n "${2}")"
+    if [ -n "${macb_address}" ]; then
+        ip link set "${1}" address "${macb_address}"
+    else
+        echo "uboot mac address variable ${2} unset"
+    fi
+}
+
+if [ -n "${INTERFACE}" ]; then
+    # running from udev
+    case "${DEVPATH}" in
+    */f0028000.ethernet/*)
+        set_mac "${INTERFACE}" ethaddr
+        ;;
+    */f802c000.ethernet/*)
+        set_mac "${INTERFACE}" eth1addr
+        ;;
+    *)
+        echo "unrecognized device ${DEVPATH}"
+        exit
+        ;;
+    esac
+else
+    # running from service
+    set_mac "$(get_macb_interface "/sys/devices/platform/ahb/ahb:apb/f0028000.ethernet/net/")" ethaddr
+    set_mac "$(get_macb_interface "/sys/devices/platform/ahb/ahb:apb/f802c000.ethernet/net/")" eth1addr
+fi
