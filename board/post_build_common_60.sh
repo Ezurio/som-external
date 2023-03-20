@@ -45,6 +45,9 @@ echo -ne \
 # Copy the product specific rootfs additions, strip host user access control
 rsync -rlptDWK --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${TARGET_DIR}"
 
+[ -f ${BINARIES_DIR}/u-boot-initial-env ] && \
+	cp -ft ${TARGET_DIR}/etc ${BINARIES_DIR}/u-boot-initial-env
+
 if ${SD}; then
 	if [ -f ${TARGET_DIR}/usr/lib/libsystemd.so ]; then
 		echo '/dev/root / auto rw,noatime 0 1' > ${TARGET_DIR}/etc/fstab
@@ -150,7 +153,7 @@ rm -f ${TARGET_DIR}/usr/lib/systemd/system/swupdate-progress.service
 rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
 
 # No need to start swupdate service automatically, it will start by socket
-if [ -f ${TARGET_DIR}/usr/lib/systemd ]; then
+if [ -d ${TARGET_DIR}/usr/lib/systemd/system-preset ]; then
 	echo "disable swupdate.service" > ${TARGET_DIR}/usr/lib/systemd/system-preset/50-swupdate.preset
 fi
 
