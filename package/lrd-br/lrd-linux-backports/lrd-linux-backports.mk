@@ -120,7 +120,7 @@ $(eval $(kconfig-package))
 $(LRD_LINUX_BACKPORTS_DIR)/$(LRD_LINUX_BACKPORTS_KCONFIG_STAMP_DOTCONFIG): $(LRD_LINUX_BACKPORTS_DIR)/.stamp_check_kernel_version
 
 .SECONDEXPANSION:
-$(LRD_LINUX_BACKPORTS_DIR)/.stamp_check_kernel_version: $$(LINUX_DIR)/$$(LINUX_KCONFIG_STAMP_DOTCONFIG) linux
+$(LRD_LINUX_BACKPORTS_DIR)/.stamp_check_kernel_version: $$(LINUX_DIR)/$$(LINUX_KCONFIG_STAMP_DOTCONFIG) | linux
 	$(Q)KVER=$(LINUX_VERSION_PROBED); \
 	KVER_MAJOR=`echo $${KVER} | sed 's/^\([0-9]*\)\..*/\1/'`; \
 	KVER_MINOR=`echo $${KVER} | sed 's/^[0-9]*\.\([0-9]*\).*/\1/'`; \
