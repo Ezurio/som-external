@@ -23,6 +23,9 @@ for x in ${cmdline}; do
 	esac
 done
 
+chmod 644 /dev/hwrng
+
+
 [ -f /proc/sys/crypto/fips_enabled ] &&
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
