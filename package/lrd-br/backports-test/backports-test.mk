@@ -30,7 +30,7 @@ endif
 
 define HOST_BACKPORTS_TEST_BUILD_CMDS
 	$(HOST_MAKE_ENV) $(BACKPORTS_TEST_TOOLDIR)/backports-update-manager --yes --lrd-repo
-	cd $(@D); $(HOST_MAKE_ENV) $(BACKPORTS_TEST_TOOLDIR)/ckmake --defconfig=regression-test --nocurses
+	cd $(@D); $(HOST_CONFIGURE_OPTS) $(BACKPORTS_TEST_TOOLDIR)/ckmake --defconfig=regression-test --nocurses
 endef
 
 $(eval $(host-generic-package))
