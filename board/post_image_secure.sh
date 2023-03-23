@@ -34,7 +34,7 @@ echo "${BR2_LRD_PRODUCT^^} POST IMAGE SECURE script: starting..."
 BOARD_DIR="${1}"
 SWU_FILES="${2}"
 SWUPDATE_SIG="${3}"
-SD=${4:=false}
+SD=${4:-false}
 
 # enable tracing and exit on errors
 set -x -e
