@@ -3,13 +3,6 @@
 # SDC Supplicant
 #
 #############################################################
-
-ifeq ($(BR2_PACKAGE_SDCSUPP_LEGACY),y)
-SDCSUPP_LEGACY=y
-else ifeq ($(BR2_PACKAGE_LRD_LEGACY),y)
-SDCSUPP_LEGACY=y
-endif
-
 ifneq ($(BR2_LRD_NO_RADIO)$(BR2_LRD_DEVEL_BUILD),)
 # development build, or non-development rdvk using local/latest source
 SDCSUPP_VERSION = local
@@ -19,9 +12,6 @@ SDCSUPP_SITE_METHOD = local
 else
 SDCSUPP_VERSION = $(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE))
 SDCSUPP_SOURCE = summit_supplicant-src-$(SDCSUPP_VERSION).tar.gz
-# This is needed for libnl to be brought into staging for sdcsdk users
-SDCSUPP_INSTALL_STAGING = YES
-
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
 SDCSUPP_SITE = https://files.devops.rfpros.com/builds/linux/summit_supplicant/laird/$(SDCSUPP_VERSION)
 else
@@ -30,6 +20,7 @@ endif
 
 endif
 
+SDCSUPP_INSTALL_STAGING = YES
 SDCSUPP_LICENSE = BSD-3-Clause
 
 SDCSUPP_DBUS_NEW_SERVICE = fi.w1.wpa_supplicant1
@@ -66,7 +57,7 @@ SDCSUPP_FIPS += CONFIG_FIPS_LAIRD=y
 endif
 endif
 
-ifeq ($(SDCSUPP_LEGACY),y)
+ifeq ($(BR2_PACKAGE_SDCSUPP_LEGACY),y)
 ifeq ($(SDCSUPP_VERSION),local)
 	SDCSUPP_DEPENDENCIES += sdcsdk
 endif
@@ -97,7 +88,7 @@ define SDCSUPP_INSTALL_WPA_PASSPHRASE
 endef
 endif
 
-ifneq ($(SDCSUPP_LEGACY),y)
+ifneq ($(BR2_PACKAGE_SDCSUPP_LEGACY),y)
 
 ifeq ($(BR2_PACKAGE_WPA_SUPPLICANT),y)
 	# both wpa_supplicant and sdcsupp installed, postfix to avoid collision
