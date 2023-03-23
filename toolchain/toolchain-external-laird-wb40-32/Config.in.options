@@ -1,0 +1,9 @@
+if BR2_TOOLCHAIN_EXTERNAL_LAIRD_WB40_32
+
+config BR2_TOOLCHAIN_EXTERNAL_PREFIX
+	default "arm-laird-linux-gnueabi"
+
+config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
+	default "toolchain-external-laird-wb40-32"
+
+endif

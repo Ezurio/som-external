@@ -1,0 +1,9 @@
+if BR2_TOOLCHAIN_EXTERNAL_LAIRD_BDIMX6
+
+config BR2_TOOLCHAIN_EXTERNAL_PREFIX
+	default "arm-laird-linux-gnueabihf"
+
+config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
+	default "toolchain-external-laird-bdimx6"
+
+endif

@@ -33,3 +33,5 @@ endmenu
 
 source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-arm/Config.in.options"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-component/Config.in.options"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-bdimx6/Config.in.options"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-wb40-32/Config.in.options"

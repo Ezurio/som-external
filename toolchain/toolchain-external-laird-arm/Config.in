@@ -13,16 +13,16 @@ if BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM
 
 choice
 	prompt "Toolchain Version"
-	default BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_10
+	default BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_11
 	help
 	  Select the version of the toolchain you wish to use.
 
-config BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_10
-	bool "Laird 10.x (2022.02) toolchain"
-	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_10
-	select BR2_TOOLCHAIN_GCC_AT_LEAST_11
+config BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_11
+	bool "Laird 11.x (2023.02) toolchain"
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_1
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_12
 	help
-	  GCC 11.3.0, GDB 10.2.0, glibc-2.34+, headers-5.10.0, binutils 2.37
+	  GCC 12.2.0, GDB 12.0.0, glibc-2.36+, headers-6.1.0, binutils 2.39
 
 config BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_7
 	bool "Laird 7.x (2019.02) toolchain"
@@ -37,7 +37,7 @@ endchoice
 
 config BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_VERSION
 	string
-	default 10.0.0.174 if BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_10
+	default 11.0.0.17 if BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_11
 	default 7.0.0.518 if BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_7
 
 endif
