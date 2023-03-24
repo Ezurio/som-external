@@ -1,0 +1,16 @@
+config BR2_PACKAGE_NGINX_UNIT
+	bool "nginx-unit"
+	help
+	  NGINX Unit – universal web app server – a lightweight and versatile
+	  open source server project that works as a reverse proxy, serves
+	  static assets, and runs applications in multiple languages.
+
+	  https://unit.nginx.org/
+
+if BR2_PACKAGE_NGINX_UNIT
+
+config BR2_PACKAGE_NGINX_UNIT_PYTHON_APP
+	bool "Python application support"
+	select BR2_PACKAGE_PYTHON3
+
+endif

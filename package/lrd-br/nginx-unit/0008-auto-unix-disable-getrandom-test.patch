@@ -1,0 +1,18 @@
+--- a/auto/unix	2023-03-14 22:45:53.493095149 -0400
++++ b/auto/unix	2023-03-14 22:45:34.604843429 -0400
+@@ -8,6 +8,7 @@
+ nxt_feature="getrandom()"
+ nxt_feature_name=NXT_HAVE_GETRANDOM
+ nxt_feature_run=yes
++nxt_feature_run_force_result=
+ nxt_feature_incs=
+ nxt_feature_libs=
+ nxt_feature_test="#include <unistd.h>
+@@ -31,6 +32,7 @@
+ 
+     nxt_feature="SYS_getrandom in Linux"
+     nxt_feature_name=NXT_HAVE_LINUX_SYS_GETRANDOM
++    nxt_feature_run_force_result=yes
+     nxt_feature_test="#include <unistd.h>
+                       #include <sys/syscall.h>
+                       #include <linux/random.h>

@@ -10,6 +10,7 @@ source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/lrd-brcm-patchram-plus/Config.
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/microxml/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/minehunt/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/nbnsd/Config.in"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/nginx-unit/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/node-ssl-shim/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/python-dtlssocket/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/python-gatt/Config.in"

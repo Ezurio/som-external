@@ -1,0 +1,85 @@
+--- a/auto/feature	2023-02-28 09:52:32.000000000 -0500
++++ b/auto/feature	2023-03-13 14:30:01.199654416 -0400
+@@ -51,40 +51,68 @@
+     case "$nxt_feature_run" in
+ 
+         value)
+-            if /bin/sh -c "($NXT_AUTOTEST)" >> $NXT_AUTOCONF_ERR 2>&1; then
+-                $echo >> $NXT_AUTOCONF_ERR
++            if test -n "$nxt_feature_run_force_result" ; then
++                $echo " not tested (maybe cross-compiling)"
++                cat << END >> $NXT_AUTO_CONFIG_H
++
++#ifndef $nxt_feature_name
++#define $nxt_feature_name  $nxt_feature_run_force_result
++#endif
++
++END
+                 nxt_found=yes
+-                nxt_feature_value=`$NXT_AUTOTEST`
+-                $echo " $nxt_feature_value"
+-                if [ -n "$nxt_feature_name" ]; then
+-                    cat << END >> $NXT_AUTO_CONFIG_H
++            else
++                if /bin/sh -c "($NXT_AUTOTEST)" >> $NXT_AUTOCONF_ERR 2>&1; then
++                    $echo >> $NXT_AUTOCONF_ERR
++                    nxt_found=yes
++                    nxt_feature_value=`$NXT_AUTOTEST`
++                    $echo " $nxt_feature_value"
++                    if [ -n "$nxt_feature_name" ]; then
++                        cat << END >> $NXT_AUTO_CONFIG_H
+ 
+ #ifndef $nxt_feature_name
+ #define $nxt_feature_name  $nxt_feature_value
+ #endif
+ 
+ END
++                    fi
++                else
++                    $echo " not found"
+                 fi
+-            else
+-                $echo " not found"
+             fi
+         ;;
+ 
+         yes)
+-            if /bin/sh -c "($NXT_AUTOTEST)" >> $NXT_AUTOCONF_ERR 2>&1; then
+-                $echo " found"
+-                nxt_found=yes
+-                if [ -n "$nxt_feature_name" ]; then
+-                    cat << END >> $NXT_AUTO_CONFIG_H
++            if test -n "$nxt_feature_run_force_result" ; then
++                $echo " not tested (maybe cross-compiling)"
++                if test -n "$nxt_feature_name" ; then
++                    if test "$nxt_feature_run_force_result" = "yes" ; then
++                        cat << END >> $NXT_AUTO_CONFIG_H
+ 
+ #ifndef $nxt_feature_name
+ #define $nxt_feature_name  1
+ #endif
+ 
+ END
++                    fi
+                 fi
++                nxt_found=yes
+             else
+-                $echo " found but is not working"
++                if /bin/sh -c "($NXT_AUTOTEST)" >> $NXT_AUTOCONF_ERR 2>&1; then
++                    $echo " found"
++                    nxt_found=yes
++                    if [ -n "$nxt_feature_name" ]; then
++                        cat << END >> $NXT_AUTO_CONFIG_H
++
++#ifndef $nxt_feature_name
++#define $nxt_feature_name  1
++#endif
++
++END
++                    fi
++                else
++                    $echo " found but is not working"
++                fi
+             fi
+         ;;
+ 

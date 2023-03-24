@@ -1,0 +1,10 @@
+--- a/auto/atomic	2023-02-28 09:52:32.000000000 -0500
++++ b/auto/atomic	2023-03-13 14:53:15.978159634 -0400
+@@ -8,6 +8,7 @@
+ nxt_feature="GCC builtin atomic operations"
+ nxt_feature_name=NXT_HAVE_GCC_ATOMIC
+ nxt_feature_run=yes
++nxt_feature_run_force_result="$nxt_force_gcc_have_atomic"
+ nxt_feature_incs=
+ nxt_feature_libs=
+ nxt_feature_test="int main(void) {
