@@ -66,21 +66,21 @@ comment "Please config lrd-network-manager in Laird->Packages->lrd-networkmanage
 config BR2_PACKAGE_LRD_60_RADIO_STACK_VERSION_VALUE
 	string "SOM60 radio stack version"
 	depends on BR2_LRD_SOM60_RADIO
-	default "0.0.0.0"
+	default "11.0.0.22"
 	help
 	  Version number for radio packages.
 
 config BR2_PACKAGE_LRD_50_RADIO_STACK_VERSION_VALUE
 	string "WB radio stack version"
 	depends on BR2_LRD_WB50N_RADIO
-	default "0.0.0.0"
+	default "11.0.0.22"
 	help
 	  Version number for radio packages.
 
 config BR2_PACKAGE_LRD_45_RADIO_STACK_VERSION_VALUE
 	string "WB radio stack version"
 	depends on BR2_LRD_WB45N_LEGACY_RADIO
-	default "0.0.0.0"
+	default "11.0.0.22"
 	help
 	  Version number for radio packages.
 
