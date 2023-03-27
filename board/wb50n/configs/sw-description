@@ -1,0 +1,28 @@
+software =
+{
+	version = "0.1.0";
+	bootloader_transaction_marker = false;
+	bootloader_state_marker = false;
+
+	stable = {
+		complete: {
+			images: (
+				{
+					filename = "boot.bin";
+					mtdname = "u-boot-spl";
+					transform = "atmel_pmecc_header";
+					type = "flash";
+					name = "boot";
+					sha256 = "@boot.bin.sha256";
+				},
+				{
+					filename = "u-boot.bin";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "@u-boot.bin.sha256";
+				}
+			);
+		}
+	}
+}

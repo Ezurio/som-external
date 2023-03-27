@@ -152,7 +152,7 @@ echo -ne \
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" ${BR2_CONFIG}; then
 
-CCONF_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/configs-common/image)"
+CCONF_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/configs-common/image)"
 
 # Generate kernel FIT image script
 # kernel.its references Image and at91-wb50n.dtb, and all three

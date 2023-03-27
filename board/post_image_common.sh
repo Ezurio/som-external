@@ -68,6 +68,14 @@ ln -rsf "${TARGET_DIR}"/usr/sbin/fw_update "${BINARIES_DIR}/fw_update"
 ln -rsf "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/at91bs.bin"
 ln -rsf "${BINARIES_DIR}/rootfs.ubi" "${BINARIES_DIR}/rootfs.bin"
 
+if [ "${BUILD_TYPE}" = wb50n ]; then
+	ln -rsf ${BR2_EXTERNAL_LRD_SOM_PATH}/board/wb50n/configs/sw-description "${BINARIES_DIR}/sw-description"
+	ALL_SWU_FILES="sw-description boot.bin u-boot.bin"
+	SWU_BOOT=${BR2_LRD_PRODUCT}-boot.swu
+	( cd ${BINARIES_DIR} && \
+		echo -e "${ALL_SWU_FILES// /\\n}" | cpio -ovL -H crc > ${BINARIES_DIR}/${SWU_BOOT})
+fi
+
 [ -n "${LAIRD_FW_TXT_URL}" ] || \
 	LAIRD_FW_TXT_URL="http://$(hostname)/${BR2_LRD_PRODUCT}"
 
@@ -98,6 +106,6 @@ size_check 'u-boot.bin' 3
 tar -cjhf "${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird${RELEASE_SUFFIX}.tar.bz2" \
 	--owner=root --group=root -C "${BINARIES_DIR}" \
 	at91bs.bin u-boot.bin kernel.bin rootfs.bin \
-	fw_update fw_select fw_usi fw.txt
+	fw_update fw_select fw_usi fw.txt ${SWU_BOOT}
 
 echo "COMMON POST IMAGE script: done."
