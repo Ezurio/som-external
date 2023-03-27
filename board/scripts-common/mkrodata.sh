@@ -2,15 +2,17 @@
 #
 # mkrodata.sh - Create read-only factory data image
 #
-# usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <weblcm_cert> <weblcm_priv_key> <weblcm_certificate_chain>
+# usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <weblcm_cert> <weblcm_priv_key> <weblcm_certificate_chain> <optional customer data>
 #
 # This script requires the modified 'fscryptctl' binary (from the build artifacts)
 # to be located in the current directory.
 #
 # This script must be run as root!
 #
+# The optional customer data should be a directory containing anything a customer may require in rodata.
+# This provides a way to copy in data living in a custom br2-external.
 
-[ $# -lt 5 ] && echo "usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <weblcm_cert> <weblcm_priv_key> <weblcm_certificate_chain>" && exit 1
+[ $# -lt 5 ] && echo "usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <weblcm_cert> <weblcm_priv_key> <weblcm_certificate_chain> <optional customer data>" && exit 1
 [ $(id -u) -ne 0 ] && echo "Please run as root" && exit 1
 
 KEY_BIN="${1}"
@@ -18,6 +20,7 @@ UPDATE_PUB_CERT="${2}"
 WEBLCM_CERT="${3}"
 WEBLCM_PRIV_KEY="${4}"
 WEBLCM_CERT_CHAIN="${5}"
+CUSTOMER_DIR="${6}"
 
 FSCRYPTCTL="./fscryptctl"
 
@@ -84,6 +87,13 @@ cp ${WEBLCM_CERT_CHAIN} ${WEBLCM_CERT_CHAIN_DEST} || exit_on_error "Failed to po
 #
 mkdir -p ${UPDATE_CERT_DIR} || exit_on_error "Failed to create ${UPDATE_CERT_DIR}"
 cp ${UPDATE_PUB_CERT} ${UPDATE_CERT_DEST} || exit_on_error "Failed to populate update certificate"
+
+#
+# Copy in optional customer data
+#
+if [ -d "${CUSTOMER_DIR}" ];then
+  rsync -rlpDWK --no-perms --exclude=.empty  "${CUSTOMER_DIR}" "${RODATA_MNT_DIR}"/
+fi
 
 #
 # Clean up
