@@ -1,0 +1,139 @@
+config BR2_PACKAGE_SUMMIT_RCM
+	bool "Summit Remote Control Manager (RCM)"
+	help
+	  Summit Remote Control Manager (RCM)
+	select BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_LRD_SWUPDATE_CLIENT
+	select BR2_PACKAGE_PYTHON3_SSL
+	select BR2_PACKAGE_ZIP
+	select BR2_PACKAGE_UNZIP
+	select BR2_PACKAGE_LIBOPENSSL_BIN
+	select BR2_PACKAGE_SWUPDATE
+	select BR2_PACKAGE_PYTHON_AIOFILES
+	select BR2_PACKAGE_PYTHON_DBUS_FAST
+	select BR2_PACKAGE_PYTHON_FALCON
+	select BR2_PACKAGE_NGINX_UNIT
+	select BR2_PACKAGE_NGINX_UNIT_PYTHON_APP
+
+if BR2_PACKAGE_SUMMIT_RCM
+
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	bool "Enable cookie-based authentication sessions"
+	default y
+	help
+		Enable cookie-based authentication sessions
+
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
+	bool "Enable SSL client authentication"
+	help
+		Enable SSL client authentication
+
+config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USERNAME
+	string "default root user name"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	default "root"
+
+config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD
+	string "default root user password"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	default "summit"
+
+config BR2_PACKAGE_SUMMIT_RCM_MANAGED_SOFTWARE_DEVICES
+	string "List of supported software devices"
+	default ""
+	help
+		Space separated software devices like bonds, bridges etc.
+		Bridge devices should be named as "br0", "br1" etc.
+		Bond devices should be named as "bn0", "bn1" etc.
+
+config BR2_PACKAGE_SUMMIT_RCM_UNMANAGED_HARDWARE_DEVICES
+	string "list of unmanaged hardware devices"
+	default ""
+	help
+		Space separated hardware devices like eth0, wlan0 etc which are managed by networkManager,
+		but don't want to be managed by Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_AWM
+	bool "AWM configuration support for Summit RCM"
+	depends on BR2_LRD_SOM60_RADIO
+	select BR2_PACKAGE_PYTHON_LIBCONF
+	default y
+	help
+		Add AWM (Adaptive Worldwide Mode) configuration support to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_MODEM
+	bool "Modem / positioning support for Summit RCM"
+	help
+		Add modem, positioning, positioning switch support to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
+	bool "Bluetooth support for Summit RCM"
+	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	default y
+	help
+		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
+
+config BR2_PACKAGE_SUMMIT_RCM_VSP
+	bool "BLE VSP support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
+	help
+		Add BLE VSP support (rx/tx transfers over chosen GATT characteristics to TCP server) to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_HID
+	bool "HID BT barcode scanner support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
+	select BR2_PACKAGE_PYTHON_PYUDEV
+	help
+		Add Bluetooth HID barcode scanner support to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_WEBSOCKETS
+	bool "Websockets support for BLE on Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
+	select BR2_PACKAGE_PYTHON_WS4PY
+	help
+		Add Websockets streaming support for BLE REST API.
+
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_STUNNEL_CONTROL
+	bool "Control support for stunnel"
+	select BR2_PACKAGE_STUNNEL
+	help
+		Enable support to control stunnel
+
+config BR2_PACKAGE_SUMMIT_RCM_UNAUTHENTICATED
+	bool "Unauthenticated access support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	help
+		Add unauthenticated access support, for example, for factory reset and reboot endpoints.  Due to security concerns, this should never be enabled unless requested by a customer, and preferably never enabled if Summit RCM is exposed on a public/external zone interface.
+
+config BR2_PACKAGE_SUMMIT_RCM_BIND_IP
+	string "IP address to which the Summit RCM HTTP server binds"
+	default "*"
+	help
+		IP address to bind to for the Summit RCM HTTP server. Leave blank to bind to all IP addresses.
+
+config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
+	bool "Allow multiple sessions per user"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	help
+		Enable multiple sessions for the same user (re-login)
+
+config BR2_PACKAGE_SUMMIT_RCM_IPTABLES_FIREWALL
+	bool "iptables firewall control"
+	select BR2_PACKAGE_IPTABLES
+	default y if BR2_PACKAGE_SUMMIT_FIREWALL
+	help
+		Enable iptables firewall wrapper
+
+config BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE
+	bool "Allow changing radio's SISO mode"
+	help
+		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)
+
+config BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP
+	bool "chrony NTP control"
+	depends on BR2_PACKAGE_CHRONY
+	default y
+	help
+		Enable chrony wrapper for NTP configuration
+
+endif

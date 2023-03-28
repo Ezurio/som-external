@@ -17,7 +17,7 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	mkdir -p $(TARGET_DIR)/etc/dropbear; \
 
 	mkdir -p $(BACKUP_SECRET_DIR)
-	for BACKUP_TARGET in "firewalld" "weblcm-python" "modem" "stunnel" "chrony" "dropbear"; do \
+	for BACKUP_TARGET in "firewalld" "weblcm-python" "modem" "stunnel" "chrony" "dropbear" "summit-rcm"; do \
 		if [ -d $(TARGET_DIR)/etc/"$${BACKUP_TARGET}" ];then \
 			mv $(TARGET_DIR)/etc/$${BACKUP_TARGET}/ $(BACKUP_SECRET_DIR); \
 			ln -sf /data/secret/$${BACKUP_TARGET} $(TARGET_DIR)/etc/$${BACKUP_TARGET}; \
