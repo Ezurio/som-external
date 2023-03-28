@@ -3,15 +3,25 @@
 MAC_ADDRESS_PARAM_LEN=17
 fw_opt=
 enable_write=false
+nvmem=false
 writes="1 2"
+NVMEM_FILE="/sys/bus/nvmem/devices/0-00500/nvmem"
+MACB0_ADDRESS_NODE="/sys/bus/nvmem/devices/0-00500/of_node/mac-address@2"
+MACB1_ADDRESS_NODE="/sys/bus/nvmem/devices/0-00500/of_node/mac-address@8"
+
+get_cell_offset()
+{
+	echo "$(( 0x$(xxd -g 4 -l 4 -p "${1}/reg") ))"
+}
 
 usage()
 {
-	echo "usage: write: ${0##*/} [-nand] [-f] [-s] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
-	echo "       read:  ${0##*/} [-nand]"
-	echo "-nand - uses uboot environment blocks in NAND"
-	echo "-f    - writes addresses into uboot environment"
-	echo "-s    - writes only once (programs only single block)"
+	echo "usage: write: ${0##*/} [-nand] [-f] [-s] [-nvmem] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
+	echo "       read:  ${0##*/} [-nand] [-nvmem]"
+	echo "-nand  - uses uboot environment blocks in NAND"
+	echo "-f     - writes addresses into uboot environment"
+	echo "-s     - writes only once (programs only single block)"
+	echo "-nvmem - read and write from nvmem, not u-boot environment"
 }
 
 read_mac()
@@ -21,25 +31,41 @@ read_mac()
 
 print_macs()
 {
-	printf "Eth0: %s\n" "$(read_mac "ethaddr")"
-	printf "Eth1: %s\n" "$(read_mac "eth1addr")"
+	if ${nvmem}; then
+		dd if="${NVMEM_FILE}" count=1 bs=6 skip="$(get_cell_offset "${MACB0_ADDRESS_NODE}")" iflag=skip_bytes status=none | hexdump -e'"macb0: "' -e' 5/1 "%02x:" ""  "%02x"' -e "\"\n\""
+		dd if="${NVMEM_FILE}" count=1 bs=6 skip="$(get_cell_offset "${MACB1_ADDRESS_NODE}")" iflag=skip_bytes status=none | hexdump -e'"macb1: "' -e' 5/1 "%02x:" ""  "%02x"' -e "\"\n\""
+	else
+		printf "macb0: %s\n" "$(read_mac "ethaddr")"
+		printf "macb1: %s\n" "$(read_mac "eth1addr")"
+	fi
+}
+
+set_mac()
+{
+	# $1 - mac in numeric format
+	# $2 - mac of-node
+	printf "\\x$(printf "%012x" "${1}" | sed 's/../&\\x/g;s/\\x$//')" | dd of=${NVMEM_FILE} count=1 bs=6 seek="$(get_cell_offset "${2}")" oflag=seek_bytes status=none
 }
 
 write_macs()
 {
 	mac1="${1}"
-
 	mac0_numeric="$(( 0x${mac1//:/} + 1 ))"
-	mac0_format_string="$(printf "%012x" ${mac0_numeric} | sed 's/../&:/g;s/:$//')"
-	mac0_hex="$(printf "${mac0_format_string}")"
+	mac0_hex="$(printf "%012x" ${mac0_numeric} | sed 's/../&:/g;s/:$//')"
 
 	if "${enable_write}"; then
-		for i in ${writes} ; do
-			echo -e "ethaddr=${mac0_hex}\neth1addr=${mac1}\n" | fw_setenv ${fw_opt} -s -
-		done
+		if ${nvmem}; then
+			mac1_numeric="$(( 0x${mac1//:/} ))"
+			set_mac "${mac0_numeric}" "${MACB0_ADDRESS_NODE}"
+			set_mac "${mac1_numeric}" "${MACB1_ADDRESS_NODE}"
+		else
+			for i in ${writes}; do
+				echo -e "ethaddr=${mac0_hex}\neth1addr=${mac1}\n" | fw_setenv ${fw_opt} -s -
+			done
+		fi
 	else
-		printf "simulate write Eth0: %s\n" "${mac0_hex}"
-		printf "simulate write Eth1: %s\n" "${mac1}"
+		printf "simulate write macb0: %s\n" "${mac0_hex}"
+		printf "simulate write macb1: %s\n" "${mac1}"
 		printf "(specify -f to write)\n"
 	fi
 }
@@ -47,6 +73,7 @@ write_macs()
 [ "${1}" = "-nand" ] && shift && fw_opt="-c /etc/fw_env_flash.config"
 [ "${1}" = "-f" ] && shift && enable_write=true
 [ "${1}" = "-s" ] && shift && writes="1"
+[ "${1}" = "-nvmem" ] && shift && nvmem=true
 
 [ "${#}" -eq "0" ] && print_macs && exit
 [ "${#}" -ne "1" ] && usage && exit
