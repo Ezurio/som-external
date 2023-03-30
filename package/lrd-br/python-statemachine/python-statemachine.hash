@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/python-statemachine/json
+md5  fa42cce34fd66c9c40c830aa0d7b24fa  python_statemachine-2.0.0.tar.gz
+sha256  dd6cafe88fd5eb473afbe365d89c0ac009d71da3b615a5ebd2210c178dfa032b  python_statemachine-2.0.0.tar.gz
+# Locally computed sha256 checksums
+sha256  cdc3fb4ec24ca9a171b93bcb4593d3ee7265dffa698f147d67be8113da4be737  LICENSE
