@@ -43,6 +43,14 @@ endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/chrony
 endif
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += \
+		summit_rcm/at_interface \
+		summit_rcm/at_interface/commands
+define SUMMIT_RCM_USERS
+	www-data -1 www-data -1 * /var/www - dialout www-data users
+endef
+endif
 
 SUMMIT_RCM_ENV = SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
 
