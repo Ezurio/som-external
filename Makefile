@@ -8,14 +8,12 @@ TARGETS = \
 	wb40n_rdvk wb40n_rdvk_3_2 \
 	wb50n_sysd wb50nsd_sysd wb50nsd_sysd-wbx3 \
 	som60 som60sd som60sd_mfg som60sd-wbx3 som60sd_sdcsdk_nm \
-	som60x2 som60x2sd som60x2sd_mfg som60x2sd-wbx3 \
-	som60_lwb_mfg som60_rdvk som60x2_rdvk som60x2_lwb_mfg \
+	som60_lwb_mfg som60_rdvk  \
 	wb50n_sysd_fips wb50nsd_sysd_fips som60_fips som60sd_fips \
 	wb50n_legacy_fips wb45n_legacy_fips \
 	wb50nsd_sysd_fips_dev wb45n_legacy_fips_dev \
-	som60sd_fips_dev som60x2sd_fips_dev \
+	som60sd_fips_dev som60sd_fips_dev_dbg \
 	wb50nsd_sysd_fips_dev_dbg wb45n_legacy_fips_dev_dbg \
-	som60sd_fips_dev_dbg som60x2sd_fips_dev_dbg \
 	ig60ll ig60llsd	ig60sd-wbx3 \
 	bdimx6_rdvk \
 	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain

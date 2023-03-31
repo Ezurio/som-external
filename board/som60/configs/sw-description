@@ -3,6 +3,59 @@ software =
 	version = "0.1.0";
 	bootloader_transaction_marker = false;
 	bootloader_state_marker = false;
+	hardware-compatibility = [ "1.0" ];
+
+	som60x2 = {
+		stable = {
+			complete: {
+				/* partitions tag is used to resize UBI partitions */
+				partitions: (
+					{
+						name = "kernel_a";
+						device = "ubi";
+						type = "ubipartition";
+						size = 12582912; /* in bytes */
+					},
+					{
+						name = "rootfs_a";
+						device = "ubi";
+						type = "ubipartition";
+						size = 184549376; /* in bytes */
+					},
+					{
+						name = "rootfs_data_a";
+						device = "ubi";
+						type = "ubipartition";
+						size = 20971520; /* in bytes */
+					},
+					{
+						name = "kernel_b";
+						device = "ubi";
+						type = "ubipartition";
+						size = 12582912; /* in bytes */
+					},
+					{
+						name = "rootfs_b";
+						device = "ubi";
+						type = "ubipartition";
+						size = 184549376; /* in bytes */
+					},
+					{
+						name = "rootfs_data_b";
+						device = "ubi";
+						type = "ubipartition";
+						size =  20971520; /* in bytes */
+					},
+					{
+						name = "perm";
+						device = "ubi";
+						type = "ubipartition";
+						size = 70471680; /* in bytes */
+					}
+				);
+			}
+		}
+	};
 
 	stable = {
 		main-a: {

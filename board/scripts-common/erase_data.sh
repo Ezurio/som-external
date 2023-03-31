@@ -62,12 +62,16 @@ migrate_data() {
 mkdir -p "${MOUNT_POINT}" || exit_on_error 0 "Directory Creation for ${MOUNT_POINT} Failed"
 
 # Don't migrate data from SD
-read -r cmdline </proc/cmdline
+read -r cmdline < /proc/cmdline
 case "${cmdline}" in
 */dev/mmc*) do_data_migration=0 ;;
 *) #Don't migrate if /data not mounted
 	if ! grep -qs "${DATA_SRC} " /proc/mounts; then
-		echo "Data from ${DATA_SRC} not migrated, because it was not mounted." | systemd-cat -t "${0}" -p warning
+		if [ -x /usr/bin/systemd-cat ]; then
+			echo "Data from ${DATA_SRC} not migrated, because it was not mounted." | systemd-cat -t "${0}" -p warning
+		else
+			echo "Data from ${DATA_SRC} not migrated, because it was not mounted." > /dev/stderr
+		fi
 		do_data_migration=0
 	else
 		do_data_migration=1

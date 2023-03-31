@@ -3,6 +3,7 @@ software =
 	version = "0.1.0";
 	bootloader_transaction_marker = false;
 	bootloader_state_marker = false;
+	hardware-compatibility = [ "1.0" ];
 
 	stable = {
 		main-a: {

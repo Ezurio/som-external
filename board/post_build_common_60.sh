@@ -203,16 +203,7 @@ if ${SD} ; then
 	ln -rsf ${CSCRIPT_DIR}/mksdcard.sh ${BINARIES_DIR}/mksdcard.sh
 	ln -rsf ${CSCRIPT_DIR}/mksdimg.sh ${BINARIES_DIR}/mksdimg.sh
 else
-	# Copy scripts for SWU generation
-	case "${BUILD_TYPE}" in
-	som60x2*)
-		ln -rsf ${BOARD_DIR}/configs/sw-description-som60x2 ${BINARIES_DIR}/sw-description
-		;;
-	*)
-		ln -rsf ${BOARD_DIR}/configs/sw-description ${BINARIES_DIR}/sw-description
-		;;
-	esac
-
+	ln -rsf ${BOARD_DIR}/configs/sw-description ${BINARIES_DIR}/sw-description
 	ln -rsf ${CSCRIPT_DIR}/erase_data.sh ${BINARIES_DIR}/erase_data.sh
 	ln -rsf ${CCONF_DIR}/u-boot.scr ${BINARIES_DIR}/u-boot.scr
 fi
