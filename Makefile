@@ -18,7 +18,7 @@ TARGETS = \
 	bdimx6_rdvk \
 	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain
 
-TARGETS_COMPONENT_all = mfg60n  regLWB5plus regLWBplus regLWB6x\
+TARGETS_COMPONENT_all = mfg60n regLWB \
 	summit_supplicant_libs \
 	adaptive_ww adaptive_bt
 

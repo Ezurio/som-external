@@ -18,96 +18,97 @@ cp "${TARGET_DIR}/usr/lib/${LIBNCURSES}" "${TARGET_DIR}/usr/lib/${LIBNCURSESLRD}
 fi
 
 add_file() {
+	local name=${1}
+	shift
 	for var in "${@}"; do
 		[ -f "${TARGET_DIR}${var}" ] && \
-			echo ${var} >> "${TARGET_DIR}/${BR2_LRD_PRODUCT}.manifest"
+			echo ${var} >> "${TARGET_DIR}/${name}.manifest"
 	done
 }
 
 add_firmware() {
-	add_file $(ls ${1} | sed "s,^${TARGET_DIR},,")
+	add_file ${1} $(ls ${2} | sed "s,^${TARGET_DIR},,")
 }
 
-rm -f ${TARGET_DIR}/${BR2_LRD_PRODUCT}.manifest
+rm -f ${TARGET_DIR}/*.manifest
 
 case "${BR2_LRD_PRODUCT}" in
 mfg60*)
 	#lrt and other vendor mfg tools are mutually exclusive
 	[ -f ${TARGET_DIR}/usr/bin/lrt ] &&  exit 0
 
-	add_file \
+	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lmu \
 		/usr/bin/lru \
 		/usr/bin/btlru \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware  "${TARGET_DIR}/lib/firmware/lrdmwl/88W8997_mfg_*"
+	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/lrdmwl/88W8997_mfg_*"
 	;;
 
 reg45*)
-	add_file \
+	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lru \
 		/usr/sbin/smu_cli \
 		/usr/bin/tcmd.sh \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware "${TARGET_DIR}/lib/firmware/ath6k/AR6003/hw2.1.1/athtcmd*"
+	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/ath6k/AR6003/hw2.1.1/athtcmd*"
 
 	# move tcmd.sh into package and add to manifest
 	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
 	;;
 
 reg50*)
-	add_file \
+	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lru \
 		/usr/sbin/smu_cli \
 		/usr/bin/tcmd.sh \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware "${TARGET_DIR}/lib/firmware/ath6k/AR6004/hw3.0/utf*"
+	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/ath6k/AR6004/hw3.0/utf*"
 
 	# move tcmd.sh into package and add to manifest
 	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
 	;;
 
 regCypress*)
-	add_file /usr/bin/wl
-	add_firmware "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4339-sdio-mfg_*.bin"
-	add_firmware "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43430-sdio-mfg_*.bin"
+	add_file ${BR2_LRD_PRODUCT} /usr/bin/wl
+	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4339-sdio-mfg_*.bin"
+	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43430-sdio-mfg_*.bin"
 	;;
 
-regLWB5plus*)
-	add_file \
+regLWB*)
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regLWB5plus}
+	add_file ${lwbname} \
 		/usr/bin/lru \
 		/usr/bin/btlru \
 		/lib/firmware/brcm/brcmfmac4373-div-mfg.txt \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4373-*-mfg_*.bin"
-	;;
+	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4373-*-mfg_*.bin"
 
-regLWBplus*)
-	add_file \
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regLWBplus}
+	add_file ${lwbname} \
 		/usr/bin/lru \
 		/usr/bin/btlru \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43439-sdio-mfg_*.bin"
-	;;
+	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43439-sdio-mfg_*.bin"
 
-regLWB6*)
-	add_file \
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regLWB6}
+	add_file ${lwbname} \
 		/usr/bin/lru \
 		/usr/bin/btlru \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
-	add_firmware "${TARGET_DIR}/lib/firmware/cypress/cyfmac55572-*-mfg_*.trxse"
+	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/cypress/cyfmac55572-*-mfg_*.trxse"
 	;;
 
 *)
