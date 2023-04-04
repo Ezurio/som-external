@@ -32,7 +32,8 @@ WEBLCM_DIR="${SECRET_DIR}/weblcm-python/ssl"
 WEBLCM_CERT_DEST="${WEBLCM_DIR}/server.crt"
 WEBLCM_KEY_DEST="${WEBLCM_DIR}/server.key"
 WEBLCM_CERT_CHAIN_DEST="${WEBLCM_DIR}/ca.crt"
-SUMMIT_RCM_BUNDLE_DEST="${SECRET_DIR}/summit-rcm/ssl/summit-rcm-bundle.pem"
+SUMMIT_RCM_DIR="${SECRET_DIR}/summit-rcm/ssl"
+SUMMIT_RCM_BUNDLE_DEST="${SUMMIT_RCM_DIR}/summit-rcm-bundle.pem"
 UPDATE_CERT_DIR="${PUBLIC_DIR}/ssl/misc"
 UPDATE_CERT_DEST="${UPDATE_CERT_DIR}/update.pem"
 RODATA_IMG="rodata.img"
@@ -82,6 +83,11 @@ mkdir -p ${WEBLCM_DIR} || exit_on_error "Failed to create ${WEBLCM_DIR}"
 cp ${WEBLCM_CERT} ${WEBLCM_CERT_DEST} || exit_on_error "Failed to populate WebLCM certficate"
 cp ${WEBLCM_PRIV_KEY} ${WEBLCM_KEY_DEST} || exit_on_error "Failed to populate WebLCM key"
 cp ${WEBLCM_CERT_CHAIN} ${WEBLCM_CERT_CHAIN_DEST} || exit_on_error "Failed to populate WebLCM certificate chain"
+
+#
+# Create and populate Summit RCM certificate bundle under encrypted directory
+#
+mkdir -p ${SUMMIT_RCM_DIR} || exit_on_error "Failed to create ${SUMMIT_RCM_DIR}"
 cat ${WEBLCM_CERT} ${WEBLCM_CERT_CHAIN} ${WEBLCM_PRIV_KEY} > ${SUMMIT_RCM_BUNDLE_DEST} || exit_on_error "Failed to populate Summit RCM certificate bundle"
 
 #
