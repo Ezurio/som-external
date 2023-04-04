@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LRD_DISABLE_CONSOLE_LOGIN
+	bool "Disable Console Login"
+	help
+	  Utilities to disable serial getty
