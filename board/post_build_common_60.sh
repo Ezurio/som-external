@@ -103,10 +103,7 @@ ln -sf /run/NetworkManager/resolv.conf ${TARGET_DIR}/etc/resolv.conf
 fi
 
 # Remove not needed systemd generators
-rm -f ${TARGET_DIR}/usr/lib/systemd/system-generators/systemd-gpt-auto-generator
-rm -f ${TARGET_DIR}/usr/lib/systemd/systemd-network-generator
-rm -f ${TARGET_DIR}/usr/lib/systemd/system/systemd-network-generator.service
-rm -f ${TARGET_DIR}/usr/lib/systemd/system/sys-fs-fuse-connections.mount
+rm -f ${TARGET_DIR}/usr/lib/systemd/system/sysinit.target.wants/sys-fs-fuse-connections.mount
 
 if [ -f ${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service ] && \
    ! grep -qF "BR2_PACKAGE_LIBDRM=y" ${BR2_CONFIG}; then
@@ -149,12 +146,11 @@ rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -rf "${TARGET_DIR}/usr/share/gobject-introspection-1.0/"
 rm -rf "${TARGET_DIR}/usr/lib/gobject-introspection/"
 
-rm -f ${TARGET_DIR}/usr/lib/systemd/system/swupdate-progress.service
 rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
 
-# No need to start swupdate service automatically, it will start by socket
-if [ -d ${TARGET_DIR}/usr/lib/systemd/system-preset ]; then
-	echo "disable swupdate.service" > ${TARGET_DIR}/usr/lib/systemd/system-preset/50-swupdate.preset
+if [ ! -x ${TARGET_DIR}/usr/lib/systemd/systemd ]; then 
+	rm -rf ${TARGET_DIR}/usr/lib/systemd
+	rm -rf ${TARGET_DIR}/etc/systemd
 fi
 
 if [ "${BUILD_TYPE}" != ig60 ]; then

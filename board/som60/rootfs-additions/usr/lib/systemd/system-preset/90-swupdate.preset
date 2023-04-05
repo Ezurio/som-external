@@ -1,0 +1,2 @@
+disable swupdate-progress.service
+disable swupdate.service

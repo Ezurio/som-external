@@ -3,8 +3,8 @@
 ##########################################################################
 
 define LRD_DISABLE_CONSOLE_LOGIN_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -t $(TARGET_DIR)/usr/lib/systemd/system/system-preset \
-		-m 644 $(LRD_DISABLE_CONSOLE_LOGIN_PKGDIR)/01-disable-getty.preset
+	$(INSTALL) -d $(TARGET_DIR)/etc/systemd/system-generators
+	ln -fs /dev/null $(TARGET_DIR)/etc/systemd/system-generators/systemd-getty-generator
 endef
 
 ifneq ($(BR2_INIT_SYSV)$(BR2_INIT_BUSYBOX),)
