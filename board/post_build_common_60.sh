@@ -136,19 +136,23 @@ if [ ! -e "${TARGET_DIR}/usr/lib/libts.so.0" ]; then
 fi
 
 # Clean up Python, Node cruft we don't need
-rm -f "${TARGET_DIR}/usr/lib/python3.10/ensurepip/_bundled/"*.whl
-rm -f "${TARGET_DIR}/usr/lib/python3.10/distutils/command/"*.exe
-rm -f "${TARGET_DIR}/usr/lib/python3.10/site-packages/setuptools/"*.exe
-rm -rf "${TARGET_DIR}/usr/lib/python3.10/site-packages/"*.egg-info
+PYTHON_VERSION_MAJOR=$(find "${TARGET_DIR}/usr/lib" -maxdepth 1 -name python3.* -exec basename {} \;)
+
+rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/ensurepip/_bundled/"*.whl
+rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/distutils/command/"*.exe
+rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/site-packages/setuptools/"*.exe
+rm -rf "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/site-packages/"*.egg-info
+
 [ -d "${TARGET_DIR}/usr/lib/node_modules" ] && \
 	find "${TARGET_DIR}/usr/lib/node_modules" -name '*.md' -exec rm -f {} \;
-rm -rf "${TARGET_DIR}/var/www/swupdate"
+
 rm -rf "${TARGET_DIR}/usr/share/gobject-introspection-1.0/"
 rm -rf "${TARGET_DIR}/usr/lib/gobject-introspection/"
 
+rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
 
-if [ ! -x ${TARGET_DIR}/usr/lib/systemd/systemd ]; then 
+if [ ! -x ${TARGET_DIR}/usr/lib/systemd/systemd ]; then
 	rm -rf ${TARGET_DIR}/usr/lib/systemd
 	rm -rf ${TARGET_DIR}/etc/systemd
 fi
