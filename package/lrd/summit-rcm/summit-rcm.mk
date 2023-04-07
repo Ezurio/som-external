@@ -57,6 +57,8 @@ SUMMIT_RCM_ENV = SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
 define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(INSTALL) -d $(TARGET_DIR)/etc/summit-rcm
 
+	$(INSTALL) -D -t $(TARGET_DIR)/etc/summit-rcm -m 666 $(SUMMIT_RCM_PKGDIR)/summit-rcm-settings.ini
+
 	$(INSTALL) -D -t $(TARGET_DIR)/usr/bin/summit-rcm.scripts -m 755 $(@D)/*.sh
 	$(INSTALL) -D -t $(TARGET_DIR)/etc -m 644 $(@D)/summit-rcm.ini
 
