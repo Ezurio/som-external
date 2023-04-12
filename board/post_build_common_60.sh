@@ -141,7 +141,10 @@ PYTHON_VERSION_MAJOR=$(find "${TARGET_DIR}/usr/lib" -maxdepth 1 -name python3.* 
 rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/ensurepip/_bundled/"*.whl
 rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/distutils/command/"*.exe
 rm -f "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/site-packages/setuptools/"*.exe
-rm -rf "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/site-packages/"*.egg-info
+# Do not remove Python distribution metadata when pip is enabled
+if ! grep -qF "BR2_PACKAGE_PYTHON_PIP=y" ${BR2_CONFIG}; then
+    rm -rf "${TARGET_DIR}/usr/lib/${PYTHON_VERSION_MAJOR}/site-packages/"*.egg-info
+fi
 
 [ -d "${TARGET_DIR}/usr/lib/node_modules" ] && \
 	find "${TARGET_DIR}/usr/lib/node_modules" -name '*.md' -exec rm -f {} \;
