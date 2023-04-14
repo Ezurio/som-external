@@ -69,7 +69,6 @@ config BR2_PACKAGE_SUMMIT_RCM_MODEM
 config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
 	bool "Bluetooth support for Summit RCM"
 	depends on BR2_PACKAGE_BLUEZ5_UTILS
-	default y
 	help
 		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
 
