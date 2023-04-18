@@ -49,6 +49,11 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
 		summit_rcm/at_interface/commands
 endif
 
+SUMMIT_RCM_EXTRA_PACKAGES += \
+	summit_rcm/services \
+	summit_rcm/rest_api \
+	summit_rcm/rest_api/system
+
 SUMMIT_RCM_ENV = SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
 
 define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
