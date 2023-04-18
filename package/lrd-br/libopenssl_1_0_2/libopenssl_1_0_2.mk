@@ -105,12 +105,6 @@ define HOST_LIBOPENSSL_1_0_2_CONFIGURE_CMDS
 	$(SED) "s#-O[0-9]#$(HOST_CFLAGS)#" $(@D)/Makefile
 endef
 
-ifeq ($(BR2_PACKAGE_LAIRD_OPENSSL_FIPS),y)
-LIBOPENSSL_1_0_2_DEVRANDOM = '"/dev/hwrng"'
-else
-LIBOPENSSL_1_0_2_DEVRANDOM = '"/dev/hwrng","/dev/urandom"'
-endif
-
 ifeq ($(BR2_PACKAGE_LAIRD_OPENSSL_FIPS_DEBUG),y)
 LIBOPENSSL_1_0_2_DEBUG = debug-
 endif
@@ -149,8 +143,7 @@ define LIBOPENSSL_1_0_2_CONFIGURE_CMDS
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP),,no-comp) \
 			$(if $(BR2_STATIC_LIBS),zlib,zlib-dynamic) \
 			$(if $(BR2_STATIC_LIBS),no-dso) \
-			$(LIBOPENSSL_1_0_2_FIPS_CFG) \
-			-DDEVRANDOM=$(LIBOPENSSL_1_0_2_DEVRANDOM) \
+			$(LIBOPENSSL_1_0_2_FIPS_CFG)
 	)
 	$(SED) "s#-march=[-a-z0-9] ##" -e "s#-mcpu=[-a-z0-9] ##g" $(@D)/Makefile
 	$(SED) "s#-O[0-9sg]#$(LIBOPENSSL_1_0_2_CFLAGS)#" $(@D)/Makefile

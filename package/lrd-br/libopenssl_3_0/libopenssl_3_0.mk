@@ -57,9 +57,6 @@ define LIBOPENSSL_3_0_POST_PATCH_CMD
 	$(APPLY_PATCHES) $(@D) $(LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR) \*.patch
 endef
 LIBOPENSSL_3_0_POST_PATCH_HOOKS += LIBOPENSSL_3_0_POST_PATCH_CMD
-LIBOPENSSL_3_0_DEVRANDOM = "'"'"/dev/hwrng"'"'"
-else
-LIBOPENSSL_3_0_DEVRANDOM = "'"'"/dev/hwrng","/dev/urandom"'"'"
 endif
 
 define HOST_LIBOPENSSL_3_0_CONFIGURE_CMDS
@@ -119,8 +116,7 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP),,no-comp) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_3_0_ENABLE_FIPS),enable-fips) \
 			$(if $(BR2_STATIC_LIBS),zlib,zlib-dynamic) \
-			$(if $(BR2_STATIC_LIBS),no-dso) \
-			-DDEVRANDOM=$(LIBOPENSSL_3_0_DEVRANDOM) \
+			$(if $(BR2_STATIC_LIBS),no-dso)
 	)
 	$(SED) "s#-march=[-a-z0-9] ##" -e "s#-mcpu=[-a-z0-9] ##g" $(@D)/Makefile
 	$(SED) "s#-O[0-9sg]#$(LIBOPENSSL_3_0_CFLAGS)#" $(@D)/Makefile
