@@ -20,8 +20,8 @@ NGINX_UNIT_CONF_ENV += \
 
 NGINX_UNIT_CONF_OPTS += \
 	--force-endianness=$(call qstrip,$(call LOWERCASE,$(BR2_ENDIAN))) \
-	--user=www-data \
-	--group=www-data \
+	--user=root \
+	--group=root \
 	--control=unix:/tmp/control.unit.sock \
 	--bindir=/sbin/bin \
 	--sbindir=/sbin \
