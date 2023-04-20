@@ -1,12 +1,15 @@
 config BR2_PACKAGE_LIBOPENSSL_3_0
         bool "openssl 3.0"
-        select BR2_PACKAGE_ZLIB
+
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/libopenssl_3_0/Config.in"
 
 config BR2_PACKAGE_LIBOPENSSL_1_0_2
         bool "openssl 1.0.2"
-        select BR2_PACKAGE_ZLIB
+
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/libopenssl_1_0_2/Config.in"
 
 config BR2_PACKAGE_LAIRD_OPENSSL_FIPS_BINARIES
         bool "Laird openssl-1.0.2 (or 3.0) fips binaries"
         select BR2_PACKAGE_ZLIB
 
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/laird_openssl_fips-binaries/Config.in"

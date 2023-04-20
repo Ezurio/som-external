@@ -53,7 +53,7 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_RC4
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_MD2
 	bool "enable MD2"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_MD4
 	bool "enable MD4"
@@ -65,11 +65,11 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_MDC2
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_IDEA
 	bool "enable IDEA"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SEED
 	bool "enable SEED"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_DES
 	bool "enable DES"
@@ -77,15 +77,15 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_DES
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_RMD160
 	bool "enable RMD160"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_WHIRLPOOL
 	bool "enable WHIRLPOOL"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLOWFISH
 	bool "enable BLOWFISH"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL
 	bool "enable SSL"
@@ -93,15 +93,15 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL2
 	bool "enable SSL2"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL3
 	bool "enable SSL3"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_WEAK_SSL
 	bool "enable WEAK_SSL"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_PSK
 	bool "enable mode PSK"
@@ -109,6 +109,7 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_PSK
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP
 	bool "enable compression"
-	default y
+	default n
+	select BR2_PACKAGE_ZLIB
 
 endif # BR2_PACKAGE_LIBOPENSSL_1_0_2

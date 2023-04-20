@@ -31,7 +31,6 @@ source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-wifi-bridge/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/echotest/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-firewall/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-rcm/Config.in"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/laird_openssl_fips-binaries/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/sdcsupp/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-disable-console-login/Config.in"
 

@@ -73,11 +73,11 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLAKE2
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_IDEA
 	bool "enable IDEA"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SEED
 	bool "enable SEED"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_DES
 	bool "enable DES"
@@ -89,7 +89,7 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_RMD160
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_WHIRLPOOL
 	bool "enable WHIRLPOOL"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLOWFISH
 	bool "enable BLOWFISH"
@@ -117,7 +117,7 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_PSK
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_CAST
 	bool "enable mode CAST"
-	default y
+	default n
 
 config BR2_PACKAGE_LIBOPENSSL_UNSECURE
 	bool "enable unit test, debug, backtrace"
@@ -133,8 +133,13 @@ config BR2_PACKAGE_LIBOPENSSL_DYNAMIC_ENGINE
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP
 	bool "enable compression"
 	default n
+	select BR2_PACKAGE_ZLIB
 
-config BR2_PACKAGE_LIBOPENSSL_3_0_ENABLE_FIPS
+config BR2_PACKAGE_LIBOPENSSL_ENABLE_KTLS
+	bool "enable ktls provider"
+	default y
+
+config BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS
 	bool "enable fips provider"
 	default n
 

@@ -51,7 +51,7 @@ ifeq ($(BR2_TOOLCHAIN_HAS_UCONTEXT),)
 LIBOPENSSL_3_0_CFLAGS += -DOPENSSL_NO_ASYNC
 endif
 
-ifeq ($(BR2_PACKAGE_LIBOPENSSL_3_0_ENABLE_FIPS),y)
+ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
 LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR=$(BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH)/package/externals/wpa_supplicant/laird/openssl-3.0-fips-patches/libopenssl_3_0
 define LIBOPENSSL_3_0_POST_PATCH_CMD
 	$(APPLY_PATCHES) $(@D) $(LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR) \*.patch
@@ -114,7 +114,8 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(if $(BR2_PACKAGE_LIBOPENSSL_UNSECURE),,no-unit-test no-crypto-mdebug-backtrace no-crypto-mdebug no-autoerrinit) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_DYNAMIC_ENGINE),,no-dynamic-engine ) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP),,no-comp) \
-			$(if $(BR2_PACKAGE_LIBOPENSSL_3_0_ENABLE_FIPS),enable-fips) \
+			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_KTLS),enable-ktls) \
+			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),enable-fips) \
 			$(if $(BR2_STATIC_LIBS),zlib,zlib-dynamic) \
 			$(if $(BR2_STATIC_LIBS),no-dso) \
 	)
