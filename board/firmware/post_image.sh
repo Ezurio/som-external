@@ -161,7 +161,7 @@ create_60_firmware_archive 60 usb usb
 if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_SOM8MP=y" ${BR2_CONFIG}; then
 	ln -rsf ${FW_DIR}/lrdmwl/88W8997_SOM8MP_sdio_uart_*.bin ${FW_DIR}/lrdmwl/88W8997_sdio.bin
 	ln -rsf ${FW_DIR}/lrdmwl/88W8997_SOM8MP_pcie_uart_*.bin ${FW_DIR}/lrdmwl/88W8997_pcie.bin
-	ln -rsf ${FW_DIR}/regulatory_60som8mp.db ${FW_DIR}/regulatory.db
+	ln -rsf ${FW_DIR}/regulatory_60.db ${FW_DIR}/regulatory.db
 	ln -rsf ${FW_DIR}/lrdmwl/regpwr_som8mp.db ${FW_DIR}/lrdmwl/regpwr.db
 
 	cd ${TARGET_DIR}
@@ -170,7 +170,7 @@ if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_LRDMWL_SOM8MP=y" ${BR2_CONFIG}; then
 		lib/firmware/lrdmwl/88W8997_SOM8MP_*.bin \
 		lib/firmware/lrdmwl/88W8997_sdio.bin lib/firmware/lrdmwl/88W8997_pcie.bin \
 		lib/firmware/lrdmwl/regpwr_som8mp.db lib/firmware/lrdmwl/regpwr.db \
-		lib/firmware/regulatory_60som8mp.db lib/firmware/regulatory.db
+		lib/firmware/regulatory_60.db lib/firmware/regulatory.db
 	cd -
 fi
 
