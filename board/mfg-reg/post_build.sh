@@ -48,6 +48,9 @@ mfg60*)
 	;;
 
 reg45*)
+	# move tcmd.sh into package
+	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
+
 	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lru \
 		/usr/sbin/smu_cli \
@@ -56,12 +59,12 @@ reg45*)
 		/usr/lib/${LIBNCURSESLRD}
 
 	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/ath6k/AR6003/hw2.1.1/athtcmd*"
-
-	# move tcmd.sh into package and add to manifest
-	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
 	;;
 
 reg50*)
+	# move tcmd.sh into package
+	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
+
 	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lru \
 		/usr/sbin/smu_cli \
@@ -70,9 +73,6 @@ reg50*)
 		/usr/lib/${LIBNCURSESLRD}
 
 	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/ath6k/AR6004/hw3.0/utf*"
-
-	# move tcmd.sh into package and add to manifest
-	cp ${BR2_EXTERNAL_LRD_SOM_PATH}/board/mfg-reg/rootfs-additions/tcmd.sh ${TARGET_DIR}/usr/bin
 	;;
 
 regCypress*)
