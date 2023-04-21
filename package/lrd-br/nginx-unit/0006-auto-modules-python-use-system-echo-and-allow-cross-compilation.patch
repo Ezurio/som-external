@@ -1,26 +1,46 @@
---- a/auto/modules/python	2023-03-14 15:40:53.285924404 -0400
-+++ b/auto/modules/python	2023-03-14 15:41:01.726039920 -0400
-@@ -49,7 +49,7 @@
- fi
+--- a/auto/modules/python
++++ b/auto/modules/python
+@@ -50,6 +50,7 @@ fi
  
  . $NXT_AUTOCONF_DATA
--
+ 
 +echo=echo
  
  NXT_PYTHON_CONFIG=${NXT_PYTHON_CONFIG=python-config}
  NXT_PYTHON=${NXT_PYTHON_CONFIG%-config*}
-@@ -106,8 +106,9 @@
+@@ -62,14 +63,18 @@ $echo "configuring Python module ..." >> $NXT_AUTOCONF_ERR
  
+ nxt_found=no
  
+-if /bin/sh -c "$NXT_PYTHON_CONFIG --prefix" >> $NXT_AUTOCONF_ERR 2>&1; then
++if /bin/sh -c "pkg-config python3 --exist" >> $NXT_AUTOCONF_ERR 2>&1; then
+ 
+-    if ${NXT_PYTHON_CONFIG} --embed >/dev/null 2>&1; then
+-        NXT_PYTHON_CONFIG="${NXT_PYTHON_CONFIG} --embed"
++    if pkg-config python3-embed --exist >/dev/null 2>&1; then
++        NXT_PYTHON_CONFIG="pkg-config python3-embed"
++    else
++        NXT_PYTHON_CONFIG="pkg-config python3"
+     fi
+ 
+-    NXT_PYTHON_INCLUDE=`${NXT_PYTHON_CONFIG} --includes`
+-    NXT_PYTHON_LIBS=`${NXT_PYTHON_CONFIG} --ldflags`
++    NXT_PYTHON_INCLUDE=`${NXT_PYTHON_CONFIG} --cflags`
++    NXT_PYTHON_LIBS=`${NXT_PYTHON_CONFIG} --libs`
++    NXT_PYTHON_VERSION=`${NXT_PYTHON_CONFIG} --modversion`
++    NXT_PYTHON_MODULE=python${NXT_PYTHON_VERSION}
+ 
+     if [ "$NXT_PYTHON_LIB_PATH" != "" ]; then
+         # "python-config --ldflags" may not contain path to libpython.
+@@ -108,6 +113,7 @@ fi
  nxt_feature="Python version"
--nxt_feature_name=""
-+nxt_feature_name="NXT_HAVE_PY_VERSION"
+ nxt_feature_name=""
  nxt_feature_run=value
-+nxt_feature_run_force_result=$PYTHON3_VERSION
++nxt_feature_run_force_result="${NXT_PYTHON_VERSION}"
  nxt_feature_incs="${NXT_PYTHON_INCLUDE}"
  nxt_feature_libs="${NXT_PYTHON_LIBS} $NXT_PYTHON_LDFLAGS"
  nxt_feature_test="
-@@ -132,33 +133,15 @@
+@@ -132,33 +138,11 @@ fi
  
  NXT_PYTHON_MOUNTS_HEADER=nxt_${NXT_PYTHON_MODULE}_mounts.h
  
@@ -48,15 +68,13 @@
 -            print(pattern % (p, p))
 -
 -print("};\n\n")
-+cat << END >> $NXT_BUILD_DIR/$NXT_PYTHON_MOUNTS_HEADER
- 
+-
 -' > $NXT_BUILD_DIR/$NXT_PYTHON_MOUNTS_HEADER
+-
++cat << END > $NXT_BUILD_DIR/$NXT_PYTHON_MOUNTS_HEADER
 +static const nxt_fs_mount_t  nxt_python_mounts[] = {
-+{(u_char *) "/usr/lib/python\${PYTHON3_VERSION_MAJOR}", (u_char *) "/usr/lib/python\${PYTHON3_VERSION_MAJOR}", NXT_FS_BIND, (u_char *) "bind", 0, NULL, 1, 1},
-+{(u_char *) "/root", (u_char *) "/root", NXT_FS_BIND, (u_char *) "bind", 0, NULL, 1, 1},
-+{(u_char *) "/usr/lib/python\${PYTHON3_VERSION_MAJOR//.}.zip", (u_char *) "/usr/lib/python\${PYTHON3_VERSION_MAJOR//.}.zip", NXT_FS_BIND, (u_char *) "bind", 0, NULL, 1, 1},
++{(u_char *) "/usr/lib/python${NXT_PYTHON_VERSION}", (u_char *) "/usr/lib/python${NXT_PYTHON_VERSION}", NXT_FS_BIND, (u_char *) "bind", 0, NULL, 1, 1},
 +};
- 
 +END
  
  $echo " + Python module: ${NXT_PYTHON_MODULE}.unit.so"

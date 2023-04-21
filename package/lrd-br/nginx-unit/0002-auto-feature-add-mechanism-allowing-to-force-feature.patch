@@ -1,13 +1,14 @@
 --- a/auto/feature	2023-02-28 09:52:32.000000000 -0500
 +++ b/auto/feature	2023-03-13 14:30:01.199654416 -0400
-@@ -51,40 +51,68 @@
+@@ -51,40 +51,70 @@
      case "$nxt_feature_run" in
  
          value)
 -            if /bin/sh -c "($NXT_AUTOTEST)" >> $NXT_AUTOCONF_ERR 2>&1; then
 -                $echo >> $NXT_AUTOCONF_ERR
 +            if test -n "$nxt_feature_run_force_result" ; then
-+                $echo " not tested (maybe cross-compiling)"
++                $echo " $nxt_feature_run_force_result (not tested, maybe cross-compiling)"
++                if test -n "$nxt_feature_name"; then
 +                cat << END >> $NXT_AUTO_CONFIG_H
 +
 +#ifndef $nxt_feature_name
@@ -15,6 +16,7 @@
 +#endif
 +
 +END
++                fi
                  nxt_found=yes
 -                nxt_feature_value=`$NXT_AUTOTEST`
 -                $echo " $nxt_feature_value"
