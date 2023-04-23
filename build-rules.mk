@@ -30,11 +30,12 @@ else
 PARALLEL_OPTS =
 endif
 
-.NOTPARALLEL:
+.PHONY: all clean
+all:
+	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_ALL)
 
-.PHONY: all clean cleanall
-all: $(TARGETS_ALL)
-clean: $(addsuffix -clean,$(TARGETS_ALL))
+clean:
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_ALL))
 
 $(patsubst %,$(OUTPUT_DIR)/%/.config,$(TARGETS_ALL)): $(OUTPUT_DIR)/%/.config: $(CONFIG_DIR)/%_defconfig
 	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* $*_defconfig
