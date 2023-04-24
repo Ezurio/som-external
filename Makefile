@@ -7,10 +7,10 @@ TARGETS_meta-radio = \
 	som60_rdvk wb50n_rdvk som60_lwb_mfg \
 	wb40n_rdvk wb40n_rdvk_3_2 bdimx6_rdvk
 
-TARGETS_toolchain = \
+TARGETS_meta-toolchain = \
 	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain
 
-TARGETS_meta-fips_dev = \
+TARGETS_meta-fips-dev = \
 	wb50nsd_sysd_fips_dev wb45n_legacy_fips_dev \
 	som60sd_fips_dev som60sd_fips_dev_dbg \
 	wb50nsd_sysd_fips_dev_dbg wb45n_legacy_fips_dev_dbg
