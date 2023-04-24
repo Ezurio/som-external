@@ -3,34 +3,32 @@ ARCH_lrd = arm-eabi arm-eabihf
 
 MAKE_TARGETS = $(foreach t,$(TARGETS_COMPONENT_$(1)), $(addprefix $(t)-,$(ARCH_$(1))))
 
-TARGETS_radio = \
+TARGETS_meta-radio = \
 	som60_rdvk wb50n_rdvk som60_lwb_mfg \
 	wb40n_rdvk wb40n_rdvk_3_2 bdimx6_rdvk
 
 TARGETS_toolchain = \
 	som60_toolchain wb4x_toolchain bdimx6_toolchain wb40_32_toolchain
 
-TARGETS_fips_dev = \
+TARGETS_meta-fips_dev = \
 	wb50nsd_sysd_fips_dev wb45n_legacy_fips_dev \
 	som60sd_fips_dev som60sd_fips_dev_dbg \
 	wb50nsd_sysd_fips_dev_dbg wb45n_legacy_fips_dev_dbg
 
-TARGETS_sysd = \
+TARGETS_meta-som = \
 	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips wb50nsd_sysd_fips \
-	som60 som60sd som60sd_mfg som60_fips som60sd_fips \
+	som60 som60sd som60sd_mfg som60_fips som60sd_fips som60sd_sdcsdk_nm \
 	ig60ll ig60llsd
 
-TARGETS_legacy = \
+TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy \
 	wb50n_legacy_fips wb45n_legacy_fips
 
-TARGETS_wbx3 = \
+TARGETS_meta-wbx3 = \
 	wb50nsd_sysd-wbx3 som60sd-wbx3 ig60sd-wbx3
 
 TARGETS = \
-    $(TARGETS_radio) $(TARGETS_toolchain) $(TARGETS_wbx3) \
-	$(TARGETS_sysd) $(TARGETS_legacy) $(TARGETS_fips_dev) \
-	som60sd_sdcsdk_nm
+	$(foreach t,som legacy wbx3 fips-dev toolchain radio,$(TARGETS_meta-$(t)))
 
 TARGETS_COMPONENT_all = mfg60n regLWB \
 	summit_supplicant_libs \
@@ -45,7 +43,7 @@ TARGETS_COMPONENT = \
 	backports backports-test firmware \
 	regCypress-aarch64
 
-TARGETS_COMPONENT_radio = $(filter-out %-powerpc32 adaptive_bt-% laird_openssl_% backports-test,$(TARGETS_COMPONENT))
+TARGETS_COMPONENT_meta-radio = $(filter-out %-powerpc32 adaptive_bt-% laird_openssl_% backports-test,$(TARGETS_COMPONENT))
 
 TARGETS_SRC = summit_supplicant-src lrd-network-manager-src adaptive_bt-src linux-docs
 
@@ -54,67 +52,38 @@ TARGETS_SRC = summit_supplicant-src lrd-network-manager-src adaptive_bt-src linu
 MK_DIR = $(realpath $(dir $(firstword $(MAKEFILE_LIST))))
 BR_DIR = $(realpath $(MK_DIR)/../buildroot)
 
-export BR2_EXTERNAL =
-
- TARGETS_SRC_CLEAN = $(addsuffix -clean,$(TARGETS_SRC))
-.PHONY: $(TARGETS_SRC) $(TARGETS_SRC_CLEAN)
-
-all:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_SRC)
-
-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_SRC_CLEAN)
-
-.PHONY: radio-stack radio-stack-clean som som-clean \
-	legacy legacy-clean wbx3 wbx3-clean fips-dev fips-dev-clean \
-	toolchain toolchain-clean ssl ssl-clean
-
-radio-stack:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_COMPONENT_radio) $(TARGETS_SRC)
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_radio) backports-test
-
-radio-stack-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_COMPONENT_radio) $(TARGETS_radio) backports-test)
-
-som:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_sysd)
-
-som-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_sysd))
-
-legacy:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_legacy)
-
-legacy-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_legacy))
-
-wbx3:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_wbx3)
-
-wbx3-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_wbx3))
-
-fips-dev:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_fips_dev)
-
-fips-dev-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_fips_dev))
-
-toolchain:
-	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_toolchain)
-
-toolchain-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_toolchain))
-
-ssl:
-	$(MAKE) $(PARALLEL_OPTS) $(filter laird_openssl_%,$(TARGETS_COMPONENT))
-
-ssl-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(filter laird_openssl_%,$(TARGETS_COMPONENT)))
-
 ifneq ($(wildcard $(BR_DIR)/../som-external/build-rules.mk),)
 include $(BR_DIR)/../som-external/build-rules.mk
 endif
+
+TARGETS_SRC_CLEAN = $(addsuffix -clean,$(TARGETS_SRC))
+
+.PHONY: $(TARGETS_SRC) $(TARGETS_SRC_CLEAN) \
+	$(addprefix meta-,som legacy wbx3 fips-dev toolchain radio-stack ssl) \
+	$(patsubst %,meta-%-clean,som legacy wbx3 fips-dev toolchain radio-stack ssl)
+
+all: $(addprefix meta-,radio-stack som legacy wbx3 ssl)
+
+clean: $(patsubst %,meta-%-clean,radio-stack som legacy wbx3 ssl)
+
+meta-radio-stack:
+	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_COMPONENT_meta-radio) $(TARGETS_SRC)
+	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_meta-radio) backports-test
+
+meta-radio-stack-clean:
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_COMPONENT_meta-radio) $(TARGETS_meta-radio) backports-test)
+
+meta-ssl:
+	$(MAKE) $(PARALLEL_OPTS) $(filter laird_openssl_%,$(TARGETS_COMPONENT))
+
+meta-ssl-clean:
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(filter laird_openssl_%,$(TARGETS_COMPONENT)))
+
+$(addprefix meta-,som legacy wbx3 fips-dev toolchain):
+	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_$@)
+
+$(patsubst %,meta-%-clean,som legacy wbx3 fips-dev toolchain): %-clean:
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_$*))
 
 OUTPUT_DIR ?= $(abspath $(MK_DIR)/../buildroot/output)
 

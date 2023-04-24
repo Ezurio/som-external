@@ -3,12 +3,13 @@
 
 vigiles_name := $(realpath $(BR_DIR)/../vigiles-buildroot)
 
-BR2_EXTERNAL ?= $(realpath $(MK_DIR))
-BR2_EXTERNAL += $(vigiles_name) \
+BR2_EXTERNAL += \
+	$(realpath $(MK_DIR)) \
 	$(realpath $(BR_DIR)/../som-external) \
-	$(realpath $(BR_DIR)/../lrd-closed-source-external)
+	$(realpath $(BR_DIR)/../lrd-closed-source-external) \
+	$(vigiles_name)
 
-export BR2_EXTERNAL
+export BR2_EXTERNAL := $(sort $(BR2_EXTERNAL))
 
 CONFIG_DIR ?= $(realpath $(MK_DIR)/configs)
 OUTPUT_DIR ?= $(abspath $(BR_DIR)/output)
@@ -23,7 +24,7 @@ endif
 
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
 
-PARALLEL_JOBS := $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+PARALLEL_JOBS := $(shell echo $$(($$(getconf _NPROCESSORS_ONLN) + 1)) 2>/dev/null || echo 1)
 ifneq ($(PARALLEL_JOBS),1)
 PARALLEL_OPTS = -j$(PARALLEL_JOBS) -Orecurse
 else
