@@ -24,7 +24,13 @@ endif
 
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
 
-PARALLEL_JOBS := $(shell echo $$(($$(getconf _NPROCESSORS_ONLN) + 1)) 2>/dev/null || echo 1)
+ifeq ($(BR2_JLEVEL),0)
+PARALLEL_JOBS := $(shell echo \
+	$$((1 + `getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`)))
+else
+PARALLEL_JOBS := $(BR2_JLEVEL)
+endif
+
 ifneq ($(PARALLEL_JOBS),1)
 PARALLEL_OPTS = -j$(PARALLEL_JOBS) -Orecurse
 else
