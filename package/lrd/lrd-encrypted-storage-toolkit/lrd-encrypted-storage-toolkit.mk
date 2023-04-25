@@ -38,6 +38,12 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 
 	ln -sf /data/secret/NetworkManager.state $(TARGET_DIR)/etc/NetworkManager/NetworkManager.state
 
+	if [ -d $(TARGET_DIR)/etc/nginx-unit/state ];then
+		mkdir -p $(BACKUP_SECRET_DIR)/nginx-unit
+		mv $(TARGET_DIR)/etc/nginx-unit/state/ $(BACKUP_SECRET_DIR)/nginx-unit;
+		ln -sf /data/secret/nginx-unit/state $(TARGET_DIR)/etc/nginx-unit/state
+	fi;
+
 	mkdir -p $(BACKUP_MISC_DIR)
 	mv $(TARGET_DIR)/etc/timezone $(BACKUP_MISC_DIR)
 

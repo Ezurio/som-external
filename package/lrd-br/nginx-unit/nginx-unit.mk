@@ -42,6 +42,10 @@ else
 NGINX_UNIT_CONF_OPTS += --no-regex
 endif
 
+ifeq ($(BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT),y)
+NGINX_UNIT_CONF_OPTS += --open-certs-readonly
+endif
+
 ifeq ($(BR2_PACKAGE_NGINX_UNIT_PYTHON_APP),y)
 NGINX_UNIT_DEPENDENCIES += python3
 
