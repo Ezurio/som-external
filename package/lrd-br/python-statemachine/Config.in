@@ -1,6 +1,0 @@
-config BR2_PACKAGE_PYTHON_STATEMACHINE
-	bool "python-statemachine"
-	help
-	  Python Finite State Machines made easy.
-
-	  https://github.com/fgmacedo/python-statemachine

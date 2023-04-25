@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/transitions/json
+md5  54d54d8de9222ef4be7961136d1b7e74  transitions-0.9.0.tar.gz
+sha256  2f54d11bdb225779d7e729011e93a9fb717668ce3dc65f8d4f5a5d7ba2f48e10  transitions-0.9.0.tar.gz
+# Locally computed sha256 checksums
+sha256  fd7115fc5517d1d2d042a80a33d92033532236830a9c25866112299fe33c036b  LICENSE

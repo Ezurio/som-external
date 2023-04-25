@@ -1,0 +1,8 @@
+config BR2_PACKAGE_PYTHON_TRANSITIONS
+	bool "python-transitions"
+	select BR2_PACKAGE_PYTHON_SIX # runtime
+	help
+	  A lightweight, object-oriented Python state machine
+	  implementation with many extensions.
+
+	  http://github.com/pytransitions/transitions
