@@ -52,7 +52,9 @@ endif
 SUMMIT_RCM_EXTRA_PACKAGES += \
 	summit_rcm/services \
 	summit_rcm/rest_api \
-	summit_rcm/rest_api/system
+	summit_rcm/rest_api/legacy \
+	summit_rcm/rest_api/v2 \
+	summit_rcm/rest_api/v2/system
 
 SUMMIT_RCM_ENV = SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
 
