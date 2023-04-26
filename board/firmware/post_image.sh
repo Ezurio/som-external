@@ -202,9 +202,7 @@ create_cyw5557x_firmware_archive()
 	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_${1^^}_${2^^}=y" ${BR2_CONFIG} || return
 
 	local CYPRESS_DIR=${FW_DIR}/cypress
-	[ "${1}" == "cyw55571" ] && FW_PROD=lwb6 || FW_PROD=lwb6plus
-
-	ln -rsf ${CYPRESS_DIR}/cyfmac55572-${FW_PROD}.txt ${CYPRESS_DIR}/cyfmac55572-${2}.txt
+	FW_PROD=lwb6plus
 
 	(
 	cd ${TARGET_DIR}
@@ -215,15 +213,13 @@ create_cyw5557x_firmware_archive()
 		lib/firmware/cypress/cyfmac55572-${2}-prod*.trxse \
 		lib/firmware/cypress/cyfmac55572-${2}.txt \
 		lib/firmware/cypress/cyfmac55572-${FW_PROD}.txt \
-		lib/firmware/cypress/cyfmac55572-lwb6x*.clm_blob \
+		lib/firmware/cypress/cyfmac55572-${FW_PROD}*.clm_blob \
 		lib/firmware/cypress/cyfmac55572-${2}.clm_blob \
 		-C ${BOARD_DIR} \
 		LICENSE
 	)
 }
 
-create_cyw5557x_firmware_archive cyw55571 pcie
-create_cyw5557x_firmware_archive cyw55571 sdio
 create_cyw5557x_firmware_archive cyw55573 pcie
 create_cyw5557x_firmware_archive cyw55573 sdio
 
