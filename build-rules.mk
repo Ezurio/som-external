@@ -24,17 +24,15 @@ endif
 
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
 
-ifeq ($(BR2_JLEVEL),0)
-PARALLEL_JOBS := $(shell echo \
-	$$((1 + `getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`)))
-else
-PARALLEL_JOBS := $(BR2_JLEVEL)
+ifeq ($(PARALLEL_JOBS),)
+PARALLEL_JOBS := $(shell echo $$((1 + `nproc 2>/dev/null || echo 0`)))
+else ifeq ($(PARALLEL_JOBS),0)
+PARALLEL_JOBS := $(shell echo $$((1 + `nproc 2>/dev/null || echo 0`)))
 endif
 
+PARALLEL_OPTS = -j$(PARALLEL_JOBS) PARALLEL_JOBS=$(PARALLEL_JOBS)
 ifneq ($(PARALLEL_JOBS),1)
-PARALLEL_OPTS = -j$(PARALLEL_JOBS) -Orecurse
-else
-PARALLEL_OPTS =
+PARALLEL_OPTS += -Orecurse
 endif
 
 .PHONY: all clean
