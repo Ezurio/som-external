@@ -230,7 +230,6 @@ tar -cjf "${BINARIES_DIR}/laird-ath6k-6003-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	--owner=0 --group=0 --numeric-owner \
 	lib/firmware/ath6k/AR6003 \
 	lib/firmware/regulatory_45.db \
-	lib/firmware/regulatory.db lib/firmware/regulatory.db.p7s
 fi
 
 if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_AR6004=y" ${BR2_CONFIG}; then
@@ -241,7 +240,6 @@ tar -cjf "${BINARIES_DIR}/laird-ath6k-6004-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	lib/firmware/ath6k/AR6004 \
 	lib/firmware/bluetopia \
 	lib/firmware/regulatory_50.db \
-	lib/firmware/regulatory.db lib/firmware/regulatory.db.p7s
 fi
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
