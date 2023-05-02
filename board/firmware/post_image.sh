@@ -202,7 +202,7 @@ create_cyw5557x_firmware_archive()
 	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_${1^^}_${2^^}=y" ${BR2_CONFIG} || return
 
 	local CYPRESS_DIR=${FW_DIR}/cypress
-	FW_PROD=lwb6plus
+	FW_PROD=if573
 
 	(
 	cd ${TARGET_DIR}
