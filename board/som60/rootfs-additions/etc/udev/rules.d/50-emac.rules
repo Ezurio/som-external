@@ -1,1 +1,0 @@
-ACTION=="add", SUBSYSTEM=="net", DRIVERS=="macb", RUN+="/usr/bin/setmac.sh"

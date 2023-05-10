@@ -1,1 +1,0 @@
-ACTION=="add", SUBSYSTEM=="net", RUN+="/usr/bin/setmac.sh"
