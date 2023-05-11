@@ -34,14 +34,13 @@ TARGETS_COMPONENT_all = mfg60n regLWB \
 	summit_supplicant_libs \
 	adaptive_ww adaptive_bt
 
-TARGETS_COMPONENT_lrd = reg45n reg50n regCypress \
+TARGETS_COMPONENT_lrd = reg45n reg50n \
 	laird_openssl_3_0_fips \
 	summit_supplicant_libs_legacy
 
 TARGETS_COMPONENT = \
 	$(call MAKE_TARGETS,all) $(call MAKE_TARGETS,lrd) \
-	backports backports-test firmware \
-	regCypress-aarch64
+	backports backports-test firmware
 
 TARGETS_COMPONENT_meta-radio = $(filter-out %-powerpc32 adaptive_bt-% laird_openssl_% backports-test,$(TARGETS_COMPONENT))
 

@@ -75,13 +75,14 @@ reg50*)
 	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/ath6k/AR6004/hw3.0/utf*"
 	;;
 
-regCypress*)
-	add_file ${BR2_LRD_PRODUCT} /usr/bin/wl
-	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4339-sdio-mfg_*.bin"
-	add_firmware ${BR2_LRD_PRODUCT} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43430-sdio-mfg_*.bin"
-	;;
-
 regLWB*)
+	if [ -f ${TARGET_DIR}/usr/bin/wl ]; then
+		lwbname=${BR2_LRD_PRODUCT/regLWB/regCypress}
+		add_file ${lwbname} /usr/bin/wl
+		add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac4339-sdio-mfg_*.bin"
+		add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43430-sdio-mfg_*.bin"
+	fi
+
 	lwbname=${BR2_LRD_PRODUCT/regLWB/regLWB5plus}
 	add_file ${lwbname} \
 		/usr/bin/lru \
