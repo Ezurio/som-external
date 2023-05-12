@@ -65,7 +65,7 @@ ROOTFS_START_MiB=${SWAP_END_MiB}
 ROOTFS_END_MiB=$(( ROOTFS_START_MiB + ROOTFS_IMG_SIZE_MiB ))
 
 TMPDIR=$(mktemp -d)
-IMGTMPFILE=${TMPDIR}/${IMGFILE}
+IMGTMPFILE=${TMPDIR}/${IMGFILE##*/}
 
 # Create disk image placeholder
 fallocate -l ${BOOT_START_MiB}MiB ${IMGTMPFILE}
