@@ -144,4 +144,8 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS
 	bool "enable fips provider"
 	default n
 
+config BR2_PACKAGE_LIBOPENSSL_DEBUG
+	bool "debug version"
+	default n
+
 endif # BR2_PACKAGE_LIBOPENSSL_3_0
