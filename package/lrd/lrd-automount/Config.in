@@ -20,4 +20,8 @@ config BR2_PACKAGE_LRD_AUTOMOUNT_MMC_USER
 	string "User to own mounted MMC drive"
 	depends on BR2_PACKAGE_LRD_AUTOMOUNT_MMC
 
+config BR2_PACKAGE_LRD_AUTOMOUNT_USB_UPDATE
+	bool "Enable USB update on mount"
+	depends on BR2_PACKAGE_LRD_AUTOMOUNT_USB
+	select BR2_PACKAGE_SWUPDATE
 endif

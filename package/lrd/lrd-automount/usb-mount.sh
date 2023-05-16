@@ -11,7 +11,7 @@ usage()
 
 parse_blkid()
 {
-    echo ${1} | sed "s/.*${2}=\"\([^\"]*\).*/\1/"
+    echo ${1} | sed -n "s/.*${2}=\"\([^\"]*\).*/\1/p"
 }
 
 if [ $# -lt 2 ]; then
@@ -55,7 +55,7 @@ do_mount()
         BLKID=$(/sbin/blkid ${DEVICE})
 
         ID_FS_TYPE=$(parse_blkid "${BLKID}" TYPE)
-        [ -n "${TYPE}" ] || \
+        [ -n "${ID_FS_TYPE}" ] || \
 			{ echo "${DEVICE} is not a fileystem"; exit 1; }
 
         ID_FS_LABEL=$(parse_blkid "${BLKID}" LABEL)
