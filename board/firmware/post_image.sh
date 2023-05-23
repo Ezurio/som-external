@@ -223,6 +223,14 @@ create_cyw5557x_firmware_archive()
 create_cyw5557x_firmware_archive cyw55573 pcie
 create_cyw5557x_firmware_archive cyw55573 sdio
 
+if grep -qF "BR2_PACKAGE_SONA_FIRMWARE_NX61X=y" ${BR2_CONFIG}; then
+tar -cjf "${BINARIES_DIR}/sona-nx61x-firmware${RELEASE_SUFFIX}.tar.bz2" \
+	-C ${TARGET_DIR} \
+	--owner=0 --group=0 --numeric-owner \
+	lib/firmware/nx61x
+fi
+
+
 if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_AR6003=y" ${BR2_CONFIG}; then
 ln -rsf ${FW_DIR}/regulatory_45.db ${FW_DIR}/regulatory.db
 tar -cjf "${BINARIES_DIR}/laird-ath6k-6003-firmware${RELEASE_SUFFIX}.tar.bz2" \
