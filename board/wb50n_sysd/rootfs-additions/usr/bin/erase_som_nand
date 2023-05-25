@@ -1,6 +1,18 @@
 #! /bin/sh
 
+if [ ${1} = '-h' ]; then
+    echo "usage: ${0} [-f] [-h]"
+    echo "  -f  - erase everything including bad and reserved blocks"
+    echo "  -h  - help message"
+    exit 0
+fi
+
 mtd=/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd
+
+if [ ${1} = '-f' ]; then
+    trap echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode EXIT
+    echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
+fi
 
 for i in $(ls ${mtd}); do
     case ${i} in
