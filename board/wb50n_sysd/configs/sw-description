@@ -250,12 +250,14 @@ software =
 				{
 					filename = "uboot.env";
 					mtdname = "u-boot-env-a";
+					transform = "ignore_bad";
 					type = "flash";
 					sha256 = "@uboot.env.sha256";
 				},
 				{
 					filename = "uboot.env";
 					mtdname = "u-boot-env-b";
+					transform = "ignore_bad";
 					type = "flash";
 					sha256 = "@uboot.env.sha256";
 				},
