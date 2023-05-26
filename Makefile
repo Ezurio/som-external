@@ -4,7 +4,7 @@ ARCH_lrd = arm-eabi arm-eabihf
 MAKE_TARGETS = $(foreach t,$(TARGETS_COMPONENT_$(1)), $(addprefix $(t)-,$(ARCH_$(1))))
 
 TARGETS_meta-radio = \
-	som60_rdvk wb50n_rdvk som60_lwb_mfg \
+	som60_rdvk wb50n_rdvk som60_lwb_mfg som60_nx61x_mfg\
 	wb40n_rdvk wb40n_rdvk_3_2 bdimx6_rdvk
 
 TARGETS_meta-toolchain = \
@@ -34,7 +34,7 @@ TARGETS_COMPONENT_all = mfg60n regLWB \
 	summit_supplicant_libs \
 	adaptive_ww adaptive_bt
 
-TARGETS_COMPONENT_lrd = reg45n reg50n \
+TARGETS_COMPONENT_lrd = reg45n reg50n sona-nx-bridge\
 	laird_openssl_3_0_fips \
 	summit_supplicant_libs_legacy
 
