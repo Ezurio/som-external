@@ -28,28 +28,5 @@ if [ -z "${UPDATE_FILE}" ]; then
 fi
 
 echo "Performing update from ${UPDATE_FILE}"
-# Run device updating platform-specific hook
-[ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh updating
-# Attempt update (no reboot)
-if fw_update -x r "${UPDATE_FILE}" ; then
-    if [ -x /usr/sbin/migrate_data.sh ]; then
-        if /usr/sbin/migrate_data.sh ; then
-            echo "Data migrate successful, rebooting."
-            # Run device update complete platform-specific hook
-            [ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh complete
-            reboot
-            exit 0
-        else
-            echo "Data migrate failed."
-        fi
-    else
-        echo "Update successful, rebooting."
-        reboot
-        exit 0
-    fi
-else
-    echo "Firmware update failed."
-fi
-# Run device update failed platform-specific hook
-[ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh failed
-exit 1
+
+fw_update "${UPDATE_FILE}"

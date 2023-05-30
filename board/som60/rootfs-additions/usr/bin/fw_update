@@ -1,9 +1,14 @@
 #! /bin/sh
 
+notify() {
+    [ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh "${1}"
+}
+
 die() {
-    echo "${1}" >&2
+    notify failed
+    [ -z "${1}" ] || echo "${1}" >&2
     echo "Firmware update failed" >&2
-    exit 2
+    exit 1
 }
 
 usage() {
@@ -49,6 +54,8 @@ else
     p_method=${o_method}-${o_side}
 fi
 
+notify updating
+
 ${o_quiet} && exec >/dev/null
 
 case "${url}" in
@@ -77,12 +84,15 @@ case "${url}" in
     ;;
 esac
 
-if [ $? -eq 0 ]; then
-    echo "Firmware update succeeded" >&2
-    if ${o_restart} && ! ${run_on_sd}; then
-        reboot
-    fi
-else
-    echo "Firmware update failed" >&2
-    exit 1
+[ $? -eq 0 ] || die ""
+
+if [ "${o_method}" != complete ] && [ -x /usr/sbin/migrate_data.sh ]; then
+    /usr/sbin/migrate_data.sh || die "Data migrate failed"
+fi
+
+notify complete
+echo "Firmware update succeeded" >&2
+
+if ${o_restart} && ! ${run_on_sd}; then
+    reboot
 fi
