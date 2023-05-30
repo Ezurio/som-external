@@ -2,4 +2,4 @@ initlrd=
 
 setenv bootargs "root=/dev/mmcblk0p3 rootwait resume=/dev/mmcblk0p2 resumewait rw
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
-loglevel=4 ima_appraise=off evm=fix ${bootargs}"
+loglevel=4 ${bootargs}"
