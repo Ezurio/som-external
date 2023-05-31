@@ -155,6 +155,8 @@ rm -rf "${TARGET_DIR}/usr/lib/gobject-introspection/"
 rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -f ${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress
 
+${SD} && echo 'export TMPDIR=/var/' > ${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf
+
 if [ ! -x ${TARGET_DIR}/usr/lib/systemd/systemd ]; then
 	rm -rf ${TARGET_DIR}/usr/lib/systemd
 	rm -rf ${TARGET_DIR}/etc/systemd
