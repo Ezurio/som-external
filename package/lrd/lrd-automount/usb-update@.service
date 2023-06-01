@@ -1,7 +1,0 @@
-[Unit]
-BindTo=%i.device
-After=%i.device
-
-[Service]
-ExecStart=/usr/bin/usb-update.sh /%I
-KeyringMode=inherit
