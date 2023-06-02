@@ -5,6 +5,7 @@ config BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
 	select BR2_PACKAGE_HOST_CRYPTSETUP
 	select BR2_PACKAGE_FSCRYPTCTL_1
 	select BR2_PACKAGE_HOST_FSCRYPTCTL_1
+	select BR2_PACKAGE_BLUEZ5_UTILS_SECURE_STORAGE if BR2_PACKAGE_BLUEZ5_UTILS
 	help
 	  Toolkit for implementing Laird's U-Boot encryption
 	  with Linux per directory encryption. This is part of
