@@ -1,0 +1,12 @@
+[Unit]
+Description=Persistent Journal Storage Bind
+RequiresMountsFor=/perm
+
+[Mount]
+What=/perm/log/journal
+Where=/var/log/journal
+Type=none
+Options=bind
+
+[Install]
+WantedBy=systemd-journald.service
