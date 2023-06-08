@@ -1,0 +1,129 @@
+--- a/src/nxt_app_log.c	2023-02-28 09:52:32.000000000 -0500
++++ b/src/nxt_app_log.c	2023-06-09 15:33:45.797827265 -0400
+@@ -20,9 +20,7 @@
+ nxt_log_time_handler(nxt_uint_t level, nxt_log_t *log, const char *fmt, ...)
+ {
+     u_char             *p, *end;
+-#if 0
+     u_char             *syslogmsg;
+-#endif
+     va_list            args;
+     nxt_thread_t       *thr;
+     nxt_time_string_t  *time_cache;
+@@ -37,9 +35,7 @@
+ 
+     p = nxt_thread_time_string(thr, time_cache, msg);
+ 
+-#if 0
+     syslogmsg = p;
+-#endif
+ 
+ #if 0
+     nxt_fid_t    fid;
+@@ -80,21 +76,13 @@
+         p = end - nxt_length("\n");
+     }
+ 
+-    *p++ = '\n';
++    // *p++ = '\n';
+ 
+-    (void) nxt_write_console(nxt_stderr, msg, p - msg);
++    // (void) nxt_write_console(nxt_stderr, msg, p - msg);
+ 
+-#if 0
+-    if (level == NXT_LOG_ALERT) {
+-        *(p - nxt_length("\n")) = '\0';
+-
+-        /*
+-         * The syslog LOG_ALERT level is enough, because
+-         * LOG_EMERG level broadcasts a message to all users.
+-         */
+-        nxt_write_syslog(LOG_ALERT, syslogmsg);
+-    }
+-#endif
++    *p++ = '\0';
++    openlog("unit", LOG_PID, LOG_USER);
++    nxt_write_syslog(nxt_log_level_to_syslog_level(level), syslogmsg);
+ }
+ 
+ 
+--- a/src/nxt_log.c	2023-02-28 09:52:32.000000000 -0500
++++ b/src/nxt_log.c	2023-06-09 15:33:52.177825011 -0400
+@@ -62,14 +62,30 @@
+     return old;
+ }
+ 
++nxt_uint_t nxt_log_level_to_syslog_level(nxt_uint_t level)
++{
++    switch (level) {
++    case NXT_LOG_ALERT:
++	    return LOG_ALERT;
++    case NXT_LOG_ERR:
++	    return LOG_ERR;
++    case NXT_LOG_WARN:
++	    return LOG_WARNING;
++    case NXT_LOG_NOTICE:
++	    return LOG_NOTICE;
++    default:
++    case NXT_LOG_INFO:
++	    return LOG_INFO;
++    case NXT_LOG_DEBUG:
++	    return LOG_DEBUG;
++    }
++}
+ 
+ void nxt_cdecl
+ nxt_log_handler(nxt_uint_t level, nxt_log_t *log, const char *fmt, ...)
+ {
+     u_char   *p, *end;
+-#if 0
+     u_char   *syslogmsg;
+-#endif
+     va_list  args;
+     u_char   msg[NXT_MAX_ERROR_STR];
+ 
+@@ -82,9 +98,7 @@
+         *p++ = ' ';
+     }
+ 
+-#if 0
+     syslogmsg = p;
+-#endif
+ 
+     p = nxt_sprintf(p, end, (log->ident != 0) ? "[%V] *%D " : "[%V] ",
+                     &nxt_log_levels[level], log->ident);
+@@ -101,19 +115,11 @@
+         p = end - nxt_length("\n");
+     }
+ 
+-    *p++ = '\n';
++    // *p++ = '\n';
+ 
+-    (void) nxt_write_console(nxt_stderr, msg, p - msg);
++    // (void) nxt_write_console(nxt_stderr, msg, p - msg);
+ 
+-#if 0
+-    if (level == NXT_LOG_ALERT) {
+-        *(p - nxt_length("\n")) = '\0';
+-
+-        /*
+-         * Syslog LOG_ALERT level is enough, because
+-         * LOG_EMERG level broadcast a message to all users.
+-         */
+-        nxt_write_syslog(LOG_ALERT, syslogmsg);
+-    }
+-#endif
++    *p++ = '\0';
++    openlog("unit", LOG_PID, LOG_USER);
++    nxt_write_syslog(nxt_log_level_to_syslog_level(level), syslogmsg);
+ }
+--- a/src/nxt_log.h	2023-02-28 09:52:32.000000000 -0500
++++ b/src/nxt_log.h	2023-06-08 15:55:21.626575800 -0400
+@@ -39,6 +39,7 @@
+ 
+ NXT_EXPORT void nxt_cdecl nxt_log_handler(nxt_uint_t level, nxt_log_t *log,
+     const char *fmt, ...);
++NXT_EXPORT nxt_uint_t nxt_log_level_to_syslog_level(nxt_uint_t level);
+ 
+ 
+ #define nxt_log_level_enough(log, level)                                      \
