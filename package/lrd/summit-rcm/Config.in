@@ -142,4 +142,15 @@ config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
 	help
 		Enable the Summit RCM AT command interface
 
+config BR2_PACKAGE_SUMMIT_RCM_V2_ROUTES
+	bool "v2 REST API routes"
+	default y
+	help
+		Enable the Summit RCM v2 REST API routes
+
+config BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES
+	bool "Legacy REST API routes"
+	help
+		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
+
 endif
