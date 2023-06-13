@@ -153,4 +153,18 @@ config BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES
 	help
 		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
 
+config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
+	string "Set AT Interface Serial Port"
+	default "/dev/ttyS2"
+	depends on BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
+	help
+		Enable Configuration of the AT Interface serial port
+
+config BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE
+	int "Set AT Interface Baud Rate"
+	default 3000000
+	depends on BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
+	help
+		Enable Configuration of the AT Interface baud rate
+
 endif

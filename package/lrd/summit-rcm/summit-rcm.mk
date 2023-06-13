@@ -15,6 +15,7 @@ endif
 SUMMIT_RCM_DEFAULT_USERNAME = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USERNAME))
 SUMMIT_RCM_DEFAULT_PASSWORD = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD))
 SUMMIT_RCM_BIND_IP = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_BIND_IP))
+SUMMIT_RCM_SERIAL_PORT = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT))
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AWM),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm
@@ -93,6 +94,9 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(SED) '/^enable_client_auth/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a enable_client_auth: \
 		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+
+	$(SED) '/\[summit-rcm\]/a serial_port: \"$(SUMMIT_RCM_SERIAL_PORT)\"' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE)' $(TARGET_DIR)/etc/summit-rcm.ini
 
 	$(INSTALL) -d $(TARGET_DIR)/etc/nginx-unit/state/certs
 	echo '{\
