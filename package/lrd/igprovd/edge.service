@@ -11,9 +11,6 @@ Restart=always
 RestartSec=30
 ExecStart=/opt/edge/edge
 StandardOutput=null
-StandardError=syslog
-SyslogIdentifier=edge
-KillMode=process
 
 [Install]
 WantedBy=multi-user.target
