@@ -1,9 +1,9 @@
 [Unit]
 Description=Edge service
-Wants=network-online.target
 After=network.target network-online.target
 StartLimitInterval=300
 StartLimitBurst=5
+ConditionPathExists=/opt/edge/edge
 
 [Service]
 KillMode=process

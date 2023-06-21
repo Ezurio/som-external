@@ -1,12 +1,11 @@
 [Unit]
 Description=IG Configuration Service
-Wants=network.target igprovd.service
+Wants=igprovd.service
 After=network.target igprovd.service
 
 [Service]
 Type=notify
-ExecStart=python3 --check-hash-based-pycs never /usr/bin/igconfd
-KeyringMode=inherit
+ExecStart=/usr/bin/igconfd
 
 [Install]
 WantedBy=multi-user.target

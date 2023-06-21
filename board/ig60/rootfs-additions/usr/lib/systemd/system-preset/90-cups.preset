@@ -1,0 +1,4 @@
+disable cups.service
+disable cups.socket
+disable cups.path
+disable cups-lpd.socket

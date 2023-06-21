@@ -171,8 +171,8 @@ if grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.c
 fi
 
 # Path to common image files
-CCONF_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/configs-common/image)"
-CSCRIPT_DIR="$(realpath $BR2_EXTERNAL_LRD_SOM_PATH/board/scripts-common)"
+CCONF_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/configs-common/image)"
+CSCRIPT_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/scripts-common)"
 
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
 if ${SECURE_BOOT} ; then
