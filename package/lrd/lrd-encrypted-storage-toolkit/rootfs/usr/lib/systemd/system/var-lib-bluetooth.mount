@@ -1,0 +1,15 @@
+[Unit]
+Description=Bluetooth Storage Bind
+BindsTo=mount_data.service
+After=mount_data.service
+Before=bluetooth.service
+
+[Mount]
+What=/data/secret/bluetooth
+Where=/var/lib/bluetooth
+Type=none
+Options=bind
+DirectoryMode=0700
+
+[Install]
+RequiredBy=bluetooth.service

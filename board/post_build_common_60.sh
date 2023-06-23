@@ -84,7 +84,7 @@ if [ -x ${TARGET_DIR}/usr/sbin/NetworkManager ]; then
 mkdir -p ${TARGET_DIR}/etc/NetworkManager/system-connections
 
 # Make sure connection files have proper attributes
-for f in ${TARGET_DIR}/etc/NetworkManager/system-connections/* ; do
+for f in ${TARGET_DIR}/usr/lib/NetworkManager/system-connections/* ${TARGET_DIR}/etc/NetworkManager/system-connections/* ; do
 	if [ -f "${f}" ] ; then
 		chmod 600 "${f}"
 	fi
@@ -122,6 +122,7 @@ else
 	if [ -e ${TARGET_DIR}/etc/bluetooth/main.conf ]; then
 		sed -i "s/.*Name *=.*/Name = Summit-${BR2_LRD_PRODUCT^^}/" ${TARGET_DIR}/etc/bluetooth/main.conf
 	fi
+	sed -i 's/ConfigurationDirectoryMode=0555/ConfigurationDirectoryMode=0755/g' ${TARGET_DIR}/usr/lib/systemd/system/bluetooth.service
 fi
 
 # Remove autoloading cryptodev module when not present
