@@ -17,7 +17,7 @@ rm -f ${TARGET_DIR}/etc/init.d/S50lighttpd
 rm -f ${TARGET_DIR}/etc/init.d/S20urandom
 rm -f ${TARGET_DIR}/etc/init.d/S40network
 rm -f ${TARGET_DIR}/etc/init.d/S41dhcpcd
-rm -f ${TARGET_DIR}/etc/init.d/S40bluetooth
+rm -f ${TARGET_DIR}/etc/init.d/S40bluetoothd
 rm -f ${TARGET_DIR}/etc/init.d/S35iptables 
 
 # remove perl cruft
