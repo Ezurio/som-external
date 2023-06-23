@@ -1,8 +1,5 @@
 [Unit]
 Description=Mount Data Partition
-DefaultDependencies=false
-Wants=local-fs.target
-Before=multi-user.target
 
 [Service]
 Type=oneshot
@@ -10,6 +7,3 @@ RemainAfterExit=yes
 ExecStart=/usr/sbin/mount_data.sh start
 ExecStop=/usr/sbin/mount_data.sh stop
 KeyringMode=inherit
-
-[Install]
-WantedBy=local-fs.target

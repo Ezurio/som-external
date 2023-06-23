@@ -1,12 +1,8 @@
 [Unit]
 Description=Factory Data
 ConditionPathExists=/etc/rodata/rodata.img
-Before=local-fs.target
 
 [Mount]
 What=/etc/rodata/rodata.img
 Where=/rodata
-Options=ro,nosuid,noexec,nodev,loop=/dev/loop0
-
-[Install]
-WantedBy=local-fs.target
+Options=ro,nosuid,noexec,nodev
