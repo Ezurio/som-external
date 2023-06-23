@@ -1,0 +1,16 @@
+[connection]
+id=ethernet
+uuid=8e428f4e-15a3-495c-a3ff-787160394de1
+type=ethernet
+autoconnect-priority=-999
+
+[ethernet]
+
+[ipv4]
+method=auto
+
+[ipv6]
+addr-gen-mode=default
+method=auto
+
+[proxy]
