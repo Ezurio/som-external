@@ -71,29 +71,29 @@ do_platform_ethernet_mac_address_check() {
   # A totally random value may be created by the kernel, if it is missing.
   # If the value has a wrong OUI or zero'd, then a new address is generated.
   # The valid OUIs are:
-  OUI_summit=00:17:23
-  OUI_laird=c0:ee:40
 
   # determine if the mac address is valid
   if [ -f /sys/class/net/eth0/address ];
   then
     read -r mac </sys/class/net/eth0/address
-    if [ "${mac:9}" = "00:00:00" ] \
-    || [ "${mac:0:8}" != "${OUI_summit}" -a "${mac:0:8}" != "${OUI_laird}" ]
+    case "${mac}" in
+    00:17:23*|c0:ee:40*|b0:fb:15*)
+      [ "${mac:9}" != "00:00:00" ] || random_mac="${mac:0:8}"
+      ;;
+    *)
+      random_mac="$(grep -om1 ethaddr=..:..:.. /dev/mtd1)"
+      random_mac=${random_mac#ethaddr=}
+      ;;
+    esac
+
+    if [ -n "$random_mac" ]
     then
-      echo "  invalid/null Ethernet MAC address detected: $mac"
-      # get this device's OUI via u-boot default or assume via /etc/*-release
-      oui=$( grep -om1 ethaddr=..:..:.. /dev/mtd1 || eval echo \$OUI_${rfn} )
-      oui=${oui#*=}
-      random_mac=`dd if=/dev/urandom bs=1 count=3 2>/dev/null \
-        |/usr/bin/od -t x1 -N 3 \
-        |/bin/sed -n "1s/^....... \(..\) \(..\) \(..\)/$oui:\1:\2:\3/p"`
+      oui=$(dd status=none if=/dev/urandom bs=1 count=3 | /usr/bin/od -t x1 -A n)
+      random_mac="$random_mac${oui// /:}"
 
       echo "    setting temporary (randomized) mac address: $random_mac"
       ip link set address $random_mac dev eth0
-      #fw_setenv ethaddr $random_mac
-      touch /tmp/eth0_has_random_mac
-      touch /tmp/platform_update_request
+      touch /tmp/eth0_has_random_mac /tmp/platform_update_request
     fi
   fi
 }
