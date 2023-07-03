@@ -33,7 +33,7 @@ config BR2_PACKAGE_ADAPTIVE_WW_BINARIES_INTF_NONE
 endchoice
 
 choice
-	prompt "AWM's running mode"
+	prompt "AWM's operating mode"
 	default BR2_PACKAGE_ADAPTIVE_WW_BINARIES_MODE_FULL
 
 config BR2_PACKAGE_ADAPTIVE_WW_BINARIES_MODE_FULL
