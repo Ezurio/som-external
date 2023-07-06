@@ -197,6 +197,31 @@ create_bcm4373_usb_usb_firmware_archive sa sa
 create_bcm4373_usb_usb_firmware_archive div div
 create_bcm4373_usb_usb_firmware_archive sa_m2 sa-m2
 
+create_cyw55513_firmware_archive()
+{
+	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_${1^^}_SDIO=y" ${BR2_CONFIG} || return
+
+	local CYPRESS_DIR=${FW_DIR}/cypress
+	FW_PROD=if513
+
+	(
+	cd ${TARGET_DIR}
+	tar -cjf "${BINARIES_DIR}/laird-${FW_PROD}-sdio-firmware${RELEASE_SUFFIX}.tar.bz2" \
+		lib/firmware/brcm/CYW55500A0.hcd \
+		lib/firmware/cypress/CYW55500A0_*.hcd \
+		lib/firmware/cypress/cyfmac55500-sdio.trxse \
+		lib/firmware/cypress/cyfmac55500-sdio-prod*.trxse \
+		lib/firmware/cypress/cyfmac55500-sdio.txt \
+		lib/firmware/cypress/cyfmac55500-${FW_PROD}.txt \
+		lib/firmware/cypress/cyfmac55500-${FW_PROD}*.clm_blob \
+		lib/firmware/cypress/cyfmac55500-sdio.clm_blob \
+		-C ${BOARD_DIR} \
+		LICENSE
+	)
+}
+
+create_cyw55513_firmware_archive cyw55513
+
 create_cyw5557x_firmware_archive()
 {
 	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_${1^^}_${2^^}=y" ${BR2_CONFIG} || return

@@ -110,6 +110,15 @@ regLWB*)
 		/usr/lib/${LIBNCURSESLRD}
 
 	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/cypress/cyfmac55572-*-mfg_*.trxse"
+
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regSONA}
+	add_file ${lwbname} \
+		/usr/bin/lru \
+		/usr/bin/btlru \
+		/usr/lib/${LIBEDITLRD} \
+		/usr/lib/${LIBNCURSESLRD}
+
+	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/cypress/cyfmac55500-sdio-mfg_*.trxse"
 	;;
 
 *)
