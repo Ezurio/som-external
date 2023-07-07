@@ -99,6 +99,11 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 
 	$(INSTALL) -d $(TARGET_DIR)/etc/nginx-unit/state/certs
 	echo '{\
+		"settings":{\
+			"http":{\
+				"max_body_size":$(BR2_PACKAGE_SUMMIT_RCM_MAX_BODY_SIZE)\
+			}\
+		},\
 		"listeners":{\
 			"$(SUMMIT_RCM_BIND_IP):443":{\
 				"pass":"applications/summit-rcm",\

@@ -153,6 +153,13 @@ config BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES
 	help
 		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
 
+config BR2_PACKAGE_SUMMIT_RCM_MAX_BODY_SIZE
+	int "Max HTTP body size"
+	default 8388608 if BR2_LRD_WB50N_RADIO
+	default 104857600
+	help
+		Maximum HTTP request body size
+
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
 	string "Set AT Interface Serial Port"
 	default "/dev/ttyS2"
