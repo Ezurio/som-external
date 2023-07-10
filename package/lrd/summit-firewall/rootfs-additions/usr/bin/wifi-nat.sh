@@ -5,9 +5,13 @@ start() {
   ip6tables-restore </etc/wifi6-nat.conf
 
   [ ! -f /etc/default/wifi-nat ] || . /etc/default/wifi-nat start
+
+  sysctl -qw net.ipv4.ip_forward=1 net.ipv6.conf.all.forwarding=1
 }
 
 stop() {
+  sysctl -qw net.ipv4.ip_forward=0 net.ipv6.conf.all.forwarding=0
+
   [ ! -f /etc/default/wifi-nat ] || . /etc/default/wifi-nat stop
 
   # flushing all rules (really we should just delete what we created)
