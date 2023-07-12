@@ -62,8 +62,6 @@ define WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS
 		$(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/server.crt \
 		$(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt
 
-	$(INSTALL) -D -t $(TARGET_DIR)/etc/weblcm-python/ssl/ $(BR2_EXTERNAL_LRD_SOM_PATH)/board
-
 	$(SED) '/^default_/d' $(TARGET_DIR)/etc/weblcm-python.ini
 	$(SED) '/\[weblcm\]/a default_password: \"$(WEBLCM_PYTHON_DEFAULT_PASSWORD)\"' $(TARGET_DIR)/etc/weblcm-python.ini
 	$(SED) '/\[weblcm\]/a default_username: \"$(WEBLCM_PYTHON_DEFAULT_USERNAME)\"' $(TARGET_DIR)/etc/weblcm-python.ini
