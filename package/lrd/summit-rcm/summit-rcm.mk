@@ -14,7 +14,6 @@ endif
 
 SUMMIT_RCM_DEFAULT_USERNAME = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USERNAME))
 SUMMIT_RCM_DEFAULT_PASSWORD = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD))
-SUMMIT_RCM_BIND_IP = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_BIND_IP))
 SUMMIT_RCM_SERIAL_PORT = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT))
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AWM),y)
@@ -67,6 +66,11 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 
 	$(INSTALL) -D -t $(TARGET_DIR)/etc -m 644 $(@D)/summit-rcm.ini
 
+	$(INSTALL) -D -t $(TARGET_DIR)/etc/summit-rcm/ssl -m 644 \
+		$(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/server.key \
+		$(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/server.crt \
+		$(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt
+
 	$(SED) '/^default_/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a default_password: \"$(SUMMIT_RCM_DEFAULT_PASSWORD)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a default_username: \"$(SUMMIT_RCM_DEFAULT_USERNAME)\"' $(TARGET_DIR)/etc/summit-rcm.ini
@@ -96,43 +100,12 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 
 	$(SED) '/\[summit-rcm\]/a serial_port: \"$(SUMMIT_RCM_SERIAL_PORT)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE)' $(TARGET_DIR)/etc/summit-rcm.ini
-
-	$(INSTALL) -d $(TARGET_DIR)/etc/nginx-unit/state/certs
-	echo '{\
-		"settings":{\
-			"http":{\
-				"max_body_size":$(BR2_PACKAGE_SUMMIT_RCM_MAX_BODY_SIZE)\
-			}\
-		},\
-		"listeners":{\
-			"$(SUMMIT_RCM_BIND_IP):443":{\
-				"pass":"applications/summit-rcm",\
-				"tls":{\
-					"certificate":"summit-rcm-bundle"\
-				}\
-			}\
-		},\
-		"applications":{\
-			"summit-rcm":{\
-				"type":"python",\
-				"path":"/lib/python$(PYTHON3_VERSION_MAJOR)/site-packages/summit_rcm",\
-				"module":"summit_rcm",\
-				"callable":"app"\
-			}\
-		}\
-	}' > $(TARGET_DIR)/etc/nginx-unit/state/conf.json
 endef
 
-ifeq ($(BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT),y)
-define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS2
-	ln -sf /rodata/secret/summit-rcm/ssl/summit-rcm-bundle.pem $(TARGET_DIR)/etc/nginx-unit/state/certs/summit-rcm-bundle
-endef
-else
-define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS2
-	cat $(@D)/ssl/server.crt $(@D)/ssl/ca.crt $(@D)/ssl/server.key > $(TARGET_DIR)/etc/nginx-unit/state/certs/summit-rcm-bundle
-endef
-endif
+SUMMIT_RCM_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 
-SUMMIT_RCM_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS2
+define SUMMIT_RCM_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -t $(TARGET_DIR)/usr/lib/systemd/system -m 644 $(@D)/summit-rcm.service
+endef
 
 $(eval $(python-package))

@@ -12,8 +12,7 @@ config BR2_PACKAGE_SUMMIT_RCM
 	select BR2_PACKAGE_PYTHON_AIOFILES
 	select BR2_PACKAGE_PYTHON_DBUS_FAST
 	select BR2_PACKAGE_PYTHON_FALCON
-	select BR2_PACKAGE_NGINX_UNIT
-	select BR2_PACKAGE_NGINX_UNIT_PYTHON_APP
+	select BR2_PACKAGE_PYTHON_UVICORN
 
 if BR2_PACKAGE_SUMMIT_RCM
 
@@ -104,12 +103,6 @@ config BR2_PACKAGE_SUMMIT_RCM_UNAUTHENTICATED
 	help
 		Add unauthenticated access support, for example, for factory reset and reboot endpoints.  Due to security concerns, this should never be enabled unless requested by a customer, and preferably never enabled if Summit RCM is exposed on a public/external zone interface.
 
-config BR2_PACKAGE_SUMMIT_RCM_BIND_IP
-	string "IP address to which the Summit RCM HTTP server binds"
-	default "*"
-	help
-		IP address to bind to for the Summit RCM HTTP server. Leave blank to bind to all IP addresses.
-
 config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 	bool "Allow multiple sessions per user"
 	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
@@ -152,13 +145,6 @@ config BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES
 	bool "Legacy REST API routes"
 	help
 		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
-
-config BR2_PACKAGE_SUMMIT_RCM_MAX_BODY_SIZE
-	int "Max HTTP body size"
-	default 8388608 if BR2_LRD_WB50N_RADIO
-	default 104857600
-	help
-		Maximum HTTP request body size
 
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
 	string "Set AT Interface Serial Port"

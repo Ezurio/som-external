@@ -38,18 +38,22 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 
 	ln -sf /data/secret/NetworkManager.state $(TARGET_DIR)/etc/NetworkManager/NetworkManager.state
 
-	if [ -d $(TARGET_DIR)/etc/nginx-unit/state ];then
-		mkdir -p $(BACKUP_SECRET_DIR)/nginx-unit
-		mv $(TARGET_DIR)/etc/nginx-unit/state/ $(BACKUP_SECRET_DIR)/nginx-unit;
-		ln -sf /data/secret/nginx-unit/state $(TARGET_DIR)/etc/nginx-unit/state
-	fi;
-
 	mkdir -p $(BACKUP_MISC_DIR)
 	mv $(TARGET_DIR)/etc/timezone $(BACKUP_MISC_DIR)
 
 	ln -sf /data/misc/timezone $(TARGET_DIR)/etc/timezone
 	ln -sf /data/misc/localtime $(TARGET_DIR)/etc/localtime
 	ln -sf /data/misc/adjtime $(TARGET_DIR)/etc/adjtime
+
+	if [ -d $(BACKUP_SECRET_DIR)/weblcm-python/ssl ]; then \
+		rm -rf $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
+		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
+	fi;
+
+	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
+		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
+		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
+	fi;
 endef
 
 LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK

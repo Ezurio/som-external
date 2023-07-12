@@ -1,0 +1,6 @@
+authorityKeyIdentifier=keyid,issuer
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = test.summit.com
+DNS.2 = *.summit.com

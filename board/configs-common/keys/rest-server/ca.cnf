@@ -1,0 +1,24 @@
+[ req ]
+default_bits = 2048
+default_md = sha256
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+countryName = Country Name (2 letter code)
+countryName_min = 2
+countryName_max = 2
+countryName_default = US
+stateOrProvinceName = State or Province Name (full name)
+stateOrProvinceName_default = OH
+localityName = Locality Name (eg, city)
+localityName_default = Akron
+organizationName = Organization Name (eg, company)
+organizationName_default = LairdConnectivity
+organizationalUnitName = Organizational Unit Name (eg, section)
+organizationalUnitName_default = IT
+commonName = Common Name (e.g. server FQDN or YOUR name)
+commonName_max = 64
+commonName_default = www.lairdconnect.com
+emailAddress = Email Address (eg, admin@example.com)
+emailAddress_max = 64
+emailAddress_default = info@lairdconnect.com

@@ -1,0 +1,33 @@
+
+=====Generate self signed certificates for the REST server===============
+
+1.Make change to ca.cnf, server.cnf and san.ext if need to generate new certificates
+
+2.Generate CA certificate
+openssl req -out ca.csr -newkey rsa:2048 -nodes -keyout ca.key -config ca.cnf
+openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt
+
+* ca.crt is the certificate to be imported by clients
+
+3.Generate server Certificate with SAN
+openssl req -out server.csr -newkey rsa:2048 -nodes -keyout server.key -config server.cnf
+openssl x509 -req -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt -sha256 -extfile san.ext
+
+* server.crt and server.key are needed by the REST server
+
+4. Access device by https://device-name.summit.com
+domain name needs to be added to /etc/hosts (c:\windows\system32\drivers\etc\hosts for windows) if it is not in the DNS server
+
+Example: add following items to /etc/hosts and access device by https://test.summit.com and https://som60.summit.com
+192.168.1.28 test.summit.com
+192.168.1.28 som60.summit.com
+
+
+=====Secure file transfer===============
+Reuse ca.key and ca.crt generated for https
+
+1. Encryption
+openssl smime -encrypt -aes256 -in test -binary -outform DER -out test.enc ca.crt
+
+2. Decryption
+openssl smime -decrypt -in test.enc -inform DER -inkey ca.key -out test
