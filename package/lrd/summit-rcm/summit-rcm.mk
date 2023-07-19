@@ -52,6 +52,9 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_V2_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += \
 		summit_rcm/rest_api/v2/system \
 		summit_rcm/rest_api/v2/network
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/login
+endif
 endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/legacy
