@@ -89,7 +89,7 @@ config BR2_PACKAGE_SUMMIT_RCM_HID
 config BR2_PACKAGE_SUMMIT_RCM_WEBSOCKETS
 	bool "Websockets support for BLE on Summit RCM"
 	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
-	select BR2_PACKAGE_PYTHON_WS4PY
+	select BR2_PACKAGE_PYTHON_WEBSOCKETS
 	help
 		Add Websockets streaming support for BLE REST API.
 
