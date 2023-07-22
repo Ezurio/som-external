@@ -81,6 +81,8 @@ config BR2_PACKAGE_SUMMIT_RCM_HID
 	bool "HID BT barcode scanner support for Summit RCM"
 	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
 	select BR2_PACKAGE_PYTHON_PYUDEV
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HID
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HOG
 	help
 		Add Bluetooth HID barcode scanner support to Summit RCM.
 
