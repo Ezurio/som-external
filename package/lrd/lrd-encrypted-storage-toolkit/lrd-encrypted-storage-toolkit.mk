@@ -13,8 +13,10 @@ BACKUP_SECRET_DIR = $(TARGET_DIR)/usr/share/factory/etc/secret
 BACKUP_MISC_DIR = $(TARGET_DIR)/usr/share/factory/etc/misc
 
 define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
-	unlink $(TARGET_DIR)/etc/dropbear; \
-	mkdir -p $(TARGET_DIR)/etc/dropbear; \
+	if [ -d $(TARGET_DIR)/etc/dropbear ]; then \
+		unlink $(TARGET_DIR)/etc/dropbear; \
+		mkdir -p $(TARGET_DIR)/etc/dropbear; \
+	fi;
 
 	mkdir -p $(BACKUP_SECRET_DIR)
 	for BACKUP_TARGET in "firewalld" "weblcm-python" "modem" "stunnel" "chrony" "dropbear" "summit-rcm"; do \
