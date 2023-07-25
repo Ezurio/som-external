@@ -46,7 +46,8 @@ endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += \
 		summit_rcm/at_interface \
-		summit_rcm/at_interface/commands
+		summit_rcm/at_interface/commands \
+		summit_rcm/at_interface/services
 endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_V2_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += \
