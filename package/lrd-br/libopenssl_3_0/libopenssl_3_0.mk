@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBOPENSSL_3_0_VERSION = 3.0.8
+LIBOPENSSL_3_0_VERSION = 3.1.1
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = OpenSSL or SSLeay

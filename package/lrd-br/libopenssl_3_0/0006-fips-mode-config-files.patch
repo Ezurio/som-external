@@ -1,4 +1,4 @@
-From 39f2ec9dd7adb4cdf97a15751132d987701b6437 Mon Sep 17 00:00:00 2001
+From 7bc9d46544806f73bc7e3eb95beb9210a783f5aa Mon Sep 17 00:00:00 2001
 From: "Doug.Smith" <doug.smith@lairdconnect.com>
 Date: Wed, 6 Jul 2022 16:15:15 -0400
 Subject: [PATCH] fips mode config files
@@ -20,7 +20,7 @@ otherwise .include will fail.
  create mode 100644 apps/openssl.cnf.fips
 
 diff --git a/Configurations/unix-Makefile.tmpl b/Configurations/unix-Makefile.tmpl
-index ef3db18..576ba35 100644
+index 88b89c3305..badad4706e 100644
 --- a/Configurations/unix-Makefile.tmpl
 +++ b/Configurations/unix-Makefile.tmpl
 @@ -108,6 +108,10 @@ FIPSMODULE={- # We do some extra checking here, as there should be only one
@@ -34,7 +34,7 @@ index ef3db18..576ba35 100644
  PROGRAMS={- join(" \\\n" . ' ' x 9,
                   fill_lines(" ", $COLUMNS - 9,
                              map { platform->bin($_) }
-@@ -674,9 +678,11 @@ install_ssldirs:
+@@ -675,9 +679,11 @@ install_ssldirs:
  	@cp $(SRCDIR)/apps/openssl.cnf $(DESTDIR)$(OPENSSLDIR)/openssl.cnf.new
  	@chmod 644 $(DESTDIR)$(OPENSSLDIR)/openssl.cnf.new
  	@mv -f  $(DESTDIR)$(OPENSSLDIR)/openssl.cnf.new $(DESTDIR)$(OPENSSLDIR)/openssl.cnf.dist
@@ -50,7 +50,7 @@ index ef3db18..576ba35 100644
  	@$(ECHO) "install $(SRCDIR)/apps/ct_log_list.cnf -> $(DESTDIR)$(OPENSSLDIR)/ct_log_list.cnf.dist"
 diff --git a/apps/openssl.cnf.fips b/apps/openssl.cnf.fips
 new file mode 100644
-index 0000000..7d7ed3a
+index 0000000000..f84b185e5a
 --- /dev/null
 +++ b/apps/openssl.cnf.fips
 @@ -0,0 +1,394 @@
@@ -69,7 +69,7 @@ index 0000000..7d7ed3a
 +# defined.
 +HOME			= .
 +
-+ # Use this in order to automatically load providers.
++# Use this in order to automatically load providers.
 +openssl_conf = openssl_init
 +
 +# Comment out the next line to ignore configuration errors
@@ -152,7 +152,7 @@ index 0000000..7d7ed3a
 +crlnumber	= $dir/crlnumber	# the current crl number
 +					# must be commented out to leave a V1 CRL
 +crl		= $dir/crl.pem 		# The current CRL
-+private_key	= $dir/private/cakey.pem# The private key
++private_key	= $dir/private/cakey.pem # The private key
 +
 +x509_extensions	= usr_cert		# The extensions to add to the cert
 +
@@ -416,7 +416,7 @@ index 0000000..7d7ed3a
 +# Certificate enrollment
 +subject = "/CN=openssl-cmp-test"
 +newkey = insta.priv.pem
-+out_trusted = insta.ca.crt
++out_trusted = apps/insta.ca.crt # does not include keyUsage digitalSignature
 +certout = insta.cert.pem
 +
 +[pbm] # Password-based protection for Insta CA
@@ -426,7 +426,7 @@ index 0000000..7d7ed3a
 +
 +[signature] # Signature-based protection for Insta CA
 +# Server authentication
-+trusted = insta.ca.crt # does not include keyUsage digitalSignature
++trusted = $insta::out_trusted # apps/insta.ca.crt
 +
 +# Client authentication
 +secret = # disable PBM
@@ -449,10 +449,10 @@ index 0000000..7d7ed3a
 +cmd = rr
 +oldcert = $insta::certout # insta.cert.pem
 diff --git a/util/mk-fipsmodule-cnf.pl b/util/mk-fipsmodule-cnf.pl
-index 6a86e06..e7f7ec9 100644
+index e144df2c1e..affdfb5301 100644
 --- a/util/mk-fipsmodule-cnf.pl
 +++ b/util/mk-fipsmodule-cnf.pl
-@@ -37,7 +37,7 @@ my $module_mac = join(':', @module_mac);
+@@ -42,7 +42,7 @@ my $module_mac = join(':', @module_mac);
  
  print <<_____;
  [$section_name]
@@ -460,7 +460,7 @@ index 6a86e06..e7f7ec9 100644
 +# activate = $activate
  conditional-errors = $conditional_errors
  security-checks = $security_checks
- module-mac = $module_mac
+ ems_check = $ems_check
 -- 
-2.17.1
+2.34.1
 
