@@ -38,6 +38,10 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 		ln -sf /data/secret/NetworkManager/$${SM_SUB_DIR} $(TARGET_DIR)/etc/NetworkManager/$${SM_SUB_DIR}; \
 	done
 
+	if [ -f $(TARGET_DIR)/etc/NetworkManager/NetworkManager.state ];then \
+		mv $(TARGET_DIR)/etc/NetworkManager/NetworkManager.state $(BACKUP_SECRET_DIR)
+	fi
+
 	ln -sf /data/secret/NetworkManager.state $(TARGET_DIR)/etc/NetworkManager/NetworkManager.state
 
 	mkdir -p $(BACKUP_MISC_DIR)
