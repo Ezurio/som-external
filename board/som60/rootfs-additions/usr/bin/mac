@@ -3,6 +3,7 @@
 MAC_ADDRESS_PARAM_LEN=17
 fw_opt=
 enable_write=false
+enable_erase=false
 nvmem=false
 writes="1 2"
 NVMEM_FILE="/sys/bus/nvmem/devices/0-00500/nvmem"
@@ -20,6 +21,7 @@ usage()
 	echo "       read:  ${0##*/} [-nand] [-nvmem]"
 	echo "-nand  - uses uboot environment blocks in NAND"
 	echo "-f     - writes addresses into uboot environment"
+	echo "-e     - erases addresses from uboot environment"
 	echo "-s     - writes only once (programs only single block)"
 	echo "-nvmem - read and write from nvmem, not u-boot environment"
 }
@@ -53,7 +55,7 @@ write_macs()
 	mac0_numeric="$(( 0x${mac1//:/} + 1 ))"
 	mac0_hex="$(printf "%012x" ${mac0_numeric} | sed 's/../&:/g;s/:$//')"
 
-	if "${enable_write}"; then
+	if ${enable_write} ; then
 		if ${nvmem}; then
 			mac1_numeric="$(( 0x${mac1//:/} ))"
 			set_mac "${mac0_numeric}" "${MACB0_ADDRESS_NODE}"
@@ -70,13 +72,36 @@ write_macs()
 	fi
 }
 
-[ "${1}" = "-nand" ] && shift && fw_opt="-c /etc/fw_env_flash.config"
-[ "${1}" = "-f" ] && shift && enable_write=true
-[ "${1}" = "-s" ] && shift && writes="1"
-[ "${1}" = "-nvmem" ] && shift && nvmem=true
+erase_macs() {
+	${enable_erase} || return
 
-[ "${#}" -eq "0" ] && print_macs && exit
-[ "${#}" -ne "1" ] && usage && exit
+	if ${nvmem}; then
+		set_mac 0 "${MACB0_ADDRESS_NODE}"
+		set_mac 0 "${MACB1_ADDRESS_NODE}"
+	fi
+
+	for i in ${writes}; do
+		echo -e "ethaddr=\neth1addr=\n" | fw_setenv ${fw_opt} -s -
+	done
+}
+
+while true ; do
+	case "${1}" in
+		"-nand") shift ; fw_opt="-c /etc/fw_env_flash.config" ;;
+		"-f") shift ; enable_write=true ;;
+		"-e") shift ; enable_erase=true ;;
+		"-s") shift ; writes=1 ;;
+		"-nvmem") shift ; nvmem=true ;;
+		"--") shift; break ;;
+		*) break ;;
+	esac
+done
+
+case "${#}" in
+	0)	enable_erase && erase_macs || print_macs ; exit ;;
+	1)	;;
+	*)	usage ; exit ;;
+esac
 
 # Support MAC address from bar code scanner (without ':'), production request
 case "${1}" in

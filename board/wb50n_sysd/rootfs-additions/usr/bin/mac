@@ -3,6 +3,7 @@
 MAC_ADDRESS_PARAM_LEN=17
 fw_opt=
 enable_write=false
+enable_erase=false
 writes="1 2"
 
 usage()
@@ -28,7 +29,7 @@ write_macs()
 {
 	mac1="${1}"
 
-	if "${enable_write}"; then
+	if ${enable_write}; then
 		for i in ${writes} ; do
 			fw_setenv ${fw_opt} ethaddr "${mac1}"
 		done
@@ -38,12 +39,30 @@ write_macs()
 	fi
 }
 
-[ "${1}" = "-nand" ] && shift && fw_opt="-c /etc/fw_env_flash.config"
-[ "${1}" = "-f" ] && shift && enable_write=true
-[ "${1}" = "-s" ] && shift && writes="1"
+erase_macs() {
+	${enable_erase} || return
 
-[ "${#}" -eq "0" ] && print_macs && exit
-[ "${#}" -ne "1" ] && usage && exit
+	for i in ${writes}; do
+		fw_setenv ${fw_opt} ethaddr
+	done
+}
+
+while true ; do
+	case "${1}" in
+		"-nand") shift ; fw_opt="-c /etc/fw_env_flash.config" ;;
+		"-f") shift ; enable_write=true ;;
+		"-e") shift ; enable_erase=true ;;
+		"-s") shift ; writes=1 ;;
+		"--") shift; break ;;
+		*) break ;;
+	esac
+done
+
+case "${#}" in
+	0)	enable_erase && erase_macs || print_macs ; exit ;;
+	1)	;;
+	*)	usage ; exit ;;
+esac
 
 # Support MAC address from bar code scanner (without ':'), production request
 case "${1}" in
