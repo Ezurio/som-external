@@ -13,6 +13,8 @@ BACKUP_SECRET_DIR = $(TARGET_DIR)/usr/share/factory/etc/secret
 BACKUP_MISC_DIR = $(TARGET_DIR)/usr/share/factory/etc/misc
 
 define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
+	ln -sf /perm/etc/machine-id $(TARGET_DIR)/etc/machine-id
+
 	if [ -d $(TARGET_DIR)/etc/dropbear ]; then \
 		unlink $(TARGET_DIR)/etc/dropbear; \
 		mkdir -p $(TARGET_DIR)/etc/dropbear; \
