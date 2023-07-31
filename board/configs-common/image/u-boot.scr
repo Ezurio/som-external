@@ -1,7 +1,8 @@
-if test ${bootside} = a; then
-	setenv bootvol 1
-else
+if test ${bootside} = b; then
 	setenv bootvol 4
+else
+	setenv bootvol 1
+	setenv bootside a
 fi
 
 ubi part ubi
