@@ -17,7 +17,7 @@ start)
 		esac
 	done
 	DATA_DEVICE=/dev/ubi0_$((BLOCK + 1))
-	/bin/systemd-mount -o noatime,noexec,nosuid,nodev --fsck=no -t ubifs ${DATA_DEVICE} ${DATA_MOUNT}
+	/usr/bin/mount -o noatime,noexec,nosuid,nodev -t ubifs ${DATA_DEVICE} ${DATA_MOUNT}
 
 	# Create encrypted data directory
 	DATA_SECRET=${DATA_MOUNT}/secret
@@ -35,7 +35,7 @@ start)
 	;;
 
 stop)
-	/bin/systemd-umount ${DATA_MOUNT}
+	/usr/bin/umount ${DATA_MOUNT}
 	echo 3 >/proc/sys/vm/drop_caches
 	;;
 esac
