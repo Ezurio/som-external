@@ -22,30 +22,6 @@
 #
 # Upon detecting an invalid Ethernet MAC, a temporary address is assigned and
 # the flagfile is set.
-#
-# 3-July,2012
-
-
-do_platform_bootfile_option() {
-  cat >$1 <<- EOF \
-	## $1 - sourced by dhcp configuration script
-	## if fw_update not-running and bootfile-flag then begin remote update
-	## requested bootfile option should contain url-to-firmware-md5sums-ls
-	if [ -n "\$bootfile" ]
-	then
-	  if ps |grep -q -v "[ ].*update" \
-	  && [ -f /tmp/bootfile_ ]
-	  then
-	    rm -f /tmp/bootfile_
-	    fw_update -- 2>/dev/null \
-	    && ( fw_update --url \$bootfile 2>&1 \
-	        |tee /var/log/update.log >/dev/console )&
-	  fi
-	fi
-	EOF
-
-  touch /tmp/bootfile_
-}
 
 do_platform_update_notify() {
   cat >$1 <<- EOF \
@@ -72,59 +48,43 @@ do_platform_ethernet_mac_address_check() {
   # If the value has a wrong OUI or zero'd, then a new address is generated.
   # The valid OUIs are:
 
-  # determine if the mac address is valid
-  if [ -f /sys/class/net/eth0/address ];
+  # determine if ethernet device exist
+  [ -f /sys/class/net/eth0/address ] || return
+
+  boot_mac=$(fw_printenv -n ethaddr | tr '[:upper:]' '[:lower:]')
+
+  if [ -n "$boot_mac" ] && [ "$boot_mac" != "c0:ee:40:00:00:00" ]
   then
     read -r mac </sys/class/net/eth0/address
-    case "${mac}" in
-    00:17:23*|c0:ee:40*|b0:fb:15*)
-      [ "${mac:9}" != "00:00:00" ] || random_mac="${mac:0:8}"
-      ;;
-    *)
-      random_mac="$(grep -om1 ethaddr=..:..:.. /dev/mtd1)"
-      random_mac=${random_mac#ethaddr=}
-      ;;
-    esac
-
-    if [ -n "$random_mac" ]
-    then
-      oui=$(dd status=none if=/dev/urandom bs=1 count=3 | /usr/bin/od -t x1 -A n)
-      random_mac="$random_mac${oui// /:}"
-
-      echo "    setting temporary (randomized) mac address: $random_mac"
-      ip link set address $random_mac dev eth0
-      touch /tmp/eth0_has_random_mac /tmp/platform_update_request
-    fi
+    [ "$mac" != "$boot_mac" ] || return
   fi
+
+  random_mac="$(grep -om1 ethaddr=..:..:.. /dev/mtd1)"
+  random_mac=${random_mac#ethaddr=}
+
+  [ -n "$random_mac" ] || random_mac="c0:ee:40"
+
+  oui=$(dd status=none if=/dev/urandom bs=1 count=3 | /usr/bin/od -t x1 -A n)
+  random_mac="$random_mac${oui// /:}"
+
+  ip link set address $random_mac dev eth0
+  fw_setenv ethaddr $random_mac
+
+  echo "    setting randomized mac address: $random_mac"
 }
 
 # Command:
-case $1 in
+case "$1" in
 
   start)
     echo -e "Checking platform... \c"
     . /etc/os-release
-    wbv=${VERSION_ID}
-    read -r x </proc/cmdline
-    for xi in $x
-    do
-      case $xi in wb[0-9][0-9]*) wbt=${xi%%=*}_; wbi=\ ~${xi##*=};; esac
-    done
-
-    echo "${wbt}${wbv}${wbi}"
+    echo "${ID} ${BUILD_ID}"
     do_platform_ethernet_mac_address_check
-
-    ## request dhcp bootfile-string if set
-    if [ -f /tmp/platform_update_request ]
-    then
-      echo "  enabling platform-bootfile-option request (dhcp activated)"
-      do_platform_bootfile_option /tmp/platform_bootfile_option
-    fi
 
     ## check for updated platform and settings
     if ups=$( fw_printenv -n updated_% 2>/dev/null )
     then
-      mac=
       eval $ups
       fw_setenv updated_%
       # process updated-platform-settings . . .
@@ -157,16 +117,6 @@ case $1 in
       then
         md5=$( fw_printenv -n md5_rootfs-${kernel} 2>/dev/null )
         echo "  updated rootfs-$rootfs (${md5:--?-})"
-        # probably not necessary, but left here for reference
-        : echo -en "    calculating module dependencies..."
-        : depmod -a && echo || echo ERROR
-      fi
-
-      if [ -n "$mac" ]
-      then
-        echo "  storing newly assigned mac address: $mac"
-        fw_setenv ethaddr $mac
-        ifconfig eth0 hw ether $mac
       fi
 
       if [ -n "$fwts" ]
@@ -174,9 +124,6 @@ case $1 in
         echo "  transferring system settings from other rootfs"
         fw_select --transfer-system-settings || echo "    ERROR"
       fi
-
-      # post-operations cleanup
-      #for x in "$rmls"; do rm $x; done
     fi
     ;;
 
