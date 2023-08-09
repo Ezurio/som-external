@@ -87,6 +87,8 @@ if ! grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto
 	[ ! -f ${BINARIES_DIR}/sw-description ] || \
 		sed -i -e "/sha256/d" ${BINARIES_DIR}/sw-description
 	sign_method=""
+elif grep -q 'CONFIG_SIGALG_CMS=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+	sign_method="cms"
 else
 	sign_method="rawrsa"
 fi
