@@ -27,6 +27,19 @@ config BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
 	help
 		Enable SSL client authentication
 
+config BR2_PACKAGE_WEBLCM_PYTHON_CERTIFICATE_PROVISIONING
+	bool "Certificate provisioning"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
+	help
+		Enable provisioning of the SSL server certificates
+
+config BR2_PACKAGE_WEBLCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
+	bool "Disable client certificate expiry verification"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
+	default y
+	help
+		Disable verification of a client certificate's expiry during mutual authentication
+
 config BR2_PACKAGE_WEBLCM_PYTHON_DEFAULT_USERNAME
 	string "default root user name"
 	depends on BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS

@@ -91,9 +91,25 @@ define WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS
 	$(SED) '/^enable_client_auth/d' $(TARGET_DIR)/etc/weblcm-python.ini
 	$(SED) '/\[weblcm\]/a enable_client_auth: \
 		$(if $(findstring y,$(BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION)),True,False)' $(TARGET_DIR)/etc/weblcm-python.ini
+
+	$(SED) '/^certificate_provisioning/d' $(TARGET_DIR)/etc/weblcm-python.ini
+	$(SED) '/\[weblcm\]/a certificate_provisioning: \
+		$(if $(findstring y,$(BR2_PACKAGE_WEBLCM_PYTHON_CERTIFICATE_PROVISIONING)),True,False)' $(TARGET_DIR)/etc/weblcm-python.ini
+
+	$(SED) '/^disable_certificate_expiry_verification/d' $(TARGET_DIR)/etc/weblcm-python.ini
+	$(SED) '/\[weblcm\]/a disable_certificate_expiry_verification: \
+		$(if $(findstring y,$(BR2_PACKAGE_WEBLCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION)),True,False)' $(TARGET_DIR)/etc/weblcm-python.ini
 endef
 
-WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOKS += WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS
+ifeq ($(BR2_PACKAGE_WEBLCM_PYTHON_CERTIFICATE_PROVISIONING),y)
+define WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS2
+	$(INSTALL) -D $(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/server.crt $(TARGET_DIR)/etc/weblcm-python/ssl/provisioning.crt
+	$(INSTALL) -D $(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/server.key $(TARGET_DIR)/etc/weblcm-python/ssl/provisioning.key
+	$(INSTALL) -D $(BR2_EXTERNAL_LRD_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt $(TARGET_DIR)/etc/weblcm-python/ssl/provisioning.ca.crt
+endef
+endif
+
+WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOKS += WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS WEBLCM_PYTHON_POST_INSTALL_TARGET_HOOK_CMDS2
 
 define WEBLCM_PYTHON_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -t $(TARGET_DIR)/usr/lib/systemd/system -m 644 $(@D)/weblcm-python.service

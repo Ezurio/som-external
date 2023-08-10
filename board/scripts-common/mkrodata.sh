@@ -32,6 +32,9 @@ REST_SERVER_SSL_DIR="${SECRET_DIR}/rest-server/ssl"
 REST_SERVER_CERT_DEST="${REST_SERVER_SSL_DIR}/server.crt"
 REST_SERVER_KEY_DEST="${REST_SERVER_SSL_DIR}/server.key"
 REST_SERVER_CERT_CHAIN_DEST="${REST_SERVER_SSL_DIR}/ca.crt"
+REST_SERVER_PROVISIONING_CERT_DEST="${REST_SERVER_SSL_DIR}/provisioning.crt"
+REST_SERVER_PROVISIONING_KEY_DEST="${REST_SERVER_SSL_DIR}/provisioning.key"
+REST_SERVER_PROVISIONING_CERT_CHAIN_DEST="${REST_SERVER_SSL_DIR}/provisioning.ca.crt"
 UPDATE_CERT_DIR="${PUBLIC_DIR}/ssl/misc"
 UPDATE_CERT_DEST="${UPDATE_CERT_DIR}/update.pem"
 RODATA_IMG="rodata.img"
@@ -81,6 +84,13 @@ mkdir -p ${REST_SERVER_SSL_DIR} || exit_on_error "Failed to create ${REST_SERVER
 cp ${REST_SERVER_CERT} ${REST_SERVER_CERT_DEST} || exit_on_error "Failed to populate REST server certficate"
 cp ${REST_SERVER_PRIV_KEY} ${REST_SERVER_KEY_DEST} || exit_on_error "Failed to populate REST server key"
 cp ${REST_SERVER_CERT_CHAIN} ${REST_SERVER_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server certificate chain"
+
+#
+# Populate WebLCM provisioning certificates and key under encrypted directory
+#
+cp ${REST_SERVER_CERT} ${REST_SERVER_PROVISIONING_CERT_DEST} || exit_on_error "Failed to populate REST server provisioning certficate"
+cp ${REST_SERVER_PRIV_KEY} ${REST_SERVER_PROVISIONING_KEY_DEST} || exit_on_error "Failed to populate REST server provisioning key"
+cp ${REST_SERVER_CERT_CHAIN} ${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server provisioning certificate chain"
 
 #
 # Create and populate update public certificate
