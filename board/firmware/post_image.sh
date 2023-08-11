@@ -185,6 +185,7 @@ create_bcm4339_firmware_archive fcc
 create_bcm4339_firmware_archive etsi
 create_bcm4339_firmware_archive ic
 create_bcm4339_firmware_archive jp
+create_bcm4339_firmware_archive kr
 fi
 
 create_bcm43439_firmware_archive
