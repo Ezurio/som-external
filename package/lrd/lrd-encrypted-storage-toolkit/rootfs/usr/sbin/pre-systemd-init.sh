@@ -8,7 +8,7 @@
 PERM_MOUNT=/perm
 PERM_DEVICE=ubi0_6
 
-mount -t ubifs -o noatime,nosuid,noexec ${PERM_DEVICE} ${PERM_MOUNT}
+/usr/bin/mount -t ubifs -o noatime,nosuid,noexec ${PERM_DEVICE} ${PERM_MOUNT}
 
 # Make sure there is at least an empty machine-id file
 # (Referenced from symlink on the rootfs)

@@ -16,6 +16,7 @@ start)
 			;;
 		esac
 	done
+
 	DATA_DEVICE=/dev/ubi0_$((BLOCK + 1))
 	/usr/bin/mount -o noatime,noexec,nosuid,nodev -t ubifs ${DATA_DEVICE} ${DATA_MOUNT}
 
@@ -25,11 +26,11 @@ start)
 
 	FSCRYPT_KEY=ffffffffffffffff
 
-	keyctl search %:_builtin_fs_keys logon fscrypt:${FSCRYPT_KEY} @us
+	/usr/bin/keyctl search %:_builtin_fs_keys logon fscrypt:${FSCRYPT_KEY} @us
 
-	fscryptctl set_policy ${FSCRYPT_KEY} ${DATA_SECRET} >/dev/null
+	/usr/bin/fscryptctl set_policy ${FSCRYPT_KEY} ${DATA_SECRET} >/dev/null
 
-	. do_factory_reset.sh check
+	. /usr/sbin/do_factory_reset.sh check
 
 	echo "Secure Boot Cycle Complete" >/dev/console
 	;;
