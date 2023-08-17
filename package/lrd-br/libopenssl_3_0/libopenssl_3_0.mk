@@ -85,6 +85,7 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(LIBOPENSSL_TARGET_ARCH) \
 			--prefix=/usr \
 			--openssldir=/etc/ssl \
+			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),no-dsa) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_DEBUG),--debug,--release) \
 			$(if $(BR2_TOOLCHAIN_HAS_LIBATOMIC),-latomic) \
 			$(if $(BR2_TOOLCHAIN_HAS_THREADS),threads,no-threads) \
