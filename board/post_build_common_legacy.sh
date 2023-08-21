@@ -119,7 +119,7 @@ chmod 600 ${TARGET_DIR}/etc/.ssh/authorized_keys
 
 # adjust DCAS SSH location
 sed -i "s/dcas_auth_dir.*/dcas_auth_dir=\/etc\/.ssh/" ${TARGET_DIR}/etc/dcas.conf
-sed -i "s/DEFAULT_AUTH_DIR=.*/DEFAULT_AUTH_DIR=\/etc\/.ssh/" ${TARGET_DIR}/etc/init.d/opt/S99dcas
+sed -i "s/DEFAULT_AUTH_DIR=.*/DEFAULT_AUTH_DIR=\/etc\/.ssh/" ${TARGET_DIR}/etc/init.d/S99dcas
 
 fi
 
