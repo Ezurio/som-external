@@ -16,13 +16,38 @@ SUMMIT_RCM_DEFAULT_USERNAME = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USE
 SUMMIT_RCM_DEFAULT_PASSWORD = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD))
 SUMMIT_RCM_SERIAL_PORT = $(call qstrip,$(BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT))
 
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES)$(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES)$(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),)
+$(error At least one interface (REST API or AT command) must be specified for Summit RCM)
+endif
+
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AWM),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm
 endif
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode
+endif
+
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += \
+		summit_rcm/rest_api/v2/system \
+		summit_rcm/rest_api/v2/network
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/login
+endif
+endif
+
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/legacy
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_MODEM),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/modem
 endif
+endif
+
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH),y)
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/bluetooth
+endif
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/bluetooth
 endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_HID),y)
@@ -31,37 +56,26 @@ endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_VSP),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/vsp
 endif
+endif
+
+ifneq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES)$(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/services
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_ENABLE_STUNNEL_CONTROL),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/stunnel
 endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_IPTABLES_FIREWALL),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/iptables
 endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode
-endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/chrony
 endif
+endif
+
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += \
 		summit_rcm/at_interface \
 		summit_rcm/at_interface/commands \
 		summit_rcm/at_interface/services
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_V2_ROUTES),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += \
-		summit_rcm/rest_api/v2/system \
-		summit_rcm/rest_api/v2/network
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/login
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/bluetooth
-endif
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/legacy
 endif
 
 SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/services

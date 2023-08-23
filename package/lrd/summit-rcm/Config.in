@@ -11,31 +11,30 @@ config BR2_PACKAGE_SUMMIT_RCM
 	select BR2_PACKAGE_SWUPDATE
 	select BR2_PACKAGE_PYTHON_AIOFILES
 	select BR2_PACKAGE_PYTHON_DBUS_FAST
-	select BR2_PACKAGE_PYTHON_FALCON
-	select BR2_PACKAGE_PYTHON_UVICORN
 
 if BR2_PACKAGE_SUMMIT_RCM
 
-config BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
-	bool "Enable cookie-based authentication sessions"
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES
+	bool "v2 REST API routes"
+	select BR2_PACKAGE_PYTHON_FALCON
+	select BR2_PACKAGE_PYTHON_UVICORN
 	default y
 	help
-		Enable cookie-based authentication sessions
+		Enable the Summit RCM v2 REST API routes
 
-config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
-	bool "Enable SSL client authentication"
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	bool "Legacy REST API routes"
+	select BR2_PACKAGE_PYTHON_FALCON
+	select BR2_PACKAGE_PYTHON_UVICORN
 	help
-		Enable SSL client authentication
+		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
 
-config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USERNAME
-	string "default root user name"
-	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
-	default "root"
-
-config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD
-	string "default root user password"
-	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
-	default "summit"
+config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
+	bool "AT Interface"
+	select BR2_PACKAGE_PYTHON_SERIAL_ASYNCIO
+	select BR2_PACKAGE_PYTHON_TRANSITIONS
+	help
+		Enable the Summit RCM AT command interface
 
 config BR2_PACKAGE_SUMMIT_RCM_MANAGED_SOFTWARE_DEVICES
 	string "List of supported software devices"
@@ -46,7 +45,7 @@ config BR2_PACKAGE_SUMMIT_RCM_MANAGED_SOFTWARE_DEVICES
 		Bond devices should be named as "bn0", "bn1" etc.
 
 config BR2_PACKAGE_SUMMIT_RCM_UNMANAGED_HARDWARE_DEVICES
-	string "list of unmanaged hardware devices"
+	string "List of unmanaged hardware devices"
 	default ""
 	help
 		Space separated hardware devices like eth0, wlan0 etc which are managed by networkManager,
@@ -60,14 +59,47 @@ config BR2_PACKAGE_SUMMIT_RCM_AWM
 	help
 		Add AWM (Adaptive Worldwide Mode) configuration support to Summit RCM.
 
+config BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE
+	bool "Allow changing radio's SISO mode"
+	help
+		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)
+
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	bool "Enable cookie-based authentication sessions"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	default y
+	help
+		Enable cookie-based authentication sessions
+
+config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_USERNAME
+	string "default root user name"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	default "root"
+
+config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD
+	string "default root user password"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	default "summit"
+
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
+	bool "Enable SSL client authentication"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	help
+		Enable SSL client authentication
+
 config BR2_PACKAGE_SUMMIT_RCM_MODEM
 	bool "Modem / positioning support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	help
 		Add modem, positioning, positioning switch support to Summit RCM.
 
 config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
 	bool "Bluetooth support for Summit RCM"
 	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	help
 		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
 
@@ -95,6 +127,8 @@ config BR2_PACKAGE_SUMMIT_RCM_WEBSOCKETS
 
 config BR2_PACKAGE_SUMMIT_RCM_ENABLE_STUNNEL_CONTROL
 	bool "Control support for stunnel"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	select BR2_PACKAGE_STUNNEL
 	help
 		Enable support to control stunnel
@@ -113,52 +147,33 @@ config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 
 config BR2_PACKAGE_SUMMIT_RCM_IPTABLES_FIREWALL
 	bool "iptables firewall control"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	select BR2_PACKAGE_IPTABLES
 	default y if BR2_PACKAGE_SUMMIT_FIREWALL
 	help
 		Enable iptables firewall wrapper
 
-config BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE
-	bool "Allow changing radio's SISO mode"
-	help
-		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)
-
 config BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP
 	bool "chrony NTP control"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	depends on BR2_PACKAGE_CHRONY
 	default y
 	help
 		Enable chrony wrapper for NTP configuration
 
-config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
-	bool "AT interface"
-	select BR2_PACKAGE_PYTHON_SERIAL_ASYNCIO
-	select BR2_PACKAGE_PYTHON_TRANSITIONS
-	help
-		Enable the Summit RCM AT command interface
-
-config BR2_PACKAGE_SUMMIT_RCM_V2_ROUTES
-	bool "v2 REST API routes"
-	default y
-	help
-		Enable the Summit RCM v2 REST API routes
-
-config BR2_PACKAGE_SUMMIT_RCM_LEGACY_ROUTES
-	bool "Legacy REST API routes"
-	help
-		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
-
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
-	string "Set AT Interface Serial Port"
-	default "/dev/ttyS2"
+	string "AT Interface Serial Port"
 	depends on BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
+	default "/dev/ttyS2"
 	help
 		Enable Configuration of the AT Interface serial port
 
 config BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE
-	int "Set AT Interface Baud Rate"
-	default 3000000
+	int "AT Interface Baud Rate"
 	depends on BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
+	default 3000000
 	help
 		Enable Configuration of the AT Interface baud rate
 
