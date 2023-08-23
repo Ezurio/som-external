@@ -1,7 +1,8 @@
 [connection]
-id=ethernet
-uuid=8e428f4e-15a3-495c-a3ff-787160394de1
+id=ethernet-eth1
+uuid=8e428f4e-15a3-495c-a3ff-787160394de2
 type=ethernet
+interface-name=eth1
 autoconnect-priority=-999
 
 [ethernet]
