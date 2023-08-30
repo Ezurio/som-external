@@ -177,4 +177,10 @@ config BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE
 	help
 		Enable Configuration of the AT Interface baud rate
 
+config BR2_PACKAGE_SUMMIT_RCM_LOG_FORWARDING
+	bool "Log Forwarding for Summit-RCM"
+	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
+	help
+		Enable log forwarding support for Summit-RCM
+
 endif
