@@ -150,4 +150,10 @@ config BR2_PACKAGE_WEBLCM_PYTHON_CHRONY_NTP
 	help
 		Enable chrony wrapper for NTP configuration
 
+config BR2_PACKAGE_WEBLCM_LOG_FORWARDING
+	bool "Log Forwarding for weblcm"
+	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
+	help
+		Enable log forwarding support for weblcm
+
 endif
