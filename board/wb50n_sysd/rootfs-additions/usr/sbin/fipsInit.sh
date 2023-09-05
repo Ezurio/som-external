@@ -51,8 +51,13 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.gz ${KERNEL} >/dev/null ||
 		fail "Cannot extract kernel image error: $1"
 
-	FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/libcrypto.so.1.0.0 ||
-		fail "fipscheck error: $?"
+	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/libcrypto.so.1.0.0 ||
+			fail "fipscheck error: $?"
+	else
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/ossl-modules/fips.so ||
+			fail "fipscheck error: $?"
+	fi
 
 	shred -zu -n 1 /tmp/Image.gz
 
