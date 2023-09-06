@@ -1,0 +1,42 @@
+--- a/setup.py	2023-06-15 11:24:46.000000000 -0400
++++ b/setup.py	2023-06-19 13:30:25.434706002 -0400
+@@ -14,7 +14,7 @@
+ import subprocess
+ import sys
+ import sysconfig
+-from wheel.bdist_wheel import bdist_wheel
++# from wheel.bdist_wheel import bdist_wheel
+ 
+ 
+ def is_64bit():
+@@ -283,14 +283,14 @@
+         super().run()
+ 
+ 
+-class bdist_wheel_abi3(bdist_wheel):
+-    def get_tag(self):
+-        python, abi, plat = super().get_tag()
+-        if python.startswith("cp") and sys.version_info >= (3, 11):
+-            # on CPython, our wheels are abi3 and compatible back to 3.11
+-            return "cp311", "abi3", plat
++# class bdist_wheel_abi3(bdist_wheel):
++#     def get_tag(self):
++#         python, abi, plat = super().get_tag()
++#         if python.startswith("cp") and sys.version_info >= (3, 11):
++#             # on CPython, our wheels are abi3 and compatible back to 3.11
++#             return "cp311", "abi3", plat
+ 
+-        return python, abi, plat
++#         return python, abi, plat
+ 
+ 
+ def awscrt_ext():
+@@ -410,6 +410,7 @@
+     ],
+     python_requires='>=3.7',
+     ext_modules=[awscrt_ext()],
+-    cmdclass={'build_ext': awscrt_build_ext, "bdist_wheel": bdist_wheel_abi3},
++    cmdclass={'build_ext': awscrt_build_ext},
++    # cmdclass={'build_ext': awscrt_build_ext, "bdist_wheel": bdist_wheel_abi3},
+     test_suite='test',
+ )

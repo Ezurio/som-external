@@ -1,0 +1,7 @@
+config BR2_PACKAGE_PYTHON_AWSIOTSDK
+	bool "python-awsiotsdk"
+	select BR2_PACKAGE_PYTHON_AWSCRT # runtime
+	help
+	  AWS IoT SDK based on the AWS Common Runtime.
+
+	  https://github.com/aws/aws-iot-device-sdk-python-v2
