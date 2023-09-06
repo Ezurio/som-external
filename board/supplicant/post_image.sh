@@ -23,12 +23,12 @@ esac
 RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}${RELEASE_SUFFIX}.tar"
 
 sed -nE "s/^${PKGNAME},\.\///p" "${BUILD_DIR}/packages-file-list.txt" |\
-	tar -cf "${RELEASE_FILE}" -C "${TARGET_DIR}" -T -
+	tar -cf "${RELEASE_FILE}" -C "${TARGET_DIR}" --owner=root --group=root -T -
 
 case "${BR2_LRD_PRODUCT}" in
 *legacy*)
 	tar -uf "${RELEASE_FILE}" -C "${STAGING_DIR}" \
-		--owner=0 --group=0 --numeric-owner \
+		--owner=root --group=root \
 		usr/include/sdc_sdk.h \
 		usr/include/sdc_events.h \
 		usr/include/lrd_sdk_pil.h \
@@ -39,7 +39,7 @@ case "${BR2_LRD_PRODUCT}" in
 	;;
 *)
 	tar -uf "${RELEASE_FILE}" -C "${STAGING_DIR}" \
-		--owner=0 --group=0 --numeric-owner \
+		--owner=root --group=root \
 		usr/include/wpa_ctrl.h
 	;;
 esac

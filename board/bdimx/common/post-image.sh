@@ -16,4 +16,5 @@ gzip -f "${BINARIES_DIR}/rootfs.ext2"
 (cd "${BINARIES_DIR}" && echo -e "sw-description\nrootfs.ext2.gz" |\
 	cpio -ov -H crc > "${BINARIES_DIR}/${BR2_LRD_PRODUCT}.swu")
 tar -C "${BINARIES_DIR}" -cjf "${RELEASE_FILE}.tar.bz2" \
+	--owner=root --group=root \
 	sdcard.img ${BR2_LRD_PRODUCT}.swu
