@@ -18,7 +18,7 @@ rm -f ${TARGET_DIR}/etc/init.d/S20urandom
 rm -f ${TARGET_DIR}/etc/init.d/S40network
 rm -f ${TARGET_DIR}/etc/init.d/S41dhcpcd
 rm -f ${TARGET_DIR}/etc/init.d/S40bluetoothd
-rm -f ${TARGET_DIR}/etc/init.d/S35iptables 
+rm -f ${TARGET_DIR}/etc/init.d/S35iptables
 
 # remove perl cruft
 rm -f ${TARGET_DIR}/etc/ssl/misc/tsget
@@ -200,7 +200,7 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${BINARIES_DIR}/${IMAGE_NAME}
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/bin/fipscheck
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/libfipscheck.so.1
-	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/libcrypto.so.3
+	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/ossl-modules/fips.so
 	rm -f ${TARGET_DIR}/usr/lib/fipscheck/libcrypto.so.1.0.0.hmac
 
 	sed "s/^auto usb0/#auto usb0/g" -i ${TARGET_DIR}/etc/network/interfaces
