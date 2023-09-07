@@ -1,5 +1,0 @@
-config BR2_PACKAGE_PYTHON_DTLSSOCKET
-	bool "python-dtlssocket"
-	depends on BR2_PACKAGE_HOST_PYTHON_CYTHON
-	help
-	  https://git.fslab.de/jkonra2m/tinydtls-cython

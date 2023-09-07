@@ -1,8 +1,0 @@
-config BR2_PACKAGE_TLSDATE
-	bool "tlsdate"
-	select BR2_PACKAGE_LIBEVENT
-	help
-	  tlsdate is a simple client that extracts the current time from
-	  a TLS/SSL handshake.
-
-	  https://github.com/ioerror/tlsdate/
