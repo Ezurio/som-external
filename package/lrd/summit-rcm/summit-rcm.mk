@@ -82,6 +82,9 @@ endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_LOG_FORWARDING),y)
     SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/services
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/at_interface/commands
+endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
     SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/rest_api/v2/system
 endif
