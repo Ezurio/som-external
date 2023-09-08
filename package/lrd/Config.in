@@ -21,7 +21,6 @@ source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-encrypted-storage-toolkit/Con
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/igconfd/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/igprovd/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-bt-utils/Config.in"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/igupd/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-userspace-examples/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/sdcsdk_nm/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-swupdate-client/Config.in"
