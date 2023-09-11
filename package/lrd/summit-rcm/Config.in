@@ -100,6 +100,7 @@ config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
 	depends on BR2_PACKAGE_BLUEZ5_UTILS
 	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
 		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	default y
 	help
 		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
 
