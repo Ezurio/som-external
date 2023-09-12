@@ -34,9 +34,6 @@ rm -f ${TARGET_DIR}/*.manifest
 
 case "${BR2_LRD_PRODUCT}" in
 mfg60*)
-	#lrt and other vendor mfg tools are mutually exclusive
-	[ -f ${TARGET_DIR}/usr/bin/lrt ] &&  exit 0
-
 	add_file ${BR2_LRD_PRODUCT} \
 		/usr/bin/lmu \
 		/usr/bin/lru \
