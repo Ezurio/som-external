@@ -24,9 +24,15 @@ endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AWM),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm/at_interface/commands
+endif
 endif
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode/at_interface/commands
+endif
 endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
