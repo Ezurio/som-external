@@ -1,0 +1,14 @@
+[Unit]
+Description=IG GGv2 SD Card Directory
+BindsTo=dev-mmcblk0.device
+Requires=mount_data.service
+After=mount_data.service dev-mmcblk0.device dev-mmcblk0p1.device blk-availability.service
+Before=umount.target
+Conflicts=umount.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+KeyringMode=inherit
+ExecStart=ggv2_mount_sdcard.sh start
+ExecStop=ggv2_mount_sdcard.sh stop

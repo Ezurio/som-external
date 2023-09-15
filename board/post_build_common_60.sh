@@ -45,6 +45,29 @@ echo -ne \
 # Copy the product specific rootfs additions, strip host user access control
 rsync -rlptDWK --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${TARGET_DIR}"
 
+# Split out OpenJDK dependencies to a separate tarball to support
+# running AWS IoT Greengrass V2
+if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y ${BR2_CONFIG}
+then
+	# Create temporary directory and move 'modules' file to it
+	rm -rf ${BINARIES_DIR}/jdk/lib/
+	mkdir -p ${BINARIES_DIR}/jdk/lib
+	mv ${TARGET_DIR}/usr/lib/jvm/lib/modules ${BINARIES_DIR}/jdk/lib/
+
+	# Create tarball
+	OPENJDK_TARBALL_FILE=${BINARIES_DIR}/${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz
+	tar -C ${BINARIES_DIR} -czvf ${OPENJDK_TARBALL_FILE} jdk
+
+	# Create symlink the place of the 'modules' file
+	ln -sf /var/media/mmcblk0p1/jdk/lib/modules ${TARGET_DIR}/usr/lib/jvm/lib/modules
+
+	# Remove other unneeded files
+	rm -f ${TARGET_DIR}/usr/lib/jvm/lib/src.zip
+	rm -rf ${TARGET_DIR}/usr/lib/jvm/lib/jmods/
+	rm -f ${TARGET_DIR}/usr/lib/jvm/lib/ct.sym
+	rm -rf ${TARGET_DIR}/usr/share/cups
+fi
+
 [ -f ${BINARIES_DIR}/u-boot-initial-env ] && \
 	cp -ft ${TARGET_DIR}/etc ${BINARIES_DIR}/u-boot-initial-env
 

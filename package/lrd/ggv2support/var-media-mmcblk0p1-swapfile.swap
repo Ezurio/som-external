@@ -1,0 +1,8 @@
+[Unit]
+Description=SD Card Swap
+BindsTo=ggv2sdmount.service
+After=ggv2sdmount.service
+DefaultDependencies=no
+
+[Swap]
+What=/var/media/mmcblk0p1/swapfile

@@ -10,3 +10,9 @@ config BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
 	  Toolkit for implementing Laird's U-Boot encryption
 	  with Linux per directory encryption. This is part of
 	  Laird's Chain of Trust architecture.
+
+if BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
+config BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT_EXEC_PERM
+	bool "Allow exec on perm mount"
+	default n
+endif

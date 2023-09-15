@@ -1,0 +1,17 @@
+[Unit]
+Description=Edge service
+After=local-fs.target network.target network-online.target
+StartLimitInterval=300
+StartLimitBurst=5
+ConditionPathExists=/perm/edge/edge
+
+[Service]
+KillMode=process
+Restart=always
+RestartSec=30
+ExecStart=/perm/edge/edge
+StandardOutput=null
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

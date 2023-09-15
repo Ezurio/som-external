@@ -32,6 +32,8 @@ source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-firewall/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-rcm/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/sdcsupp/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-disable-console-login/Config.in"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-edgeiq/Config.in"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/ggv2support/Config.in"
 
 if BR2_LRD_NO_RADIO
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/adaptive_bt/Config.in"

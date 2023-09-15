@@ -185,6 +185,26 @@ else
 			--owner=root --group=root \
 			fscryptctl
 	fi
+
+fi
+
+# Move back the OpenJDK 'modules' dependency to the target directory
+# after creating the image and dependency tarball. Also, add the
+# dependency tarball to the release archive
+if grep -q ^BR2_SUMMIT_OPENJDK_GGV2=y ${BR2_CONFIG}
+then
+        # Delete the symlink and move back the original 'modules' file
+        rm -f ${TARGET_DIR}/usr/lib/jvm/lib/modules
+        mv ${BINARIES_DIR}/jdk/lib/modules ${TARGET_DIR}/usr/lib/jvm/lib/
+
+        # Delete the temporary 'jdk' directory
+        rm -rf ${BINARIES_DIR}/jdk
+
+        # Add the dependency tarball to the release archive
+	OPENJDK_TARBALL_FILE=${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz
+        tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
+		--owner=root --group=root \
+                ${OPENJDK_TARBALL_FILE}
 fi
 
 bzip2 -f ${RELEASE_FILE}

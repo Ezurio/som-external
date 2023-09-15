@@ -1,0 +1,6 @@
+config BR2_PACKAGE_GGV2SUPPORT
+	bool "ggv2support"
+	depends on BR2_PACKAGE_SYSTEMD
+	select BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
+	help
+	  Summit Greengrass V2 Support

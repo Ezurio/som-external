@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Allow "creating" users that already exist
+
+for i in $@; do :; done
+if grep -q "^${i}:" /etc/passwd; then
+	exit 0
+else
+	exit 1
+fi

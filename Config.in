@@ -29,6 +29,16 @@ menu "Laird Connectivity"
 		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in.host"
 	endmenu
 
+        config BR2_SUMMIT_OPENJDK_GGV2
+	        bool "summit-openjdk-ggv2"
+	        depends on BR2_PACKAGE_OPENJDK
+	        help
+	          Split out the OpenJDK 'modules' file dependency
+	          during the build to support moving Java dependecies
+	          to the SD card to support AWS IoT Greengrass V2. This
+	          config triggers logic in the post_build and post_image
+	          scripts.
+
 endmenu
 
 source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-arm/Config.in.options"

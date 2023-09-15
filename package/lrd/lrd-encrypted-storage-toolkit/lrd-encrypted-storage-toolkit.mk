@@ -4,8 +4,16 @@
 #
 #############################################################
 
+ifeq ($(BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT_EXEC_PERM),y)
+define LRD_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_EXEC_PERM
+	$(INSTALL) -d $(TARGET_DIR)/etc/default
+	echo "PERM_MOUNT_OPTS=\"noatime,nosuid\"" > $(TARGET_DIR)/etc/default/perm-mount-opts
+endef
+endif
+
 define LRD_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_TARGET_CMDS
 	rsync -rlpDWK --no-perms --exclude=.empty  $(LRD_ENCRYPTED_STORAGE_TOOLKIT_PKGDIR)/rootfs/ $(TARGET_DIR)/
+	$(LRD_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_EXEC_PERM)
 endef
 
 # setup files for factory reset and /data usage

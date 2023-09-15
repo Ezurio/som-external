@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Allow "creating" groups that already exist
+
+for i in $@; do :; done
+if grep -q "^${i}:" /etc/group; then
+	exit 0
+else
+	exit 1
+fi
