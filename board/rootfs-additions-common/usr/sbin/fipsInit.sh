@@ -49,9 +49,10 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 			fail "fipscheck error: $?"
 	fi
 
-	shred -zu -n 1 /tmp/Image.${IMGTYP}
+	#shred -zufn 0 /tmp/Image.${IMGTYP}
+	rm -f /tmp/Image.${IMGTYP}
 
-	[ ${TMP_MOUNT} -eq 0 ] && umount /tmp
+	#[ ${TMP_MOUNT} -eq 0 ] && umount /tmp
 
 	echo -e "\nFIPS Integrity check Success\n"
 fi
