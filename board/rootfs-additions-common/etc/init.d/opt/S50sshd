@@ -11,53 +11,7 @@ check_configuration() {
   # Check that the sshd_config file exists
   [ -f /etc/ssh/sshd_config ] || { echo "  ...missing sshd_config"; exit 1; }
 
-  # See if need to generate the SSH1 RSA key
-  if [ ! -s /etc/ssh/ssh_host_key ] \
-  && grep -q "^HostKey.*host_key" /etc/ssh/sshd_config
-  then
-    echo Generating RSA Key...
-    /usr/bin/ssh-keygen -t rsa1 -f /etc/ssh/ssh_host_key~ -C '' -N '' \
-    && {
-      mv -f /etc/ssh/ssh_host_key~.pub /etc/ssh/ssh_host_key.pub
-      mv -f /etc/ssh/ssh_host_key~ /etc/ssh/ssh_host_key
-    }
-  fi
-
-  # See if need to generate the SSH2 RSA key
-  if [ ! -s /etc/ssh/ssh_host_rsa_key ] \
-  && grep -q "^HostKey.*host_rsa_key" /etc/ssh/sshd_config
-  then
-    echo Generating RSA Key...
-    /usr/bin/ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key~ -C '' -N '' \
-    && {
-      mv -f /etc/ssh/ssh_host_rsa_key~.pub /etc/ssh/ssh_host_rsa_key.pub
-      mv -f /etc/ssh/ssh_host_rsa_key~ /etc/ssh/ssh_host_rsa_key
-    }
-  fi
-
-  # See if need to generate the SSH2 DSA key
-  if [ ! -s /etc/ssh/ssh_host_dsa_key ] \
-  && grep -q "^HostKey.*host_dsa_key" /etc/ssh/sshd_config
-  then
-    echo Generating DSA Key... \(may take awhile\)
-    /usr/bin/ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key~ -C '' -N '' \
-    && {
-      mv -f /etc/ssh/ssh_host_dsa_key~.pub /etc/ssh/ssh_host_dsa_key.pub
-      mv -f /etc/ssh/ssh_host_dsa_key~ /etc/ssh/ssh_host_dsa_key
-    }
-  fi
-
-  # See if need to generate the SSH2 ECDSA key
-  if [ ! -s /etc/ssh/ssh_host_ecdsa_key ] \
-  && grep -q "^HostKey.*host_ecdsa_key" /etc/ssh/sshd_config
-  then
-    echo Generating ECDSA Key... \(may take awhile\)
-    /usr/bin/ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key~ -C '' -N '' \
-    && {
-      mv -f /etc/ssh/ssh_host_ecdsa_key~.pub /etc/ssh/ssh_host_ecdsa_key.pub
-      mv -f /etc/ssh/ssh_host_ecdsa_key~ /etc/ssh/ssh_host_ecdsa_key
-    }
-  fi
+  /usr/bin/ssh-keygen -A
 }
 
 umask 077

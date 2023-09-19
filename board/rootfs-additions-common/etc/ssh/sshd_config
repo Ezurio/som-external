@@ -18,10 +18,10 @@ Include /etc/ssh/sshd_config.d/*.conf
 #ListenAddress ::
 
 HostKey /etc/ssh/ssh_host_rsa_key
-#HostKey /etc/ssh/ssh_host_ecdsa_key
-#HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
 
-HostKeyAlgorithms=ssh-rsa
+HostKeyAlgorithms=+ssh-rsa
 PubkeyAcceptedAlgorithms=+ssh-rsa
 
 # Ciphers and keying
