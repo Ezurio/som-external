@@ -1,0 +1,39 @@
+#! /bin/sh
+
+press_on() {
+	echo 0 > /sys/devices/platform/gpio/lte_on/value
+	sleep 1
+	echo 1 > /sys/devices/platform/gpio/lte_on/value
+}
+
+press_off() {
+	echo 0 > /sys/devices/platform/gpio/lte_fast_shdn/value
+	sleep 1
+	echo 1 > /sys/devices/platform/gpio/lte_fast_shdn/value
+}
+
+is_on() {
+	return $(cat /sys/devices/platform/gpio/lte_status/value)
+}
+
+case "${1}" in
+    on)
+        if ! is_on; then
+            press_on
+        else
+            echo "Modem already on"
+        fi
+        ;;
+
+    off)
+        if is_on; then
+            press_off
+        else
+            echo "Modem already off"
+        fi
+        ;;
+
+    *)
+        echo "Usage: $0 [on | off]"
+        ;;
+esac

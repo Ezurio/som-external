@@ -4,13 +4,13 @@ uuid=40e7a10f-48a9-4c72-961a-562c5d32a05c
 type=gsm
 
 [gsm]
-apn=internet
+apn=iot0119.com.attz
 
 [ipv4]
 method=auto
 
 [ipv6]
 addr-gen-mode=default
-method=auto
+method=disabled
 
 [proxy]

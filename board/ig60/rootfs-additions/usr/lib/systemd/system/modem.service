@@ -1,0 +1,11 @@
+[Unit]
+Description=Modem On/Off
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/modem on
+ExecStop=/usr/bin/modem off
+
+[Install]
+WantedBy=multi-user.target

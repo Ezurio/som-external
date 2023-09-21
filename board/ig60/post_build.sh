@@ -12,4 +12,10 @@ echo "${BR2_LRD_PRODUCT^^} POST BUILD script: starting..."
 
 rsync -rlptDWK --no-perms --exclude=.empty "${IG60LL_DIR}/rootfs-additions/" "${TARGET_DIR}"
 
+for f in ${TARGET_DIR}/usr/lib/NetworkManager/system-connections/* ${TARGET_DIR}/etc/NetworkManager/system-connections/* ; do
+	if [ -f "${f}" ] ; then
+		chmod 600 "${f}"
+	fi
+done
+
 echo "${BR2_LRD_PRODUCT^^} POST BUILD script: done."
