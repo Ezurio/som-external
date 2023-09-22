@@ -103,10 +103,16 @@ do_mount()
     # Change ownership of mounted drive to user, if specified
     [ -z "${MOUNT_USER}" ] || chown ${MOUNT_USER} ${MOUNT_POINT}
 
-    if [ -n "${MOUNT_USER_EXEC}" ] && [ -x /usr/bin/systemctl ]; then
-        for i in ${MOUNT_USER_EXEC} ; do
-            /usr/bin/systemctl --no-block start $(/usr/bin/systemd-escape -p --template=${i} ${MOUNT_POINT})
-        done
+    if [ -n "${MOUNT_USER_EXEC}" ]; then
+        if [ -x /usr/bin/systemctl ]; then
+            for i in ${MOUNT_USER_EXEC} ; do
+                /usr/bin/systemctl --no-block start $(/usr/bin/systemd-escape -p --template=${i} ${MOUNT_POINT})
+            done
+        else
+            for i in ${MOUNT_USER_EXEC} ; do
+                [ -x "${i}" ] && ${i} ${MOUNT_POINT} &
+            done
+        fi
     fi
 
     echo "**** Mounted ${DEVICE} at ${MOUNT_POINT} ****" >&2
