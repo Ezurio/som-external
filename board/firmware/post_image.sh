@@ -258,6 +258,17 @@ tar -cjf "${BINARIES_DIR}/laird-ath6k-6004-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	lib/firmware/regulatory.db
 fi
 
+if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_QCACLD=y" ${BR2_CONFIG}; then
+tar -cjf "${BINARIES_DIR}/laird-qcalcd-firmware${RELEASE_SUFFIX}.tar.bz2" \
+	--owner=root --group=root \
+	lib/firmware/qca \
+	lib/firmware/wlan \
+	lib/firmware/bdwlan30.bin \
+	lib/firmware/otp30.bin \
+	lib/firmware/qwlan30.bin \
+	lib/firmware/utf30.bin
+fi
+
 cd -
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
