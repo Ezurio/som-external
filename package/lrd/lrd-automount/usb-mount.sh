@@ -110,7 +110,9 @@ do_mount()
             done
         else
             for i in ${MOUNT_USER_EXEC} ; do
-                [ -x "${i}" ] && ${i} ${MOUNT_POINT} &
+                if [ -x "${i}" ]; then
+                    nohup ${i} ${MOUNT_POINT} &
+                fi
             done
         fi
     fi
