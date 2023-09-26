@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-LIBOPENSSL_3_0_VERSION = 3.1.2
+LIBOPENSSL_3_0_VERSION = 3.1.3
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
-LIBOPENSSL_3_0_LICENSE = OpenSSL or SSLeay
+LIBOPENSSL_3_0_LICENSE = Apache-2.0
 LIBOPENSSL_3_0_LICENSE_FILES = LICENSE.txt
 LIBOPENSSL_3_0_INSTALL_STAGING = YES
 HOST_LIBOPENSSL_3_0_DEPENDENCIES = host-zlib
@@ -32,8 +32,8 @@ ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP),y)
 LIBOPENSSL_3_0_DEPENDENCIES += zlib
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_CRYPTODEV),y)
-LIBOPENSSL_3_0_DEPENDENCIES += cryptodev
+ifeq ($(BR2_PACKAGE_CRYPTODEV_LINUX),y)
+LIBOPENSSL_3_0_DEPENDENCIES += cryptodev-linux
 endif
 
 # fixes the following build failures:
@@ -63,7 +63,7 @@ LIBOPENSSL_3_0_POST_PATCH_HOOKS += LIBOPENSSL_3_0_POST_PATCH_CMD
 endif
 
 define HOST_LIBOPENSSL_3_0_CONFIGURE_CMDS
-	(cd $(@D); \
+	cd $(@D); \
 		$(HOST_CONFIGURE_OPTS) \
 		./config \
 		--prefix=$(HOST_DIR) \
@@ -72,29 +72,28 @@ define HOST_LIBOPENSSL_3_0_CONFIGURE_CMDS
 		no-fuzz-libfuzzer \
 		no-fuzz-afl \
 		shared \
-		zlib-dynamic \
-	)
-	$(SED) "s#-O[0-9sg]#$(HOST_CFLAGS)#" $(@D)/Makefile
+		zlib-dynamic
 endef
 
 define LIBOPENSSL_3_0_CONFIGURE_CMDS
-	(cd $(@D); \
+	cd $(@D); \
 		$(TARGET_CONFIGURE_ARGS) \
 		$(TARGET_CONFIGURE_OPTS) \
+		 CFLAGS="$(LIBOPENSSL_CFLAGS)" \
 		./Configure \
 			$(LIBOPENSSL_TARGET_ARCH) \
 			--prefix=/usr \
 			--openssldir=/etc/ssl \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_DEBUG),--debug,--release) \
-			$(if $(BR2_TOOLCHAIN_HAS_LIBATOMIC),-latomic) \
 			$(if $(BR2_TOOLCHAIN_HAS_THREADS),threads,no-threads) \
 			$(if $(BR2_STATIC_LIBS),no-shared,shared) \
-			$(if $(BR2_PACKAGE_HAS_CRYPTODEV),enable-devcryptoeng) \
+			$(if $(BR2_PACKAGE_CRYPTODEV_LINUX),enable-devcryptoeng) \
 			no-rc5 \
 			enable-camellia \
 			no-tests \
 			no-fuzz-libfuzzer \
 			no-fuzz-afl \
+			no-afalgeng \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_CHACHA),,no-chacha) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_RC2),,no-rc2) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_RC4),,no-rc4) \
@@ -119,11 +118,7 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_KTLS),enable-ktls) \
 			$(if $(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),enable-fips) \
 			$(if $(BR2_STATIC_LIBS),zlib,zlib-dynamic) \
-			$(if $(BR2_STATIC_LIBS),no-dso) \
-	)
-	$(SED) "s#-march=[-a-z0-9] ##" -e "s#-mcpu=[-a-z0-9] ##g" $(@D)/Makefile
-	$(SED) "s#-O[0-9sg]#$(LIBOPENSSL_3_0_CFLAGS)#" $(@D)/Makefile
-	$(SED) "s# build_tests##" $(@D)/Makefile
+			$(if $(BR2_STATIC_LIBS),no-dso)
 endef
 
 # libdl is not available in a static build, and this is not implied by no-dso

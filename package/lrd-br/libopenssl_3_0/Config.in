@@ -23,12 +23,14 @@ config BR2_PACKAGE_LIBOPENSSL_TARGET_ARCH
 	default "linux-ppc"			if BR2_PACKAGE_LIBOPENSSL_TARGET_ARCH_LINUX_PPC
 	default "linux-ppc64"			if BR2_powerpc64
 	default "linux-ppc64le"			if BR2_powerpc64le
-	default "linux-x86"			if BR2_i386
+	default "linux-x86"			if BR2_i386 && !BR2_TOOLCHAIN_HAS_LIBATOMIC
+	default "linux-x86-latomic"		if BR2_i386 && BR2_TOOLCHAIN_HAS_LIBATOMIC
 	default "linux-x86_64"			if BR2_x86_64
 	# no-asm is needed with generic architectures such as
 	# linux-generic{32,64}, see
 	# https://github.com/openssl/openssl/issues/9839
 	default "linux-generic64 no-asm"	if BR2_ARCH_IS_64 && !BR2_MIPS_NABI32
+	default "linux-latomic no-asm"		if BR2_TOOLCHAIN_HAS_LIBATOMIC
 	default "linux-generic32 no-asm"
 
 config BR2_PACKAGE_LIBOPENSSL_BIN
@@ -74,11 +76,11 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLAKE2
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_IDEA
 	bool "enable IDEA"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SEED
 	bool "enable SEED"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_DES
 	bool "enable DES"
@@ -90,27 +92,23 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_RMD160
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_WHIRLPOOL
 	bool "enable WHIRLPOOL"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLOWFISH
 	bool "enable BLOWFISH"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL
 	bool "enable SSL"
 	default y
 
-config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL2
-	bool "enable SSL2"
-	default n
-
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_SSL3
 	bool "enable SSL3"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_WEAK_SSL
 	bool "enable WEAK_SSL"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_PSK
 	bool "enable mode PSK"
@@ -118,11 +116,11 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_PSK
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_CAST
 	bool "enable mode CAST"
-	default n
+	default y
 
 config BR2_PACKAGE_LIBOPENSSL_UNSECURE
 	bool "enable unit test, debug, backtrace"
-	default n
+	default y
 	help
 	  Enable unit-test crypto-mdebug-backtrace
 	  crypto-mdebug autoerrinit mode.
@@ -133,7 +131,7 @@ config BR2_PACKAGE_LIBOPENSSL_DYNAMIC_ENGINE
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_COMP
 	bool "enable compression"
-	default n
+	default y
 	select BR2_PACKAGE_ZLIB
 
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_KTLS
