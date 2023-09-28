@@ -21,22 +21,27 @@ BACKUP_SECRET_DIR = $(TARGET_DIR)/usr/share/factory/etc/secret
 BACKUP_MISC_DIR = $(TARGET_DIR)/usr/share/factory/etc/misc
 
 define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
+	set -x
+
 	ln -sf /perm/etc/machine-id $(TARGET_DIR)/etc/machine-id
 
-	if [ -d $(TARGET_DIR)/etc/dropbear ]; then \
-		unlink $(TARGET_DIR)/etc/dropbear; \
-		mkdir -p $(TARGET_DIR)/etc/dropbear; \
-	fi;
-
 	mkdir -p $(BACKUP_SECRET_DIR)
-	for BACKUP_TARGET in "firewalld" "weblcm-python" "modem" "stunnel" "chrony" "dropbear" "summit-rcm"; do \
-		if [ -d $(TARGET_DIR)/etc/"$${BACKUP_TARGET}" ];then \
-			mv $(TARGET_DIR)/etc/$${BACKUP_TARGET}/ $(BACKUP_SECRET_DIR); \
-			ln -sf /data/secret/$${BACKUP_TARGET} $(TARGET_DIR)/etc/$${BACKUP_TARGET}; \
-		fi; \
-	done
 
-	set -x
+	if [ -x $(TARGET_DIR)/usr/sbin/dropbear ]; then \
+		unlink $(TARGET_DIR)/etc/dropbear; \
+		ln -sf /data/secret/dropbear $(TARGET_DIR)/etc/dropbear; \
+		mkdir -p $(BACKUP_SECRET_DIR)/dropbear; \
+	fi
+
+	# Factory data is only used with LCM/RCM
+	if [ -x $(TARGET_DIR)/usr/bin/weblcm-python ] || [ -x $(TARGET_DIR)/usr/bin/summit-rcm ]; then \
+		for BACKUP_TARGET in "weblcm-python" "modem" "stunnel" "chrony" "summit-rcm"; do
+			if [ -d $(TARGET_DIR)/etc/"$${BACKUP_TARGET}" ];then \
+				mv $(TARGET_DIR)/etc/$${BACKUP_TARGET}/ $(BACKUP_SECRET_DIR); \
+				ln -sf /data/secret/$${BACKUP_TARGET} $(TARGET_DIR)/etc/$${BACKUP_TARGET}; \
+			fi; \
+		done
+	fi
 
 	mkdir -p $(BACKUP_SECRET_DIR)/NetworkManager
 	for SM_SUB_DIR in "certs" "system-connections"; do \
