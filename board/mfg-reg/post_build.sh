@@ -99,7 +99,7 @@ regLWB*)
 
 	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/brcm/brcmfmac43439-sdio-mfg_*.bin"
 
-	lwbname=${BR2_LRD_PRODUCT/regLWB/regLWB6}
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regIF573}
 	add_file ${lwbname} \
 		/usr/bin/lru \
 		/usr/bin/btlru \
@@ -108,7 +108,7 @@ regLWB*)
 
 	add_firmware ${lwbname} "${TARGET_DIR}/lib/firmware/cypress/cyfmac55572-*-mfg_*.trxse"
 
-	lwbname=${BR2_LRD_PRODUCT/regLWB/regSONA}
+	lwbname=${BR2_LRD_PRODUCT/regLWB/regIF513}
 	add_file ${lwbname} \
 		/usr/bin/lru \
 		/usr/bin/btlru \
