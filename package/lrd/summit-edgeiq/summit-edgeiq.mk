@@ -5,7 +5,8 @@
 define SUMMIT_EDGEIQ_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin \
 		$(SUMMIT_EDGEIQ_PKGDIR)adduser \
-		$(SUMMIT_EDGEIQ_PKGDIR)addgroup
+		$(SUMMIT_EDGEIQ_PKGDIR)addgroup \
+		$(SUMMIT_EDGEIQ_PKGDIR)factory_reset_edge.sh
 endef
 
 define SUMMIT_EDGEIQ_INSTALL_INIT_SYSTEMD
