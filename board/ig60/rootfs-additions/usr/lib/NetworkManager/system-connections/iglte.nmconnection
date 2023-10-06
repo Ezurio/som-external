@@ -2,15 +2,18 @@
 id=iglte
 uuid=40e7a10f-48a9-4c72-961a-562c5d32a05c
 type=gsm
+metered=1
 
 [gsm]
-apn=iot0119.com.attz
+apn=internet
 
 [ipv4]
 method=auto
+route-metric=700
 
 [ipv6]
 addr-gen-mode=default
-method=disabled
+method=auto
+route-metric=700
 
 [proxy]

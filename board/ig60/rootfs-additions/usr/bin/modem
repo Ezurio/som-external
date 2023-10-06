@@ -12,25 +12,13 @@ press_off() {
 	echo 1 > /sys/devices/platform/gpio/lte_fast_shdn/value
 }
 
-is_on() {
-	return $(cat /sys/devices/platform/gpio/lte_status/value)
-}
-
 case "${1}" in
     on)
-        if ! is_on; then
-            press_on
-        else
-            echo "Modem already on"
-        fi
+        press_on
         ;;
 
     off)
-        if is_on; then
-            press_off
-        else
-            echo "Modem already off"
-        fi
+        press_off
         ;;
 
     *)
