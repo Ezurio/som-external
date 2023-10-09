@@ -8,6 +8,8 @@ define GGV2SUPPORT_INSTALL_TARGET_CMDS
 		$(GGV2SUPPORT_PKGDIR)/ggv2_mount_sdcard.sh
 	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc/modules-load.d \
 		$(GGV2SUPPORT_PKGDIR)f2fs.conf
+	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc/sysctl.d \
+		$(GGV2SUPPORT_PKGDIR)min-free-kbytes.conf
 endef
 
 define GGV2SUPPORT_INSTALL_INIT_SYSTEMD
