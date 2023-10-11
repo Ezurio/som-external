@@ -9,6 +9,10 @@ fi
 
 mtd=/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd
 
+if [ -f /sys/class/ubi/ubi0 ]; then
+    ubidetach -d 0 || exit 1
+fi
+
 cleanup()
 {
     echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode
