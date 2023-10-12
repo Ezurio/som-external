@@ -4,13 +4,13 @@
 1.Make change to ca.cnf, server.cnf and san.ext if need to generate new certificates
 
 2.Generate CA certificate
-openssl req -out ca.csr -newkey rsa:2048 -nodes -keyout ca.key -config ca.cnf
+openssl req -out ca.csr -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout ca.key -config ca.cnf
 openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt
 
 * ca.crt is the certificate to be imported by clients
 
 3.Generate server Certificate with SAN
-openssl req -out server.csr -newkey rsa:2048 -nodes -keyout server.key -config server.cnf
+openssl req -out server.csr -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout server.key -config server.cnf
 openssl x509 -req -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt -sha256 -extfile san.ext
 
 * server.crt and server.key are needed by the REST server
