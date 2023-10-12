@@ -19,15 +19,6 @@ GADGET_DIR=/sys/kernel/config/usb_gadget
 counter=0
 
 create_ether() {
-	case ${USB_GADGET_ETHER} in
-	rndis|ncm)
-		echo 0xa4a2 > idProduct
-		echo "1" > os_desc/use
-		echo "0xcd" > os_desc/b_vendor_code
-		echo "MSFT100" > os_desc/qw_sign
-		;;
-	esac
-
 	func=functions/${USB_GADGET_ETHER}.usb${counter}
 
 	# Create Ethernet config
@@ -35,6 +26,10 @@ create_ether() {
 
 	case ${USB_GADGET_ETHER} in
 	rndis)
+		echo "1" > os_desc/use
+		echo "0xcd" > os_desc/b_vendor_code
+		echo "MSFT100" > os_desc/qw_sign
+
 		echo "ef" > ${func}/class
 		echo "04" > ${func}/subclass
 		echo "01" > ${func}/protocol
@@ -44,6 +39,10 @@ create_ether() {
 		;;
 
 	ncm)
+		echo "1" > os_desc/use
+		echo "0xcd" > os_desc/b_vendor_code
+		echo "MSFT100" > os_desc/qw_sign
+
 		echo "WINNCM" > ${func}/os_desc/interface.ncm/compatible_id
 		;;
 	esac
