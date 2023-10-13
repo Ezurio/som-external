@@ -36,13 +36,13 @@ endchoice
 
 config BR2_PACKAGE_LRD_USBGADGET_VENDOR_ID
 	string "USB Vendor ID"
-	default "0x0525"
+	default "0x1fa3"
 	help
 	  USB Gadget Vendor ID
 
 config BR2_PACKAGE_LRD_USBGADGET_PRODUCT_ID
 	string "USB Product ID"
-	default "0xa4d2"
+	default "0x0002"
 	help
 	  USB Gadget Product ID
 
