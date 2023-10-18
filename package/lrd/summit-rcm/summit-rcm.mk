@@ -22,19 +22,6 @@ $(error At least one interface (REST API or AT command) must be specified for Su
 endif
 endif
 
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AWM),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/awm/at_interface/commands
-endif
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/radio_siso_mode/at_interface/commands
-endif
-endif
-
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += \
 		summit_rcm/rest_api/v2/system \
@@ -46,37 +33,11 @@ endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/legacy
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_MODEM),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/modem
-endif
-endif
-
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH),y)
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/v2/bluetooth
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/bluetooth
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_HID),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/hid
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_VSP),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/vsp
-endif
 endif
 
 ifneq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES)$(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/services
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_ENABLE_STUNNEL_CONTROL),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/stunnel
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_IPTABLES_FIREWALL),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/iptables
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/chrony
-endif
+
 endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
@@ -84,19 +45,6 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
 		summit_rcm/at_interface \
 		summit_rcm/at_interface/commands \
 		summit_rcm/at_interface/services
-endif
-
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_LOG_FORWARDING),y)
-    SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/services
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
-	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/at_interface/commands
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
-    SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/rest_api/v2/system
-endif
-ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
-    SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/log_forwarding/rest_api/legacy
-endif
 endif
 
 SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/services
@@ -122,12 +70,6 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 
 	$(SED) '/^unmanaged_hardware_devices/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a unmanaged_hardware_devices: $(BR2_PACKAGE_SUMMIT_RCM_UNMANAGED_HARDWARE_DEVICES)' $(TARGET_DIR)/etc/summit-rcm.ini
-
-	$(SED) '/^awm_cfg/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a awm_cfg:$(BR2_PACKAGE_ADAPTIVE_WW_BINARIES_CFG_FILE)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^enable_allow_unauthenticated_reboot_reset/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a enable_allow_unauthenticated_reboot_reset: \
-		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_UNAUTHENTICATED)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 
 	$(SED) '/^allow_multiple_user_sessions/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a allow_multiple_user_sessions: \

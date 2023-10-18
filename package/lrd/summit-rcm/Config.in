@@ -51,19 +51,6 @@ config BR2_PACKAGE_SUMMIT_RCM_UNMANAGED_HARDWARE_DEVICES
 		Space separated hardware devices like eth0, wlan0 etc which are managed by networkManager,
 		but don't want to be managed by Summit RCM.
 
-config BR2_PACKAGE_SUMMIT_RCM_AWM
-	bool "AWM configuration support for Summit RCM"
-	depends on BR2_LRD_SOM60_RADIO
-	select BR2_PACKAGE_PYTHON_LIBCONF
-	default y
-	help
-		Add AWM (Adaptive Worldwide Mode) configuration support to Summit RCM.
-
-config BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE
-	bool "Allow changing radio's SISO mode"
-	help
-		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)
-
 config BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
 	bool "Enable cookie-based authentication sessions"
 	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
@@ -89,80 +76,11 @@ config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
 	help
 		Enable SSL client authentication
 
-config BR2_PACKAGE_SUMMIT_RCM_MODEM
-	bool "Modem / positioning support for Summit RCM"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
-	help
-		Add modem, positioning, positioning switch support to Summit RCM.
-
-config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
-	bool "Bluetooth support for Summit RCM"
-	depends on BR2_PACKAGE_BLUEZ5_UTILS
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
-	default y
-	help
-		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
-
-config BR2_PACKAGE_SUMMIT_RCM_VSP
-	bool "BLE VSP support for Summit RCM"
-	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
-	help
-		Add BLE VSP support (rx/tx transfers over chosen GATT characteristics to TCP server) to Summit RCM.
-
-config BR2_PACKAGE_SUMMIT_RCM_HID
-	bool "HID BT barcode scanner support for Summit RCM"
-	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
-	select BR2_PACKAGE_PYTHON_PYUDEV
-	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HID
-	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HOG
-	help
-		Add Bluetooth HID barcode scanner support to Summit RCM.
-
-config BR2_PACKAGE_SUMMIT_RCM_WEBSOCKETS
-	bool "Websockets support for BLE on Summit RCM"
-	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH
-	select BR2_PACKAGE_PYTHON_WEBSOCKETS
-	help
-		Add Websockets streaming support for BLE REST API.
-
-config BR2_PACKAGE_SUMMIT_RCM_ENABLE_STUNNEL_CONTROL
-	bool "Control support for stunnel"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
-	select BR2_PACKAGE_STUNNEL
-	help
-		Enable support to control stunnel
-
-config BR2_PACKAGE_SUMMIT_RCM_UNAUTHENTICATED
-	bool "Unauthenticated access support for Summit RCM"
-	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
-	help
-		Add unauthenticated access support, for example, for factory reset and reboot endpoints.  Due to security concerns, this should never be enabled unless requested by a customer, and preferably never enabled if Summit RCM is exposed on a public/external zone interface.
-
 config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 	bool "Allow multiple sessions per user"
 	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
 	help
 		Enable multiple sessions for the same user (re-login)
-
-config BR2_PACKAGE_SUMMIT_RCM_IPTABLES_FIREWALL
-	bool "iptables firewall control"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
-	select BR2_PACKAGE_IPTABLES
-	default y if BR2_PACKAGE_SUMMIT_FIREWALL
-	help
-		Enable iptables firewall wrapper
-
-config BR2_PACKAGE_SUMMIT_RCM_CHRONY_NTP
-	bool "chrony NTP control"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
-	depends on BR2_PACKAGE_CHRONY
-	default y
-	help
-		Enable chrony wrapper for NTP configuration
 
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
 	string "AT Interface Serial Port"
@@ -177,11 +95,5 @@ config BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE
 	default 3000000
 	help
 		Enable Configuration of the AT Interface baud rate
-
-config BR2_PACKAGE_SUMMIT_RCM_LOG_FORWARDING
-	bool "Log Forwarding for Summit-RCM"
-	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
-	help
-		Enable log forwarding support for Summit-RCM
 
 endif

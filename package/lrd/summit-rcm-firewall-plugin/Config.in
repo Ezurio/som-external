@@ -1,0 +1,8 @@
+config BR2_PACKAGE_SUMMIT_RCM_FIREWALL_PLUGIN
+	bool "iptables firewall control plugin"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	select BR2_PACKAGE_IPTABLES
+	default y if BR2_PACKAGE_SUMMIT_FIREWALL
+	help
+		Enable iptables firewall wrapper

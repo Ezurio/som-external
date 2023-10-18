@@ -1,0 +1,6 @@
+config BR2_PACKAGE_SUMMIT_RCM_LOG_FORWARDING_PLUGIN
+	bool "Log Forwarding Plugin for Summit-RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM
+	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
+	help
+		Enable log forwarding support for Summit-RCM

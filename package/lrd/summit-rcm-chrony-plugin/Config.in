@@ -1,0 +1,7 @@
+config BR2_PACKAGE_SUMMIT_RCM_CHRONY_PLUGIN
+	bool "chrony plugin for NTP control"
+	depends on BR2_PACKAGE_SUMMIT_RCM
+	depends on BR2_PACKAGE_CHRONY
+	default y
+	help
+		Enable chrony wrapper for NTP configuration

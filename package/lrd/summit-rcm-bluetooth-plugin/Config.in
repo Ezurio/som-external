@@ -1,0 +1,30 @@
+config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN
+	bool "Bluetooth plugin for Summit RCM"
+	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
+		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	default y
+	help
+		Add basic Bluetooth REST API support to Summit RCM (scanning/pairing/connecting), and BLE REST API (GATT central role).
+
+config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN_VSP
+	bool "BLE VSP support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN
+	help
+		Add BLE VSP support (rx/tx transfers over chosen GATT characteristics to TCP server) to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN_HID
+	bool "HID BT barcode scanner support for Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN
+	select BR2_PACKAGE_PYTHON_PYUDEV
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HID
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HOG
+	help
+		Add Bluetooth HID barcode scanner support to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN_WEBSOCKETS
+	bool "Websockets support for BLE on Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN
+	select BR2_PACKAGE_PYTHON_WEBSOCKETS
+	help
+		Add Websockets streaming support for BLE REST API.

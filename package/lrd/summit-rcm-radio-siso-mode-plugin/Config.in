@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SUMMIT_RCM_RADIO_SISO_MODE_PLUGIN
+	bool "Plugin to allow changing radio's SISO mode"
+	depends on BR2_PACKAGE_SUMMIT_RCM
+	help
+		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)

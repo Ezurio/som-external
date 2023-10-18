@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SUMMIT_RCM_MODEM_PLUGIN
+	bool "Modem / positioning support plugin or Summit RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	help
+		Add modem, positioning, positioning switch support to Summit RCM.
