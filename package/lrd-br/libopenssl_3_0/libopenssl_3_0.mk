@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBOPENSSL_3_0_VERSION = 3.1.3
+LIBOPENSSL_3_0_VERSION = 3.1.4
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = Apache-2.0
