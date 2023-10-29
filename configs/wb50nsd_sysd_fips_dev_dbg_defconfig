@@ -11,6 +11,7 @@ BR2_CCACHE_DIR="$(BR2_DL_DIR)/.buildroot-ccache"
 BR2_STRIP_EXCLUDE_FILES="libcrypto.so.3 fips.so openssl all_services fail_posts fail_pcts zeroization"
 BR2_PACKAGE_OVERRIDE_FILE="$(BR2_EXTERNAL_LRD_SOM_PATH)/board/wb50n_sysd/wb50n_sysd-local.mk"
 BR2_PER_PACKAGE_DIRECTORIES=y
+BR2_TIME_BITS_64=y
 BR2_TARGET_GENERIC_HOSTNAME="summit"
 BR2_TARGET_GENERIC_ISSUE="Laird Connectivity"
 BR2_INIT_SYSTEMD=y
