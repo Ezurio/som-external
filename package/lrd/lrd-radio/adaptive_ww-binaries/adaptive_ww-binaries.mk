@@ -18,6 +18,7 @@ endef
 define ADAPTIVE_WW_BINARIES_INSTALL_TARGET_CMDS
 	$(AWM_BINARIES_INSTALL_TARGET_CMDS)
 	$(AWM_BINARIES_CONFIG_INSTALL_TARGET_CMDS)
+	$(AWW_BINARIES_CFG_WW_INSTALL_TARGET_CMDS)
 endef
 
 ifeq ($(BR2_PACKAGE_ADAPTIVE_WW_BINARIES_MODE_LITE),y)
@@ -48,6 +49,12 @@ define ADAPTIVE_WW_BINARIES_INSTALL_INIT_SYSV
 	$(INSTALL) -m 0755 -D $(@D)/etc/init.d/adaptive_ww $(TARGET_DIR)/etc/init.d/S30adaptive_ww
 endef
 
+endif
+
+ifeq ($(BR2_PACKAGE_ADAPTIVE_WW_CFG_WW),y)
+define AWW_BINARIES_CFG_WW_INSTALL_TARGET_CMDS
+	$(INSTALL) -D -m 0755 $(@D)/usr/bin/cww $(TARGET_DIR)/usr/bin/cww
+endef
 endif
 
 $(eval $(generic-package))

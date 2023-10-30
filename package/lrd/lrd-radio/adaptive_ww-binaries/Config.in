@@ -3,6 +3,7 @@ config BR2_PACKAGE_ADAPTIVE_WW_BINARIES
 	select BR2_PACKAGE_LIBNL
 	select BR2_PACKAGE_LIBCONFIG
 	select BR2_PACKAGE_ADAPTIVE_WW if BR2_LRD_DEVEL_BUILD
+	select BR2_PACKAGE_ADAPTIVE_WW_CFG_WW if BR2_LRD_DEVEL_BUILD
 
 	help
 	  Extracts adaptive_ww from adaptive_ww-arm release and installs them on the target.
@@ -45,5 +46,10 @@ config BR2_PACKAGE_ADAPTIVE_WW_BINARIES_MODE_LITE
 	help
 		AWM mode which does not periodically validate geo-location.
 endchoice
+
+config BR2_PACKAGE_ADAPTIVE_WW_CFG_WW
+	bool "Configure World Wide Utility"
+	help
+		Extracts cww from adaptive_ww-arm release and installs it on the target.
 
 endif
