@@ -16,7 +16,11 @@ FIPSCHECK_AUTORECONF = YES
 ifeq ($(BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM_7),y)
 # this is need to prevent enabling code hardenning options, that were not enabled
 # on lrd-7 builds and not included in hash calculation
-FIPSCHECK_CONF_ENV = CFLAGS+=" -fno-stack-protector -U_FORTIFY_SOURCE -D__UBOOT__"
+ifeq ($(BR2_ARM_CPU_ARMV7A),y)
+FIPSCHECK_CONF_ENV = CFLAGS+=" -fno-stack-protector -U_FORTIFY_SOURCE -D__UBOOT__ -marm -O3"
+else
+FIPSCHECK_CONF_ENV = CFLAGS+=" -fno-stack-protector -U_FORTIFY_SOURCE -D__UBOOT__ -marm"
+endif
 FIPSCHECK_MAKE_OPTS = LDFLAGS+="-XCClinker -D__UBOOT__ "
 endif
 
