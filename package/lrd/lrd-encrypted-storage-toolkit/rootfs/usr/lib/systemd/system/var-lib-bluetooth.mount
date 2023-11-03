@@ -1,8 +1,10 @@
 [Unit]
 Description=Bluetooth Storage Bind
-BindsTo=mount_data.service
-After=mount_data.service
-Before=bluetooth.service
+DefaultDependencies=no
+Conflicts=umount.target
+Requires=mount_data.service
+After=mount_data.service system.slice local-fs-pre.target
+Before=bluetooth.service umount.target
 
 [Mount]
 What=/data/secret/bluetooth
