@@ -2,8 +2,9 @@
 Description=Mount Data Partition
 DefaultDependencies=no
 Conflicts=umount.target
-Before=umount.target
-After=local-fs.target system.slice
+Before=umount.target local-fs.target
+After=local-fs-pre.target system.slice data.mount
+PartOf=data.mount
 
 [Service]
 Type=oneshot
