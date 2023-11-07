@@ -10,8 +10,11 @@ define SUMMIT_EDGEIQ_INSTALL_TARGET_CMDS
 endef
 
 define SUMMIT_EDGEIQ_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/perm/edge/init/systemd \
+	$(INSTALL) -D -m 644 -t $(TARGET_DIR)$(subst $\",,$(BR2_PACKAGE_SUMMIT_EDGEIQ_INSTALLDIR))/edge/init/systemd \
 		 $(SUMMIT_EDGEIQ_PKGDIR)edge.service
+
+	$(SED) 's/\/TAG_INSTALL_DIR/\$(subst $\",,$(BR2_PACKAGE_SUMMIT_EDGEIQ_INSTALLDIR))/g' \
+		$(TARGET_DIR)$(subst $\",,$(BR2_PACKAGE_SUMMIT_EDGEIQ_INSTALLDIR))/edge/init/systemd/edge.service
 
 	$(INSTALL) -d $(TARGET_DIR)/etc/systemd/system
 

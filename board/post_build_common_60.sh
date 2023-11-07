@@ -55,7 +55,13 @@ then
 	mv ${TARGET_DIR}/usr/lib/jvm/lib/modules ${BINARIES_DIR}/jdk/lib/
 
 	# Create tarball
-	OPENJDK_TARBALL_FILE=${BINARIES_DIR}/${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz
+	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}_devel-summit-openjdk.tar.gz"
+	elif [ -n "$BR2_LRD_IG60_TARGET" ]; then
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
+	else
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz"
+	fi
 	tar -C ${BINARIES_DIR} -czvf ${OPENJDK_TARBALL_FILE} jdk
 
 	# Create symlink the place of the 'modules' file

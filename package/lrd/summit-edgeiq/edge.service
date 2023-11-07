@@ -3,13 +3,13 @@ Description=Edge service
 After=local-fs.target network.target network-online.target
 StartLimitInterval=300
 StartLimitBurst=5
-ConditionPathExists=/perm/edge/edge
+ConditionPathExists=/TAG_INSTALL_DIR/edge/edge
 
 [Service]
 KillMode=process
 Restart=always
 RestartSec=30
-ExecStart=/perm/edge/edge
+ExecStart=/TAG_INSTALL_DIR/edge/edge
 StandardOutput=null
 KillMode=process
 
