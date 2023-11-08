@@ -194,10 +194,16 @@ fi
 
 if [ "${BUILD_TYPE}" != ig60 ]; then
 
-# Configure public key if swupdate signature check is enabled
-if grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
-	mkdir -p ${TARGET_DIR}/etc/swupdate/conf.d
-	echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > ${TARGET_DIR}/etc/swupdate/conf.d/99-signing.conf
+if grep -q 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
+	if grep -q 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+		cp "${ENCRYPTED_TOOLKIT_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
+		# Configure dev.crt if swupdate CMS is enabled
+		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+	else
+		# Configure public key if swupdate signature check is enabled
+		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+	fi
 fi
 
 # Path to common image files
