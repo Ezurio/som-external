@@ -28,9 +28,8 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	mkdir -p $(BACKUP_SECRET_DIR)
 
 	if [ -x $(TARGET_DIR)/usr/sbin/dropbear ]; then \
-		unlink $(TARGET_DIR)/etc/dropbear; \
+		mv $(TARGET_DIR)/etc/dropbear $(BACKUP_SECRET_DIR)/dropbear; \
 		ln -sf /data/secret/dropbear $(TARGET_DIR)/etc/dropbear; \
-		mkdir -p $(BACKUP_SECRET_DIR)/dropbear; \
 	fi
 
 	# Factory data is only used with LCM/RCM

@@ -12,6 +12,7 @@ FACTORY_SETTING_TIMEZONE=/etc/timezone
 FACTORY_SETTING_ADJTIME_FILE=/etc/adjtime
 
 BLUETOOTH_STATE_DIR=${USER_SETTINGS_SECRET_TARGET}/lib/bluetooth
+DROPBEAR_DIR=${USER_SETTINGS_SECRET_TARGET}/dropbear
 RESET_INIDICATOR=/data/.factory_reset
 
 exit_on_error() {
@@ -25,21 +26,27 @@ do_check_and_reset() {
 		# Delete all user data, but not the /data/secret dir as it is encrypted.
 		find /data -maxdepth 1 -mindepth 1 ! -name secret -exec rm -fr {} \;
 		rm -fr ${USER_SETTINGS_SECRET_TARGET}/*
+
 		# Run factory reset hooks for external components
 		for hook_sh in "/usr/sbin/factory_reset_*.sh"; do
 			if [ -x ${hook_sh} ]; then
 				. ${hook_sh}
 			fi
 		done
-
 	# Check if secret directory has been populated, do not blow away settings
 	elif [ -d "${USER_SETTINGS_SECRET_TARGET}/NetworkManager" ]; then
 		# Always copy over system connections, as the host connection is critical
 		cp -r ${FACTORY_SETTING_SECRET_SOURCE}/NetworkManager/system-connections ${USER_SETTINGS_SECRET_TARGET}/NetworkManager
+
+		# Create directories needed during software upgrade
+		[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
+		[ -x /usr/sbin/dropbear ]   && mkdir -p ${DROPBEAR_DIR}
+
+		sync
 		return
 	fi
 
-	mkdir -p ${BLUETOOTH_STATE_DIR}
+	[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
 
 	cp -r ${FACTORY_SETTING_SECRET_SOURCE}/* ${USER_SETTINGS_SECRET_TARGET} || \
 		exit_on_error "Copying factory default files failed"
