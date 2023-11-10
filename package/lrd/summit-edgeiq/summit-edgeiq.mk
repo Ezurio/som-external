@@ -18,7 +18,7 @@ define SUMMIT_EDGEIQ_INSTALL_INIT_SYSTEMD
 
 	$(INSTALL) -d $(TARGET_DIR)/etc/systemd/system
 
-	ln -rsf $(TARGET_DIR)/perm/edge/init/systemd/edge.service \
+	ln -rsf $(TARGET_DIR)$(subst $\",,$(BR2_PACKAGE_SUMMIT_EDGEIQ_INSTALLDIR))/edge/init/systemd/edge.service \
 		$(TARGET_DIR)/etc/systemd/system/edge.service
 
 	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc/systemd/system/tmp.mount.d \
