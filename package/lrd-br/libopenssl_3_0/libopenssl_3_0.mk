@@ -59,7 +59,7 @@ LIBOPENSSL_3_0_CFLAGS += -DOPENSSL_NO_ASYNC
 endif
 
 ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
-LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR=$(BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH)/package/externals/wpa_supplicant/laird/openssl-3.0-fips-patches/libopenssl_3_0
+LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR=$(BR2_EXTERNAL_LRD_SOM_PATH)/package/lrd/externals/summitssl_patches/openssl-3.0-fips-patches/libopenssl_3_0
 define LIBOPENSSL_3_0_POST_PATCH_CMD
 	$(APPLY_PATCHES) $(@D) $(LIBOPENSSL_3_0_FIPS_EXT_PATCH_DIR) \*.patch
 endef
