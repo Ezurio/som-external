@@ -35,7 +35,7 @@ TARGETS_COMPONENT_all = mfg60n regLWB \
 	adaptive_ww adaptive_bt
 
 TARGETS_COMPONENT_lrd = reg45n reg50n sona-nx-bridge\
-	summitssl_3_0_fips \
+	summitssl_fips \
 	summit_supplicant_libs_legacy
 
 TARGETS_COMPONENT = \
