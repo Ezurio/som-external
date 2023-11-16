@@ -40,6 +40,7 @@ source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-rcm-radio-siso-mode-plugin
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-rcm-stunnel-plugin/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-rcm-unauthenticated-plugin/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/sdcsupp/Config.in"
+source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-hostapd/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-disable-console-login/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/summit-edgeiq/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/ggv2support/Config.in"
