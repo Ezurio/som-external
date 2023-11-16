@@ -28,10 +28,4 @@ config BR2_PACKAGE_SDCSUPP_LEGACY
 config BR2_PACKAGE_SDCSUPP_LIBS_ONLY
 	bool "Internal build of closed source libraries only"
 
-config BR2_PACKAGE_SDCSUPP_HOSTAPD
-	bool "Install hostapd binary"
-
-config BR2_PACKAGE_SDCSUPP_HOSTAPD_CLI
-	bool "Install hostapd_cli binary"
-
 endif
