@@ -60,7 +60,7 @@ define SDCSUPP_BUILD_CMDS
 	cp $(SDCSUPP_CONFIG) $(@D)/wpa_supplicant/.config
 	CFLAGS="-I$(STAGING_DIR)/usr/include/libnl3 $(TARGET_CFLAGS) -Wall" \
 	PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
-		$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/wpa_supplicant CC="$(TARGET_CC)" $(SDCSUPP_FIPS)
+		$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/wpa_supplicant CC="$(TARGET_CC)" BINDIR=/usr/sbin $(SDCSUPP_FIPS)
 	$(TARGET_OBJCOPY) -S $(@D)/wpa_supplicant/wpa_supplicant $(@D)/wpa_supplicant/sdcsupp
 endef
 
