@@ -28,7 +28,7 @@ SUMMIT_HOSTAPD_CONFIG = $(@D)/hostapd/config_openssl
 define SUMMIT_HOSTAPD_BUILD_CMDS
 	cp $(SUMMIT_HOSTAPD_CONFIG) $(@D)/hostapd/.config
 
-	CFLAGS="-I$(STAGING_DIR)/usr/include/libnl3 $(TARGET_CFLAGS) -MMD -Wall" \
+	CFLAGS="-I$(STAGING_DIR)/usr/include/libnl3 $(TARGET_CFLAGS) -Wall" \
 	LDFLAGS="$(TARGET_LDFLAGS)" PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
 		$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/hostapd CC="$(TARGET_CC)"
 endef
