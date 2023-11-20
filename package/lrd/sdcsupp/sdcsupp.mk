@@ -59,7 +59,7 @@ endif
 define SDCSUPP_BUILD_CMDS
 	cp $(SDCSUPP_CONFIG) $(@D)/wpa_supplicant/.config
 	$(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/wpa_supplicant BINDIR=/usr/sbin $(SDCSUPP_FIPS)
-	$(TARGET_OBJCOPY) -S $(@D)/wpa_supplicant/wpa_supplicant $(@D)/wpa_supplicant/sdcsupp
+	$(TARGET_OBJCOPY) $(@D)/wpa_supplicant/wpa_supplicant $(@D)/wpa_supplicant/sdcsupp
 endef
 
 ifeq ($(BR2_PACKAGE_SDCSUPP_WPA_CLI),y)
