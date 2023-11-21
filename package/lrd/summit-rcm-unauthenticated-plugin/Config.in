@@ -2,4 +2,8 @@ config BR2_PACKAGE_SUMMIT_RCM_UNAUTHENTICATED_PLUGIN
 	bool "Unauthenticated access support plugin for Summit RCM"
 	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
 	help
-		Add unauthenticated access support, for example, for factory reset and reboot endpoints.  Due to security concerns, this should never be enabled unless requested by a customer, and preferably never enabled if Summit RCM is exposed on a public/external zone interface.
+		Add unauthenticated access support, for example, for factory
+		reset and reboot endpoints. Due to security concerns, this
+		should never be enabled unless requested by a customer, and
+		preferably never enabled when Summit RCM is exposed on a
+		public/external zone interface.

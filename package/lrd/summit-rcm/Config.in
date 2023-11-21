@@ -1,33 +1,36 @@
 config BR2_PACKAGE_SUMMIT_RCM
 	bool "Summit Remote Control Manager (RCM)"
-	help
-	  Summit Remote Control Manager (RCM)
 	select BR2_PACKAGE_PYTHON3
-	select BR2_PACKAGE_LRD_SWUPDATE_CLIENT
 	select BR2_PACKAGE_PYTHON3_SSL
+	select BR2_PACKAGE_PYTHON_AIOFILES
+	select BR2_PACKAGE_PYTHON_DBUS_FAST
 	select BR2_PACKAGE_ZIP
 	select BR2_PACKAGE_UNZIP
 	select BR2_PACKAGE_LIBOPENSSL_BIN
-	select BR2_PACKAGE_SWUPDATE
-	select BR2_PACKAGE_PYTHON_AIOFILES
-	select BR2_PACKAGE_PYTHON_DBUS_FAST
+	select BR2_PACKAGE_LRD_SWUPDATE_CLIENT
+	help
+		Summit Remote Control Manager (RCM)
 
 if BR2_PACKAGE_SUMMIT_RCM
 
-config BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES
-	bool "v2 REST API routes"
+config BR2_PACKAGE_SUMMIT_RCM_REST_API
+	bool
 	select BR2_PACKAGE_PYTHON_FALCON
 	select BR2_PACKAGE_PYTHON_UVICORN
+
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES
+	bool "v2 REST API routes"
+	select BR2_PACKAGE_SUMMIT_RCM_REST_API
 	default y
 	help
 		Enable the Summit RCM v2 REST API routes
 
 config BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 	bool "Legacy REST API routes"
-	select BR2_PACKAGE_PYTHON_FALCON
-	select BR2_PACKAGE_PYTHON_UVICORN
+	select BR2_PACKAGE_SUMMIT_RCM_REST_API
 	help
-		Enable the Summit RCM legacy REST API routes (backward compatibility with WebLCM)
+		Enable the Summit RCM legacy REST API routes
+		(backward compatibility with WebLCM)
 
 config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
 	bool "AT Interface"
@@ -48,13 +51,13 @@ config BR2_PACKAGE_SUMMIT_RCM_UNMANAGED_HARDWARE_DEVICES
 	string "List of unmanaged hardware devices"
 	default ""
 	help
-		Space separated hardware devices like eth0, wlan0 etc which are managed by networkManager,
-		but don't want to be managed by Summit RCM.
+		Space separated hardware devices like eth0, wlan0 etc which
+		are managed by NetworkManager, but don't want to be managed
+		by Summit RCM.
 
 config BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
 	bool "Enable cookie-based authentication sessions"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
 	default y
 	help
 		Enable cookie-based authentication sessions
@@ -71,8 +74,7 @@ config BR2_PACKAGE_SUMMIT_RCM_DEFAULT_PASSWORD
 
 config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
 	bool "Enable SSL client authentication"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES || \
-		BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
 	help
 		Enable SSL client authentication
 
