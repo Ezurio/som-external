@@ -29,18 +29,17 @@ do_check_and_reset() {
 
 		# Run factory reset hooks for external components
 		for hook_sh in "/usr/sbin/factory_reset_*.sh"; do
-			if [ -x ${hook_sh} ]; then
-				. ${hook_sh}
-			fi
+			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
 	# Check if secret directory has been populated, do not blow away settings
 	elif [ -d "${USER_SETTINGS_SECRET_TARGET}/NetworkManager" ]; then
-		# Always copy over system connections, as the host connection is critical
-		cp -r ${FACTORY_SETTING_SECRET_SOURCE}/NetworkManager/system-connections ${USER_SETTINGS_SECRET_TARGET}/NetworkManager
-
 		# Create directories needed during software upgrade
 		[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
 		[ -x /usr/sbin/dropbear ]   && mkdir -p ${DROPBEAR_DIR}
+
+		for hook_sh in "/usr/sbin/factory_powerup_*.sh"; do
+			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
+		done
 
 		sync
 		return
