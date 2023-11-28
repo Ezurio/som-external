@@ -1,8 +1,8 @@
 config BR2_PACKAGE_ECHOTEST
 	bool "Serial Echo Test utility"
-	help
-	  Laird Connectivity Serial Echo Test utility
 	select BR2_PACKAGE_PYTHON3
 	select BR2_PACKAGE_PYTHON_SERIAL
+	help
+	  Laird Connectivity Serial Echo Test utility
 
 

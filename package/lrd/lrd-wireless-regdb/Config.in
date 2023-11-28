@@ -1,6 +1,5 @@
 config BR2_PACKAGE_LRD_WIRELESS_REGDB
 	bool "lrd-wireless-regdb"
-	select BR2_PACKAGE_HOST_PYTHON3
 	help
 	  Laird Wireless regulatory databases.
 

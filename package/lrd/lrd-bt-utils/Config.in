@@ -1,6 +1,5 @@
 config BR2_PACKAGE_LRD_BT_UTILS
 	bool "lrd-bt-utils"
+	select BR2_PACKAGE_PYTHON3
 	help
 	  Utilities to support bluetooth device programming and operations
-	depends on BR2_PACKAGE_PYTHON || BR2_PACKAGE_PYTHON3
-
