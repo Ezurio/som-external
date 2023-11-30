@@ -1,44 +1,39 @@
-menu "Laird Connectivity"
-
-	config BR2_LRD_DEVEL_BUILD
+config BR2_LRD_DEVEL_BUILD
 	bool
 	option env="BR2_LRD_DEVEL_BUILD"
 	help
-	  Developers at Laird can access the closed source repositories,
-	  so they should set this flag to directly build from the closed
-	  source repositories under $BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH/package.
+		Developers at Laird can access the closed source repositories,
+		so they should set this flag to directly build from the closed
+		source repositories under $BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH/package.
 
-	config BR2_SUMMIT_SECURE_BOOT
+config BR2_SUMMIT_SECURE_BOOT
 	bool "Summit Secure Boot"
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
 	help
-	  This enables "traditional" (down to kernel) secure boot
-	  rootfs security provided by BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
+		This enables "traditional" (down to kernel) secure boot
+		rootfs security provided by BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
 
+config BR2_SUMMIT_OPENJDK_GGV2
+	bool "summit-openjdk-ggv2"
+	depends on BR2_PACKAGE_OPENJDK
+	help
+		Split out the OpenJDK 'modules' file dependency
+		during the build to support moving Java dependecies
+		to the SD card to support AWS IoT Greengrass V2. This
+		config triggers logic in the post_build and post_image
+		scripts.
 
-	menu "Radio Stack"
-		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/Config.in"
-	endmenu
+menu "Radio Stack"
+	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/Config.in"
+endmenu
 
-	menu "Packages"
-		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/Config.in"
-	endmenu
+menu "Packages"
+	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/Config.in"
+endmenu
 
-	menu "Packages (Upstream)"
-		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in"
-		source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in.host"
-	endmenu
-
-        config BR2_SUMMIT_OPENJDK_GGV2
-	        bool "summit-openjdk-ggv2"
-	        depends on BR2_PACKAGE_OPENJDK
-	        help
-	          Split out the OpenJDK 'modules' file dependency
-	          during the build to support moving Java dependecies
-	          to the SD card to support AWS IoT Greengrass V2. This
-	          config triggers logic in the post_build and post_image
-	          scripts.
-
+menu "Packages (Upstream)"
+	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in"
+	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in.host"
 endmenu
 
 source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-arm/Config.in.options"
