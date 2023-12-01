@@ -11,7 +11,7 @@ LRD_NETWORK_MANAGER_CPE_ID_VENDOR = gnome
 LRD_NETWORK_MANAGER_CPE_ID_PRODUCT = networkmanager
 LRD_NETWORK_MANAGER_SELINUX_MODULES = networkmanager
 LRD_NETWORK_MANAGER_CVE_PRODUCT = networkmanager
-LRD_NETWORK_MANAGER_CVE_VERSION = 1.36.8
+LRD_NETWORK_MANAGER_CVE_VERSION = 1.42.8
 
 ifeq ($(BR2_LRD_DEVEL_BUILD),)
 ifneq ($(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE),)
@@ -36,13 +36,13 @@ LRD_NETWORK_MANAGER_SITE_METHOD = local
 endif
 
 LRD_NETWORK_MANAGER_DEPENDENCIES = \
-	host-intltool \
 	host-pkgconf \
 	dbus \
 	libglib2 \
 	libndp \
 	udev \
-	util-linux
+	util-linux \
+	openssl
 
 LRD_NETWORK_MANAGER_CONF_OPTS = \
 	-Ddocs=false \
@@ -53,7 +53,8 @@ LRD_NETWORK_MANAGER_CONF_OPTS = \
 	-Difcfg_rh=false \
 	-Dnm_cloud_setup=false \
 	-Dsession_tracking_consolekit=false \
-	-Dwext=false
+	-Dwext=false \
+	-Dcrypto=openssl
 
 ifeq ($(BR2_PACKAGE_AUDIT),y)
 LRD_NETWORK_MANAGER_DEPENDENCIES += audit
@@ -93,14 +94,6 @@ LRD_NETWORK_MANAGER_DEPENDENCIES += libcurl
 LRD_NETWORK_MANAGER_CONF_OPTS += -Dconcheck=true
 else
 LRD_NETWORK_MANAGER_CONF_OPTS += -Dconcheck=false
-endif
-
-ifeq ($(BR2_PACKAGE_LIBNSS),y)
-LRD_NETWORK_MANAGER_DEPENDENCIES += libnss
-LRD_NETWORK_MANAGER_CONF_OPTS += -Dcrypto=nss
-else
-LRD_NETWORK_MANAGER_DEPENDENCIES += gnutls
-LRD_NETWORK_MANAGER_CONF_OPTS += -Dcrypto=gnutls
 endif
 
 ifeq ($(BR2_PACKAGE_LIBPSL),y)
