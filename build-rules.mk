@@ -88,11 +88,11 @@ $(addsuffix -clean,$(TARGETS_ALL)): %-clean:
 
 .PHONY: $(addsuffix -sdk,$(TARGETS))
 $(addsuffix -sdk,$(TARGETS)): %-sdk: $(OUTPUT_DIR)/%/.config
-	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$@ sdk
+	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$@ sdk
 
 .PHONY: $(addsuffix -legal-info,$(TARGETS_ALL))
 $(addsuffix -legal-info,$(TARGETS_ALL)): %-legal-info: $(OUTPUT_DIR)/%/.config
-	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* legal-info
+	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* legal-info
 	tar --exclude=*sources -C $(OUTPUT_DIR)/$*/legal-info/ \
 		--owner=0 --group=0 --numeric-owner \
 		-cjf $(OUTPUT_DIR)/$*/images/legal-info.tar.bz2 .
@@ -121,5 +121,5 @@ $(addsuffix -full-legal,$(TARGETS)): %-full-legal: % %-legal-info
 
 .PHONY: $(addsuffix -sdk-only,$(TARGETS))
 $(addsuffix -sdk-only,$(TARGETS)): %-sdk-only: $(OUTPUT_DIR)/%/.config
-	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$(call release_name,$*) sdk
+	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$(call release_name,$*) sdk
 	sha256sum $(call release_file,$*).gz | sed 's, .*/, ,' > $(call release_file,$*).gz.sha
