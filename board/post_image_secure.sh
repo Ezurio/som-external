@@ -1,7 +1,8 @@
 #
 # post_image_secure.sh
 #
-# Generate all secure NAND and SWU artifacts
+# Generate all secure NAND artificats
+# and calls script to generate secure SWU artifacts
 #
 # Inputs - must be located in BINARIES_DIR:
 #
@@ -16,17 +17,12 @@
 #	zImage				Kernel
 #	at91-??.dtb			Kernel FDT
 #	rootfs.squashfs			RootFS
-#	$SWU_FILES			Files to store in .swu
-#	sw-description (optional)	Partial SWU generation script
-#	sw-description-full (optional)	Full SWU generation script
 #
 # Secured artifacts generated in BINARIES_DIR:
 #
 #	boot.bin			U-Boot SPL
 #	u-boot.itb			U-Boot FIT (encrypted)
 #	kernel.itb			Kernel FIT (signed)
-#	${BR2_LRD_PRODUCT}.swu		Partial SWU (signed)
-#	${BR2_LRD_PRODUCT}-full.swu	Full SWU (signed)
 #
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE SECURE script: starting..."
@@ -127,86 +123,9 @@ mv -ft ./ unsecured_images/*
 rm -rf unsecured_images/
 mv -f boot.scr.nohash boot.scr
 
-[ -f sw-description ] && have_swdesc=true || have_swdesc=false
-[ -f sw-description-full ] && have_swdescf=true || have_swdescf=false
-
-# Backup incoming sw-description* and restore prior to exit
-# Caller needs unprocessed versions for further use
-${have_swdesc} && cp sw-description sw-description-saved
-${have_swdescf} && cp sw-description-full sw-description-full-saved
-
-# Embed component hashes in SWU scripts
-for i in ${SWU_FILES/sw-description /}
-do
-	sha_value=$(sha256sum $i | awk '{print $1}')
-	component_sha="@${i}.sha256"
-	echo "${i}          ${sha_value}"
-
-	${have_swdesc} && \
-		sed -i -e "s/${component_sha}/${sha_value}/g" sw-description
-
-	${have_swdescf} && \
-		sed -i -e "s/${component_sha}/${sha_value}/g" sw-description-full
-
-	if [ "${i}" = rootfs.bin ] || [ "${i}" = kernel.itb ]; then
-		md5_value=$(md5sum $i | awk '{print $1}')
-		component_md5sum="@${i}.md5sum"
-		echo "${i}          ${md5_value}"
-
-		${have_swdesc} && \
-			sed -i -e "s/${component_md5sum}/${md5_value}/g" sw-description
-
-		${have_swdescf} && \
-			sed -i -e "s/${component_md5sum}/${md5_value}/g" sw-description-full
-	fi
-done
-
-if [ -n "${SWUPDATE_SIG}" ]; then
-	ALL_SWU_FILES="${SWU_FILES/sw-description/sw-description sw-description.sig}"
-else
-	ALL_SWU_FILES="${SWU_FILES}"
-fi
-SWU_FILE_STR="${ALL_SWU_FILES// /\\n}"
-
-# Generate partial SWU (no bootloaders)
-if ${have_swdesc} ; then
-	case "${SWUPDATE_SIG}" in
-	cms)
-		${openssl} cms -sign -in sw-description -out sw-description.sig \
-			-signer keys/dev.crt -inkey keys/dev.key -outform DER -nosmimecap -binary
-		;;
-
-	rawrsa)
-		${openssl} dgst -sha256 -sign keys/dev.key sw-description > sw-description.sig
-		;;
-	esac
-
-	echo -e "${SWU_FILE_STR}" | cpio -ovL -H crc > ${BR2_LRD_PRODUCT}.swu
-	rm -f sw-description.sig
-fi
-
-# Generate full SWU (with bootloaders)
-if ${have_swdescf} ; then
-	mv -f sw-description-full sw-description
-
-	case "${SWUPDATE_SIG}" in
-	cms)
-		${openssl} cms -sign -in sw-description -out sw-description.sig \
-			-signer keys/dev.crt -inkey keys/dev.key -outform DER -nosmimecap -binary
-		;;
-
-	rawrsa)
-		${openssl} dgst -sha256 -sign keys/dev.key sw-description > sw-description.sig
-		;;
-	esac
-
-	echo -e "${SWU_FILE_STR}" | cpio -ovL -H crc > ${BR2_LRD_PRODUCT}-full.swu
-	rm -f sw-description.sig
-fi
-
-${have_swdesc} && mv -f sw-description-saved sw-description
-${have_swdescf} && mv -f sw-description-full-saved sw-description-full
-
 cd -
+
+# Call script to generate secure SWU
+"${BOARD_DIR}/../generate_secure_swu.sh" "${BR2_LRD_PRODUCT}" "${BINARIES_DIR}" "${SWU_FILES}" "${SWUPDATE_SIG}"
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE SECURE script: done."
