@@ -32,6 +32,13 @@ config BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES
 		Enable the Summit RCM legacy REST API routes
 		(backward compatibility with WebLCM)
 
+config BR2_PACKAGE_SUMMIT_RCM_HTTPS_PORT
+	int "REST API HTTPS Port"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
+	default 443
+	help
+		HTTPS port number for the Summit RCM REST API
+
 config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
 	bool "AT Interface"
 	select BR2_PACKAGE_PYTHON_SERIAL_ASYNCIO
