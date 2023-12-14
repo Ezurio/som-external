@@ -125,7 +125,7 @@ if ! ${SECURE_BOOT} ; then
 	fi
 else
 	# Generate all secured artifacts (NAND, SWU packages)
-	"${BOARD_DIR}/../post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
+	"${BR2_EXTERNAL_LRD_SOM_PATH}/board/post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
 fi
 
 size_check () {
