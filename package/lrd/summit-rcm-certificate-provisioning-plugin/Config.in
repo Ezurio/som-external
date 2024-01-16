@@ -1,0 +1,6 @@
+config BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN
+	bool "Certificate Provisioning Plugin for Summit-RCM"
+	depends on BR2_PACKAGE_SUMMIT_RCM
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
+	help
+		Enable certificate provisioning support for Summit-RCM
