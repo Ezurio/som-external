@@ -85,6 +85,13 @@ config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
 	help
 		Enable SSL client authentication
 
+config BR2_PACKAGE_SUMMIT_RCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
+	bool "Disable client certificate expiry verification"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_AUTHENTICATION
+	default y
+	help
+		Disable verification of a client certificate's expiry during mutual authentication
+
 config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 	bool "Allow multiple sessions per user"
 	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
