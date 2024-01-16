@@ -1,5 +1,0 @@
-# md5, sha256 from https://pypi.org/pypi/uvicorn/json
-md5  bd20bba1da2983599522bf1e4015a583  uvicorn-0.23.2.tar.gz
-sha256  4d3cc12d7727ba72b64d12d3cc7743124074c0a69f7b201512fc50c3e3f1569a  uvicorn-0.23.2.tar.gz
-# Locally computed sha256 checksums
-sha256  efe1acf3e62fb99c288b0ec73e5a773b7268ef4320fe757ea994214e4b63c371  LICENSE.md
