@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBOPENSSL_3_0_VERSION = 3.1.4
+LIBOPENSSL_3_0_VERSION = 3.2.0
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = Apache-2.0
@@ -95,6 +95,7 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(if $(BR2_TOOLCHAIN_HAS_THREADS),threads,no-threads) \
 			$(if $(BR2_STATIC_LIBS),no-shared,shared) \
 			$(if $(BR2_PACKAGE_CRYPTODEV_LINUX),enable-devcryptoeng) \
+			no-docs \
 			no-rc5 \
 			enable-camellia \
 			no-tests \
