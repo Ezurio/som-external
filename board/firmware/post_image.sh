@@ -258,8 +258,8 @@ tar -cjf "${BINARIES_DIR}/laird-ath6k-6004-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	lib/firmware/regulatory.db
 fi
 
-if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_QCACLD=y" ${BR2_CONFIG}; then
-tar -cjf "${BINARIES_DIR}/laird-qcacld-firmware${RELEASE_SUFFIX}.tar.bz2" \
+if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_BDSDMAC=y" ${BR2_CONFIG}; then
+tar -cjf "${BINARIES_DIR}/laird-bdsdmac-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	--owner=root --group=root \
 	lib/firmware/qca \
 	lib/firmware/wlan \
