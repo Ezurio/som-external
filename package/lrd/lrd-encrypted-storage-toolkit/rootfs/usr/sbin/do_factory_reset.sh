@@ -28,7 +28,7 @@ do_check_and_reset() {
 		rm -fr ${USER_SETTINGS_SECRET_TARGET}/*
 
 		# Run factory reset hooks for external components
-		for hook_sh in "/usr/sbin/factory_reset_*.sh"; do
+		for hook_sh in /usr/sbin/factory_reset_*.sh; do
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
 	# Check if secret directory has been populated, do not blow away settings
@@ -37,7 +37,7 @@ do_check_and_reset() {
 		[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
 		[ -x /usr/sbin/dropbear ]   && mkdir -p ${DROPBEAR_DIR}
 
-		for hook_sh in "/usr/sbin/factory_powerup_*.sh"; do
+		for hook_sh in /usr/sbin/factory_powerup_*.sh; do
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
 
