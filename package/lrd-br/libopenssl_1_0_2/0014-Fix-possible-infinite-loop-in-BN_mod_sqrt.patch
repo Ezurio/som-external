@@ -19,7 +19,7 @@ diff --git a/crypto/bn/bn_sqrt.c b/crypto/bn/bn_sqrt.c
 index 1723d5ded5..53b0f55985 100644
 --- a/crypto/bn/bn_sqrt.c
 +++ b/crypto/bn/bn_sqrt.c
-@@ -14,7 +14,8 @@ BIGNUM *BN_mod_sqrt(BIGNUM *in, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
+@@ -64,7 +64,8 @@ BIGNUM *BN_mod_sqrt(BIGNUM *in, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
  /*
   * Returns 'ret' such that ret^2 == a (mod p), using the Tonelli/Shanks
   * algorithm (cf. Henri Cohen, "A Course in Algebraic Computational Number
@@ -29,7 +29,7 @@ index 1723d5ded5..53b0f55985 100644
   */
  {
      BIGNUM *ret = in;
-@@ -301,18 +302,23 @@ BIGNUM *BN_mod_sqrt(BIGNUM *in, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
+@@ -350,18 +351,23 @@ BIGNUM *BN_mod_sqrt(BIGNUM *in, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
              goto vrfy;
          }
  

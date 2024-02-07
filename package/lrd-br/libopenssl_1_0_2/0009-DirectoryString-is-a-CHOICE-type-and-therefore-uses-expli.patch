@@ -20,7 +20,7 @@ diff --git a/crypto/x509v3/v3_genn.c b/crypto/x509v3/v3_genn.c
 index 23e3bc45653c..b483f35a9e50 100644
 --- a/crypto/x509v3/v3_genn.c
 +++ b/crypto/x509v3/v3_genn.c
-@@ -22,8 +22,9 @@ ASN1_SEQUENCE(OTHERNAME) = {
+@@ -72,8 +72,9 @@ ASN1_SEQUENCE(OTHERNAME) = {
  IMPLEMENT_ASN1_FUNCTIONS(OTHERNAME)
  
  ASN1_SEQUENCE(EDIPARTYNAME) = {

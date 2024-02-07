@@ -27,7 +27,7 @@ index 926d95c..7021d9a 100644
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without
-@@ -72,7 +73,6 @@ struct dev_crypto_state {
+@@ -73,7 +74,6 @@ struct dev_crypto_state {
      struct session_op d_sess;
      int d_fd;
  # ifdef USE_CRYPTODEV_DIGESTS
@@ -35,7 +35,7 @@ index 926d95c..7021d9a 100644
      unsigned char digest_res[HASH_MAX_LEN];
      char *mac_data;
      int mac_len;
-@@ -189,8 +189,10 @@ static struct {
+@@ -190,8 +190,10 @@ static struct {
  static struct {
      int id;
      int nid;
@@ -47,7 +47,7 @@ index 926d95c..7021d9a 100644
      {
          CRYPTO_MD5_HMAC, NID_hmacWithMD5, 16
      },
-@@ -198,15 +200,15 @@ static struct {
+@@ -199,15 +201,15 @@ static struct {
          CRYPTO_SHA1_HMAC, NID_hmacWithSHA1, 20
      },
      {
@@ -67,7 +67,7 @@ index 926d95c..7021d9a 100644
      {
          CRYPTO_MD5, NID_md5, 16
      },
-@@ -214,6 +216,15 @@ static struct {
+@@ -215,6 +217,15 @@ static struct {
          CRYPTO_SHA1, NID_sha1, 20
      },
      {
@@ -83,7 +83,7 @@ index 926d95c..7021d9a 100644
          0, NID_undef, 0
      },
  };
-@@ -288,13 +299,14 @@ static int get_cryptodev_ciphers(const int **cnids)
+@@ -289,13 +300,14 @@ static int get_cryptodev_ciphers(const int **cnids)
      static int nids[CRYPTO_ALGORITHM_MAX];
      struct session_op sess;
      int fd, i, count = 0;
@@ -99,7 +99,7 @@ index 926d95c..7021d9a 100644
  
      for (i = 0; ciphers[i].id && count < CRYPTO_ALGORITHM_MAX; i++) {
          if (ciphers[i].nid == NID_undef)
-@@ -327,18 +339,19 @@ static int get_cryptodev_digests(const int **cnids)
+@@ -328,18 +340,19 @@ static int get_cryptodev_digests(const int **cnids)
      static int nids[CRYPTO_ALGORITHM_MAX];
      struct session_op sess;
      int fd, i, count = 0;
@@ -121,7 +121,7 @@ index 926d95c..7021d9a 100644
          sess.cipher = 0;
          if (ioctl(fd, CIOCGSESSION, &sess) != -1 &&
              ioctl(fd, CIOCFSESSION, &sess.ses) != -1)
-@@ -424,14 +437,14 @@ cryptodev_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+@@ -425,14 +438,14 @@ cryptodev_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
      cryp.ses = sess->ses;
      cryp.flags = 0;
      cryp.len = inl;
@@ -139,7 +139,7 @@ index 926d95c..7021d9a 100644
          if (!ctx->encrypt) {
              iiv = in + inl - ctx->cipher->iv_len;
              memcpy(save_iv, iiv, ctx->cipher->iv_len);
-@@ -483,7 +496,7 @@ cryptodev_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+@@ -484,7 +497,7 @@ cryptodev_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
      if ((state->d_fd = get_dev_crypto()) < 0)
          return (0);
  
@@ -148,7 +148,7 @@ index 926d95c..7021d9a 100644
      sess->keylen = ctx->key_len;
      sess->cipher = cipher;
  
-@@ -749,16 +762,6 @@ static int digest_nid_to_cryptodev(int nid)
+@@ -750,16 +763,6 @@ static int digest_nid_to_cryptodev(int nid)
      return (0);
  }
  
@@ -165,7 +165,7 @@ index 926d95c..7021d9a 100644
  static int cryptodev_digest_init(EVP_MD_CTX *ctx)
  {
      struct dev_crypto_state *state = ctx->md_data;
-@@ -769,7 +772,6 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
+@@ -770,7 +773,6 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
          printf("cryptodev_digest_init: Can't get digest \n");
          return (0);
      }
@@ -173,7 +173,7 @@ index 926d95c..7021d9a 100644
      memset(state, 0, sizeof(struct dev_crypto_state));
  
      if ((state->d_fd = get_dev_crypto()) < 0) {
-@@ -777,8 +779,8 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
+@@ -778,8 +780,8 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
          return (0);
      }
  
@@ -184,7 +184,7 @@ index 926d95c..7021d9a 100644
      sess->mac = digest;
  
      if (ioctl(state->d_fd, CIOCGSESSION, sess) < 0) {
-@@ -794,8 +796,8 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
+@@ -795,8 +797,8 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
  static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
                                     size_t count)
  {
@@ -194,7 +194,7 @@ index 926d95c..7021d9a 100644
      struct session_op *sess = &state->d_sess;
  
      if (!data || state->d_fd < 0) {
-@@ -804,7 +806,7 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
+@@ -805,7 +807,7 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
      }
  
      if (!count) {
@@ -203,7 +203,7 @@ index 926d95c..7021d9a 100644
      }
  
      if (!(ctx->flags & EVP_MD_CTX_FLAG_ONESHOT)) {
-@@ -828,9 +830,9 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
+@@ -830,9 +832,9 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
      cryp.ses = sess->ses;
      cryp.flags = 0;
      cryp.len = count;
@@ -215,7 +215,7 @@ index 926d95c..7021d9a 100644
      if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
          printf("cryptodev_digest_update: digest failed\n");
          return (0);
-@@ -844,8 +846,6 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
+@@ -846,8 +848,6 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
      struct dev_crypto_state *state = ctx->md_data;
      struct session_op *sess = &state->d_sess;
  
@@ -224,7 +224,7 @@ index 926d95c..7021d9a 100644
      if (!md || state->d_fd < 0) {
          printf("cryptodev_digest_final: illegal input\n");
          return (0);
-@@ -859,7 +859,7 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
+@@ -861,7 +861,7 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
          cryp.len = state->mac_len;
          cryp.src = state->mac_data;
          cryp.dst = NULL;
@@ -233,7 +233,7 @@ index 926d95c..7021d9a 100644
          if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
              printf("cryptodev_digest_final: digest failed\n");
              return (0);
-@@ -870,7 +870,7 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
+@@ -872,7 +872,7 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
  
      memcpy(md, state->digest_res, ctx->digest->md_size);
  
@@ -242,7 +242,7 @@ index 926d95c..7021d9a 100644
  }
  
  static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
-@@ -921,8 +921,8 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
+@@ -923,8 +923,8 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
  
      digest = digest_nid_to_cryptodev(to->digest->type);
  
@@ -253,7 +253,7 @@ index 926d95c..7021d9a 100644
      sess->mac = digest;
  
      dstate->d_fd = get_dev_crypto();
-@@ -947,32 +947,116 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
+@@ -953,32 +953,116 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
  
  const EVP_MD cryptodev_sha1 = {
      NID_sha1,
@@ -377,7 +377,7 @@ index 926d95c..7021d9a 100644
  };
  
  # endif                         /* USE_CRYPTODEV_DIGESTS */
-@@ -992,6 +1076,18 @@ cryptodev_engine_digests(ENGINE *e, const EVP_MD **digest,
+@@ -998,6 +1082,18 @@ cryptodev_engine_digests(ENGINE *e, const EVP_MD **digest,
      case NID_sha1:
          *digest = &cryptodev_sha1;
          break;
@@ -396,7 +396,7 @@ index 926d95c..7021d9a 100644
      default:
  # endif                         /* USE_CRYPTODEV_DIGESTS */
          *digest = NULL;
-@@ -1022,7 +1118,7 @@ static int bn2crparam(const BIGNUM *a, struct crparam *crp)
+@@ -1028,7 +1124,7 @@ static int bn2crparam(const BIGNUM *a, struct crparam *crp)
          return (1);
      memset(b, 0, bytes);
  
@@ -405,7 +405,7 @@ index 926d95c..7021d9a 100644
      crp->crp_nbits = bits;
  
      for (i = 0, j = 0; i < a->top; i++) {
-@@ -1277,7 +1373,7 @@ static DSA_SIG *cryptodev_dsa_do_sign(const unsigned char *dgst, int dlen,
+@@ -1291,7 +1387,7 @@ static DSA_SIG *cryptodev_dsa_do_sign(const unsigned char *dgst, int dlen,
      kop.crk_op = CRK_DSA_SIGN;
  
      /* inputs: dgst dsa->p dsa->q dsa->g dsa->priv_key */
@@ -414,7 +414,7 @@ index 926d95c..7021d9a 100644
      kop.crk_param[0].crp_nbits = dlen * 8;
      if (bn2crparam(dsa->p, &kop.crk_param[1]))
          goto err;
-@@ -1317,7 +1413,7 @@ cryptodev_dsa_verify(const unsigned char *dgst, int dlen,
+@@ -1334,7 +1430,7 @@ cryptodev_dsa_verify(const unsigned char *dgst, int dlen,
      kop.crk_op = CRK_DSA_VERIFY;
  
      /* inputs: dgst dsa->p dsa->q dsa->g dsa->pub_key sig->r sig->s */
@@ -423,7 +423,7 @@ index 926d95c..7021d9a 100644
      kop.crk_param[0].crp_nbits = dlen * 8;
      if (bn2crparam(dsa->p, &kop.crk_param[1]))
          goto err;
-@@ -1398,9 +1494,10 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
+@@ -1415,9 +1511,10 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
          goto err;
      kop.crk_iparams = 3;
  
@@ -436,7 +436,7 @@ index 926d95c..7021d9a 100644
  
      if (ioctl(fd, CIOCKEY, &kop) == -1) {
          const DH_METHOD *meth = DH_OpenSSL();
-@@ -1470,7 +1567,7 @@ void ENGINE_load_cryptodev(void)
+@@ -1487,7 +1584,7 @@ void ENGINE_load_cryptodev(void)
      put_dev_crypto(fd);
  
      if (!ENGINE_set_id(engine, "cryptodev") ||

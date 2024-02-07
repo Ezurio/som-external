@@ -12,7 +12,7 @@ diff --git a/crypto/Makefile b/crypto/Makefile
 index 7869996..7e63291 100644
 --- a/crypto/Makefile
 +++ b/crypto/Makefile
-@@ -55,7 +55,7 @@ top:
+@@ -57,7 +57,7 @@ top:
  all: shared
  
  buildinf.h: ../Makefile

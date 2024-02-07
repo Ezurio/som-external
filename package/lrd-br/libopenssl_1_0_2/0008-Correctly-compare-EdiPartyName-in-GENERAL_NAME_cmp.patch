@@ -17,7 +17,7 @@ diff --git a/crypto/x509v3/v3_genn.c b/crypto/x509v3/v3_genn.c
 index b483f35a9e50..6f0a347cced7 100644
 --- a/crypto/x509v3/v3_genn.c
 +++ b/crypto/x509v3/v3_genn.c
-@@ -58,6 +58,37 @@ GENERAL_NAME *GENERAL_NAME_dup(GENERAL_NAME *a)
+@@ -107,6 +107,37 @@ GENERAL_NAME *GENERAL_NAME_dup(GENERAL_NAME *a)
                                      (char *)a);
  }
  
@@ -55,7 +55,7 @@ index b483f35a9e50..6f0a347cced7 100644
  /* Returns 0 if they are equal, != 0 otherwise. */
  int GENERAL_NAME_cmp(GENERAL_NAME *a, GENERAL_NAME *b)
  {
-@@ -67,8 +98,11 @@ int GENERAL_NAME_cmp(GENERAL_NAME *a, GENERAL_NAME *b)
+@@ -116,8 +147,11 @@ int GENERAL_NAME_cmp(GENERAL_NAME *a, GENERAL_NAME *b)
          return -1;
      switch (a->type) {
      case GEN_X400:
@@ -68,7 +68,7 @@ index b483f35a9e50..6f0a347cced7 100644
          break;
  
      case GEN_OTHERNAME:
-@@ -115,8 +149,11 @@ void GENERAL_NAME_set0_value(GENERAL_NAME *a, int type, void *value)
+@@ -164,8 +198,11 @@ void GENERAL_NAME_set0_value(GENERAL_NAME *a, int type, void *value)
  {
      switch (type) {
      case GEN_X400:
@@ -81,7 +81,7 @@ index b483f35a9e50..6f0a347cced7 100644
          break;
  
      case GEN_OTHERNAME:
-@@ -150,8 +187,10 @@ void *GENERAL_NAME_get0_value(const GENERAL_NAME *a, int *ptype)
+@@ -199,8 +236,10 @@ void *GENERAL_NAME_get0_value(const GENERAL_NAME *a, int *ptype)
          *ptype = a->type;
      switch (a->type) {
      case GEN_X400:
