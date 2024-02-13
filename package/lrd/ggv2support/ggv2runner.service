@@ -3,10 +3,10 @@ Description=IG Greengrass V2 Runner
 Wants=network-online.target ggv2sdmount.service var-media-mmcblk0p1-swapfile.swap
 After=network-online.target ggv2sdmount.service var-media-mmcblk0p1-swapfile.swap
 BindsTo=ggv2sdmount.service
-ConditionPathExists=/var/media/mmcblk0p1/jdk/lib/modules
-ConditionPathExists=/var/media/mmcblk0p1/greengrass/v2
-ConditionPathExists=/var/media/mmcblk0p1/greengrass/v2/alts/current/distro/lib/Greengrass.jar
-ConditionPathExists=/var/media/mmcblk0p1/greengrass/v2/alts/current/distro/bin/loader
+ConditionPathExists=/run/media/mmcblk0p1/jdk/lib/modules
+ConditionPathExists=/run/media/mmcblk0p1/greengrass/v2
+ConditionPathExists=/run/media/mmcblk0p1/greengrass/v2/alts/current/distro/lib/Greengrass.jar
+ConditionPathExists=/run/media/mmcblk0p1/greengrass/v2/alts/current/distro/bin/loader
 
 [Unit]
 StartLimitIntervalSec=200
@@ -15,7 +15,7 @@ StartLimitBurst=5
 [Service]
 Type=simple
 PIDFile=/run/greengrassv2.pid
-ExecStart=/bin/sh /var/media/mmcblk0p1/greengrass/v2/alts/current/distro/bin/loader
+ExecStart=/bin/sh /run/media/mmcblk0p1/greengrass/v2/alts/current/distro/bin/loader
 Restart=always
 RestartSec=30
 KeyringMode=inherit

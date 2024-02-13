@@ -5,4 +5,4 @@ After=ggv2sdmount.service
 DefaultDependencies=no
 
 [Swap]
-What=/var/media/mmcblk0p1/swapfile
+What=/run/media/mmcblk0p1/swapfile
