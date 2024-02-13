@@ -65,7 +65,7 @@ then
 	tar -C ${BINARIES_DIR} -czvf ${OPENJDK_TARBALL_FILE} jdk
 
 	# Create symlink the place of the 'modules' file
-	ln -sf /var/media/mmcblk0p1/jdk/lib/modules ${TARGET_DIR}/usr/lib/jvm/lib/modules
+	ln -sf /run/media/mmcblk0p1/jdk/lib/modules ${TARGET_DIR}/usr/lib/jvm/lib/modules
 
 	# Remove other unneeded files
 	rm -f ${TARGET_DIR}/usr/lib/jvm/lib/src.zip

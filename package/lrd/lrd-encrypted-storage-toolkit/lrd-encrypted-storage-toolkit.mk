@@ -12,7 +12,7 @@ endef
 endif
 
 define LRD_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_TARGET_CMDS
-	rsync -rlpDWK --no-perms --exclude=.empty  $(LRD_ENCRYPTED_STORAGE_TOOLKIT_PKGDIR)/rootfs/ $(TARGET_DIR)/
+	rsync -rlpDWK --no-perms --inplace --exclude=.empty  $(LRD_ENCRYPTED_STORAGE_TOOLKIT_PKGDIR)/rootfs/ $(TARGET_DIR)/
 	$(LRD_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_EXEC_PERM)
 endef
 
@@ -24,6 +24,9 @@ define LRD_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	set -x
 
 	ln -sf /perm/etc/machine-id $(TARGET_DIR)/etc/machine-id
+
+	rm -rf $(TARGET_DIR)/media
+	ln -sf /run/media $(TARGET_DIR)/media
 
 	mkdir -p $(BACKUP_SECRET_DIR)
 
