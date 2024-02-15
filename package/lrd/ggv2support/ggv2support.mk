@@ -15,7 +15,7 @@ endef
 define GGV2SUPPORT_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc/systemd/system \
 		$(GGV2SUPPORT_PKGDIR)ggv2runner.service \
-		$(GGV2SUPPORT_PKGDIR)var-media-mmcblk0p1-swapfile.swap \
+		$(GGV2SUPPORT_PKGDIR)media-mmcblk0p1-swapfile.swap \
 		$(GGV2SUPPORT_PKGDIR)ggv2sdmount.service
 endef
 
