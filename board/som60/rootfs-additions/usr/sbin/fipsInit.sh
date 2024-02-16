@@ -35,28 +35,24 @@ done
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
-	# trigger kernel crypto gcm self-test
-	modprobe tcrypt mode=35
-	modprobe -r tcrypt
-
-	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null
-	TMP_MOUNT=$?
+	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null && \
+		TMP_MOUNT=true || TMP_MOUNT=false
 
 	if ${BOOT_MOUNT}; then
 		mkdir -p /boot
-		mount -t vfat -o noatime,ro /dev/mmcblk0p1 /boot 2>/dev/null ||
+		mount -t vfat -o noatime,ro /dev/mmcblk0p1 /boot 2>/dev/null || \
 			fail "Cannot mount /boot: $?"
 	fi
 
-	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.gz ${KERNEL} >/dev/null ||
+	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.gz ${KERNEL} >/dev/null || \
 		fail "Cannot extract kernel image error: $1"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/libcrypto.so.1.0.0 ||
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/libcrypto.so.1.0.0 || \
 			fail "fipscheck error: $?"
 	else
 		ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/ossl-modules/fips.so ||
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/ossl-modules/fips.so || \
 			fail "fipscheck error: $?"
 	fi
 
@@ -64,7 +60,11 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	rm -f /tmp/Image.gz
 
 	${BOOT_MOUNT} && umount /boot
-	#[ ${TMP_MOUNT} -eq 0 ] && umount /tmp
+	${TMP_MOUNT} && umount /tmp
+
+	# trigger kernel crypto gcm self-test
+	modprobe tcrypt mode=35 || fail "Boot gcm(aes) test failed: $?"
+	modprobe -r tcrypt
 
 	echo -e "\nFIPS Integrity check Success\n"
 fi
