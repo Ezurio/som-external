@@ -44,20 +44,22 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 			fail "Cannot mount /boot: $?"
 	fi
 
-	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.gz ${KERNEL} >/dev/null || \
-		fail "Cannot extract kernel image error: $1"
+	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
+
+	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.${IMGTYP} ${KERNEL} >/dev/null || \
+		fail "Cannot extract kernel image error: $?"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/libcrypto.so.1.0.0 || \
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/libcrypto.so.1.0.0 || \
 			fail "fipscheck error: $?"
 	else
 		ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.gz /usr/lib/ossl-modules/fips.so || \
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/ossl-modules/fips.so || \
 			fail "fipscheck error: $?"
 	fi
 
-	#shred -zufn 0 /tmp/Image.gz
-	rm -f /tmp/Image.gz
+	#shred -zufn 0 /tmp/Image.${IMGTYP}
+	rm -f /tmp/Image.${IMGTYP}
 
 	${BOOT_MOUNT} && umount /boot
 	${TMP_MOUNT} && umount /tmp

@@ -29,31 +29,32 @@ done
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
-	# trigger kernel crypto ccm self-test
-	modprobe tcrypt mode=37
-	modprobe -r tcrypt
+	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null && \
+		TMP_MOUNT=true || TMP_MOUNT=false
 
-	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null
-	TMP_MOUNT=$?
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
-	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.${IMGTYP} ${KERNEL} >/dev/null ||
+	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.${IMGTYP} ${KERNEL} >/dev/null || \
 		fail "Cannot extract kernel image error: $?"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/libcrypto.so.1.0.0 ||
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/libcrypto.so.1.0.0 || \
 			fail "fipscheck error: $?"
 	else
 		ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/ossl-modules/fips.so ||
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/ossl-modules/fips.so || \
 			fail "fipscheck error: $?"
 	fi
 
 	#shred -zufn 0 /tmp/Image.${IMGTYP}
 	rm -f /tmp/Image.${IMGTYP}
 
-	#[ ${TMP_MOUNT} -eq 0 ] && umount /tmp
+	${TMP_MOUNT} && umount /tmp
+
+	# trigger kernel crypto gcm self-test
+	modprobe tcrypt mode=35 || fail "Boot gcm(aes) test failed: $?"
+	modprobe -r tcrypt
 
 	echo -e "\nFIPS Integrity check Success\n"
 fi
