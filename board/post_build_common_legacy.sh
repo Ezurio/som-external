@@ -197,6 +197,7 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 		IMAGE_NAME+=.zstd
 	fi
 
+	mkdir -p ${TARGET_DIR}/usr/lib/fipscheck/
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${BINARIES_DIR}/${IMAGE_NAME}
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/bin/fipscheck
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/libfipscheck.so.1
@@ -204,6 +205,10 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 	rm -f ${TARGET_DIR}/usr/lib/fipscheck/libcrypto.so.1.0.0.hmac
 
 	sed "s/^auto usb0/#auto usb0/g" -i ${TARGET_DIR}/etc/network/interfaces
+elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" ${BR2_CONFIG}; then
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/*
+elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER=y" ${BR2_CONFIG}; then
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/*
 fi
 
 echo "COMMON POST BUILD script: done."

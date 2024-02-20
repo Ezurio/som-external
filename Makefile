@@ -42,7 +42,7 @@ TARGETS_COMPONENT = \
 	$(call MAKE_TARGETS,all) $(call MAKE_TARGETS,lrd) \
 	backports backports-test firmware
 
-TARGETS_COMPONENT_meta-radio = $(filter-out %-powerpc32 adaptive_bt-% laird_openssl_% backports-test,$(TARGETS_COMPONENT))
+TARGETS_COMPONENT_meta-radio = $(filter-out %-powerpc32 adaptive_bt-% summitssl_% backports-test,$(TARGETS_COMPONENT))
 
 TARGETS_SRC = summit_supplicant-src lrd-network-manager-src adaptive_bt-src linux-docs
 
@@ -73,10 +73,10 @@ meta-radio-stack-clean:
 	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_COMPONENT_meta-radio) $(TARGETS_meta-radio) backports-test)
 
 meta-ssl:
-	$(MAKE) $(PARALLEL_OPTS) $(filter laird_openssl_%,$(TARGETS_COMPONENT))
+	$(MAKE) $(PARALLEL_OPTS) $(filter summitssl_%,$(TARGETS_COMPONENT))
 
 meta-ssl-clean:
-	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(filter laird_openssl_%,$(TARGETS_COMPONENT)))
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(filter summitssl_%,$(TARGETS_COMPONENT)))
 
 $(addprefix meta-,som legacy wbx3 fips-dev toolchain):
 	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_$@)
