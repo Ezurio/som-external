@@ -59,10 +59,31 @@ notify updating
 ${o_quiet} && exec >/dev/null
 
 case "${url}" in
+file://*)
+    url="${url#file://}"
+
+    [ -r "${url}" ] || die "File ${url} not found"
+
+    if [ "${o_method}" = complete ]; then
+        . erase_som_nand
+    fi
+    swupdate-client -e stable,${p_method} ${o_verbose} "${url}"
+    ;;
+
 *://*)
+    case "${url%:*}" in
+    http|https|ftp)
+        if [ -x /usr/bin/curl ]; then
+            /usr/bin/curl -LsfI ${url} || die "File ${url} not found"
+        elif [ -x /usr/bin/wget ]; then
+            /usr/bin/wget --spider -qO - ${url} || die "File ${url} not found"
+        fi
+        ;;
+    esac
+
     if [ -x /usr/bin/curl ]; then
         ${o_quiet} && o_dlsilent="-s"
-        download_cmd="/usr/bin/curl ${o_dlsilent} ${url}"
+        download_cmd="/usr/bin/curl -Lf ${o_dlsilent} ${url}"
     elif [ -x /usr/bin/wget ]; then
         ${o_quiet} && o_dlsilent="-q"
         download_cmd="/usr/bin/wget ${o_dlsilent} -O - ${url}"
@@ -77,6 +98,8 @@ case "${url}" in
     ;;
 
 *)
+    [ -r "${url}" ] || die "File ${url} not found"
+
     if [ "${o_method}" = complete ]; then
         . erase_som_nand
     fi
