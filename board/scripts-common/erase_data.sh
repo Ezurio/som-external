@@ -8,6 +8,7 @@ DATA_TARGET=${MOUNT_POINT}
 
 exit_on_error() {
 	[ "${1}" = 1 ] && /bin/umount "${MOUNT_POINT}"
+	rmdir "${MOUNT_POINT}"
 	echo "${2}"
 	exit 1
 }
@@ -26,12 +27,12 @@ find_ubi_device() {
 }
 
 migrate_data() {
+	ubiupdatevol -t "${1}" ||
+		exit_on_error 0 "Erasing UBI Volume ${1} Failed"
+
 	# Create mount point and mount the data device
 	/bin/mount -o noatime,noexec,nosuid,nodev -t ubifs "${1}" "${MOUNT_POINT}" ||
 		exit_on_error 0 "Mounting ${DATA_DEVICE} to ${MOUNT_POINT} Failed"
-
-	# Wipe data patition
-	rm -rf ${MOUNT_POINT}/*
 
 	if [ "${do_data_migration}" -ne 0 ]; then
 
@@ -84,4 +85,4 @@ for name in ${1}; do
 	migrate_data "${ubi_dev}"
 done
 
-rm -rf "${MOUNT_POINT}"
+rmdir "${MOUNT_POINT}"
