@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/spectree/json
+md5  51a6b0b2783e03345d6ccc94bbab46d6  spectree-1.2.9.tar.gz
+sha256  8f7a29a0cfc32d6c1ca48723e72547579c1175fa8a3eab7c6a814b30de3e48dc  spectree-1.2.9.tar.gz
+# Locally computed sha256 checksums
+sha256  d6b71c237264d8cfd9d6514b545bd1d4b7d3628fa7529d45db883d0419eb1c9b  LICENSE
