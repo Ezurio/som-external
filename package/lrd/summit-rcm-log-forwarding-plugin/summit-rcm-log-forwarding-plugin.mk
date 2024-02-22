@@ -26,6 +26,23 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),y)
     SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES += summit_rcm_log_forwarding/rest_api/legacy
 endif
 
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS),y)
+	SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES += summit_rcm_log_forwarding/rest_api/utils/spectree
+	SUMMIT_RCM_LOG_FORWARDING_PLUGIN_DEPENDENCIES += host-summit-rcm-log-forwarding-plugin
+	HOST_SUMMIT_RCM_LOG_FORWARDING_PLUGIN_DEPENDENCIES += \
+		host-summit-rcm \
+		host-python3 \
+		host-python-falcon \
+		host-python-spectree \
+		host-python-pydantic \
+		host-python-typing-extensions
+	HOST_SUMMIT_RCM_LOG_FORWARDING_PLUGIN_ENV = \
+		DOCS_GENERATION='True' \
+		OPENAPI_JSON_PATH='$(TARGET_DIR)/summit-rcm-openapi-log-forwarding-plugin.json' \
+		SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES='$(SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES)'
+endif
+
 SUMMIT_RCM_LOG_FORWARDING_PLUGIN_ENV = SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES='$(SUMMIT_RCM_LOG_FORWARDING_PLUGIN_EXTRA_PACKAGES)'
 
 $(eval $(python-package))
+$(eval $(host-python-package))

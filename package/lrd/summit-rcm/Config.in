@@ -93,6 +93,34 @@ config BR2_PACKAGE_SUMMIT_RCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
 	help
 		Disable verification of a client certificate's expiry during mutual authentication
 
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS
+	bool "Live REST API docs"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
+	select BR2_PACKAGE_PYTHON_SPECTREE
+	select BR2_PACKAGE_HOST_PYTHON3
+	select BR2_PACKAGE_HOST_PYTHON3_SSL
+	help
+		Enable the OpenAPI-based REST API documentation
+
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS_ROOT_REDIRECT
+	bool "Redirect root URL to REST API docs"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS
+	default y
+	help
+		Redirect the root URL to the REST API documentation
+
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_REQUEST
+	bool "Validate REST request"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS
+	help
+		Validate requests received by REST API
+
+config BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_RESPONSE
+	bool "Validate REST response"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS
+	help
+		Validate responses sent by REST API
+
 config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 	bool "Allow multiple sessions per user"
 	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS

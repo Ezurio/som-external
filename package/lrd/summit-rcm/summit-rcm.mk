@@ -91,12 +91,51 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(SED) '/\[summit-rcm\]/a serial_port: \"$(SUMMIT_RCM_SERIAL_PORT)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE)' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a socket_port: $(BR2_PACKAGE_SUMMIT_RCM_HTTPS_PORT)' $(TARGET_DIR)/etc/summit-rcm.ini
+
+	$(SED) '/^rest_api_docs/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a rest_api_docs: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/^rest_api_docs_root_redirect/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a rest_api_docs_root_redirect: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS_ROOT_REDIRECT)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+
+	$(SED) '/^rest_api_validate_request/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a rest_api_validate_request: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_REQUEST)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/^rest_api_validate_response/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a rest_api_validate_response: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_RESPONSE)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 endef
 
 SUMMIT_RCM_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
+
+define SUMMIT_RCM_TARGET_FINALIZE_HOOK_CMDS
+	$(HOST_DIR)/bin/python3 $(SUMMIT_RCM_PKGDIR)/merge_api_spec_docs.py \
+		"$(TARGET_DIR)" \
+		"$(TARGET_DIR)/etc/summit-rcm-openapi.json"
+
+	rm -rf $(TARGET_DIR)/summit-rcm-openapi*.json
+endef
+
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS),y)
+	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/utils/spectree
+	SUMMIT_RCM_DEPENDENCIES += host-summit-rcm
+	HOST_SUMMIT_RCM_DEPENDENCIES += \
+		host-python3 \
+		host-python-falcon \
+		host-python-spectree \
+		host-python-pydantic \
+		host-python-typing-extensions
+	HOST_SUMMIT_RCM_ENV = \
+		DOCS_GENERATION='True' \
+		OPENAPI_JSON_PATH='$(TARGET_DIR)/summit-rcm-openapi.json' \
+		SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
+	SUMMIT_RCM_TARGET_FINALIZE_HOOKS += SUMMIT_RCM_TARGET_FINALIZE_HOOK_CMDS
+endif
 
 define SUMMIT_RCM_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -t $(TARGET_DIR)/usr/lib/systemd/system -m 644 $(@D)/summit-rcm.service
 endef
 
 $(eval $(python-package))
+$(eval $(host-python-package))
