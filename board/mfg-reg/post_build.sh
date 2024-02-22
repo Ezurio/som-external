@@ -38,6 +38,7 @@ mfg60*)
 		/usr/bin/lmu \
 		/usr/bin/lru \
 		/usr/bin/btlru \
+		/usr/bin/btflow \
 		/usr/lib/${LIBEDITLRD} \
 		/usr/lib/${LIBNCURSESLRD}
 
