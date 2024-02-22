@@ -30,6 +30,24 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_BLUETOOTH_PLUGIN_VSP),y)
 	SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES += summit_rcm_bluetooth/vsp
 endif
 
+ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS),y)
+	SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES += summit_rcm_bluetooth/rest_api/utils/spectree
+	SUMMIT_RCM_BLUETOOTH_PLUGIN_DEPENDENCIES += host-summit-rcm-bluetooth-plugin
+	HOST_SUMMIT_RCM_BLUETOOTH_PLUGIN_DEPENDENCIES += \
+		host-summit-rcm \
+		host-python3 \
+		host-python-dbus-fast \
+		host-python-falcon \
+		host-python-spectree \
+		host-python-pydantic \
+		host-python-typing-extensions
+	HOST_SUMMIT_RCM_BLUETOOTH_PLUGIN_ENV = \
+		DOCS_GENERATION='True' \
+		OPENAPI_JSON_PATH='$(TARGET_DIR)/summit-rcm-openapi-bluetooth-plugin.json' \
+		SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES='$(SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES)'
+endif
+
 SUMMIT_RCM_BLUETOOTH_PLUGIN_ENV = SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES='$(SUMMIT_RCM_BLUETOOTH_PLUGIN_EXTRA_PACKAGES)'
 
 $(eval $(python-package))
+$(eval $(host-python-package))
