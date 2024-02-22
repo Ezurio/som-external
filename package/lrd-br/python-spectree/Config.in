@@ -1,0 +1,8 @@
+config BR2_PACKAGE_PYTHON_SPECTREE
+	bool "python-spectree"
+	select BR2_PACKAGE_PYTHON_PYDANTIC # runtime
+	help
+	  generate OpenAPI document and validate request&response
+	  with Python annotations.
+
+	  https://github.com/0b01001001/spectree
