@@ -1,0 +1,72 @@
+From dfb114e46290ba5652ad9f3601b3eb519bb2a33e Mon Sep 17 00:00:00 2001
+From: Doug Smith <doug.smith@lairdconnect.com>
+Date: Fri, 16 Feb 2024 00:56:18 -0500
+Subject: [PATCH] FIPS: fetch entropy in fips module
+
+Remove drbg chaining in fips mode/module
+so that entropy will be fetched in
+the fips module.
+---
+ crypto/rand/rand_lib.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/crypto/rand/rand_lib.c b/crypto/rand/rand_lib.c
+index 14999540ab..f3c359bc71 100644
+--- a/crypto/rand/rand_lib.c
++++ b/crypto/rand/rand_lib.c
+@@ -724,11 +724,13 @@ EVP_RAND_CTX *RAND_get0_primary(OSSL_LIB_CTX *ctx)
+     }
+ 
+ #ifndef FIPS_MODULE
+-    if (dgbl->seed == NULL) {
++    if (!EVP_default_properties_is_fips_enabled(ctx) &&
++        dgbl->seed == NULL) {
+         ERR_set_mark();
+         dgbl->seed = rand_new_seed(ctx);
+         ERR_pop_to_mark();
+     }
++    // note: FIPS module fetches entropy directly
+ #endif
+ 
+     ret = dgbl->primary = rand_new_drbg(ctx, dgbl->seed,
+@@ -762,9 +764,15 @@ EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx)
+ 
+     rand = CRYPTO_THREAD_get_local(&dgbl->public);
+     if (rand == NULL) {
+-        primary = RAND_get0_primary(ctx);
+-        if (primary == NULL)
+-            return NULL;
++        primary = NULL;
++#ifndef FIPS_MODULE
++        if (!EVP_default_properties_is_fips_enabled(ctx)) {
++            primary = RAND_get0_primary(ctx);
++            if (primary == NULL)
++                return NULL;
++        }
++        // note: FIPS module fetches entropy directly
++#endif
+ 
+         ctx = ossl_lib_ctx_get_concrete(ctx);
+         /*
+@@ -795,9 +803,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
+ 
+     rand = CRYPTO_THREAD_get_local(&dgbl->private);
+     if (rand == NULL) {
+-        primary = RAND_get0_primary(ctx);
+-        if (primary == NULL)
+-            return NULL;
++        primary = NULL;
++#ifndef FIPS_MODULE
++        if (!EVP_default_properties_is_fips_enabled(ctx)) {
++            primary = RAND_get0_primary(ctx);
++            if (primary == NULL)
++                return NULL;
++        }
++        // note: FIPS module fetches entropy directly
++#endif
+ 
+         ctx = ossl_lib_ctx_get_concrete(ctx);
+         /*
+-- 
+2.34.1
+
