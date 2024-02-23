@@ -12,7 +12,7 @@ HOST_ANGULAR_CLI_DEPENDENCIES = host-nodejs
 define HOST_ANGULAR_CLI_INSTALL_CMDS
 	cd $(@D); \
 		PATH=$(BR_PATH) \
-		$(HOST_NPM) install -g $(@D)
+		$(HOST_DIR)/bin/npm install -g $(@D)
 endef
 
 # Angluar-cli uses npm to install
