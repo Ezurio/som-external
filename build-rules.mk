@@ -98,9 +98,9 @@ $(addsuffix -legal-info,$(TARGETS_ALL)): %-legal-info: $(OUTPUT_DIR)/%/.config
 		-cjf $(OUTPUT_DIR)/$*/images/legal-info.tar.bz2 .
 
 .PHONY: $(addsuffix -vigiles,$(TARGETS))
-$(addsuffix -vigiles,$(TARGETS)): %-vigiles:
+$(addsuffix -vigiles,$(TARGETS)): %-vigiles: $(OUTPUT_DIR)/%/.config
 ifneq ($(vigiles_name),)
-	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check
+	$(MAKE) $(PARALLEL_OPTS) -C $(OUTPUT_DIR)/$* vigiles-check
 endif
 
 .PHONY: $(addsuffix -full,$(TARGETS))
