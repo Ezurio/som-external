@@ -1,8 +1,0 @@
-config BR2_PACKAGE_NODE_SSL_SHIM
-	bool "node ssl shim"
-	depends on BR2_PACKAGE_OPENSSL
-	help
-	  Build Node.js OpenSSL shim for use with
-	  building Node.js
-
-	  https://github.com/sclorg/node-ssl-shim
