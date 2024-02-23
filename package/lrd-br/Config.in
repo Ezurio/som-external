@@ -1,5 +1,4 @@
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/bluez4_utils/Config.in"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/firewalld/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/fscryptctl_1/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/gattlib/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/lrd-linux-backports/Config.in"
