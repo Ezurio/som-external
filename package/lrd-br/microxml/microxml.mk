@@ -3,7 +3,7 @@
 # microxml
 #
 ################################################################################
-MICROXML_VERSION = master
+MICROXML_VERSION = 80a15162f3a8318c70e8688d8ecbfc38676bd9a2
 MICROXML_SITE = https://github.com/pivasoftware/microxml.git
 MICROXML_SITE_METHOD = git
 MICROXML_INSTALL_STAGING = YES
