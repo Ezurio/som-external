@@ -116,6 +116,13 @@ else
 	${mkimage} -T atmelimage -n $(${atmel_pmecc_params}) -d u-boot-spl.bin boot.bin
 	# Save off the raw PMECC header
 	dd if=boot.bin of=pmecc.bin bs=208 count=1
+
+	# Support Secure boot key transition
+	if grep -q boot1.bin ${BINARIES_DIR}/sw-description ; then
+		SWU_FILES="${SWU_FILES/boot.bin/boot.bin boot1.bin}"
+		SWU_FILES="${SWU_FILES/uboot.env/uboot.env uboot1.env}"
+		cp -af ${BINARIES_DIR}/boot.bin ${BINARIES_DIR}/boot1.bin
+	fi
 fi
 
 # Restore unsecured components
