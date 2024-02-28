@@ -5,6 +5,12 @@ notify() {
 }
 
 die() {
+    case "${o_method}" in
+    complete*)
+        [ -d /sys/class/ubi0 ] && ubidetach -d 0
+        ;;
+    esac
+
     notify failed
     [ -z "${1}" ] || echo "${1}" >&2
     echo "Firmware update failed" >&2
@@ -61,13 +67,7 @@ ${o_quiet} && exec >/dev/null
 case "${url}" in
 file://*)
     url="${url#file://}"
-
     [ -r "${url}" ] || die "File ${url} not found"
-
-    if [ "${o_method}" = complete ]; then
-        . erase_som_nand
-    fi
-    swupdate-client -e stable,${p_method} ${o_verbose} "${url}"
     ;;
 
 *://*)
@@ -76,7 +76,7 @@ file://*)
         if [ -x /usr/bin/curl ]; then
             /usr/bin/curl -LsfI ${url} || die "File ${url} not found"
         elif [ -x /usr/bin/wget ]; then
-            /usr/bin/wget --spider -qO - ${url} || die "File ${url} not found"
+            /usr/bin/wget -T4 -t1 --spider -qO - ${url} || die "File ${url} not found"
         fi
         ;;
     esac
@@ -86,32 +86,46 @@ file://*)
         download_cmd="/usr/bin/curl -Lf ${o_dlsilent} ${url}"
     elif [ -x /usr/bin/wget ]; then
         ${o_quiet} && o_dlsilent="-q"
-        download_cmd="/usr/bin/wget ${o_dlsilent} -O - ${url}"
+        download_cmd="/usr/bin/wget -T4 -t1 ${o_dlsilent} -O - ${url}"
     else
         die "Download utility not found (need curl or wget)"
     fi
-
-    if [ "${o_method}" = complete ]; then
-        . erase_som_nand
-    fi
-    ${download_cmd} | swupdate-client -e stable,${p_method} ${o_verbose} -
     ;;
 
 *)
     [ -r "${url}" ] || die "File ${url} not found"
-
-    if [ "${o_method}" = complete ]; then
-        . erase_som_nand
-    fi
-    swupdate-client -e stable,${p_method} ${o_verbose} "${url}"
     ;;
 esac
 
-[ $? -eq 0 ] || die ""
+case "${o_method}" in
+complete*)
+    . erase_som_nand
 
-if [ "${o_method}" != complete ] && [ -x /usr/sbin/migrate_data.sh ]; then
-    /usr/sbin/migrate_data.sh || die "Data migrate failed"
-fi
+    ubimtd=$(sed -n 's/^\(.*\):.*"ubi"$/\1/p' /proc/mtd)
+    [ -z "${ubimtd}" ] || ubiformat /dev/${ubimtd} -y
+    ;;
+esac
+
+case "${url}" in
+*://*)
+    ${download_cmd} | swupdate-client -e stable,${p_method} ${o_verbose} - || die ""
+    ;;
+
+*)
+    swupdate-client -e stable,${p_method} ${o_verbose} "${url}" || die ""
+    ;;
+esac
+
+case "${o_method}" in
+complete*)
+    [ -d /sys/class/ubi0 ] && ubidetach -d 0
+    ;;
+*)
+    if [ -x /usr/sbin/migrate_data.sh ]; then
+        /usr/sbin/migrate_data.sh || die "Data migrate failed"
+    fi
+    ;;
+esac
 
 notify complete
 echo "Firmware update succeeded" >&2
