@@ -1,0 +1,444 @@
+software =
+{
+	version = "0.1.0";
+	bootloader_transaction_marker = false;
+	bootloader_state_marker = false;
+	hardware-compatibility = [ "1.0" ];
+
+	wb50-1 = {
+		stable = {
+			full-a: {
+				images: (
+					{
+						filename = "boot1.bin";
+						mtdname = "u-boot-spl";
+						transform = "atmel_pmecc_header";
+						type = "flash";
+						name = "boot";
+						sha256 = "@boot1.bin.sha256";
+					},
+					{
+						filename = "u-boot.itb";
+						mtdname = "u-boot";
+						type = "flash";
+						name = "u-boot";
+						sha256 = "@u-boot.itb.sha256";
+					},
+					{
+						filename = "kernel.itb";
+						volume = "kernel_a";
+						type = "ubivol";
+						installed-directly = true;
+						name = "kernel";
+						sha256 = "@kernel.itb.sha256";
+					},
+					{
+						filename = "rootfs.bin";
+						volume = "rootfs_a";
+						type = "ubivol";
+						installed-directly = true;
+						name = "rootfs";
+						sha256 = "@rootfs.bin.sha256";
+					},
+				);
+			};
+				
+			full-b: {
+				images: (
+					{
+						filename = "boot1.bin";
+						mtdname = "u-boot-spl";
+						transform = "atmel_pmecc_header";
+						type = "flash";
+						name = "boot";
+						sha256 = "@boot1.bin.sha256";
+					},
+					{
+						filename = "u-boot.itb";
+						mtdname = "u-boot";
+						type = "flash";
+						name = "u-boot";
+						sha256 = "@u-boot.itb.sha256";
+					},
+					{
+						filename = "kernel.itb";
+						volume = "kernel_b";
+						type = "ubivol";
+						installed-directly = true;
+						name = "kernel";
+						sha256 = "@kernel.itb.sha256";
+					},
+					{
+						filename = "rootfs.bin";
+						volume = "rootfs_b";
+						type = "ubivol";
+						installed-directly = true;
+						name = "rootfs";
+						sha256 = "@rootfs.bin.sha256";
+					},
+				);
+			};
+		};
+	};
+
+	stable = {
+		main-a: {
+			images: (
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a";
+					sha256 = "@erase_data.sh.sha256";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "a";
+				}
+			);
+		};
+
+		main-b: {
+			images: (
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				},
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_b";
+					sha256 = "@erase_data.sh.sha256";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "b";
+				}
+			);
+		};
+
+		full-a: {
+			images: (
+				{
+					filename = "boot.bin";
+					mtdname = "u-boot-spl";
+					transform = "atmel_pmecc_header";
+					type = "flash";
+					name = "boot";
+					sha256 = "@boot.bin.sha256";
+				},
+				{
+					filename = "u-boot.itb";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "@u-boot.itb.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				},
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a";
+					sha256 = "@erase_data.sh.sha256";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "a";
+				}
+			);
+		};
+
+		full-b: {
+			images: (
+				{
+					filename = "boot.bin";
+					mtdname = "u-boot-spl";
+					transform = "atmel_pmecc_header";
+					type = "flash";
+					name = "boot";
+					sha256 = "@boot.bin.sha256";
+				},
+				{
+					filename = "u-boot.itb";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "@u-boot.itb.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				},
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_b";
+					sha256 = "@erase_data.sh.sha256";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "b";
+				}
+			);
+		};
+
+		complete: {
+			/* partitions tag is used to resize UBI partitions */
+			partitions: (
+				{
+					name = "kernel_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 8388608; /* in bytes */
+				},
+				{
+					name = "rootfs_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 46465024; /* in bytes */
+				},
+				{
+					name = "rootfs_data_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 4194304; /* in bytes */
+				},
+				{
+					name = "kernel_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 8388608; /* in bytes */
+				},
+				{
+					name = "rootfs_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 46465024; /* in bytes */
+				},
+				{
+					name = "rootfs_data_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 4194304; /* in bytes */
+				},
+				{
+					name = "perm";
+					device = "ubi";
+					type = "ubipartition";
+					size = 6221824; /* in bytes */
+				}
+			);
+
+			images: (
+				{
+					filename = "boot1.bin";
+					mtdname = "u-boot-spl";
+					transform = "atmel_pmecc_header";
+					type = "flash";
+					name = "boot";
+					sha256 = "@boot1.bin.sha256";
+				},
+				{
+					filename = "u-boot.itb";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "@u-boot.itb.sha256";
+				},
+				{
+					filename = "uboot1.env";
+					mtdname = "u-boot-env-a";
+					transform = "ignore_bad";
+					type = "flash";
+					sha256 = "@uboot1.env.sha256";
+				},
+				{
+					filename = "uboot1.env";
+					mtdname = "u-boot-env-b";
+					transform = "ignore_bad";
+					type = "flash";
+					sha256 = "@uboot1.env.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a rootfs_data_b perm";
+					sha256 = "@erase_data.sh.sha256";
+				}
+			);
+		};
+
+		complete-old: {
+			images: (
+				{
+					filename = "boot.bin";
+					mtdname = "u-boot-spl";
+					transform = "atmel_pmecc_header";
+					type = "flash";
+					name = "boot";
+					sha256 = "@boot.bin.sha256";
+				},
+				{
+					filename = "u-boot.itb";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "@u-boot.itb.sha256";
+				},
+				{
+					filename = "uboot.env";
+					mtdname = "u-boot-env-a";
+					transform = "ignore_bad";
+					type = "flash";
+					sha256 = "@uboot.env.sha256";
+				},
+				{
+					filename = "uboot.env";
+					mtdname = "u-boot-env-b";
+					transform = "ignore_bad";
+					type = "flash";
+					sha256 = "@uboot.env.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "@kernel.itb.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "@rootfs.bin.sha256";
+				}
+			);
+
+			ref = "#./complete";
+		};
+	};
+};

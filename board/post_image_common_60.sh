@@ -80,9 +80,13 @@ then
 fi
 
 if ${SD} ; then
-${mkenvimage} -p 0 -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
+	${mkenvimage} -p 0 -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
 else
-${mkenvimage} -r -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
+	${mkenvimage} -r -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
+	if grep -q boot1.bin ${BINARIES_DIR}/sw-description ; then
+		echo "keyrev=1" | cat - ${BINARIES_DIR}/u-boot-initial-env | sort > ${BINARIES_DIR}/u-boot1-initial-env
+		${mkenvimage} -r -s 131072 -o ${BINARIES_DIR}/uboot1.env ${BINARIES_DIR}/u-boot1-initial-env
+	fi
 fi
 
 # swupdate will reject an SWU file with sw-description containing hashes unless
@@ -118,6 +122,14 @@ if ! ${SECURE_BOOT} ; then
 		${mkimage} -T atmelimage -n $(${atmel_pmecc_params}) -d ${BINARIES_DIR}/u-boot-spl.bin ${BINARIES_DIR}/boot.bin
 		# Copy rootfs
 		ln -rsf ${BINARIES_DIR}/rootfs.squashfs ${BINARIES_DIR}/rootfs.bin
+
+		# Support Secure boot key transition
+		if grep -q boot1.bin ${BINARIES_DIR}/sw-description ; then
+			ALL_SWU_FILES="${ALL_SWU_FILES/boot.bin/boot.bin boot1.bin}"
+			ALL_SWU_FILES="${ALL_SWU_FILES/uboot.env/uboot.env uboot1.env}"
+			cp -af ${BINARIES_DIR}/boot.bin ${BINARIES_DIR}/boot1.bin
+		fi
+
 		# Generate SWU
 		( cd ${BINARIES_DIR} && \
 			echo -e "${ALL_SWU_FILES// /\\n}" |\
