@@ -15,6 +15,11 @@ choice
 		select BR2_PACKAGE_LRD_NETWORK_MANAGER
 		select BR2_PACKAGE_ADAPTIVE_BT if BR2_PACKAGE_BLUEZ5_UTILS || BR2_PACKAGE_BLUEZ4_UTILS
 
+	config BR2_LRD_SOM60_RADIO_MANUAL
+		bool "SOM60 Radio Manual"
+		select BR2_PACKAGE_SOM60_FIRMWARE_BINARIES
+		select BR2_PACKAGE_LRD_LINUX_BACKPORTS
+
 	config BR2_LRD_WB50N_SYSD_RADIO
 		bool "WB50N SYSD Radio"
 		select BR2_PACKAGE_WB50N_FIRMWARE_BINARIES
@@ -66,7 +71,7 @@ comment "Please config lrd-network-manager in Laird->Packages->lrd-networkmanage
 
 config BR2_PACKAGE_LRD_60_RADIO_STACK_VERSION_VALUE
 	string "SOM60 radio stack version"
-	depends on BR2_LRD_SOM60_RADIO
+	depends on BR2_LRD_SOM60_RADIO || BR2_LRD_SOM60_RADIO_MANUAL
 	default "11.236.0.11"
 	help
 	  Version number for radio packages.
@@ -88,7 +93,7 @@ config BR2_PACKAGE_LRD_45_RADIO_STACK_VERSION_VALUE
 config BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE
 	string
 	depends on !BR2_LRD_NO_RADIO
-	default BR2_PACKAGE_LRD_60_RADIO_STACK_VERSION_VALUE if BR2_LRD_SOM60_RADIO
+	default BR2_PACKAGE_LRD_60_RADIO_STACK_VERSION_VALUE if BR2_LRD_SOM60_RADIO || BR2_LRD_SOM60_RADIO_MANUAL
 	default BR2_PACKAGE_LRD_50_RADIO_STACK_VERSION_VALUE if BR2_LRD_WB50N_RADIO
 	default BR2_PACKAGE_LRD_45_RADIO_STACK_VERSION_VALUE if BR2_LRD_WB45N_LEGACY_RADIO
 
@@ -102,7 +107,7 @@ config BR2_PACKAGE_LRD_RADIO_STACK_ARCH
 	default "-x86" if BR2_i386
 	default "-x86_64" if BR2_x86_64
 
-if BR2_LRD_SOM60_RADIO
+if BR2_LRD_SOM60_RADIO || BR2_LRD_SOM60_RADIO_MANUAL
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/summit-supplicant-binaries/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/som60-firmware-binaries/Config.in"
 source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/adaptive_ww-binaries/Config.in"
