@@ -7,7 +7,7 @@ notify() {
 die() {
     case "${o_method}" in
     complete*)
-        [ -d /sys/class/ubi0 ] && ubidetach -d 0
+        [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
         ;;
     esac
 
