@@ -108,11 +108,41 @@ esac
 
 case "${o_method}" in
 complete*)
+    [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
+
     if ${o_factory}; then
-        mtdparts=$(sed -n 's/\(mtd.*\):.*u-boot.*/\1/p' /proc/mtd)
-        for mtd in ${mtdparts}; do
-            nandtest -m /dev/${mtd}
-        done
+
+        # Mark bad blocks if found
+        while read -r line; do
+            case "${line}" in
+            *u-boot*)
+                mtd=${line%%:*}
+                nandtest -m /dev/${mtd} || die "NAND test failed"
+                ;;
+            esac
+        done < /proc/mtd
+
+        # Fail if bad blocks found in both u-boot-env and u-boot-spl areas
+        while read -r line; do
+            case "${line}" in
+            *u-boot-spl*)
+                mtd=${line%%:*}
+                [ $(cat /sys/class/mtd/${mtd}/bad_blocks) -eq 0 ] || \
+                    die "Bad blocks found in ${mtd} \"u-boot-spl\" area"
+                ;;
+            *u-boot-env-a*)
+                mtd=${line%%:*}
+                bad_a=$(cat /sys/class/mtd/${mtd}/bad_blocks)
+                ;;
+            *u-boot-env-b*)
+                mtd=${line%%:*}
+                bad_b=$(cat /sys/class/mtd/${mtd}/bad_blocks)
+                ;;
+            esac
+        done < /proc/mtd
+
+        [ ${bad_a} -gt 0 -a ${bad_b} -gt 0 ] && \
+            die "Bad blocks found in both u-boot-env areas"
 
         . erase_som_nand
     fi
