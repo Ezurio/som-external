@@ -1,6 +1,6 @@
 #! /bin/sh
 
-if [ ${1} = '-h' ]; then
+if [ "${1}" = '-h' ]; then
     echo "usage: ${0} [-f] [-h]"
     echo "  -f  - erase everything including bad and reserved blocks (scrub)"
     echo "  -h  - help message"
@@ -19,7 +19,7 @@ cleanup()
     echo "Module must be rebooted after complete erase"
 }
 
-if [ ${1} = '-f' ]; then
+if [ "${1}" = '-f' ]; then
     trap cleanup EXIT
     echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
 fi
