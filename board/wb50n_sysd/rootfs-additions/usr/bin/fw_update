@@ -18,16 +18,24 @@ die() {
 }
 
 usage() {
-    echo "Usage: $0: [-m <method>] [-s <side>] [-x value] [-v] <url>"
+    cat << --EOF--
+"Usage: $0: [-m <method>] [-s <side>] [-x value] [-f] [-v] <url>"
+    -m - Updated method (full, main, complete, etc) (default: full - NAND, complete - SD)
+    -s - Update side (a, b) (default: automatic)
+    -x - Extended options (r - no reboot)
+    -f - Factory provision mode (default: off)
+    -v - Verbose mode (default: off)
+    url - URL to update package
+--EOF--
     exit 3
 }
 
 [ $# -ge 1 ] || usage
 
+o_verbose=
 o_quiet=true
 o_restart=true
-
-update_ok=false
+o_factory=false
 
 # determine update side
 grep -q "ubi.block=0,1" /proc/cmdline && o_side=b || o_side=a
@@ -37,13 +45,14 @@ grep -q "root=/dev/mmcblk" /proc/cmdline && \
 
 ${run_on_sd} && o_method=complete || o_method=full
 
-while getopts m:s:x:v name; do
+while getopts m:s:x:fv name; do
     case ${name} in
     m)  o_method=${OPTARG} ;;
     s)  o_side=${OPTARG} ;;
     x)  case "${OPTARG}" in
             *r*) o_restart=false ;;
         esac ;;
+    f)  o_factory=true ;;
     v)  o_verbose="-v"; o_quiet=false ;;
     ?)  usage ;;
     esac
@@ -99,7 +108,14 @@ esac
 
 case "${o_method}" in
 complete*)
-    . erase_som_nand
+    if ${o_factory}; then
+        mtdparts=$(sed -n 's/\(mtd.*\):.*u-boot.*/\1/p' /proc/mtd)
+        for mtd in ${mtdparts}; do
+            nandtest -m /dev/${mtd}
+        done
+
+        . erase_som_nand
+    fi
 
     ubimtd=$(sed -n 's/^\(.*\):.*"ubi"$/\1/p' /proc/mtd)
     [ -z "${ubimtd}" ] || ubiformat /dev/${ubimtd} -y
@@ -118,7 +134,7 @@ esac
 
 case "${o_method}" in
 complete*)
-    [ -d /sys/class/ubi0 ] && ubidetach -d 0
+    [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
     ;;
 *)
     if [ -x /usr/sbin/migrate_data.sh ]; then
