@@ -16,13 +16,13 @@ TARGETS_meta-fips-dev = \
 	wb50nsd_sysd_fips_dev_dbg wb45n_legacy_fips_dev_dbg
 
 TARGETS_meta-som = \
-	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips wb50nsd_sysd_fips \
-	som60 som60sd som60sd_mfg som60_fips som60sd_fips som60sd_sdcsdk_nm \
+	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips wb50n_sysd_fips_11 \
+	som60 som60sd som60sd_mfg som60_fips som60_fips_11 som60sd_sdcsdk_nm \
 	ig60ll ig60llsd
 
 TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy \
-	wb50n_legacy_fips wb45n_legacy_fips
+	wb50n_legacy_fips wb45n_legacy_fips wb45n_legacy_fips_11
 
 TARGETS_meta-wbx3 = \
 	wb50nsd_sysd-wbx3 som60sd-wbx3 ig60sd-wbx3
