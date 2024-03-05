@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBOPENSSL_3_0_VERSION = 3.2.0
+LIBOPENSSL_3_0_VERSION = 3.2.1
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = Apache-2.0
@@ -25,7 +25,7 @@ LIBOPENSSL_3_0_CFLAGS += -DOPENSSL_SMALL_FOOTPRINT
 endif
 
 ifeq ($(BR2_USE_MMU),)
-LIBOPENSSL_3_0_CFLAGS += -DHAVE_FORK=0 -DOPENSSL_NO_MADVISE
+LIBOPENSSL_3_0_CFLAGS += -DHAVE_FORK=0 -DHAVE_MADVISE=0
 endif
 
 ifeq ($(BR2_PACKAGE_LIBOPENSSL_DEBUG),y)
@@ -76,6 +76,7 @@ define HOST_LIBOPENSSL_3_0_CONFIGURE_CMDS
 		./config \
 		--prefix=$(HOST_DIR) \
 		--openssldir=$(HOST_DIR)/etc/ssl \
+		no-docs \
 		no-tests \
 		no-fuzz-libfuzzer \
 		no-fuzz-afl \
@@ -95,9 +96,9 @@ define LIBOPENSSL_3_0_CONFIGURE_CMDS
 			$(if $(BR2_TOOLCHAIN_HAS_THREADS),threads,no-threads) \
 			$(if $(BR2_STATIC_LIBS),no-shared,shared) \
 			$(if $(BR2_PACKAGE_CRYPTODEV_LINUX),enable-devcryptoeng) \
-			no-docs \
 			no-rc5 \
 			enable-camellia \
+			no-docs \
 			no-tests \
 			no-fuzz-libfuzzer \
 			no-fuzz-afl \
