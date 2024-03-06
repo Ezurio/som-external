@@ -29,6 +29,8 @@ done
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
+	echo "FIPS Integrity check Started"
+
 	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null && \
 		TMP_MOUNT=true || TMP_MOUNT=false
 
@@ -56,12 +58,12 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	modprobe tcrypt mode=35 || fail "Boot gcm(aes) test failed: $?"
 	modprobe -r tcrypt
 
-	echo -e "\nFIPS Integrity check Success\n"
+	echo "FIPS Integrity check Success"
 fi
 
 [ ${PROC_MOUNT} -eq 0 ] && umount /proc
 
-echo -e "Launching: ${INIT}\n"
+echo "Launching: ${INIT}"
 
 if [ "${INIT#*.}" = "sh" ]; then
 	. ${INIT}
