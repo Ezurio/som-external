@@ -10,9 +10,9 @@ mkdir -p ${BINARIES_DIR}
 [ -n "${VERSION}" ] && RELEASE_SUFFIX="-${VERSION}"
 RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}${RELEASE_SUFFIX}.tar"
 
-sed -n "s|^libopenssl_3_0,\(.*/usr/lib/ossl-modules/fips.so\)|\1|p" "${BUILD_DIR}/packages-file-list.txt" |\
-	tar  -rf "${RELEASE_FILE}" -C "${TARGET_DIR}" \
-		--owner=root --group=root -T -
+tar  -rf "${RELEASE_FILE}" -C "${TARGET_DIR}" \
+	--owner=root --group=root \
+	./usr/lib/ossl-modules/fips.so
 
 bzip2 -f "${RELEASE_FILE}"
 
