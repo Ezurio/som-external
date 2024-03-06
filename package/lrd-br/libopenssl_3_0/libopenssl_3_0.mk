@@ -4,7 +4,11 @@
 #
 ################################################################################
 
+ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
+LIBOPENSSL_3_0_VERSION = 3.2.0
+else
 LIBOPENSSL_3_0_VERSION = 3.2.1
+endif
 LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = Apache-2.0
@@ -158,6 +162,8 @@ define LIBOPENSSL_3_0_INSTALL_TARGET_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR=$(TARGET_DIR) install
 	rm -rf $(TARGET_DIR)/usr/lib/ssl
 	rm -f $(TARGET_DIR)/usr/bin/c_rehash
+	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc/ssl \
+		$(@D)/apps/openssl.cnf $(LIBOPENSSL_3_0_PKGDIR)/fipsmodule.cnf
 endef
 
 # libdl has no business in a static build
