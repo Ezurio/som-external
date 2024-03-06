@@ -17,7 +17,9 @@
 # fips-set - set different fips mode
 
 # verify openssl-3 fips module
-openssl3_fipsinit() {
+openssl_fipsinit() {
+	[ -f /usr/lib/libcrypto.so.3 ] || return 0
+
 	openssl fipsinstall -in /etc/ssl/fipsmodule.cnf \
 			-module /usr/lib/ossl-modules/fips.so \
 			-self_test_onload -verify -quiet
@@ -26,15 +28,6 @@ openssl3_fipsinit() {
 		return 1
 	fi
 	return 0
-}
-
-openssl_fipsinit() {
-	if [ -f /usr/lib/libcrypto.so.3 ]; then
-		openssl3_fipsinit
-	else
-		# no installation required
-		return 0
-	fi
 }
 
 warning() {

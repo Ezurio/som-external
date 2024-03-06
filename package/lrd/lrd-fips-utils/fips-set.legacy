@@ -16,6 +16,20 @@
 
 # fips-set - set different fips mode
 
+# verify openssl-3 fips module
+openssl_fipsinit() {
+	[ -f /usr/lib/libcrypto.so.3 ] || return 0
+
+	openssl fipsinstall -in /etc/ssl/fipsmodule.cnf \
+			-module /usr/lib/ossl-modules/fips.so \
+			-self_test_onload -verify -quiet
+	if [ $? -ne 0 ]; then
+		echo "ERROR: openssl-3 fips module verification failed"
+		return 1
+	fi
+	return 0
+}
+
 warning() {
   echo "Changes will take effect after reboot"
 }
@@ -54,6 +68,7 @@ check_fipsInit() {
 
 case "${1}" in
   fips) ## set fips only
+    openssl_fipsinit || return 1
     bootargs="$(fw_printenv -n bootargs)" || return 1
     check_fipsInit
     bootmod fips 1
@@ -63,6 +78,7 @@ case "${1}" in
     ;;
 
   fips_wifi) ## set fips wifi
+    openssl_fipsinit || return 1
     bootargs="$(fw_printenv -n bootargs)" || return 1
     check_fipsInit
     bootmod fips 1
