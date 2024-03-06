@@ -1,5 +1,5 @@
 config BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER
-	bool "SummitSSL FIPS Provider"
+	bool "OpenSSL FIPS Provider"
 	depends on BR2_PACKAGE_LIBOPENSSL_3_0
 	help
 		FIPS provider 
@@ -7,7 +7,7 @@ config BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER
 if BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER
 
 config BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER_VERSION_VALUE
-	string "SummitSSL FIPS Provider version"
-	default "11.0.0.246"
+	string "OpenSSL FIPS Provider version"
+	default "11.0.0.251"
 
 endif # BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER
