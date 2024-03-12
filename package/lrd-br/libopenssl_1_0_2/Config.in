@@ -63,6 +63,10 @@ config BR2_PACKAGE_LIBOPENSSL_ENABLE_MDC2
 	bool "enable MDC2"
 	default y
 
+config BR2_PACKAGE_LIBOPENSSL_ENABLE_BLAKE2
+	bool "enable BLAKE2"
+	default y
+
 config BR2_PACKAGE_LIBOPENSSL_ENABLE_IDEA
 	bool "enable IDEA"
 	default y

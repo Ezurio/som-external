@@ -1,12 +1,10 @@
 config BR2_PACKAGE_FIPSCHECK
 	bool "fipscheck"
 	select BR2_PACKAGE_OPENSSL
-	default y if BR2_LRD_FIPS_RADIO
 	help
 	  FIPS Integrity Checker
 
 config BR2_PACKAGE_HOST_FIPSCHECK
 	bool "host fipscheck"
-	default y if BR2_LRD_FIPS_RADIO
 	help
 	  FIPS Integrity Checker

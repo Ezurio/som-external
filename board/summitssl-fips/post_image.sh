@@ -12,7 +12,10 @@ RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}${RELEASE_SUFFIX}.tar"
 
 tar  -rf "${RELEASE_FILE}" -C "${TARGET_DIR}" \
 	--owner=root --group=root \
-	./usr/lib/ossl-modules/fips.so
+	./usr/lib/ossl-modules/fips.so \
+	./usr/lib/libfipscheck.so.1.2.1 \
+	./usr/lib/libfipscheck.so.1 \
+	./usr/bin/fipscheck
 
 bzip2 -f "${RELEASE_FILE}"
 

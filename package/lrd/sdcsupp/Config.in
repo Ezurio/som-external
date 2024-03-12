@@ -25,6 +25,11 @@ config BR2_PACKAGE_SDCSUPP_LEGACY
 	select BR2_PACKAGE_SDCSDK if BR2_LRD_DEVEL_BUILD || BR2_LRD_NO_RADIO
 	select BR2_PACKAGE_SDCCLI if BR2_LRD_DEVEL_BUILD || BR2_LRD_NO_RADIO
 
+config BR2_PACKAGE_SDCSUPP_FIPS
+	bool "Enable FIPS mode"
+	help
+	  Enables FIPS mode
+
 config BR2_PACKAGE_SDCSUPP_LIBS_ONLY
 	bool "Internal build of closed source libraries only"
 

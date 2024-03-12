@@ -1,6 +1,9 @@
 config BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER
 	bool "OpenSSL FIPS Provider"
+	depends on BR2_PACKAGE_OPENSSL 
 	depends on BR2_PACKAGE_LIBOPENSSL_3_0
+	depends on !BR2_PACKAGE_FIPSCHECK 
+	depends on !BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS
 	help
 		FIPS provider 
 
