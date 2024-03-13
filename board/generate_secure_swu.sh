@@ -26,66 +26,57 @@ SWUPDATE_SIG="${4}"
 echo "${PRODUCT^^} Generate Secure SWU script: starting..."
 
 # Secure tooling checks
-openssl=${HOST_DIR}/usr/bin/openssl
-
+openssl=$(which openssl)
 [ -x "${openssl}" ] || \
-	die "no openssl found (host-openssl has not been built?)"
+	die "no openssl found"
 
-echo "# entering ${WORKING_DIR} for this script"
-cd "${WORKING_DIR}" || exit 1
+[ -r "${WORKING_DIR}/sw-description" ] ||
+	die "no sw-description found in ${WORKING_DIR}"
 
-[ -f sw-description ] && have_swdesc=true || have_swdesc=false
+cd "${WORKING_DIR}"
 
 # Backup incoming sw-description* and restore prior to exit
 # Caller needs unprocessed versions for further use
-${have_swdesc} && cp sw-description sw-description-saved
+cp -af sw-description sw-description-saved
 
 # Embed component hashes in SWU scripts
-for i in ${SWU_FILES/sw-description /}
-do
-	sha_value=$(sha256sum $i | awk '{print $1}')
-	component_sha="@${i}.sha256"
+for i in ${SWU_FILES/sw-description /} ; do
+	sha_value=$(sha256sum "${i}" | awk '{print $1}')
 	echo "${i}          ${sha_value}"
-
-	${have_swdesc} && \
-		sed -i -e "s/${component_sha}/${sha_value}/g" sw-description
-
-	if [ "${i}" = rootfs.bin ] || [ "${i}" = kernel.itb ]; then
-		md5_value=$(md5sum $i | awk '{print $1}')
-		component_md5sum="@${i}.md5sum"
-		echo "${i}          ${md5_value}"
-
-		${have_swdesc} && \
-			sed -i -e "s/${component_md5sum}/${md5_value}/g" sw-description
-	fi
+	sed -i -e "s/@${i}.sha256/${sha_value}/g" sw-description
 done
 
-if [ -n "${SWUPDATE_SIG}" ]; then
-	ALL_SWU_FILES="${SWU_FILES/sw-description/sw-description sw-description.sig}"
-else
-	ALL_SWU_FILES="${SWU_FILES}"
+if grep -qF ".md5sum" sw-description ; then
+	for i in rootfs.bin kernel.itb ; do
+		[ -f "${i}" ] || continue
+		md5_value=$(md5sum "${i}" | awk '{print $1}')
+		echo "${i}          ${md5_value}"
+		sed -i -e "s/@${i}.md5sum/${md5_value}/g" sw-description
+	done
 fi
-SWU_FILE_STR="${ALL_SWU_FILES// /\\n}"
+
+[ -z "${SWUPDATE_SIG}" ] || \
+	SWU_FILES="${SWU_FILES/sw-description/sw-description sw-description.sig}"
 
 # Generate SWU
-if ${have_swdesc} ; then
-	case "${SWUPDATE_SIG}" in
-	cms)
-		${openssl} cms -sign -in sw-description -out sw-description.sig \
-			-signer keys/dev.crt -inkey keys/dev.key -outform DER -nosmimecap -binary
-		;;
+case "${SWUPDATE_SIG}" in
+cms)
+	${openssl} cms -sign -in sw-description -out sw-description.sig \
+		-signer keys/dev.crt -inkey keys/dev.key \
+		-outform DER -nosmimecap -binary
+	;;
 
-	rawrsa)
-		${openssl} dgst -sha256 -sign keys/dev.key sw-description > sw-description.sig
-		;;
-	esac
+rawrsa)
+	${openssl} dgst -sha256 -sign keys/dev.key -out sw-description.sig \
+		sw-description
+	;;
+esac
 
-	echo -e "${SWU_FILE_STR}" | cpio -ovL -H crc > "${PRODUCT}.swu"
-	rm -f sw-description.sig
-fi
+echo -e "${SWU_FILES// /\\n}" | cpio -ovL -H crc > "${PRODUCT}.swu"
 
-${have_swdesc} && mv -f sw-description-saved sw-description
+rm -f sw-description.sig
+mv -f sw-description-saved sw-description
 
-cd - || exit 1
+cd -
 
 echo "${PRODUCT^^} Generate secure SWU script: done."

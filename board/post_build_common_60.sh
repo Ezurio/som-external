@@ -204,9 +204,9 @@ fi
 
 if [ "${BUILD_TYPE}" != ig60 ]; then
 
-if grep -q 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
-	if grep -q 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 		cp "${ENCRYPTED_TOOLKIT_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
 		# Configure dev.crt if swupdate CMS is enabled
 		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
@@ -281,16 +281,16 @@ esac
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 	IMAGE_NAME=Image
 
-	if grep -q '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
+	if grep -qF '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
 		gzip -9kfn ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.gz
-	elif grep -q '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
 		lzop -9on ${BINARIES_DIR}/Image.lzo ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.lzo
-	elif grep -q '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
 		lzma -9kf ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.lzma
-	elif grep -q '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
 		zstd -19 -kf ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.zstd
 	fi

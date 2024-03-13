@@ -39,16 +39,16 @@ die() { echo "$@" >&2; exit 1; }
 
 IMAGE_NAME=Image
 
-if grep -q '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
+if grep -qF '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
 	gzip -9kfn ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.gz
-elif grep -q '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
 	lzop -9on ${BINARIES_DIR}/Image.lzo ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzo
-elif grep -q '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
 	lzma -9kf ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzma
-elif grep -q '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
 	zstd -19 -kf ${BINARIES_DIR}/Image -o ${BINARIES_DIR}/Image.zstd
 	IMAGE_NAME+=.zstd
 fi
@@ -81,7 +81,7 @@ if ${SD} ; then
 	${mkenvimage} -p 0 -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
 else
 	${mkenvimage} -r -s 131072 -o ${BINARIES_DIR}/uboot.env ${BINARIES_DIR}/u-boot-initial-env
-	if grep -q boot1.bin ${BINARIES_DIR}/sw-description ; then
+	if grep -qF boot1.bin ${BINARIES_DIR}/sw-description ; then
 		echo "keyrev=1" | cat - ${BINARIES_DIR}/u-boot-initial-env | sort > ${BINARIES_DIR}/u-boot1-initial-env
 		${mkenvimage} -r -s 131072 -o ${BINARIES_DIR}/uboot1.env ${BINARIES_DIR}/u-boot1-initial-env
 	fi
@@ -91,12 +91,12 @@ fi
 # CONFIG_HASH_VERIFY is enabled.  Hashes are required in SWU files if CONFIG_SIGNED_IMAGES
 # is set.  Older images did not enable either CONFIG_HASH_VERIFY or CONFIG_SIGNED_IMAGES,
 # so remove hashes unless they are required for signed image support.
-if ! grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+if ! grep -qF 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
 	# Remove sha lines in SWU scripts
 	[ ! -f ${BINARIES_DIR}/sw-description ] || \
 		sed -i -e "/sha256/d" ${BINARIES_DIR}/sw-description
 	sign_method=""
-elif grep -q 'CONFIG_SIGALG_CMS=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+elif grep -qF 'CONFIG_SIGALG_CMS=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
 	sign_method="cms"
 else
 	sign_method="rawrsa"
@@ -122,7 +122,7 @@ if ! ${SECURE_BOOT} ; then
 		ln -rsf ${BINARIES_DIR}/rootfs.squashfs ${BINARIES_DIR}/rootfs.bin
 
 		# Support Secure boot key transition
-		if grep -q boot1.bin ${BINARIES_DIR}/sw-description ; then
+		if grep -qF boot1.bin ${BINARIES_DIR}/sw-description ; then
 			ALL_SWU_FILES="${ALL_SWU_FILES/boot.bin/boot.bin boot1.bin}"
 			ALL_SWU_FILES="${ALL_SWU_FILES/uboot.env/uboot.env uboot1.env}"
 			cp -af ${BINARIES_DIR}/boot.bin ${BINARIES_DIR}/boot1.bin
@@ -201,7 +201,7 @@ fi
 # Move back the OpenJDK 'modules' dependency to the target directory
 # after creating the image and dependency tarball. Also, add the
 # dependency tarball to the release archive
-if grep -q ^BR2_SUMMIT_OPENJDK_GGV2=y ${BR2_CONFIG}
+if grep -qF "BR2_SUMMIT_OPENJDK_GGV2=y" ${BR2_CONFIG}
 then
         # Delete the symlink and move back the original 'modules' file
         rm -f ${TARGET_DIR}/usr/lib/jvm/lib/modules
