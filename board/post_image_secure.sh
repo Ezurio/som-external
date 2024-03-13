@@ -38,27 +38,21 @@ set -x -e
 # Secure tooling checks
 mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
 atmel_pmecc_params=${BUILD_DIR}/uboot-custom/tools/atmel_pmecc_params
-openssl=${HOST_DIR}/usr/bin/openssl
+openssl=$(which openssl)
 veritysetup=${HOST_DIR}/sbin/veritysetup
 
 die() { echo "$@" >&2; exit 1; }
 
-grep -q SALT ${BINARIES_DIR}/boot.scr && SECURE_ROOTFS=true || SECURE_ROOTFS=false
+grep -qF "SALT" ${BINARIES_DIR}/boot.scr && SECURE_ROOTFS=true || SECURE_ROOTFS=false
 
 [ -x ${mkimage} ] || \
 	die "No mkimage found (uboot has not been built?)"
 [ -x ${openssl} ] || \
-	die "no openssl found (host-openssl has not been built?)"
-
-if ! ${SD} ; then
-[ -x ${atmel_pmecc_params} ] || \
+	die "no openssl found"
+[ -x ${atmel_pmecc_params} ] || ${SD} || \
 	die "no atmel_pmecc_params found (uboot has not been built?)"
-fi
-
-if ${SECURE_ROOTFS} ; then
-[ -x ${veritysetup} ] || \
+[ -x ${veritysetup} ] || ! ${SECURE_ROOTFS} || \
 	die "No veritysetup found (host-cryptsetup has not been built?)"
-fi
 
 echo "# entering ${BINARIES_DIR} for this script"
 cd ${BINARIES_DIR}

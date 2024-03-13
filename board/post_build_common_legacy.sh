@@ -125,7 +125,7 @@ fi
 
 # Fixup and add debugfs to fstab
 sed -i 's|/dev/root.*|/dev/root	/		auto	rw,noauto,noatime	0	1|' ${TARGET_DIR}/etc/fstab
-grep -q "/sys/kernel/debug" ${TARGET_DIR}/etc/fstab ||\
+grep -qF "/sys/kernel/debug" ${TARGET_DIR}/etc/fstab ||\
 	echo 'nodev		/sys/kernel/debug debugfs defaults	0	0' >> ${TARGET_DIR}/etc/fstab
 
 # create a compressed backup copy of the /e/n/i file
@@ -183,16 +183,16 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 	fipshmac=${HOST_DIR}/bin/fipshmac
 	IMAGE_NAME=Image
 
-	if grep -q '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
+	if grep -qF '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
 		gzip -9kfn ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.gz
-	elif grep -q '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
 		lzop -9on ${BINARIES_DIR}/Image.lzo ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.lzo
-	elif grep -q '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
 		lzma -9kf ${BINARIES_DIR}/Image
 		IMAGE_NAME+=.lzma
-	elif grep -q '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
+	elif grep -qF '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
 		zstd -19 -kf ${BINARIES_DIR}/Image -o ${BINARIES_DIR}/Image.zstd
 		IMAGE_NAME+=.zstd
 	fi

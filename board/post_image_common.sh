@@ -14,21 +14,21 @@ if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" ${BR2_CONFIG}; then
 mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
 fipshmac=${HOST_DIR}/bin/fipshmac
 
-[ -x ${mkimage} ] || \
+[ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
 
 IMAGE_NAME=Image
 
-if grep -q '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
+if grep -qF '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
 	gzip -9kfn ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.gz
-elif grep -q '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
 	lzop -9on ${BINARIES_DIR}/Image.lzo ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzo
-elif grep -q '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
 	lzma -9kf ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzma
-elif grep -q '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
 	zstd -19 -kf ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.zstd
 fi

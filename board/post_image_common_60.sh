@@ -39,16 +39,16 @@ die() { echo "$@" >&2; exit 1; }
 
 IMAGE_NAME=Image
 
-if grep -q '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
+if grep -qF '"Image.gz"' ${BINARIES_DIR}/kernel.its; then
 	gzip -9kfn ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.gz
-elif grep -q '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzo"' ${BINARIES_DIR}/kernel.its; then
 	lzop -9on ${BINARIES_DIR}/Image.lzo ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzo
-elif grep -q '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.lzma"' ${BINARIES_DIR}/kernel.its; then
 	lzma -9kf ${BINARIES_DIR}/Image
 	IMAGE_NAME+=.lzma
-elif grep -q '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
+elif grep -qF '"Image.zstd"' ${BINARIES_DIR}/kernel.its; then
 	zstd -19 -kf ${BINARIES_DIR}/Image -o ${BINARIES_DIR}/Image.zstd
 	IMAGE_NAME+=.zstd
 fi
@@ -87,12 +87,12 @@ fi
 # CONFIG_HASH_VERIFY is enabled.  Hashes are required in SWU files if CONFIG_SIGNED_IMAGES
 # is set.  Older images did not enable either CONFIG_HASH_VERIFY or CONFIG_SIGNED_IMAGES,
 # so remove hashes unless they are required for signed image support.
-if ! grep -q 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+if ! grep -qF 'CONFIG_SIGNED_IMAGES=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
 	# Remove sha lines in SWU scripts
 	[ ! -f ${BINARIES_DIR}/sw-description ] || \
 		sed -i -e "/sha256/d" ${BINARIES_DIR}/sw-description
 	sign_method=""
-elif grep -q 'CONFIG_SIGALG_CMS=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
+elif grep -qF 'CONFIG_SIGALG_CMS=y' ${BUILD_DIR}/swupdate*/include/config/auto.conf; then
 	sign_method="cms"
 else
 	sign_method="rawrsa"
@@ -189,7 +189,7 @@ fi
 # Move back the OpenJDK 'modules' dependency to the target directory
 # after creating the image and dependency tarball. Also, add the
 # dependency tarball to the release archive
-if grep -q ^BR2_SUMMIT_OPENJDK_GGV2=y ${BR2_CONFIG}
+if grep -qF "BR2_SUMMIT_OPENJDK_GGV2=y" ${BR2_CONFIG}
 then
         # Delete the symlink and move back the original 'modules' file
         rm -f ${TARGET_DIR}/usr/lib/jvm/lib/modules
