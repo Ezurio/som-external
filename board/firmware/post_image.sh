@@ -269,6 +269,31 @@ tar -cjf "${BINARIES_DIR}/laird-bdsdmac-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	lib/firmware/utf30.bin
 fi
 
+create_ti351_firmware_archive()
+{
+	grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_TI351=y" ${BR2_CONFIG} || return
+
+	local DOMAIN=${1}
+
+	local TI_DIR=${FW_DIR}/ti-connectivity
+
+	ln -rsf ${TI_DIR}/ti351-conf_${DOMAIN}.bin ${TI_DIR}/cc33xx-conf.bin
+
+	tar -cjf "${BINARIES_DIR}/laird-ti351-${DOMAIN}-firmware${RELEASE_SUFFIX}.tar.bz2" \
+		--owner=root --group=root \
+		lib/firmware/ti-connectivity/cc33xx_fw.bin \
+		lib/firmware/ti-connectivity/cc33xx_2nd_loader.bin \
+		lib/firmware/ti-connectivity/cc33xx-conf.bin \
+		lib/firmware/ti-connectivity/ti351-conf_${DOMAIN}.bin
+}
+
+create_ti351_firmware_archive WW
+create_ti351_firmware_archive US
+create_ti351_firmware_archive EU
+create_ti351_firmware_archive CA
+create_ti351_firmware_archive AU
+create_ti351_firmware_archive JP
+
 cd -
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
