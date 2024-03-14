@@ -1,1 +1,2 @@
-SUBSYSTEM=="usb-serial", ACTION=="bind", KERNEL=="ttyUSB0", TAG+="systemd", ENV{SYSTEMD_WANTS}+="serial-getty@%k.service" RUN+="/bin/stty -F /dev/%k 115200"
+SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyUSB0", TAG+="systemd", ENV{SYSTEMD_WANTS}+="serial-getty@%k.service" RUN+="/bin/stty -F /dev/%k 115200"
+
