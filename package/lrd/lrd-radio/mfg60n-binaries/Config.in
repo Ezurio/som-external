@@ -1,6 +1,6 @@
 config BR2_PACKAGE_MFG60N_BINARIES
 	bool "60 series manufacturing tools binaries"
-	default n
+	select BR2_PACKAGE_LIBNL
 	select BR2_PACKAGE_LIBEDIT
 	help
 	  This package installs 60 series manufacturing tools.
