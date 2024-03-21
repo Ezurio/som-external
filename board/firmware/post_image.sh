@@ -236,7 +236,7 @@ create_cyw5557x_firmware_archive cyw55573 sdio
 if grep -qF "BR2_PACKAGE_SONA_FIRMWARE_NX61X=y" ${BR2_CONFIG}; then
 tar -cjf "${BINARIES_DIR}/sona-nx61x-firmware${RELEASE_SUFFIX}.tar.bz2" \
 	--owner=root --group=root \
-	lib/firmware/nx61x
+	lib/firmware/nxp
 fi
 
 if grep -qF "BR2_PACKAGE_LAIRD_FIRMWARE_AR6003=y" ${BR2_CONFIG}; then
