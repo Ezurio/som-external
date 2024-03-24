@@ -195,8 +195,8 @@ create_cyw55513_firmware_archive()
 
 	tar -cjf "${BINARIES_DIR}/laird-${FW_PROD}-sdio-firmware${RELEASE_SUFFIX}.tar.bz2" \
 		--owner=root --group=root \
-		lib/firmware/brcm/CYW55500A0.hcd \
-		lib/firmware/cypress/CYW55500A0_*.hcd \
+		lib/firmware/brcm/CYW55500A1.hcd \
+		lib/firmware/cypress/CYW55500A1_*.hcd \
 		lib/firmware/cypress/cyfmac55500-sdio.trxse \
 		lib/firmware/cypress/cyfmac55500-sdio-prod*.trxse \
 		lib/firmware/cypress/cyfmac55500-sdio.txt \
