@@ -17,7 +17,8 @@ TARGETS_meta-fips-dev = \
 
 TARGETS_meta-som = \
 	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips wb50n_sysd_fips_11 \
-	som60 som60sd som60sd_mfg som60_fips som60_fips_11 som60sd_sdcsdk_nm \
+	som60 som60sd som60sd_mfg som60sd_sdcsdk_nm \
+	som60_fips som60sd_fips som60_fips_11 som60sd_fips_11 \
 	ig60ll ig60llsd
 
 TARGETS_meta-legacy = \
