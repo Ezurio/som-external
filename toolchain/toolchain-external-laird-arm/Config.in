@@ -5,6 +5,7 @@ config BR2_TOOLCHAIN_EXTERNAL_LAIRD_ARM
 	depends on BR2_HOSTARCH = "x86_64"
 	select BR2_TOOLCHAIN_EXTERNAL_GLIBC
 	select BR2_TOOLCHAIN_HAS_SSP
+	select BR2_TOOLCHAIN_HAS_OPENMP
 	select BR2_INSTALL_LIBSTDCPP
 	help
 	  Laird toolchain for the ARM architecture.

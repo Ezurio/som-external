@@ -1,7 +1,0 @@
-config BR2_PACKAGE_HOST_COMPOSER
-	bool "host-composer"
-	help
-	  This package contains the tool to download and manage
-	  PHP projects.
-
-	  https://getcomposer.org/
