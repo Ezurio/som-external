@@ -26,7 +26,7 @@ TARGETS_meta-legacy = \
 	wb50n_legacy_fips wb45n_legacy_fips wb45n_legacy_fips_11
 
 TARGETS_meta-wbx3 = \
-	wb50nsd_sysd-wbx3 som60sd-wbx3 ig60sd-wbx3
+	wb50nsd_sysd-wbx3 wb50nsd_legacy-wbx3 som60sd-wbx3 ig60sd-wbx3
 
 TARGETS = \
 	$(foreach t,som legacy wbx3 fips-dev toolchain radio,$(TARGETS_meta-$(t)))
