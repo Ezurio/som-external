@@ -4,10 +4,9 @@
 #
 ################################################################################
 
-SUMMITSSL_FIPS_PROVIDER_CVE_VERSION = 3.2.0
-
 SUMMITSSL_FIPS_PROVIDER_CPE_ID_VENDOR = openssl
 SUMMITSSL_FIPS_PROVIDER_CPE_ID_PRODUCT = openssl
+SUMMITSSL_FIPS_PROVIDER_CPE_ID_VERSION = 3.2.0
 
 SUMMITSSL_FIPS_PROVIDER_PREFIX = summitssl_fips
 

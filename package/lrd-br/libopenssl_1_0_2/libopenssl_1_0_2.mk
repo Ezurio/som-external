@@ -3,13 +3,10 @@
 # libopenssl-1.0.2
 #
 ################################################################################
-
-LIBOPENSSL_1_0_2_CVE_PRODUCT = libopenssl
-LIBOPENSSL_1_0_2_CVE_VERSION = 1.0.2u
-
 LIBOPENSSL_1_0_2_PROVIDES = openssl
 LIBOPENSSL_1_0_2_CPE_ID_VENDOR = $(LIBOPENSSL_1_0_2_PROVIDES)
 LIBOPENSSL_1_0_2_CPE_ID_PRODUCT = $(LIBOPENSSL_1_0_2_PROVIDES)
+LIBOPENSSL_1_0_2_CPE_ID_VERSION = 1.0.2u
 
 #0004-Fix-for-OpenSSL-1.0.2-CVE-2020-1968-from-Debian.patch
 LIBOPENSSL_1_0_2_IGNORE_CVES += CVE-2020-1968

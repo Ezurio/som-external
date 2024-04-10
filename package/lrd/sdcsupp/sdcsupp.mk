@@ -20,7 +20,11 @@ endif
 
 endif
 
+SDCSUPP_CPE_ID_VENDOR = w1.fi
+SDCSUPP_CPE_ID_PRODUCT = wpa_supplicant
+SDCSUPP_CPE_ID_VERSION = 2.10
 SDCSUPP_LICENSE = BSD-3-Clause
+SDCSUPP_LICENSE_FILES = README
 
 SDCSUPP_DEPENDENCIES = host-pkgconf libnl openssl
 ifneq ($(SDCSUPP_VERSION),local)
