@@ -11,7 +11,8 @@ BR2_LRD_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_C
 RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird"
 [ -n "${VERSION}" ] && RELEASE_FILE+="-${VERSION}"
 
-cp "${BOARD_DIR}"/sw-description "${BINARIES_DIR}"/
+ln -sf "${BOARD_DIR}"/sw-description "${BINARIES_DIR}/sw-description"
+
 gzip -f "${BINARIES_DIR}/rootfs.ext2"
 (cd "${BINARIES_DIR}" && echo -e "sw-description\nrootfs.ext2.gz" |\
 	cpio -ov -H crc > "${BINARIES_DIR}/${BR2_LRD_PRODUCT}.swu")
