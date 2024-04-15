@@ -1,0 +1,15 @@
+diff -ur openssl-3.2.0-orig/ssl/statem/statem_srvr.c openssl-3.2.0-new/ssl/statem/statem_srvr.c
+--- openssl-3.2.0-orig/ssl/statem/statem_srvr.c	2024-04-15 16:09:52.657285149 -0400
++++ openssl-3.2.0-new/ssl/statem/statem_srvr.c	2024-04-15 16:13:34.402719719 -0400
+@@ -1991,6 +1991,11 @@
+          */
+         int master_key_length;
+ 
++        // hostapd eap-fast failure
++        // work-around for missing allocation of s->s3.tmp.valid_flags?
++        if (s->s3.tmp.valid_flags == NULL)
++            s->s3.tmp.valid_flags = OPENSSL_zalloc(s->ssl_pkey_num * sizeof(uint32_t));
++
+         master_key_length = sizeof(s->session->master_key);
+         if (s->ext.session_secret_cb(ssl, s->session->master_key,
+                                      &master_key_length, ciphers,
