@@ -14,7 +14,9 @@ cp ${BACKPORTS_TEST_DIR}/ckmake-report.log \
 	${BINARIES_DIR}/ckmake-report-regression-test-${RELEASE_SUFFIX}.log
 
 if grep -q FAIL ${BACKPORTS_TEST_DIR}/ckmake-report.log; then
-	grep -s -i -B 2 error: ${BACKPORTS_TEST_DIR}/ckmake.log
+	grep -s -i -B 2 'error:' ${BACKPORTS_TEST_DIR}/ckmake.log || \
+		cat ${BACKPORTS_TEST_DIR}/ckmake.log
+
 	echo "Failure reported in backports regression tests."
 	exit 1
 fi
