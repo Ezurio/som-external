@@ -138,12 +138,14 @@ else
 	"${BR2_EXTERNAL_LRD_SOM_PATH}/board/post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
 fi
 
-size_check () {
-	[ $(stat -Lc "%s" ${BINARIES_DIR}/${1}) -le $((${2}*128*1024)) ] || \
-		{ echo "${1} size exceeded ${2} block limit, failed"; exit 1; }
-}
+if ! ${SD} ; then
+	size_check () {
+		[ $(stat -Lc "%s" ${BINARIES_DIR}/${1}) -le $((${2}*128*1024)) ] || \
+			{ echo "${1} size exceeded ${2} block limit, failed"; exit 1; }
+	}
 
-size_check u-boot.itb 7
+	size_check u-boot.itb 7
+fi
 
 if [ -n "${VERSION}" ]; then
 	RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird-${VERSION}.tar"
