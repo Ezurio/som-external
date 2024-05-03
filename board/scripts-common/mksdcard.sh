@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -77,17 +77,17 @@ unmount_all() {
 
 check_format() {
     count=0
-    lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE} |\
-        while read -r TYPE FSTYPE SIZE; do
-            [ "${TYPE}" = "part" ] || continue
-            count=$((count+1))
-            case "${count}" in
-                1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return false ;;
-                2) [ "${FSTYPE}" = "swap" -a "${SIZE}" = "256M" ] || return false ;;
-                3) [ "${FSTYPE}" = "ext4" ] || return false ;;
-                *) return false ;;
-            esac
-        done && [ ${count} -eq 3 ] || return false
+    while read -r TYPE FSTYPE SIZE; do
+        [ "${TYPE}" = "part" ] || continue
+        count=$((count+1))
+        case "${count}" in
+            1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return ;;
+            2) [ "${FSTYPE}" = "swap" -a "${SIZE}" = "256M" ] || return ;;
+            3) [ "${FSTYPE}" = "ext4" ] || return ;;
+            *) break ;;
+        esac
+    done < <(lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE})
+    [ ${count} -eq 3 ]
 }
 
 # Un-mount all mounted partitions
