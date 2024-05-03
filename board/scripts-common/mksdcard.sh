@@ -7,7 +7,7 @@ ARG=${1##*/}
 SRCDIR=${0%/*}
 DRIVE_SIZE=/sys/block/${DRIVE##*/}/size
 
-if [ -z "${DRIVE}" ] || [ -z "${ARG}" ]; then
+if [ -z "${DRIVE}" -o -z "${ARG}" ]; then
     echo "mksdcard.sh <device>"
     echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
     exit
@@ -15,6 +15,16 @@ fi
 
 if [ ! -b ${DRIVE} ]; then
     echo "Can not find destination drive \"${DRIVE}\""
+    exit
+fi
+
+if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
+    echo "Device is not removable."
+    exit
+fi
+
+if [ $(id -u) -ne 0 ]; then
+    echo "This script must be run as root."
     exit
 fi
 
@@ -65,37 +75,56 @@ unmount_all() {
 	[ -z "${drives}" ] || sleep 1
 }
 
+check_format() {
+    count=0
+    lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE} |\
+        while read -r TYPE FSTYPE SIZE; do
+            [ "${TYPE}" = "part" ] || continue
+            count=$((count+1))
+            case "${count}" in
+                1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return false ;;
+                2) [ "${FSTYPE}" = "swap" -a "${SIZE}" = "256M" ] || return false ;;
+                3) [ "${FSTYPE}" = "ext4" ] || return false ;;
+                *) return false ;;
+            esac
+        done && [ ${count} -eq 3 ] || return false
+}
+
 # Un-mount all mounted partitions
 unmount_all ${DRIVE}
 
-# Check if device is busy
-hdparm -z ${DRIVE} >/dev/null
+if ! check_format ; then
+    # Check if device is busy
+    hdparm -z ${DRIVE} >/dev/null
 
-echo "[Partitioning ${DRIVE}...]"
+    echo "[Partitioning ${DRIVE}...]"
 
-# Wipe MBR, GPT, and Partition Table
-dd if=/dev/zero of=${DRIVE} bs=512 count=34 status=none
-dd if=/dev/zero of=${DRIVE} bs=512 count=34 seek=$((DRIVE_BLOCKS-34)) status=none
-dd if=/dev/zero of=${DRIVE} bs=1KiB count=1 seek=1024 status=none
-dd if=/dev/zero of=${DRIVE} bs=1KiB count=4 seek=$((49*1024)) status=none
-dd if=/dev/zero of=${DRIVE} bs=1KiB count=4 seek=$((305*1024)) status=none
+    # Wipe MBR, GPT, and Partition Table
+    dd if=/dev/zero of=${DRIVE} bs=512 count=34 status=none
+    dd if=/dev/zero of=${DRIVE} bs=512 count=34 seek=$((DRIVE_BLOCKS-34)) status=none
+    dd if=/dev/zero of=${DRIVE} bs=1KiB count=1 seek=1024 status=none
+    dd if=/dev/zero of=${DRIVE} bs=1KiB count=4 seek=$((49*1024)) status=none
+    dd if=/dev/zero of=${DRIVE} bs=1KiB count=4 seek=$((305*1024)) status=none
 
-parted -s ${DRIVE} mklabel msdos unit MiB \
-    mkpart primary fat16 1 49 set 1 lba on set 1 boot on \
-    mkpart primary linux-swap 49 305 \
-    mkpart primary ext4 305 100%
+    parted -s ${DRIVE} mklabel msdos unit MiB \
+        mkpart primary fat16 1 49 set 1 lba on set 1 boot on \
+        mkpart primary linux-swap 49 305 \
+        mkpart primary ext4 305 100%
 
-[ $? -ne 0 ] && exit
+    [ $? -ne 0 ] && exit
 
-sync
-sleep 1
+    sync
+    sleep 1
+else
+    echo "[Reuse existing partitioning ${DRIVE}...]"
+fi
 
 echo "[Making file systems...]"
 
 # Format newly created partitions
 mkfs.vfat -F 16 -n BOOT ${PART_BOOT} >/dev/null
-mkswap -L swap ${PART_SWAP} >/dev/null
-mkfs.ext4 -q -L rootfs ${PART_ROOTFS} -E lazy_itable_init=0,lazy_journal_init=0
+mkswap -q -f -L swap ${PART_SWAP}
+mkfs.ext4 -q -F -L rootfs ${PART_ROOTFS} -E lazy_itable_init=0,lazy_journal_init=0 > /dev/null
 sync
 
 echo "[Copying files...]"

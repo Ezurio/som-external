@@ -7,7 +7,7 @@ ARG=${1##*/}
 SRCDIR=${0%/*}
 DRIVE_SIZE=/sys/block/${DRIVE##*/}/size
 
-if [ -z "${DRIVE}" ] || [ -z "${ARG}" ]; then
+if [ -z "${DRIVE}" -o -z "${ARG}" ]; then
     echo "mksdcard.sh <device>"
     echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
     exit
@@ -15,6 +15,16 @@ fi
 
 if [ ! -b ${DRIVE} ]; then
     echo "Can not find destination drive \"${DRIVE}\""
+    exit
+fi
+
+if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
+    echo "Device is not removable."
+    exit
+fi
+
+if [ $(id -u) -ne 0 ]; then
+    echo "This script must be run as root."
     exit
 fi
 
@@ -56,25 +66,42 @@ unmount_all() {
 	[ -z "${drives}" ] || sleep 1
 }
 
+check_format() {
+    count=0
+    lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE} |\
+        while read -r TYPE FSTYPE SIZE; do
+            [ "${TYPE}" = "part" ] || continue
+            count=$((count+1))
+            case "${count}" in
+                1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return false ;;
+                *) return false ;;
+            esac
+        done && [ ${count} -eq 1 ] || return false
+}
+
 # Un-mount all mounted partitions
 unmount_all ${DRIVE}
 
-# Check if device is busy
-hdparm -z ${DRIVE} >/dev/null
+if ! check_format ; then
+    # Check if device is busy
+    hdparm -z ${DRIVE} >/dev/null
 
-echo "[Partitioning ${DRIVE}...]"
+    echo "[Partitioning ${DRIVE}...]"
 
-# Wipe MBR, GPT, and Partition Table
-dd if=/dev/zero of=${DRIVE} bs=512 count=34 status=none
-dd if=/dev/zero of=${DRIVE} bs=512 count=34 seek=$((DRIVE_BLOCKS-34)) status=none
+    # Wipe MBR, GPT, and Partition Table
+    dd if=/dev/zero of=${DRIVE} bs=512 count=34 status=none
+    dd if=/dev/zero of=${DRIVE} bs=512 count=34 seek=$((DRIVE_BLOCKS-34)) status=none
 
-parted -s ${DRIVE} mklabel msdos unit MiB \
-    mkpart primary fat16 1 49 set 1 lba on set 1 boot on
+    parted -s ${DRIVE} mklabel msdos unit MiB \
+        mkpart primary fat16 1 49 set 1 lba on set 1 boot on
 
-[ $? -ne 0 ] && exit
+    [ $? -ne 0 ] && exit
 
-sync
-sleep 1
+    sync
+    sleep 1
+else
+    echo "[Reuse existing partitioning ${DRIVE}...]"
+fi
 
 echo "[Making file systems...]"
 
