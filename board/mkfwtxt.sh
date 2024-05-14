@@ -18,9 +18,9 @@ image3=kernel.bin
 image4=rootfs.bin
 
 # write target-build description
-if [ -n "${LAIRD_RELEASE_STRING}" ]
+if [ -n "${SUMMIT_RELEASE_STRING}" ]
 then
-  echo "# ${LAIRD_RELEASE_STRING}" > ${fwul}
+  echo "# ${SUMMIT_RELEASE_STRING}" > ${fwul}
 else
   echo "# $(hostname)-${BR2_TARGET_UBOOT_BOARDNAME-?}" > ${fwul}
 fi

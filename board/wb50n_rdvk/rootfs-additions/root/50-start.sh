@@ -1,1 +1,0 @@
-modprobe ath6kl_sdio

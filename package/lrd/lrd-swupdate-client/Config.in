@@ -1,5 +1,0 @@
-config BR2_PACKAGE_LRD_SWUPDATE_CLIENT
-	bool "Swupdate client API python binding"
-	select BR2_PACKAGE_SWUPDATE
-	help
-	  Wrapped API for swupdate client.

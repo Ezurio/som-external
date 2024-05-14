@@ -4,10 +4,10 @@ BUILD_TYPE="${2}"
 # enable tracing and exit on errors
 set -x -e
 
-[ -n "${BR2_LRD_PRODUCT}" ] || \
-	export BR2_LRD_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
+[ -n "${BR2_SUMMIT_PRODUCT}" ] || \
+	export BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
 
-echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: starting..."
+echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE script: starting..."
 
 # Determine if we are building SD card image
 case "${BUILD_TYPE}" in
@@ -16,7 +16,7 @@ case "${BUILD_TYPE}" in
 esac
 
 # Determine if encrypted image being built
-grep -qF "BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
+grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
 	&& ENCRYPTED_TOOLKIT=true || ENCRYPTED_TOOLKIT=false
 
 grep -qF "BR2_SUMMIT_SECURE_BOOT=y" ${BR2_CONFIG} \
@@ -63,13 +63,13 @@ hash_check() {
 	fi
 }
 
-if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_LAIRD_OPENSSL_FIPS=y" ${BR2_CONFIG}
+if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS=y" ${BR2_CONFIG}
 then
 	hash_check ${BINARIES_DIR} ${IMAGE_NAME}
 	hash_check ${TARGET_DIR}/usr/bin fipscheck
 	hash_check ${TARGET_DIR}/usr/lib libfipscheck.so.1
 	hash_check ${TARGET_DIR}/usr/lib libcrypto.so.1.0.0
-elif grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER=y" -e "BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS=y" ${BR2_CONFIG}
+elif grep -qF -e "BR2_PACKAGE_OPENSSL_FIPS_PROVIDER=y" -e "BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS=y" ${BR2_CONFIG}
 then
 	hash_check ${BINARIES_DIR} ${IMAGE_NAME}
 	hash_check ${TARGET_DIR}/usr/bin fipscheck
@@ -131,11 +131,11 @@ if ! ${SECURE_BOOT} ; then
 		# Generate SWU
 		( cd ${BINARIES_DIR} && \
 			echo -e "${ALL_SWU_FILES// /\\n}" |\
-			cpio -ovL -H crc > ${BINARIES_DIR}/${BR2_LRD_PRODUCT}.swu)
+			cpio -ovL -H crc > ${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}.swu)
 	fi
 else
 	# Generate all secured artifacts (NAND, SWU packages)
-	"${BR2_EXTERNAL_LRD_SOM_PATH}/board/post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
 fi
 
 if ! ${SD} ; then
@@ -148,9 +148,9 @@ if ! ${SD} ; then
 fi
 
 if [ -n "${VERSION}" ]; then
-	RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird-${VERSION}.tar"
+	RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${VERSION}.tar"
 else
-	RELEASE_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird.tar"
+	RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit.tar"
 fi
 
 tar -C ${BINARIES_DIR} -chf ${RELEASE_FILE} \
@@ -179,7 +179,7 @@ if ${SD} ; then
 else
 	tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
 		--owner=root --group=root \
-		rootfs.bin ${BR2_LRD_PRODUCT}.swu
+		rootfs.bin ${BR2_SUMMIT_PRODUCT}.swu
 
 	if ${SECURE_BOOT} ; then
 		tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
@@ -213,7 +213,7 @@ then
         rm -rf ${BINARIES_DIR}/jdk
 
         # Add the dependency tarball to the release archive
-	OPENJDK_TARBALL_FILE=${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz
+	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz
         tar -C ${BINARIES_DIR} -rhf ${RELEASE_FILE} \
 		--owner=root --group=root \
                 ${OPENJDK_TARBALL_FILE}
@@ -221,4 +221,4 @@ fi
 
 bzip2 -f ${RELEASE_FILE}
 
-echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
+echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE script: done."

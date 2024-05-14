@@ -1,9 +1,0 @@
-config BR2_PACKAGE_LRD_WIRELESS_REGDB
-	bool "lrd-wireless-regdb"
-	help
-	  Laird Wireless regulatory databases.
-
-	  Laird Wireless regulatory databases for CRDA and kernel. The database
-	  lists the allowed radio frequencies for each local jurisdiction.
-
-	  http://linuxwireless.org/en/developers/Regulatory

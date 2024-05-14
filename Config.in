@@ -2,16 +2,15 @@ config BR2_LRD_DEVEL_BUILD
 	bool
 	option env="BR2_LRD_DEVEL_BUILD"
 	help
-		Developers at Laird can access the closed source repositories,
-		so they should set this flag to directly build from the closed
-		source repositories under $BR2_EXTERNAL_LRD_CLOSED_SOURCE_PATH/package.
+		Internal developers can set this flag to build directly from 
+		the internal repositories
 
 config BR2_SUMMIT_SECURE_BOOT
 	bool "Summit Secure Boot"
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
 	help
 		This enables "traditional" (down to kernel) secure boot
-		rootfs security provided by BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT
+		rootfs security provided by Summit Encrypted Storage Toolkit
 
 config BR2_SUMMIT_OPENJDK_GGV2
 	bool "summit-openjdk-ggv2"
@@ -20,23 +19,102 @@ config BR2_SUMMIT_OPENJDK_GGV2
 		Split out the OpenJDK 'modules' file dependency
 		during the build to support moving Java dependecies
 		to the SD card to support AWS IoT Greengrass V2. This
-		config triggers logic in the post_build and post_image
+		flag triggers logic in the post_build and post_image
 		scripts.
 
-menu "Radio Stack"
-	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/lrd-radio/Config.in"
-endmenu
+choice
+	prompt "Use FIPS"
+	optional
+
+config BR2_SUMMIT_FIPS_7
+	bool "Use FIPS 7.1"
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES
+	select BR2_PACKAGE_SUMMIT_FIPS_UTILS
+	select BR2_PACKAGE_FIPSCHECK
+	select BR2_PACKAGE_HOST_FIPSCHECK
+	select BR2_SUMMIT_FIPS_RADIO
+	select BR2_PACKAGE_UBOOT_TOOLS
+	select BR2_PACKAGE_UBOOT_TOOLS_DUMPIMAGE
+	select BR2_PACKAGE_UBOOT_TOOLS_FIT_SUPPORT
+	select BR2_REPRODUCIBLE
+
+config BR2_SUMMIT_FIPS_11
+	bool "Use FIPS 11.0"
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_LIBOPENSSL_3_0
+	select BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER
+	select BR2_PACKAGE_SUMMIT_FIPS_UTILS
+	select BR2_PACKAGE_HOST_FIPSCHECK
+	select BR2_SUMMIT_FIPS_RADIO
+	select BR2_PACKAGE_UBOOT_TOOLS
+	select BR2_PACKAGE_UBOOT_TOOLS_DUMPIMAGE
+	select BR2_PACKAGE_UBOOT_TOOLS_FIT_SUPPORT
+	select BR2_REPRODUCIBLE
+endchoice
 
 menu "Packages"
-	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/dcal/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/dcas/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/demo-gui/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/echotest/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/eventmon/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/fipscheck/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/fswatch/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/ggv2support/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/ig-tty-utils/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/igconfd/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/igprovd/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/mc-mint/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/nordic_ota/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/php_sdk/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/sdcsdk_nm/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-automount/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-bt-utils/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-disable-console-login/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-edgeiq/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-encrypted-storage-toolkit/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-fips-utils/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-firewall/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-legacy/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-openssl-fips-provider/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-awm-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-bluetooth-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-certificate-provisioning-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-chrony-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-firewall-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-log-forwarding-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-radio-siso-mode-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-stunnel-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-unauthenticated-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-usbgadget/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-userspace-examples/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-wifi-bridge/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-legacy/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-python/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/web_lcm_gatwick/Config.in"
 endmenu
 
-menu "Packages (Upstream)"
-	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in"
-	source "$BR2_EXTERNAL_LRD_SOM_PATH/package/lrd-br/Config.in.host"
+menu "Packages (3rd party)"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/easycwmp/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/gattlib/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libloragw/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/lora-packet-forwarder/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/lora-gateway-bridge/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/microxml/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/minehunt/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/nbnsd/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awscrt/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awsiotsdk/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-gatt/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-httptools/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spectree/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-transitions/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/ttn-forwarder/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"
 endmenu
 
-source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-arm/Config.in.options"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-component/Config.in.options"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-bdimx6/Config.in.options"
-source "$BR2_EXTERNAL_LRD_SOM_PATH/toolchain/toolchain-external-laird-wb40-32/Config.in.options"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/toolchain/toolchain-external-summit-arm/Config.in.options"

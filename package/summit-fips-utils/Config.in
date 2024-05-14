@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SUMMIT_FIPS_UTILS
+	bool "Summit FIPS utils"
+	help
+	  Summit FIPS utility script

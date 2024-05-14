@@ -1,7 +1,0 @@
-sha256 7e42c776e7384db8639da3678482fb8b0b38db681f13b13516d6b5333a4b2377 aarch64-lrdc-linux-gnu-3.0.0.4.tar.xz
-sha256 c63b4f02d8524575eff159c8a3bafd9fb239e0012ed6aa699401a36e59bdd9f5 arm-lrdc-linux-gnueabi-3.0.0.4.tar.xz
-sha256 1eca26c4a7406f07744aa34c5338b23b8e02442d157d854f9a62d6db86b98bdf arm-lrdc-linux-gnueabihf-3.0.0.4.tar.xz
-sha256 8015edef0d8919a3e98a1a5b34b5a9d88984aa8dbe28b5b138a0e442a377fd54 i586-lrdc-linux-gnu-3.0.0.4.tar.xz
-sha256 d5117c716fab0a1a181033d2a152a1c192ad39e74eaaf1ce75078ccb22063297 powerpc-lrdc-linux-gnu-3.0.0.4.tar.xz
-sha256 e8786d5d4465438c972bf58a11380d4a97c4b425b80c714a9af468469f7a6662 powerpc64-lrdc-linux-gnu-3.0.0.4.tar.xz
-sha256 68ebaca49e909f429702bd040798e5e4abcce0234d1a1e646113f7f850f395da x86_64-lrdc-linux-gnu-3.0.0.4.tar.xz

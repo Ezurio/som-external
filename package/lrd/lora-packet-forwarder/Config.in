@@ -1,6 +1,0 @@
-config BR2_PACKAGE_LORA_PACKET_FORWARDER
-	bool "lora-packet-forwarder"
-	select BR2_PACKAGE_LIBLORAGW
-	help
-      Semtech packet forwarder
-

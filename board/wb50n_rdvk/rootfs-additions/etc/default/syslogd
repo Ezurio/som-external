@@ -1,1 +1,0 @@
-SYSLOGD_ARGS="-D -C512 -m0"

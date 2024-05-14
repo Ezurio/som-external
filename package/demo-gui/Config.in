@@ -1,0 +1,8 @@
+config BR2_PACKAGE_DEMO_GUI
+	bool "Summit GUI Demo"
+	depends on BR2_PACKAGE_QT5BASE
+	depends on BR2_PACKAGE_LIBDRM
+	depends on BR2_PACKAGE_LIBPLANES
+	depends on BR2_PACKAGE_SUMMIT_NETWORK_MANAGER
+	help
+		Summit GUI demo applications

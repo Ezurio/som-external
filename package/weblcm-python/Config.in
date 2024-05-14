@@ -1,0 +1,158 @@
+config BR2_PACKAGE_WEBLCM_PYTHON
+	bool "Summit Web Configuration Utility"
+	help
+	  Summit Web Configuration Utility
+	select BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_GOBJECT_INTROSPECTION
+	select BR2_PACKAGE_PYTHON_GOBJECT
+	select BR2_PACKAGE_LRD_SWUPDATE_CLIENT
+	select BR2_PACKAGE_DBUS_PYTHON
+	select BR2_PACKAGE_PYTHON3_SSL
+	select BR2_PACKAGE_PYTHON_CHERRYPY
+	select BR2_PACKAGE_ZIP
+	select BR2_PACKAGE_UNZIP
+	select BR2_PACKAGE_LIBOPENSSL_BIN
+	select BR2_PACKAGE_SWUPDATE
+
+if BR2_PACKAGE_WEBLCM_PYTHON
+
+config BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS
+	bool "Enable cookie-based authentication sessions"
+	default y
+	help
+		Enable cookie-based authentication sessions
+
+config BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
+	bool "Enable SSL client authentication"
+	help
+		Enable SSL client authentication
+
+config BR2_PACKAGE_WEBLCM_PYTHON_CERTIFICATE_PROVISIONING
+	bool "Certificate provisioning"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
+	help
+		Enable provisioning of the SSL server certificates
+
+config BR2_PACKAGE_WEBLCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
+	bool "Disable client certificate expiry verification"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_CLIENT_AUTHENTICATION
+	default y
+	help
+		Disable verification of a client certificate's expiry during mutual authentication
+
+config BR2_PACKAGE_WEBLCM_PYTHON_DEFAULT_USERNAME
+	string "default root user name"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS
+	default "root"
+
+config BR2_PACKAGE_WEBLCM_PYTHON_DEFAULT_PASSWORD
+	string "default root user password"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS
+	default "summit"
+
+config BR2_PACKAGE_WEBLCM_PYTHON_MANAGED_SOFTWARE_DEVICES
+	string "List of supported software devices"
+	default ""
+	help
+		Space separated software devices like bonds, bridges etc.
+		Bridge devices should be named as "br0", "br1" etc.
+		Bond devices should be named as "bn0", "bn1" etc.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_UNMANAGED_HARDWARE_DEVICES
+	string "list of unmanaged hardware devices"
+	default ""
+	help
+		Space separated hardware devices like eth0, wlan0 etc which are managed by networkManager,
+		but don't want to be managed by weblcm-python.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_AWM
+	bool "AWM configuration support for weblcm"
+	depends on BR2_PACKAGE_ADAPTIVE_WW || BR2_PACKAGE_ADAPTIVE_WW_BINARIES
+	default y
+	help
+		Add AWM (Adaptive Worldwide Mode) configuration support to weblcm.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_MODEM
+	bool "Modem / positioning support for weblcm"
+	help
+		Add modem, positioning, positioning switch support to weblcm.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_BLUETOOTH
+	bool "Bluetooth support for weblcm"
+	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	default y
+	help
+		Add basic Bluetooth REST API support to weblcm (scanning/pairing/connecting), and BLE REST API (GATT central role).
+
+config BR2_PACKAGE_WEBLCM_PYTHON_VSP
+	bool "BLE VSP support for weblcm"
+	depends on BR2_PACKAGE_WEBLCM_PYTHON_BLUETOOTH
+	help
+		Add BLE VSP support (rx/tx transfers over chosen GATT characteristics to TCP server) to weblcm.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_HID
+	bool "HID BT barcode scanner support for weblcm"
+	depends on BR2_PACKAGE_WEBLCM_PYTHON_BLUETOOTH
+	select BR2_PACKAGE_PYTHON_PYUDEV
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HID
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HOG
+	help
+		Add Bluetooth HID barcode scanner support to weblcm.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_WEBSOCKETS
+	bool "Websockets support for BLE on weblcm"
+	depends on BR2_PACKAGE_WEBLCM_PYTHON_BLUETOOTH
+	select BR2_PACKAGE_PYTHON_WS4PY
+	help
+		Add Websockets streaming support for BLE REST API.
+
+config BR2_PACKAGE_WEBLCM_ENABLE_STUNNEL_CONTROL
+	bool "Control support for stunnel"
+	select BR2_PACKAGE_STUNNEL
+	help
+		Enable support to control stunnel
+
+config BR2_PACKAGE_WEBLCM_PYTHON_UNAUTHENTICATED
+	bool "Unauthenticated access support for weblcm"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS
+	help
+		Add unauthenticated access support, for example, for factory reset and reboot endpoints.  Due to security concerns, this should never be enabled unless requested by a customer, and preferably never enabled if WebLCM is exposed on a public/external zone interface.
+
+config BR2_PACKAGE_WEBLCM_PYTHON_BIND_IP
+	string "IP address to which the weblcm HTTP server binds"
+	default "::"
+	help
+		IP address to bind to for the WebLCM HTTP server. Leave blank to bind to all IP addresses.
+
+config BR2_PACKAGE_WEBLCM_ALLOW_MUTLIPLE_USER_SESSIONS
+	bool "Allow multiple sessions per user"
+	depends on BR2_PACKAGE_WEBLCM_ENABLE_SESSIONS
+	help
+		Enable multiple sessions for the same user (re-login)
+
+config BR2_PACKAGE_WEBLCM_PYTHON_IPTABLES_FIREWALL
+	bool "iptables firewall control"
+	select BR2_PACKAGE_IPTABLES
+	default y if BR2_PACKAGE_SUMMIT_FIREWALL
+	help
+		Enable iptables firewall wrapper
+
+config BR2_PACKAGE_WEBLCM_PYTHON_RADIO_SISO_MODE
+	bool "Allow changing radio's SISO mode"
+	help
+		Enable support for temporarily changing the radio's SISO mode (for testing purposes only)
+
+config BR2_PACKAGE_WEBLCM_PYTHON_CHRONY_NTP
+	bool "chrony NTP control"
+	depends on BR2_PACKAGE_CHRONY
+	default y
+	help
+		Enable chrony wrapper for NTP configuration
+
+config BR2_PACKAGE_WEBLCM_LOG_FORWARDING
+	bool "Log Forwarding for weblcm"
+	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
+	help
+		Enable log forwarding support for weblcm
+
+endif

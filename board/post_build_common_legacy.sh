@@ -5,8 +5,8 @@ echo "COMMON POST BUILD legacy script: starting..."
 # enable tracing and exit on errors
 set -x -e
 
-[ -z "${BR2_LRD_PRODUCT}" ] && \
-	BR2_LRD_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
+[ -z "${BR2_SUMMIT_PRODUCT}" ] && \
+	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
 
 # remove default ssh init file
 # real version is in init.d/opt and works w/ inetd or standalone
@@ -31,12 +31,12 @@ rm -fr ${TARGET_DIR}/etc/network/if-*
 
 # Copy the rootfs-additions-common in place first.
 # If necessary, these can be overwritten by the product specific rootfs-additions.
-rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_LRD_SOM_PATH}/board/rootfs-additions-common/" "${TARGET_DIR}"
+rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-common/" "${TARGET_DIR}"
 
 # Copy the board specific rootfs additions
 case "${BUILD_TYPE}" in
 	"wb50n" | "wb45n")
-		rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_LRD_SOM_PATH}/board/${BUILD_TYPE}/rootfs-additions/" "${TARGET_DIR}"
+		rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/${BUILD_TYPE}/rootfs-additions/" "${TARGET_DIR}"
 		;;
 esac
 
@@ -62,7 +62,7 @@ if [ -x ${TARGET_DIR}/usr/bin/hciconfig ]; then
 
 	# Customize BlueZ Bluetooth advertised name
 	if [ -e ${TARGET_DIR}/etc/bluetooth/main.conf ]; then
-		sed -i "s/.*Name *=.*/Name = Laird-${BR2_LRD_PRODUCT^^}/" ${TARGET_DIR}/etc/bluetooth/main.conf
+		sed -i "s/.*Name *=.*/Name = Summit-${BR2_SUMMIT_PRODUCT^^}/" ${TARGET_DIR}/etc/bluetooth/main.conf
 	fi
 else
 	rm -f ${TARGET_DIR}/etc/init.d/S95bluetooth*
@@ -133,18 +133,18 @@ gzip -c ${TARGET_DIR}/etc/network/interfaces >${TARGET_DIR}/etc/network/interfac
 
 # Create default firmware description file.
 # This may be overwritten by a proper release file.
-LOCRELSTR="${LAIRD_RELEASE_STRING}"
+LOCRELSTR="${SUMMIT_RELEASE_STRING}"
 if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" == "0.0.0.0" ]; then
-	LOCRELSTR="Summit Linux development build 0.${BR2_LRD_BRANCH}.0.0-$(/bin/date +%Y%m%d%H%M)"
+	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0-$(/bin/date +%Y%m%d%H%M)"
 fi
 echo "${LOCRELSTR}" > "${TARGET_DIR}/etc/issue"
 
-[ -z "${VERSION}" ] && LOCVER="0.${BR2_LRD_BRANCH}.0.0" || LOCVER="${VERSION}"
+[ -z "${VERSION}" ] && LOCVER="0.${BR2_SUMMIT_BRANCH}.0.0" || LOCVER="${VERSION}"
 
 echo -ne \
 "NAME=\"Summit Linux\"\n"\
 "VERSION=\"${LOCRELSTR}\"\n"\
-"ID=${BR2_LRD_PRODUCT}\n"\
+"ID=${BR2_SUMMIT_PRODUCT}\n"\
 "VERSION_ID=${LOCVER}\n"\
 "BUILD_ID=${LOCRELSTR##* }\n"\
 "PRETTY_NAME=\"${LOCRELSTR}\"\n"\
@@ -152,7 +152,7 @@ echo -ne \
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" ${BR2_CONFIG}; then
 
-CCONF_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/configs-common/image)"
+CCONF_DIR="$(realpath ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image)"
 
 # Generate kernel FIT image script
 # kernel.its references Image and at91-wb50n.dtb, and all three
@@ -208,9 +208,9 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 
 	sed "s/^auto usb0/#auto usb0/g" -i ${TARGET_DIR}/etc/network/interfaces
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" ${BR2_CONFIG}; then
-	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/*
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/*
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER=y" ${BR2_CONFIG}; then
-	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/*
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/*
 fi
 
 echo "COMMON POST BUILD script: done."

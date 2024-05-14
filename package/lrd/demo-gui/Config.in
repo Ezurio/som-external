@@ -1,8 +1,0 @@
-config BR2_PACKAGE_DEMO_GUI
-	bool "lrd gui demo"
-	depends on BR2_PACKAGE_QT5BASE
-	depends on BR2_PACKAGE_LIBDRM
-	depends on BR2_PACKAGE_LIBPLANES
-	depends on BR2_PACKAGE_LRD_NETWORK_MANAGER
-	help
-		lrd gui demo applications

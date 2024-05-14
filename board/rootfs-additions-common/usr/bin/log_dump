@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2015, Laird Connectivity
+# Copyright (c) 2015, Ezurio
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -12,7 +12,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 #
-# contact: support@lairdconnect.com
+# contact: support@ezurio.com
 
 # /usr/bin/log_dump Support utility to gather logs for support to assist
 # with issue debugging
@@ -193,6 +193,6 @@ if command_exists dmesg ; then
 fi
 
 echo "The file" $LOGFILE "was created.  Please provide this file to"
-echo "your support contact at support@lairdconnect.com"
+echo "your support contact at support@ezurio.com"
 
 exit 0

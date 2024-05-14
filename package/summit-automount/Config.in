@@ -1,0 +1,26 @@
+menuconfig BR2_PACKAGE_SUMMIT_AUTOMOUNT
+	bool "Summit Auto-Mount"
+	help
+	  Laird USB Automount
+
+if BR2_PACKAGE_SUMMIT_AUTOMOUNT
+config BR2_PACKAGE_SUMMIT_AUTOMOUNT_USB
+	bool "USB Drive Automount"
+	default y
+
+config BR2_PACKAGE_SUMMIT_AUTOMOUNT_USB_USER
+	string "User to own mounted USB drive"
+	depends on BR2_PACKAGE_SUMMIT_AUTOMOUNT_USB
+
+config BR2_PACKAGE_SUMMIT_AUTOMOUNT_MMC
+	bool "SD Card Automount"
+	default y
+
+config BR2_PACKAGE_SUMMIT_AUTOMOUNT_MMC_USER
+	string "User to own mounted MMC drive"
+	depends on BR2_PACKAGE_SUMMIT_AUTOMOUNT_MMC
+
+config BR2_PACKAGE_SUMMIT_AUTOMOUNT_EXTRA
+	string "Services to start on mount"
+
+endif

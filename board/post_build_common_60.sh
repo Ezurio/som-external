@@ -6,10 +6,10 @@ fipshmac=${HOST_DIR}/bin/fipshmac
 # enable tracing and exit on errors
 set -x -e
 
-[ -n "${BR2_LRD_PRODUCT}" ] || \
-	BR2_LRD_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
+[ -n "${BR2_SUMMIT_PRODUCT}" ] || \
+	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
 
-echo "${BR2_LRD_PRODUCT^^} POST BUILD script: starting..."
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: starting..."
 
 case "${BUILD_TYPE}" in
 *sd) SD=true  ;;
@@ -17,7 +17,7 @@ case "${BUILD_TYPE}" in
 esac
 
 # Determine if encrypted image being built
-grep -qF "BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
+grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" ${BR2_CONFIG} \
 	&& ENCRYPTED_TOOLKIT=true || ENCRYPTED_TOOLKIT=false
 
 grep -qF "BR2_SUMMIT_SECURE_BOOT=y" ${BR2_CONFIG} \
@@ -25,18 +25,18 @@ grep -qF "BR2_SUMMIT_SECURE_BOOT=y" ${BR2_CONFIG} \
 
 # Create default firmware description file.
 # This may be overwritten by a proper release file.
-LOCRELSTR="${LAIRD_RELEASE_STRING}"
+LOCRELSTR="${SUMMIT_RELEASE_STRING}"
 if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" = "0.0.0.0" ]; then
-	LOCRELSTR="Summit Linux development build 0.${BR2_LRD_BRANCH}.0.0-$(/bin/date +%Y%m%d%H%M)"
+	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0-$(/bin/date +%Y%m%d%H%M)"
 fi
 echo "${LOCRELSTR}" > "${TARGET_DIR}/etc/issue"
 
-[ -z "${VERSION}" ] && LOCVER="0.${BR2_LRD_BRANCH}.0.0" || LOCVER="${VERSION}"
+[ -z "${VERSION}" ] && LOCVER="0.${BR2_SUMMIT_BRANCH}.0.0" || LOCVER="${VERSION}"
 
 echo -ne \
 "NAME=\"Summit Linux\"\n"\
 "VERSION=\"${LOCRELSTR}\"\n"\
-"ID=${BR2_LRD_PRODUCT}\n"\
+"ID=${BR2_SUMMIT_PRODUCT}\n"\
 "VERSION_ID=${LOCVER}\n"\
 "BUILD_ID=${LOCRELSTR##* }\n"\
 "PRETTY_NAME=\"${LOCRELSTR}\"\n"\
@@ -56,11 +56,11 @@ then
 
 	# Create tarball
 	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}_devel-summit-openjdk.tar.gz"
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_devel-summit-openjdk.tar.gz"
 	elif [ -n "$BR2_LRD_IG60_TARGET" ]; then
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
 	else
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_LRD_PRODUCT}-summit-openjdk.tar.gz"
+	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz"
 	fi
 	tar -C ${BINARIES_DIR} -czvf ${OPENJDK_TARBALL_FILE} jdk
 
@@ -159,7 +159,7 @@ if [ ! -x ${TARGET_DIR}/usr/bin/btattach ]; then
 else
 	# Customize BlueZ Bluetooth advertised name
 	if [ -e ${TARGET_DIR}/etc/bluetooth/main.conf ]; then
-		sed -i "s/.*Name *=.*/Name = Summit-${BR2_LRD_PRODUCT^^}/" ${TARGET_DIR}/etc/bluetooth/main.conf
+		sed -i "s/.*Name *=.*/Name = Summit-${BR2_SUMMIT_PRODUCT^^}/" ${TARGET_DIR}/etc/bluetooth/main.conf
 	fi
 	sed -i 's/ConfigurationDirectoryMode=0555/ConfigurationDirectoryMode=0755/g' ${TARGET_DIR}/usr/lib/systemd/system/bluetooth.service
 fi
@@ -217,8 +217,8 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/aut
 fi
 
 # Path to common image files
-CCONF_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/configs-common/image)"
-CSCRIPT_DIR="$(realpath ${BR2_EXTERNAL_LRD_SOM_PATH}/board/scripts-common)"
+CCONF_DIR="$(realpath ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image)"
+CSCRIPT_DIR="$(realpath ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common)"
 
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
 if ${SECURE_BOOT} ; then
@@ -303,9 +303,9 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' ${BR2_CONFIG}; then
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/libfipscheck.so.1
 	${fipshmac} -d ${TARGET_DIR}/usr/lib/fipscheck/ ${TARGET_DIR}/usr/lib/ossl-modules/fips.so
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" ${BR2_CONFIG}; then
-	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/7.1/${SOM}/*
-elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_PROVIDER=y" ${BR2_CONFIG}; then
-	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_LRD_SOM_PATH}/board/fips_hash/11.0/${SOM}/*
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${SOM}/*
+elif grep -qF "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" ${BR2_CONFIG}; then
+	install -D -m 0644 -t ${TARGET_DIR}/usr/lib/fipscheck ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/*
 fi
 
 if grep -qF 'BR2_TARGET_GENERIC_ROOT_PASSWD=""' ${BR2_CONFIG} && \
@@ -320,4 +320,4 @@ fi
 
 fi
 
-echo "${BR2_LRD_PRODUCT^^} POST BUILD script: done."
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: done."

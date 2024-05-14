@@ -1,1 +1,0 @@
-resize >/dev/null

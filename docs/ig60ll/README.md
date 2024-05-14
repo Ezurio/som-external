@@ -67,20 +67,20 @@ Laird Linux board support packages are availabe on GitHub. The most seamless wor
   4. Follow the instructions at
 	 (https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/) starting with Step 2.
 
-## Laird Linux
+## Summit Linux
 ### Overview
-Laird Linux is Laird's board support package specifically tailored for Laird's gateways and customer's connectivity driven use cases. Laird regularly updates Laird Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our gateways to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Laird Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
+Summit Linux is board support package specifically tailored for Summit gateways and customer's connectivity driven use cases. We regularly update Summit Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our gateways to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Laird Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
 
 ### Buildroot
 The core piece of Laird Linux is [Buildroot](https://buildroot.org/). Buildroot is a from source build system designed to allow the customer to create a customized Linux image for a target embedded computing module. Buildroot is capable of configuring and building the bootloader, kernel, and rootfs for Laird's gateways. Buildroot's core build system technologies are the well-known and easy to understand [make](https://en.wikipedia.org/wiki/Make_(software)) build tool and [kconfig](https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt) configuration tool. This enables easy build customization through the user interface tools [menuconfig](https://en.wikipedia.org/wiki/Menuconfig) or xconfig and Buildroot make commands. The [Linux kernel](https://www.kernel.org/), [U-Boot bootloader](http://www.denx.de/wiki/U-Boot/WebHome), and [Busybox core userspace ulilities toolkit](https://en.wikipedia.org/wiki/BusyBox) all use make, Kconfig, and menuconfig. Build and configuration concepts found in one translate nicely to another. Buildroot has easy to read and extensive documentation available at (https://buildroot.org/docs.html) in pdf, html, and ascii form.  If time permits, Laird highly recommends following the Training section of the documentation landing page.
 
-Laird's Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Laird to know the authenticity of Buildroot's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
+Summit Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Laird to know the authenticity of Buildroot's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
 
 ### Linux Kernel
-Laird's kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Laird to know the authenticity of the kernel's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
+Summit kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Laird to know the authenticity of the kernel's source code and better verify the security of our fork. We target [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
 
 ### Toolchain
-Laird preselects prebuilt toolchains for each release of Laird Linux for our gateways. The advantage of using a preselected and prebuilt toolchain is the high level of QA verification on common components between stock Laird development images and customer images. We are currently ultilizing prebuilt toolchains from [Bootlin’s toolchain program](https://toolchains.bootlin.com).  Bootlin, who is major contributor to Buildroot, provides a variety of prebuilt toolchains created from Buildroot's toolchain building capabilties. Laird selects toolchains that have been marked stable by the Buildroot community and use proven components. Beyond the toolchains themselves, Bootlin also stores the following artifacts for reference from their Buildroot based toolchain generation process: README of all essential information, defconfig fragment to generate toolchain, build log, software bill-of-material (SBOM), test system image, and test system defconfig. Laird configures each Laird Linux release to automatically download and use the correct toolchain.
+Prebuilt toolchains preselected for each release of Summit Linux for our gateways. The advantage of using a preselected and prebuilt toolchain is the high level of QA verification on common components between stock Summit development images and customer images. Each Summit Linux release is configured to automatically download and use the correct toolchain.
 
 ## Getting Started with Laird Linux
 This section will walk a developer through following:
@@ -98,28 +98,28 @@ This section will walk a developer through following:
 * [Creating a custom SDK](#create-a-custom-sdk)
 
 ### Downloading a developer's SD card image
-Laird Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Laird Linux release on a Laird gateway. For the IG60, these prebuilt images are found on at [IG60 Laird Linux release page](https://github.com/LairdCP/IG60-Laird-Linux-Release-Packages/releases). These releases are named ig60llsd-laird-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a IG running the latest software.
+Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Laird Linux release on a Summit gateway. For the IG60, these prebuilt images are found on at [IG60 Summit Linux release page](https://github.com/LairdCP/IG60-Laird-Linux-Release-Packages/releases). These releases are named ig60llsd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a IG running the latest software.
 
 ### Flashing a developer's SD card image
 Once the image is downloaded. Extract the image:
 ```
-~/Downloads/ig60llsd$ tar -xvf ig60llsd-laird-7.x.y.z.tar.bz2
-ig60llsd-laird-7.x.y.z/
-ig60llsd-laird-7.x.y.z/target-sbom
-ig60llsd-laird-7.x.y.z/host-sbom
-ig60llsd-laird-7.x.y.z/u-boot-spl.bin
-ig60llsd-laird-7.x.y.z/u-boot.itb
-ig60llsd-laird-7.x.y.z/rootfs.tar
-ig60llsd-laird-7.x.y.z/ig60llsd-sdk.tar.bz2
-ig60llsd-laird-7.x.y.z/legal-info.tar.bz2
-ig60llsd-laird-7.x.y.z/kernel.itb
-ig60llsd-laird-7.x.y.z/mksdcard.sh
-ig60llsd-laird-7.x.y.z/mksdimg.sh
+~/Downloads/ig60llsd$ tar -xvf ig60llsd-summit-7.x.y.z.tar.bz2
+ig60llsd-summit-7.x.y.z/
+ig60llsd-summit-7.x.y.z/target-sbom
+ig60llsd-summit-7.x.y.z/host-sbom
+ig60llsd-summit-7.x.y.z/u-boot-spl.bin
+ig60llsd-summit-7.x.y.z/u-boot.itb
+ig60llsd-summit-7.x.y.z/rootfs.tar
+ig60llsd-summit-7.x.y.z/ig60llsd-sdk.tar.bz2
+ig60llsd-summit-7.x.y.z/legal-info.tar.bz2
+ig60llsd-summit-7.x.y.z/kernel.itb
+ig60llsd-summit-7.x.y.z/mksdcard.sh
+ig60llsd-summit-7.x.y.z/mksdimg.sh
 
 ```
 To flash the image to an SD card use the mksdcard.sh script. The mksdcard.sh script takes the target device as an argument and will ask if you'd like to proceed with removing all data on your SD card and flashing a new image.  This is shown below:
 ```
-~/Downloads/ig60llsd-laird-7.x.y.z$ sudo ./mksdcard.sh /dev/sdc
+~/Downloads/ig60llsd-summit-7.x.y.z$ sudo ./mksdcard.sh /dev/sdc
 [sudo] password for user:
 *************************************************************************
 WARNING: All data on /dev/sdc now will be destroyed! Continue? [y/n]
@@ -159,8 +159,8 @@ You can now insert your SD card into the IG hardware development kit and press t
 
 If you are not able to access USB flash drives on a virtual machine, here is a way to flash the image on windows. You have to download and install [balenaEtcher](https://www.balena.io/etcher/) first.
 ```
-1. Build an image on ubuntu after download and extract ig60llsd-laird-7.x.y.z.tar.bz2:
-   ~/Downloads/ig60llsd-laird-7.x.y.z$ sudo ./mksdimg.sh sdimage
+1. Build an image on ubuntu after download and extract ig60llsd-summit-7.x.y.z.tar.bz2:
+   ~/Downloads/ig60llsd-summit-7.x.y.z$ sudo ./mksdimg.sh sdimage
    and copy sdimage.xz to Windows.
 
 3. Go to Windows Start menu and click `balenaEtcher`, then select sdimage.xz as source file and sd card as the target.
@@ -208,22 +208,22 @@ Once your build completes, you will find the output similar to below:
 ~/git/lrd-7.x.y.z$ cd buildroot/output/ig60llsd/images/
 ~/git/lrd-7.x.y.z/buildroot/output/ig60llsd/images$ ls -al
 at91-ig60ll.dtb
-boot.scr -> ../../../board/laird/configs-common/image/boot_mmc.scr
-ig60sd-laird.tar.bz2
+boot.scr -> ../../../board/configs-common/image/boot_mmc.scr
+ig60sd-summit.tar.bz2
 Image
 Image.gz
 kernel.itb
 kernel.its
-mksdcard.sh -> ../../../board/laird/scripts-common/mksdcard.sh
-mksdimg.sh -> ../../../board/laird/scripts-common/mksdimg.sh
+mksdcard.sh -> ../../../board/scripts-common/mksdcard.sh
+mksdimg.sh -> ../../../board/scripts-common/mksdimg.sh
 rootfs.tar
 u-boot.dtb
 u-boot.itb
-u-boot.its -> ../../../board/laird/configs-common/image/u-boot.its
+u-boot.its -> ../../../board/configs-common/image/u-boot.its
 u-boot-nodtb.bin
-u-boot.scr -> ../../../board/laird/configs-common/image/u-boot_mmc.scr
+u-boot.scr -> ../../../board/configs-common/image/u-boot_mmc.scr
 u-boot.scr.itb
-u-boot.scr.its -> ../../../board/laird/configs-common/image/u-boot.scr.its
+u-boot.scr.its -> ../../../board/configs-common/image/u-boot.scr.its
 u-boot-spl.bin
 u-boot-spl.dtb
 u-boot-spl-nodtb.bin
@@ -242,9 +242,9 @@ Once your build completes, you will find the output similar to below:
 ~/git/lrd-7.x.y.z/buildroot/output/ig60ll/images$ ls -al
 at91-ig60ll.dtb
 boot.bin
-boot.scr -> ../../../board/laird/configs-common/image/boot.scr
-erase_data.sh -> ../../../board/laird/scripts-common/erase_data.sh
-ig60ll-laird.tar.bz2
+boot.scr -> ../../../board/configs-common/image/boot.scr
+erase_data.sh -> ../../../board/scripts-common/erase_data.sh
+ig60ll-summit.tar.bz2
 ig60ll.swu
 Image
 Image.gz
@@ -254,13 +254,13 @@ rootfs.bin -> rootfs.squashfs
 rootfs.squashfs
 sw-description
 u-boot.dtb
-u-boot-env.tgz -> ../../../board/laird/configs-common/image/u-boot-env.tgz
+u-boot-env.tgz -> ../../../board/configs-common/image/u-boot-env.tgz
 u-boot.itb
-u-boot.its -> ../../../board/laird/configs-common/image/u-boot.its
+u-boot.its -> ../../../board/configs-common/image/u-boot.its
 u-boot-nodtb.bin
-u-boot.scr -> ../../../board/laird/configs-common/image/u-boot.scr
+u-boot.scr -> ../../../board/configs-common/image/u-boot.scr
 u-boot.scr.itb
-u-boot.scr.its -> ../../../board/laird/configs-common/image/u-boot.scr.its
+u-boot.scr.its -> ../../../board/configs-common/image/u-boot.scr.its
 u-boot-spl.bin
 u-boot-spl.dtb
 u-boot-spl-nodtb.bin
@@ -269,7 +269,7 @@ u-boot-spl-nodtb.bin
 `ig60ll.swu` is the image for software update.
 
 ### Software update
-IG60 adopts the concept of double copy(A/B system) to improve safety and reliability. Each copy contains both the kernel and rootfs images. The u-boot envirnoment variable 'bootside' determines the working copy.
+IG60 adopts the concept of double copy(A/B system) to improve safety and reliability. Each copy contains both the kernel and rootfs images. The u-boot environment variable 'bootside' determines the working copy.
 
 Software update is performed efficiently with SWUpdate. All images and scripts are appended to a single .swu file by the Buildroot. In addition, it must have a description file to specify software collections and operation modes to implement the double copy strategy. By default the software description file has five collections: `main-a`, `main-b`, `full-a`, `full-b` and `complete`. `main-a(b)` is to update kernel and rootfs images of copy `a(b)`. `full-a(b)` will also update bootstrap and u-boot images. `complete` is for ig60llsd only. It will re-partition and then program the entire NAND, thus to initialize an IG60 device.
 
@@ -314,109 +314,10 @@ If you'd like to create a custom SDK from your customized source build, while in
 ```
 
 ## NetworkManager
-Laird uses its own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Laird NetworkManager User Guide](https://github.com/LairdCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
+We are using our own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/LairdCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
 
-## Firewalld
-Laird uses `firewalld` as its network security system. Firewalld provides a dynamically managed firewall, which allows updating rules without breaking existing connections. Firewalld uses zones and services instead of tables and chains. A firewalld zone defines the trust level for a connection, an interface etc., while a firewalld service is mainly a list of local ports and destinations. `firewalld` has predefined zones and services located in `$(TARGET_DIR)/usr/lib/firewalld/zones` and `$(TARGET_DIR)/usr/lib/firewalld/services`. The default zone is set to `trusted` on SOM60, which will accept all network connections. Default zone can be changed in `$(TARGET_DIR)/etc/firewalld/firewalld.conf`.
-
-`firewall-cmd` is the command line tool of the firewalld daemon. It provides interface to manage runtime and permanent rule sets. By default, it applies to the runtime set; with the --permanent flag it applies to the permanent set. These permanent rules will be saved in corresponding xml files in /etc/firewalld/. To activate a permanent rule, either add the rule to both sets, or add the rule to the permanent set only and then reload firewalld configuration.
-```
-To start firewalld: systemctl start firewalld
-To stop firewalld: systemctl stop firewalld
-To check the firewalld status: firewall-cmd --state
-To save runtime rules as permanent: firewall-cmd --runtime-to-permanent
-To reload firewalld configuration: firewall-cmd --reload
-```
-Port forwarding
-
-If we want to access the webserver through `wlan0` interface (http service not enabled in 'external' zone), port forwarding can be used:
-
-firewall-cmd --zone=external --add-forward-port=port=80:proto=tcp:toport=80:toaddr=10.42.0.1 ('10.42.0.1' is the ip address of eth1 interface)
-
-This can be removed by
-
-firewall-cmd --zone=external --remove-forward-port=port=80:proto=tcp:toport=80:toaddr=10.42.0.1
-
-Make sure `masquerade` is enabled for the zone needs port forwarding.
-
-Rich Rules
-
-Rich Rules allows to add fully custom firewall rules to any zone for any port, protocol, address and action. `--add-rich-rule`, `--list-rich-rules` and `--remove-rich-rule` are used to manage rich rules. The following rule will reject all connections from wifi client '10.42.0.122':
-
-	firewall-cmd --zone=internal --add-rich-rule='rule family="ipv4" source address="10.42.0.122" reject'
-
-This can be removed by
-
-	firewall-cmd --zone=internal --remove-rich-rule='rule family="ipv4" source address="10.42.0.122" reject'
-
-### Firewalld example 1
-The first example is about sharing WIFI Internet (wlan0) through ethernet interface (eth1).
-```
-1. Create a connection "eth1" for ethernet interface "eth1"; create a connection "wlan0" for wifi
-   interface "wlan0". Set connection.zone for both connections:
-       nmcli c mod eth1 connection.zone internal
-       nmcli c mod wlan0 connection.zone external
-   "internal" and "external" are firewalld’s predefined zones.
-   Set ipv4.method to "shared" for "eth1" connection:
-       nmcli c mod eth1 ipv4.method shared
-   Reload connections:
-       nmcli c reload
-2. Change default firewalld zone to "internal". Changes will be applied to the default zone if "--zone" not
-   specified in the firewall-cmd tool.
-       firewall-cmd --set-default-zone=internal
-   Check the default zone is changed by
-       firewall-cmd --get-default-zone
-   Zone infomation can be listed by
-       firewall-cmd --zone=internal --list-all
-3. Add interface "wlan0" to "external" zone, and interface "eth1" to "internal" zone:
-       firewall-cmd --zone=external --add-interface=wlan0
-       firewall-cmd --zone=internal --add-interface=eth1
-       firewall-cmd --get-active-zones should show `internal` and `external` as active zones.
-4. "firewall-cmd --get-services --zone=internal" will show the services already added to the zone:
-   Here we need to enable "dhcp" service so that wifi clients can get IP address:
-       firewall-cmd --add-service=dhcp
-   DNS needs to be enabled if clients want to access webs
-       firewall-cmd --add-service=dns
-   Services can be removed by
-       firewall-cmd --remove-service=service_name --permanent
-5. For the "external" zone, "masquerade" should be already enabled. This can be queried by:
-       firewall-cmd --query-masquerade --zone=external
-   If not enabled, enable it by:
-       firewall-cmd --add-masquerade --zone=external
-7. In order to access the webserver on SOM60 via "eth1" interface, "http" servcie needs to be
-   added to the "internal" zone:
-       firewall-cmd --add-service=http
-```
-   Now clients should be able to connect to Internet via `wlan0`. You can save runtime rules as permanent so they will be applied automatically after reboot.
-
-### Firewalld example 2
-The second example is about sharing eth0 Internet through a bridge interface. Interface eth1 and wlan0 will be bridged so the device connected to eth1 and wifi stations connected to "somtouer"
-will be in the same network.
-```
-1. Create a bridge master "br-master":
-       nmcli con add type bridge con-name br-master autoconnect no ifname br0
-       nmcli con mod br-master ipv4.method shared connection.zone internal
-2. Create a wifi AP as a bridge slave:
-        nmcli conn add con-name br-slave-wlan0 ifname wlan0 type wifi autoconnect yes ssid somrouter master br0
-        nmcli conn modify br-slave-wlan0 802-11-wireless.mode ap 802-11-wireless.band bg 802-11-wireless.channel 6
-        nmcli conn modify br-slave-wlan0 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk 12345678
-3. Create a eth1 connection as bridge slave:
-        nmcli conn add con-name br-slave-eth1 ifname eth1 type 802-3-ethernet autoconnect yes master br0
-4. Create eth0 connection for Internet access:
-        nmcli conn add con-name eth0 ifname eth0 type 802-3-ethernet autoconnect no
-        nmcli conn mod eth0 connection.zone external
-5. Set firewall rules:
-        firewall-cmd --set-default-zone=internal
-        firewall-cmd --add-service=dhcp --add-service=dns --add-service=http --add-service=https
-        firewall-cmd --add-masquerade --zone=external
-6. Activate bridge master and eth0
-        nmcli c up eth0
-        nmcli c up br-master
-```
-Make sure all other connections that use `eth1` interface and `wlan0` interface are already disconnected. Otherwise bridge slaves won't be activated.
-
-## Laird Buildroot br2-external
-The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Laird Buildroot br2-external tree:
+## Summit Buildroot br2-external
+The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Summit Buildroot br2-external tree:
 ```
 |--Config.in
 |--external.desc
@@ -467,10 +368,10 @@ include $(sort $(wildcard $(BR2_EXTERNAL_DEMO_PATH)/package/*/*.mk))
 ```
 TARGETS = demo
 
-MK_DIR = $(realpath $(dir $(firstword $(MAKEFILE_LIST)))))
+MK_DIR = $(realpath $(dir $(firstword $(MAKEFILE_LIST))))
 BR_DIR = $(realpath $(MK_DIR)/../buildroot)
 
-include $(BR_DIR)/board/laird/build-rules.mk
+include $(BR_DIR)/board/build-rules.mk
 ```
 Run `make -C <custom-project-dir> demo` to invoke the build.
 
@@ -495,7 +396,7 @@ To customize target rootfs, go to
 ```
 1 rsync -rlptDWK --exclude=.empty "${BR2_EXTERNAL_DEMO_PATH}/board/rootfs-additions/" "${TARGET_DIR}"
 2
-3 ${BASE_DIR}/../../board/laird/som60/post_build.sh ${1} ${2}
+3 ${BASE_DIR}/../../board/som60/post_build.sh ${1} ${2}
 ```
 Line 3 is to invoke the post-build script in the Buildroot source tree.
 

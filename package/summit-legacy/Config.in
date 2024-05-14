@@ -1,0 +1,7 @@
+config BR2_PACKAGE_SUMMIT_LEGACY
+	bool "summit-legacy"
+	select BR2_PACKAGE_DHCPCD
+	select BR2_PACKAGE_OPENRESOLV
+	select BR2_PACKAGE_EVENTMON
+	help
+	  Summit legacy software

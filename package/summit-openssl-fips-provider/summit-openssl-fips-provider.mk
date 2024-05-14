@@ -1,0 +1,27 @@
+###############################################################################
+#
+# Summit OpenSSL 3.2.0 FIPS provider
+#
+################################################################################
+
+SUMMIT_OPENSSL_FIPS_PROVIDER_CPE_ID_VENDOR = openssl
+SUMMIT_OPENSSL_FIPS_PROVIDER_CPE_ID_PRODUCT = openssl
+SUMMIT_OPENSSL_FIPS_PROVIDER_CPE_ID_VERSION = 3.2.0
+
+SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION = $(call qstrip,$(BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION_VALUE))
+
+SUMMIT_OPENSSL_FIPS_PROVIDER_SOURCE =
+SUMMIT_OPENSSL_FIPS_PROVIDER_LICENSE = Apache-2.0
+SUMMIT_OPENSSL_FIPS_PROVIDER_EXTRA_DOWNLOADS = summitssl_fips-$(call qstrip,$(BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER_ARCH))-$(SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION).tar.bz2
+
+ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
+  SUMMIT_OPENSSL_FIPS_PROVIDER_SITE = https://files.devops.rfpros.com/builds/linux/laird_openssl_fips/$(SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION)
+else
+  SUMMIT_OPENSSL_FIPS_PROVIDER_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION)
+endif
+
+define SUMMIT_OPENSSL_FIPS_PROVIDER_INSTALL_TARGET_CMDS
+	tar -xjvf $($(PKG)_DL_DIR)/$(SUMMIT_OPENSSL_FIPS_PROVIDER_EXTRA_DOWNLOADS) -C $(TARGET_DIR) --keep-directory-symlink --no-overwrite-dir --touch
+endef
+
+$(eval $(generic-package))

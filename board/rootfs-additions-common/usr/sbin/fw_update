@@ -1,6 +1,6 @@
 #!/bin/ash
 
-# Copyright (c) 2015, Laird Connectivity
+# Copyright (c) 2015, Ezurio
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -12,7 +12,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 #
-# contact: support@lairdconnect.com
+# contact: support@ezurio.com
 
 # Firmware Update Utility for WB50n/WB45n/WB40n Legacy
 #
@@ -138,7 +138,7 @@ Format of ${FWUL##*/}:
     flags <cmdline flags to apply>
 
 Example ${FWUL##*/}:
-  # wb50n-laird_fips-3.4.1.105
+  # wb50n-summit_fips-3.4.1.105
   # example of a wb50n update with bootstrap disabled
   # ab8d615dac1be37e71b42d1c29f10a9d  at91bs.bin  11444
     0da1ebd394521581857702facf305129  u-boot.bin  359028
@@ -249,7 +249,7 @@ case $x in
     echo -e : ${x:-\\\r\\\c} >&2
     grep -om1 ': ARM' /proc/cpuinfo >&2 \
       || sed -n '/name/{s/model name.*\(: .*\)/\1/p;q}' /proc/cpuinfo >&2
-    exit_error "unsupported, must be Laird WB platform"
+    exit_error "unsupported, must be Summit WB platform"
     ;;
 esac
 

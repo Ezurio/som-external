@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_BACKPORTS
-	bool "host backports"
-	help
-	   To generate the tarball

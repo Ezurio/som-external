@@ -1,0 +1,50 @@
+
+ifeq ($(BR2_PACKAGE_LIBOPENSSL_3_0),y)
+
+SUMMIT_FIPS_UTILS_VERSION = local
+SUMMIT_FIPS_UTILS_SITE = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/externals/lrd-fips-utils
+SUMMIT_FIPS_UTILS_SITE_METHOD = local
+SUMMIT_FIPS_UTILS_DEPENDENCIES = openssl
+
+SUMMIT_FIPS_UTILS_MAKE_ENV = $(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) \
+	FLATCC="$(HOST_DIR)/usr/bin/flatcc"
+
+define SUMMIT_FIPS_UTILS_BUILD_CMDS
+    $(MAKE) -C $(@D) clean
+    $(SUMMIT_FIPS_UTILS_MAKE_ENV) $(MAKE) -C $(@D)
+endef
+
+define SUMMIT_FIPS_UTILS_INSTALL_OSSL_FIPSLOAD
+	$(INSTALL) -D -t $(TARGET_DIR)/usr/bin -m 755 $(@D)/ossl-fipsload
+endef
+
+define SUMMIT_FIPS_UTILS_UNINSTALL_OSSL_FIPSLOAD
+	rm $(TARGET_DIR)/usr/bin/ossl-fipsload
+endef
+
+endif
+
+ifeq ($(BR2_PACKAGE_SUMMIT_LEGACY),y)
+define SUMMIT_FIPS_UTILS_INSTALL_FIPS_SET
+	$(INSTALL) -D -m 755 $(SUMMIT_FIPS_UTILS_PKGDIR)/fips-set.legacy \
+		$(TARGET_DIR)/usr/bin/fips-set
+endef
+else
+define SUMMIT_FIPS_UTILS_INSTALL_FIPS_SET
+	$(INSTALL) -D -m 755 $(SUMMIT_FIPS_UTILS_PKGDIR)/fips-set \
+		$(TARGET_DIR)/usr/bin/fips-set
+endef
+endif
+
+define SUMMIT_FIPS_UTILS_INSTALL_TARGET_CMDS
+	$(SUMMIT_FIPS_UTILS_INSTALL_FIPS_SET)
+	$(SUMMIT_FIPS_UTILS_INSTALL_OSSL_FIPSLOAD)
+endef
+define SUMMIT_FIPS_UTILS_UNINSTALL_TARGET_CMDS
+
+rm $(TARGET_DIR)/usr/bin/ossl-fipsload
+	rm $(TARGET_DIR)/usr/bin/fips-set
+	$(SUMMIT_FIPS_UTILS_UNINSTALL_OSSL_FIPSLOAD)
+endef
+
+$(eval $(generic-package))

@@ -1,9 +1,0 @@
-config BR2_PACKAGE_WIFI_TEST_SUITE
-	bool "wifi_test_suite"
-	depends on BR2_TOOLCHAIN_HAS_NATIVE_RPC || BR2_TOOLCHAIN_HAS_THREADS # libtirpc
-	select BR2_PACKAGE_LIBTIRPC if !BR2_TOOLCHAIN_HAS_NATIVE_RPC
-	help
-	   The Wi-Fi Test Suit Linux Control Agent is a program
-	   by the Wi-fi alliance that enables certification of
-	   programs and devices.
-	   https://github.com/Wi-FiTestSuite/Wi-FiTestSuite-Linux-DUT/

@@ -1,6 +1,0 @@
-config BR2_PACKAGE_REG45N_BINARIES
-	bool "45 series regulatory tools"
-	default n
-	select BR2_PACKAGE_LIBEDIT
-	help
-	  This package installs 45 series regulatory tools.

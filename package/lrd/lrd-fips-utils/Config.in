@@ -1,4 +1,0 @@
-config BR2_PACKAGE_LRD_FIPS_UTILS
-	bool "lrd fips utils"
-	help
-	  Laird FIPS utility script

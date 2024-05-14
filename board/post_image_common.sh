@@ -5,8 +5,8 @@ echo "COMMON POST IMAGE script: starting..."
 # enable tracing and exit on errors
 set -x -e
 
-[ -n "${BR2_LRD_PRODUCT}" ] || \
-	BR2_LRD_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
+[ -n "${BR2_SUMMIT_PRODUCT}" ] || \
+	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' ${BR2_CONFIG})"
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" ${BR2_CONFIG}; then
 
@@ -44,7 +44,7 @@ hash_check() {
 	fi
 }
 
-if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_LAIRD_OPENSSL_FIPS=y" ${BR2_CONFIG}
+if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS=y" ${BR2_CONFIG}
 then
 	hash_check ${BINARIES_DIR} ${IMAGE_NAME}
 	hash_check ${TARGET_DIR}/usr/bin fipscheck
@@ -68,24 +68,24 @@ ln -rsf "${BINARIES_DIR}/uImage"* "${BINARIES_DIR}/kernel.bin"
 
 fi
 
-ln -rsf ${BR2_EXTERNAL_LRD_SOM_PATH}/board/rootfs-additions-common/usr/sbin/fw_select "${BINARIES_DIR}/fw_select"
+ln -rsf ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-common/usr/sbin/fw_select "${BINARIES_DIR}/fw_select"
 ln -rsf "${TARGET_DIR}"/usr/sbin/fw_update "${BINARIES_DIR}/fw_update"
 ln -rsf "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/at91bs.bin"
 ln -rsf "${BINARIES_DIR}/rootfs.ubi" "${BINARIES_DIR}/rootfs.bin"
 
 if [ "${BUILD_TYPE}" = wb50n ]; then
-	ln -rsf ${BR2_EXTERNAL_LRD_SOM_PATH}/board/wb50n/configs/sw-description "${BINARIES_DIR}/sw-description"
+	ln -rsf ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/wb50n/configs/sw-description "${BINARIES_DIR}/sw-description"
 	ALL_SWU_FILES="sw-description boot.bin u-boot.bin"
-	SWU_BOOT=${BR2_LRD_PRODUCT}-boot.swu
+	SWU_BOOT=${BR2_SUMMIT_PRODUCT}-boot.swu
 	( cd ${BINARIES_DIR} && \
 		echo -e "${ALL_SWU_FILES// /\\n}" | cpio -ovL -H crc > ${BINARIES_DIR}/${SWU_BOOT})
 fi
 
-[ -n "${LAIRD_FW_TXT_URL}" ] || \
-	LAIRD_FW_TXT_URL="http://$(hostname)/${BR2_LRD_PRODUCT}"
+[ -n "${SUMMIT_FW_TXT_URL}" ] || \
+	SUMMIT_FW_TXT_URL="http://$(hostname)/${BR2_SUMMIT_PRODUCT}"
 
-${BR2_EXTERNAL_LRD_SOM_PATH}/board/mkfwtxt.sh "${LAIRD_FW_TXT_URL}" "${BINARIES_DIR}"
-${BR2_EXTERNAL_LRD_SOM_PATH}/board/mkfwusi.sh
+${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwtxt.sh "${SUMMIT_FW_TXT_URL}" "${BINARIES_DIR}"
+${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwusi.sh
 
 if [ ! -x ${TARGET_DIR}/usr/bin/dcas ]; then
     sed '/\/etc\/dcas.conf/d' -i ${BINARIES_DIR}/fw.txt
@@ -108,7 +108,7 @@ size_check 'u-boot.bin' 3
 
 [ -z "${VERSION}" ] || RELEASE_SUFFIX="-${VERSION}"
 
-tar -cjhf "${BINARIES_DIR}/${BR2_LRD_PRODUCT}-laird${RELEASE_SUFFIX}.tar.bz2" \
+tar -cjhf "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit${RELEASE_SUFFIX}.tar.bz2" \
 	--owner=root --group=root -C "${BINARIES_DIR}" \
 	at91bs.bin u-boot.bin kernel.bin rootfs.bin \
 	fw_update fw_select fw_usi fw.txt ${SWU_BOOT}

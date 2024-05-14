@@ -1,6 +1,0 @@
-config BR2_PACKAGE_REG50N_BINARIES
-	bool "50 series regulatory tools"
-	default n
-	select BR2_PACKAGE_LIBEDIT
-	help
-	  This package installs 50 series regulatory tools.

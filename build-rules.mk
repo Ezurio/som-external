@@ -1,25 +1,27 @@
 # Generic Make engine for customer builds
 # Customer external repositories should be using this Makefile
 
-vigiles_name := $(realpath $(BR_DIR)/../vigiles-buildroot)
+external_name = $(realpath $(BR_DIR)/../$(1))
 
 BR2_EXTERNAL += \
 	$(realpath $(MK_DIR)) \
-	$(realpath $(BR_DIR)/../som-external) \
-	$(realpath $(BR_DIR)/../lrd-closed-source-external) \
-	$(vigiles_name)
+	$(call external_name,som-external) \
+	$(call external_name,summit-radio-external) \
+	$(call external_name,summit-radio-devel-external) \
+	$(call external_name,summit-fips-devel-external) \
+	$(call external_name,vigiles-buildroot)
 
 export BR2_EXTERNAL := $(sort $(BR2_EXTERNAL))
 
 CONFIG_DIR ?= $(realpath $(MK_DIR)/configs)
-OUTPUT_DIR ?= $(abspath $(BR_DIR)/output)
+OUTPUT_DIR ?= $(abspath $(BR_DIR)/../output)
 
 TARGETS_ALL = $(TARGETS) $(TARGETS_COMPONENT)
 
 ifeq ($(VERSION),)
-release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-laird
+release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-summit
 else
-release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-laird-$(VERSION)
+release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-summit-$(VERSION)
 endif
 
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
@@ -49,7 +51,7 @@ $(patsubst %,$(OUTPUT_DIR)/%/.config,$(TARGETS_ALL)): $(OUTPUT_DIR)/%/.config: $
 $(TARGETS_ALL): %: $(OUTPUT_DIR)/%/.config
 	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$*
 ifneq ($(VIGILES_DASHBOARD_CONFIG),)
-ifneq ($(vigiles_name),)
+ifneq ($(call external_name,vigiles-buildroot),)
 	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check
 endif
 endif
@@ -99,7 +101,7 @@ $(addsuffix -legal-info,$(TARGETS_ALL)): %-legal-info: $(OUTPUT_DIR)/%/.config
 
 .PHONY: $(addsuffix -vigiles,$(TARGETS))
 $(addsuffix -vigiles,$(TARGETS)): %-vigiles:
-ifneq ($(vigiles_name),)
+ifneq ($(call external_name,vigiles-buildroot),)
 	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check
 endif
 
