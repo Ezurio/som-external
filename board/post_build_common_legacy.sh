@@ -139,13 +139,11 @@ if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" == "0.0.0.0" ]; then
 fi
 echo "${LOCRELSTR}" > "${TARGET_DIR}/etc/issue"
 
-[ -z "${VERSION}" ] && LOCVER="0.${BR2_SUMMIT_BRANCH}.0.0" || LOCVER="${VERSION}"
-
 echo -ne \
 "NAME=\"Summit Linux\"\n"\
 "VERSION=\"${LOCRELSTR}\"\n"\
 "ID=${BR2_SUMMIT_PRODUCT}\n"\
-"VERSION_ID=${LOCVER}\n"\
+"VERSION_ID=${BR2_SUMMIT_BUILD_VERSION}\n"\
 "BUILD_ID=${LOCRELSTR##* }\n"\
 "PRETTY_NAME=\"${LOCRELSTR}\"\n"\
 >  "${TARGET_DIR}/usr/lib/os-release"

@@ -3,7 +3,7 @@ config BR2_PACKAGE_DCAS
 	select BR2_PACKAGE_FLATCC
 	select BR2_PACKAGE_LIBSSH
 	select BR2_PACKAGE_LIBSSH_SERVER
-	depends on BR2_PACKAGE_SDCSDK || BR2_PACKAGE_SUMMIT_SUPPLICANT_BINARIES
+	depends on BR2_PACKAGE_SDCSDK || BR2_PACKAGE_SUMMIT_SUPPLICANT
 	help
 	  dcas is Device Client API Server. It is a daemon that
 	  implements the server-side of the Device Client API and is used by

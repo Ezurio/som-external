@@ -147,11 +147,7 @@ if ! ${SD} ; then
 	size_check u-boot.itb 7
 fi
 
-if [ -n "${VERSION}" ]; then
-	RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${VERSION}.tar"
-else
-	RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit.tar"
-fi
+RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
 tar -C ${BINARIES_DIR} -chf ${RELEASE_FILE} \
 	--owner=root --group=root \

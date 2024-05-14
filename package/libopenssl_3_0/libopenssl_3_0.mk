@@ -9,7 +9,7 @@ LIBOPENSSL_3_0_VERSION = 3.2.0
 else
 LIBOPENSSL_3_0_VERSION = 3.3.0
 endif
-LIBOPENSSL_3_0_SITE = https://www.openssl.org/source
+LIBOPENSSL_3_0_SITE = https://github.com/openssl/openssl/releases/download/openssl-$(LIBOPENSSL_3_0_VERSION)
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
 LIBOPENSSL_3_0_LICENSE = Apache-2.0
 LIBOPENSSL_3_0_LICENSE_FILES = LICENSE.txt

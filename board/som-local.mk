@@ -11,7 +11,5 @@ LINUX_OVERRIDE_SRCDIR = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/externals/kernel
 endif
 
 ifeq ($(BR2_LRD_DEVEL_BUILD),y)
-ifneq ($(BR2_EXTERNAL_SUMMIT_RADIO_DEVEL_PATH),)
 include $(call qstrip,$(BR2_EXTERNAL_SUMMIT_RADIO_DEVEL_PATH))/board/radio-local.mk
-endif
 endif

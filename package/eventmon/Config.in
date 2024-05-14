@@ -1,5 +1,5 @@
 config BR2_PACKAGE_EVENTMON
 	bool "eventmon"
-	depends on BR2_PACKAGE_SDCSDK || BR2_PACKAGE_SUMMIT_SUPPLICANT_BINARIES
+	depends on BR2_PACKAGE_SDCSDK || BR2_PACKAGE_SUMMIT_SUPPLICANT
 	help
 	  Summit Event Monitor

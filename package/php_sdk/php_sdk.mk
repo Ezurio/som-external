@@ -11,10 +11,8 @@ PHP_SDK_LICENSE = ICS
 
 PHP_SDK_DEPENDENCIES = php host-swig
 
-ifeq ($(BR2_LRD_DEVEL_BUILD),y)
-	PHP_SDK_DEPENDENCIES += sdcsdk
-else ifeq ($(BR2_PACKAGE_SUMMIT_SUPPLICANT_BINARIES),y)
-	PHP_SDK_DEPENDENCIES += summit-supplicant-binaries
+ifeq ($(BR2_PACKAGE_SUMMIT_SUPPLICANT),y)
+	PHP_SDK_DEPENDENCIES += summit-supplicant
 else
 	PHP_SDK_DEPENDENCIES += sdcsdk
 endif
