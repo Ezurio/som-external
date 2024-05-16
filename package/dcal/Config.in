@@ -3,7 +3,7 @@ config BR2_PACKAGE_DCAL
 	select BR2_PACKAGE_FLATCC
 	select BR2_PACKAGE_LIBSSH
 	help
-	  DCAL is Laird's Device Client API Library. It is a open-sourced project
+	  DCAL is Device Client API Library. It is a open-sourced project
 	  for customers to compile on their host, which produces a library that they
 	  can then use to control one or more WB devices.
 
