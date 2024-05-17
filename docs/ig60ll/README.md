@@ -314,7 +314,7 @@ If you'd like to create a custom SDK from your customized source build, while in
 ```
 
 ## NetworkManager
-We are using our own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/EzurioCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
+We are using our own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/EzurioCP/SOM60-Release-Packages/releases/download/LRD-REL-13.0.0.89/user_guide_summit_networkmanager_0.1.pdf).
 
 ## Summit Buildroot br2-external
 The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Summit Buildroot br2-external tree:

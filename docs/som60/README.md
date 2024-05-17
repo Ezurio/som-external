@@ -1,17 +1,17 @@
 # Introduction
 ## Purpose
-The reference guide is intended to provide an embedded developer with the information needed to start evaluating and integrating the 60 Series SOM for their connectivity and embedded Linux processing needs.  The guide is designed to walk the developer integrating the 60 Series SOM through the same process Laird developers use to develop our own boxed products. This allows multiple levels of Laird's customer support team to assist with customer integrations.
+The reference guide is intended to provide an embedded developer with the information needed to start evaluating and integrating the 60 Series SOM for their connectivity and embedded Linux processing needs.  The guide is designed to walk the developer integrating the 60 Series SOM through the same process Ezurio developers use to develop our own boxed products. This allows multiple levels of Ezurio customer support team to assist with customer integrations.
 
 # Software Information
 
 ## Prerequisites
-The reference guide is designed to walk you through Laird Connectivity's development process for the 60 SOM, including the Laird Connectivity Linux board support package. The most seamless workflow for developing your application for the 60 SOM is to set up a GitHub account, configure your SSH keys, and then install and configure Git on your development PC.
+The reference guide is designed to walk you through Ezurio's development process for the 60 SOM, including the Ezurio Linux board support package. The most seamless workflow for developing your application for the 60 SOM is to set up a GitHub account, configure your SSH keys, and then install and configure Git on your development PC.
 
 ### Ubuntu
-Laird recommends Ubuntu 22.04 64-bit as the base operating system for your development. All instructions in this reference guide assume a developer on an Ubuntu 22.04 64-bit system. If using other than Ubuntu 18.04 64-bit, please ensure you Linux distribution is a 64-bit variant as the cross-compiling toolchain requires a 64-bit Linux environment.
+Ezurio recommends Ubuntu 22.04 64-bit as the base operating system for your development. All instructions in this reference guide assume a developer on an Ubuntu 22.04 64-bit system. If using other than Ubuntu 18.04 64-bit, please ensure you Linux distribution is a 64-bit variant as the cross-compiling toolchain requires a 64-bit Linux environment.
 
 ### SSH
-Laird makes extensive use of GitHub and having proper Secure Shell (SSH) access to our repositories on GitHub. If you haven't set up SSH, you can use the instructions below to enable SSH for use with GitHub.
+Ezurio makes extensive use of GitHub and having proper Secure Shell (SSH) access to our repositories on GitHub. If you haven't set up SSH, you can use the instructions below to enable SSH for use with GitHub.
 1. Check whether your private key (~/.ssh/id_rsa) and public key (~/.ssh/id_rsa.pub) files exist
   1. `$ ls -1 ~/.ssh/id_rsa*`
 2. If they do not, generate them
@@ -22,7 +22,7 @@ Laird makes extensive use of GitHub and having proper Secure Shell (SSH) access 
   1. `$ cat ~/.ssh/id_rsa.pub`
 
 ### git
-Laird delivers the Summit Linux board support package using git repositories. If you haven't set up git, you can use the instructions below to enable git for use with GitHub.
+Ezurio delivers the Summit Linux board support package using git repositories. If you haven't set up git, you can use the instructions below to enable git for use with GitHub.
 * Install and configure the "git" package
   1. `$ sudo apt install git`
   2. `$ git config --global user.name "John Doe"`
@@ -32,7 +32,7 @@ Laird delivers the Summit Linux board support package using git repositories. If
     2. Expect user.email=john.doe@yourcompany.com
 
 ### repo
-Laird uses the repo tool from the Android project to pull down and correctly layout the git repositories that comprise the Summit Linux board support package. To install repo on Ubuntu, use the instructions below.
+Ezurio uses the repo tool from the Android project to pull down and correctly layout the git repositories that comprise the Summit Linux board support package. To install repo on Ubuntu, use the instructions below.
 * `$ sudo apt install repo`
 
 You can also get it by following the instructions here:
@@ -52,18 +52,18 @@ Summit Linux board support packages are available on GitHub. The most seamless w
 
 ## Summit Linux
 ### Overview
-Summit Linux is Laird's board support package specifically tailored for Laird's SOMs and customer's connectivity driven use cases. Laird regularly updates Summit Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our SOMs to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Summit Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
+Summit Linux is Ezurio's board support package specifically tailored for Ezurio's SOMs and customer's connectivity driven use cases. Ezurio regularly updates Summit Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our SOMs to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Summit Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
 
 ### Buildroot
-The core piece of Summit Linux is [Buildroot](https://buildroot.org/). Buildroot is a from source build system designed to allow the customer to create a customized Linux image for a target embedded computing module. Buildroot is capable of configuring and building the bootloader, kernel, and rootfs for Laird's SOMs. Buildroot's core build system technologies are the well-known and easy to understand [make](https://en.wikipedia.org/wiki/Make_(software)) build tool and [kconfig](https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt) configuration tool. This enables easy build customization through the user interface tools [menuconfig](https://en.wikipedia.org/wiki/Menuconfig) or xconfig and Buildroot make commands. The [Linux kernel](https://www.kernel.org/), [U-Boot bootloader](http://www.denx.de/wiki/U-Boot/WebHome), and [Busybox core userspace ulilities toolkit](https://en.wikipedia.org/wiki/BusyBox) all use make, Kconfig, and menuconfig. Build and configuration concepts found in one translate nicely to another. Buildroot has easy to read and extensive documentation available at (https://buildroot.org/docs.html) in pdf, html, and ascii form.  If time permits, Laird highly recommends following the Training section of the documentation landing page.
+The core piece of Summit Linux is [Buildroot](https://buildroot.org/). Buildroot is a from source build system designed to allow the customer to create a customized Linux image for a target embedded computing module. Buildroot is capable of configuring and building the bootloader, kernel, and rootfs for Ezurio's SOMs. Buildroot's core build system technologies are the well-known and easy to understand [make](https://en.wikipedia.org/wiki/Make_(software)) build tool and [kconfig](https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt) configuration tool. This enables easy build customization through the user interface tools [menuconfig](https://en.wikipedia.org/wiki/Menuconfig) or xconfig and Buildroot make commands. The [Linux kernel](https://www.kernel.org/), [U-Boot bootloader](http://www.denx.de/wiki/U-Boot/WebHome), and [Busybox core userspace ulilities toolkit](https://en.wikipedia.org/wiki/BusyBox) all use make, Kconfig, and menuconfig. Build and configuration concepts found in one translate nicely to another. Buildroot has easy to read and extensive documentation available at (https://buildroot.org/docs.html) in pdf, html, and ascii form.  If time permits, Ezurio highly recommends following the Training section of the documentation landing page.
 
-Laird's Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Laird to know the authenticity of Buildroot's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
+Ezurio's Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Ezurio to know the authenticity of Buildroot's source code and better verify the security of our fork. Ezurio targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
 
 ### Linux Kernel
-Laird's kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Laird to know the authenticity of the kernel's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
+Ezurio's kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Ezurio to know the authenticity of the kernel's source code and better verify the security of our fork. Ezurio targets [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
 
 ### Toolchain
-Laird preselects prebuilt toolchains for each release of Summit Linux for our SOMs. The advantage of using a preselected and prebuilt toolchain is the high level of QA verification on common components between stock Laird development images and customer images. Ezurio configures each Summit Linux release to automatically download and use the correct toolchain.
+Ezurio preselects prebuilt toolchains for each release of Summit Linux for our SOMs. The advantage of using a preselected and prebuilt toolchain is the high level of QA verification on common components between stock Ezurio development images and customer images. Ezurio configures each Summit Linux release to automatically download and use the correct toolchain.
 
 ## Getting Started with Summit Linux
 This section will walk a developer through following:
@@ -81,7 +81,7 @@ This section will walk a developer through following:
 * [Creating a custom SDK](#create-a-custom-sdk)
 
 ### Downloading a developer's SD card image
-Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Summit Linux release on a Laird SOM. For the 60 SOM, these prebuilt images are found on at [60 SOM release page](https://github.com/LairdCP/SOM60-Release-Packages/releases). These releases are named som60sd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a SOM running the latest software.
+Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Summit Linux release on a Ezurio SOM. For the 60 SOM, these prebuilt images are found on at [60 SOM release page](https://github.com/Ezurio/SOM60-Release-Packages/releases). These releases are named som60sd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a SOM running the latest software.
 
 ### Flashing a developer's SD card image
 Once the image is downloaded. Extract the image:
@@ -153,20 +153,20 @@ If you are not able to access USB flash drives on a virtual machine, here is a w
 
 ### Using a prebuilt SDK
 
-Summit Linux releases include a prebuilt SDK to start doing application development for a Laird SOM. For the 60 SOM, this prebuilt SDK is called som60sd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [60 SOM release page](https://github.com/LairdCP/SOM60-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Laird's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
+Summit Linux releases include a prebuilt SDK to start doing application development for a Ezurio SOM. For the 60 SOM, this prebuilt SDK is called som60sd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [60 SOM release page](https://github.com/Ezurio/SOM60-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Ezurio's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
 
 ### Manifest file
 
-Laird provides manifest files for customers to obtain released resources. Each manifest file describes the projects that are available and how to fetch them. A typical manifest file has `remote`, `default` and `project` elements. The `remote` element specifies the git url and revision shared by one or more projects. The `default` element specifies the the default `remote` element to be used by projects. The `project` element specifies the repository to be cloned. Its `name` attribute will be appended to the `remote` git url to generate the actual address. The `path` attribute defines the relative path to the top working directory to place the project. Following is an example of the manifest file:
+Ezurio provides manifest files for customers to obtain released resources. Each manifest file describes the projects that are available and how to fetch them. A typical manifest file has `remote`, `default` and `project` elements. The `remote` element specifies the git url and revision shared by one or more projects. The `default` element specifies the the default `remote` element to be used by projects. The `project` element specifies the repository to be cloned. Its `name` attribute will be appended to the `remote` git url to generate the actual address. The `path` attribute defines the relative path to the top working directory to place the project. Following is an example of the manifest file:
 ```
 <?xml version="1.0" encoding="UTF-8">
 <manifest>
-    <remote name="origin" fetch="ssh://git@github.com/LairdCP" />
+    <remote name="origin" fetch="ssh://git@github.com/Ezurio" />
     <default remote="origin" revision="refs/tags/LRD-REL-12.x.y.z" />
     <project path="som-external" name="som-external.git" />
  </manifest>
 ```
-A `remote` element is defined here, which is also the default. Project `som-external.git` will be fetched from `https://github.com/LairdCP/som-external.git` with revision `refs/tags/LRD-REL-12.x.y.z`.
+A `remote` element is defined here, which is also the default. Project `som-external.git` will be fetched from `https://github.com/Ezurio/som-external.git` with revision `refs/tags/LRD-REL-12.x.y.z`.
 
 ### Downloading the board support package source code
 
@@ -176,7 +176,7 @@ Next, use repo to initalize and fetch your release. This is a two-step process: 
 
     mkdir lrd-12.x.y.z
     cd lrd-12.x.y.z
-    repo init -u git@github.com:LairdCP/SOM60-Release-Packages.git -m som60_12.x.y.z.xml
+    repo init -u git@github.com:Ezurio/SOM60-Release-Packages.git -m som60_12.x.y.z.xml
     repo sync
 
 _Note: Repo will initialize a .repo directory and then place all files directly in the directory that you are in when you run the `repo` command. So we recommend making a subdirectory and working in there._
@@ -308,10 +308,10 @@ If you'd like to create a custom SDK from your customized source build, while in
 ~/git/lrd-12.x.y.z/output/som60sd$ make sdk
 ```
 ## NetworkManager
-Laird uses its own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/LairdCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_summit_networkmanager_0.1.pdf).
+Ezurio uses its own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/Ezurio/SOM60-Release-Packages/releases/download/LRD-REL-12.0.0.89/user_guide_summit_networkmanager_0.1.pdf).
 
 ## Buildroot br2-external
-The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Laird Buildroot br2-external tree:
+The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Ezurio Buildroot br2-external tree:
 ```
 |--Config.in
 |--external.desc
@@ -344,7 +344,7 @@ The br2-external mechanism provides a convenient way to customize project specif
 `external.desc`: provides the `name` and an optional short description for the br2-external tree:
 ```
 name: DEMO
-desc: Laird Custom Project Demo
+desc: Ezurio Custom Project Demo
 ```
  The full path of the br2-external tree will be set to `BR2_EXTERNAL_$(NAME)_PATH` automatically so that it can be used in both Buildroot Kconfig and Makefile. In this case `BR2_EXTERNAL_DEMO_PATH` is set to the full path of `demo` project.
 
@@ -471,7 +471,7 @@ Run `repo sync` to fetch the source code, and then follow the instruction of `Ad
 This section describes the filesystem and booting strategies for all products based on the 60 Series SOM. These products introduce a new set of features that changes the way the embedded Linux file systems are built and programmed onto the embedded NAND flash.
 
 ### What's Changed?
-The following is a brief description of the changes from Laird's previous system on module (the WB50NBT) to the 60 Series SOM:
+The following is a brief description of the changes from Ezurio's previous system on module (the WB50NBT) to the 60 Series SOM:
 
     AT91Bootstrap has been replaced with U-Boot SPL
     U-Boot is now programmed as a FIT (flattened device tree) image
