@@ -1,6 +1,6 @@
 # Introduction
 ## Purpose
-The Sentrius™ IG60-SERIAL Laird Linux Build is a fully featured IoT gateway powered by Laird Connectivity's 60-SOM. It has a small footprint for easy installation and a rugged, industrial spec design that enables it to withstand wide temperature ranges, humidity, shock, and vibration. Certified for industrial environments, the IG60-SERIAL is ideal for challenging deployments.
+The Sentrius™ IG60-SERIAL Summit Linux Build is a fully featured IoT gateway powered by Ezurio's 60-SOM. It has a small footprint for easy installation and a rugged, industrial spec design that enables it to withstand wide temperature ranges, humidity, shock, and vibration. Certified for industrial environments, the IG60-SERIAL is ideal for challenging deployments.
 
 The IG60-SERIAL provides several wired and wireless interfaces for your application, or can even provide the platform for your IoT product.
 
@@ -17,18 +17,18 @@ The IG60-SERIAL can be developed for endless applications, such as:
     Provide reliable internet connectivity to remote workers.
     Connect your machines to an IoT platform (Such as Microsoft Azure, Amazon AWS, and PTC ThingWorx, etc.) for continuous monitoring and visualization.
 
-The Sentrius™ IG60-SERIAL Laird Linux Build is based on Laird Connectivity 60 Series SOM, and takes full advantage of the hardware, security, full board support package, and performance enhancements of the 60 SOM. It features a dedicated onboard FIPS 140-2 cryptographic engine for full encryption without impact to the rest of your application. It features wireless performance enhancements and bug fixes beyond what is available in open source components. And it provides fast roaming, high-bandwidth 2x2 MU-MIMO, and many configurable customizations for demanding wireless applications.
+The Sentrius™ IG60-SERIAL Summit Linux Build is based on Ezurio 60 Series SOM, and takes full advantage of the hardware, security, full board support package, and performance enhancements of the 60 SOM. It features a dedicated onboard FIPS 140-2 cryptographic engine for full encryption without impact to the rest of your application. It features wireless performance enhancements and bug fixes beyond what is available in open source components. And it provides fast roaming, high-bandwidth 2x2 MU-MIMO, and many configurable customizations for demanding wireless applications.
 
 # Software Information
 
 ## Prerequisites
-The Sentrius™ IG60 Laird Linux Build is based on Laird Connectivity's 60 Series SOM module, and is similarly configured and developed. This guide is designed to walk you through Laird Connectivity's development process for the IG60-SERIAL, including the Laird Connectivity Linux board support package. The most seamless workflow for developing your application for the IG60-SERIAL is to set up a GitHub account, configure your SSH keys, and then install and configure Git on your development PC.
+The Sentrius™ IG60 Summit Linux Build is based on Ezurio's 60 Series SOM module, and is similarly configured and developed. This guide is designed to walk you through Ezurio's development process for the IG60-SERIAL, including the Ezurio Linux board support package. The most seamless workflow for developing your application for the IG60-SERIAL is to set up a GitHub account, configure your SSH keys, and then install and configure Git on your development PC.
 
 ### Ubuntu
-Laird recommends Ubuntu 18.04 64-bit as the base operating system for your development. All instructions in this reference guide assume a developer on an Ubuntu 18.04 64-bit system. If using other than Ubuntu 18.04 64-bit, please ensure you Linux distribution is a 64-bit variant as the cross-compiling toolchain requires a 64-bit Linux environment.
+Ezurio recommends Ubuntu 22.04 64-bit as the base operating system for your development. All instructions in this reference guide assume a developer on an Ubuntu 22.04 64-bit system. If using other than Ubuntu 18.04 64-bit, please ensure you Linux distribution is a 64-bit variant as the cross-compiling toolchain requires a 64-bit Linux environment.
 
 ### SSH
-Laird makes extensive use of GitHub and having proper Secure Shell (SSH) access to our repositories on GitHub. If you haven't set up SSH, you can use the instructions below to enable SSH for use with GitHub.
+Ezurio makes extensive use of GitHub and having proper Secure Shell (SSH) access to our repositories on GitHub. If you haven't set up SSH, you can use the instructions below to enable SSH for use with GitHub.
 1. Check whether your private key (~/.ssh/id_rsa) and public key (~/.ssh/id_rsa.pub) files exist
   1. `$ ls -1 ~/.ssh/id_rsa*`
 2. If they do not, generate them
@@ -39,7 +39,7 @@ Laird makes extensive use of GitHub and having proper Secure Shell (SSH) access 
   1. `$ cat ~/.ssh/id_rsa.pub`
 
 ### git
-Laird delivers the Laird Linux board support package using git repositories. If you haven't set up git, you can use the instructions below to enable git for use with GitHub.
+Ezurio delivers the Summit Linux board support package using git repositories. If you haven't set up git, you can use the instructions below to enable git for use with GitHub.
 * Install and configure the "git" package
   1. `$ sudo apt install git`
   2. `$ git config --global user.name "John Doe"`
@@ -49,14 +49,14 @@ Laird delivers the Laird Linux board support package using git repositories. If 
     2. Expect user.email=john.doe@yourcompany.com
 
 ### repo
-Laird uses the repo tool from the Android project to pull down and correctly layout the git repositories that comprise the Laird Linux board support package. To install repo on Ubuntu, use the instructions below.
+Ezurio uses the repo tool from the Android project to pull down and correctly layout the git repositories that comprise the Summit Linux board support package. To install repo on Ubuntu, use the instructions below.
 * `$ sudo apt install repo`
 
 You can also get it by following the instructions here:
 * (https://source.android.com/source/downloading.html#installing-repo)
 
 ### Github Account
-Laird Linux board support packages are availabe on GitHub. The most seamless workflow throughout a integration is to set up a GitHub account (https://github.com/) and add your SSH public key to your GitHub account. Instructions for setting up a GitHub account and adding an SSH key are below.
+Summit Linux board support packages are availabe on GitHub. The most seamless workflow throughout a integration is to set up a GitHub account (https://github.com/) and add your SSH public key to your GitHub account. Instructions for setting up a GitHub account and adding an SSH key are below.
 1. Go to (https://github.com/join) and follow the instructions.
 2. Once you have a GitHub account add your public SSH key generated previously.
   1. View your public key
@@ -69,20 +69,20 @@ Laird Linux board support packages are availabe on GitHub. The most seamless wor
 
 ## Summit Linux
 ### Overview
-Summit Linux is board support package specifically tailored for Summit gateways and customer's connectivity driven use cases. We regularly update Summit Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our gateways to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Laird Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
+Summit Linux is board support package specifically tailored for Summit gateways and customer's connectivity driven use cases. We regularly update Summit Linux by merging in the upstream Linux kernel and Buildroot. We merge in major long-term support kernel releases which allow our gateways to utilize the latest in drivers and kernel space functionality, performance enhancements, security, and bug fixes.  Also, we merge in major long-term support Buildroot releases which provide for the latest in over 2200 user space applications and libraries. Summit Linux takes this solid upstream heritage and integrates our custom platform enhancements for connectivity, security, and power consumption.
 
 ### Buildroot
-The core piece of Laird Linux is [Buildroot](https://buildroot.org/). Buildroot is a from source build system designed to allow the customer to create a customized Linux image for a target embedded computing module. Buildroot is capable of configuring and building the bootloader, kernel, and rootfs for Laird's gateways. Buildroot's core build system technologies are the well-known and easy to understand [make](https://en.wikipedia.org/wiki/Make_(software)) build tool and [kconfig](https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt) configuration tool. This enables easy build customization through the user interface tools [menuconfig](https://en.wikipedia.org/wiki/Menuconfig) or xconfig and Buildroot make commands. The [Linux kernel](https://www.kernel.org/), [U-Boot bootloader](http://www.denx.de/wiki/U-Boot/WebHome), and [Busybox core userspace ulilities toolkit](https://en.wikipedia.org/wiki/BusyBox) all use make, Kconfig, and menuconfig. Build and configuration concepts found in one translate nicely to another. Buildroot has easy to read and extensive documentation available at (https://buildroot.org/docs.html) in pdf, html, and ascii form.  If time permits, Laird highly recommends following the Training section of the documentation landing page.
+The core piece of Summit Linux is [Buildroot](https://buildroot.org/). Buildroot is a from source build system designed to allow the customer to create a customized Linux image for a target embedded computing module. Buildroot is capable of configuring and building the bootloader, kernel, and rootfs for Ezurio's gateways. Buildroot's core build system technologies are the well-known and easy to understand [make](https://en.wikipedia.org/wiki/Make_(software)) build tool and [kconfig](https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt) configuration tool. This enables easy build customization through the user interface tools [menuconfig](https://en.wikipedia.org/wiki/Menuconfig) or xconfig and Buildroot make commands. The [Linux kernel](https://www.kernel.org/), [U-Boot bootloader](http://www.denx.de/wiki/U-Boot/WebHome), and [Busybox core userspace ulilities toolkit](https://en.wikipedia.org/wiki/BusyBox) all use make, Kconfig, and menuconfig. Build and configuration concepts found in one translate nicely to another. Buildroot has easy to read and extensive documentation available at (https://buildroot.org/docs.html) in pdf, html, and ascii form.  If time permits, Ezurio highly recommends following the Training section of the documentation landing page.
 
-Summit Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Laird to know the authenticity of Buildroot's source code and better verify the security of our fork. Laird targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
+Summit Buildroot is a fork of the upstream [Buildroot stable](https://git.busybox.net/buildroot/). Starting with and merging upstream allows Ezurio to know the authenticity of Buildroot's source code and better verify the security of our fork. Ezurio targets [long-term support releases (LTS)](https://buildroot.org/download.html) for merging into our Buildroot fork.
 
 ### Linux Kernel
-Summit kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Laird to know the authenticity of the kernel's source code and better verify the security of our fork. We target [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
+Summit kernel is a fork the upstream [Linux stable kernel](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/). Starting with and merging upstream allows Ezurio to know the authenticity of the kernel's source code and better verify the security of our fork. We target [long-term support releases (LTS)](https://www.kernel.org/category/releases.html) for merging into our kernel fork.
 
 ### Toolchain
 Prebuilt toolchains preselected for each release of Summit Linux for our gateways. The advantage of using a preselected and prebuilt toolchain is the high level of QA verification on common components between stock Summit development images and customer images. Each Summit Linux release is configured to automatically download and use the correct toolchain.
 
-## Getting Started with Laird Linux
+## Getting Started with Summit Linux
 This section will walk a developer through following:
 
 * [Downloading a developer's SD card image](#downloading-a-developers-sd-card-image)
@@ -98,28 +98,28 @@ This section will walk a developer through following:
 * [Creating a custom SDK](#create-a-custom-sdk)
 
 ### Downloading a developer's SD card image
-Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Laird Linux release on a Summit gateway. For the IG60, these prebuilt images are found on at [IG60 Summit Linux release page](https://github.com/LairdCP/IG60-Laird-Linux-Release-Packages/releases). These releases are named ig60llsd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a IG running the latest software.
+Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Summit Linux release on a Summit gateway. For the IG60, these prebuilt images are found on at [IG60 Summit Linux release page](https://github.com/EzurioCP/IG60-Ezurio-Linux-Release-Packages/releases). These releases are named ig60llsd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a IG running the latest software.
 
 ### Flashing a developer's SD card image
 Once the image is downloaded. Extract the image:
 ```
-~/Downloads/ig60llsd$ tar -xvf ig60llsd-summit-7.x.y.z.tar.bz2
-ig60llsd-summit-7.x.y.z/
-ig60llsd-summit-7.x.y.z/target-sbom
-ig60llsd-summit-7.x.y.z/host-sbom
-ig60llsd-summit-7.x.y.z/u-boot-spl.bin
-ig60llsd-summit-7.x.y.z/u-boot.itb
-ig60llsd-summit-7.x.y.z/rootfs.tar
-ig60llsd-summit-7.x.y.z/ig60llsd-sdk.tar.bz2
-ig60llsd-summit-7.x.y.z/legal-info.tar.bz2
-ig60llsd-summit-7.x.y.z/kernel.itb
-ig60llsd-summit-7.x.y.z/mksdcard.sh
-ig60llsd-summit-7.x.y.z/mksdimg.sh
+~/Downloads/ig60llsd$ tar -xvf ig60llsd-summit-12.x.y.z.tar.bz2
+ig60llsd-summit-12.x.y.z/
+ig60llsd-summit-12.x.y.z/target-sbom
+ig60llsd-summit-12.x.y.z/host-sbom
+ig60llsd-summit-12.x.y.z/u-boot-spl.bin
+ig60llsd-summit-12.x.y.z/u-boot.itb
+ig60llsd-summit-12.x.y.z/rootfs.tar
+ig60llsd-summit-12.x.y.z/ig60llsd-sdk.tar.bz2
+ig60llsd-summit-12.x.y.z/legal-info.tar.bz2
+ig60llsd-summit-12.x.y.z/kernel.itb
+ig60llsd-summit-12.x.y.z/mksdcard.sh
+ig60llsd-summit-12.x.y.z/mksdimg.sh
 
 ```
 To flash the image to an SD card use the mksdcard.sh script. The mksdcard.sh script takes the target device as an argument and will ask if you'd like to proceed with removing all data on your SD card and flashing a new image.  This is shown below:
 ```
-~/Downloads/ig60llsd-summit-7.x.y.z$ sudo ./mksdcard.sh /dev/sdc
+~/Downloads/ig60llsd-summit-12.x.y.z$ sudo ./mksdcard.sh /dev/sdc
 [sudo] password for user:
 *************************************************************************
 WARNING: All data on /dev/sdc now will be destroyed! Continue? [y/n]
@@ -159,8 +159,8 @@ You can now insert your SD card into the IG hardware development kit and press t
 
 If you are not able to access USB flash drives on a virtual machine, here is a way to flash the image on windows. You have to download and install [balenaEtcher](https://www.balena.io/etcher/) first.
 ```
-1. Build an image on ubuntu after download and extract ig60llsd-summit-7.x.y.z.tar.bz2:
-   ~/Downloads/ig60llsd-summit-7.x.y.z$ sudo ./mksdimg.sh sdimage
+1. Build an image on ubuntu after download and extract ig60llsd-summit-12.x.y.z.tar.bz2:
+   ~/Downloads/ig60llsd-summit-12.x.y.z$ sudo ./mksdimg.sh sdimage
    and copy sdimage.xz to Windows.
 
 3. Go to Windows Start menu and click `balenaEtcher`, then select sdimage.xz as source file and sd card as the target.
@@ -170,20 +170,20 @@ If you are not able to access USB flash drives on a virtual machine, here is a w
 
 ### Using a prebuilt SDK
 
-Laird Linux releases include a prebuilt SDK to start doing application development for a Laird IG. For the IG60, this prebuilt SDK is called ig60llsd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [IG60 Laird Linux release page](https://github.com/LairdCP/IG60-Laird-Linux-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Laird's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
+Summit Linux releases include a prebuilt SDK to start doing application development for a Ezurio IG. For the IG60, this prebuilt SDK is called ig60llsd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [IG60 Summit Linux release page](https://github.com/EzurioCP/IG60-Ezurio-Linux-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Ezurio's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
 
 ### Manifest file
 
-Laird provides manifest files for customers to obtain released resources. Each manifest file describes the projects that are available and how to fetch them. A typical manifest file has `remote`, `default` and `project` elements. The `remote` element specifies the git url and revision shared by one or more projects. The `default` element specifies the the default `remote` element to be used by projects. The `project` element specifies the repository to be cloned. Its `name` attribute will be appended to the `remote` git url to generate the actual address. The `path` attribute defines the relative path to the top working directory to place the project. Following is an example of the manifest file:
+Ezurio provides manifest files for customers to obtain released resources. Each manifest file describes the projects that are available and how to fetch them. A typical manifest file has `remote`, `default` and `project` elements. The `remote` element specifies the git url and revision shared by one or more projects. The `default` element specifies the the default `remote` element to be used by projects. The `project` element specifies the repository to be cloned. Its `name` attribute will be appended to the `remote` git url to generate the actual address. The `path` attribute defines the relative path to the top working directory to place the project. Following is an example of the manifest file:
 ```
 <?xml version="1.0" encoding="UTF-8">
 <manifest>
-    <remote name="origin" fetch="ssh://git@github.com/LairdCP" />
-    <default remote="origin" revision="refs/tags/LRD-REL-7.x.y.z" />
+    <remote name="origin" fetch="ssh://git@github.com/EzurioCP" />
+    <default remote="origin" revision="refs/tags/LRD-REL-12.x.y.z" />
     <project path="som-external" name="som-external.git" />
  </manifest>
 ```
-A `remote` element is defined here, which is also the default. Project `som-external.git` will be fetched from `https://github.com/LairdCP/som-external.git` with revision `refs/tags/LRD-REL-7.x.y.z`.
+A `remote` element is defined here, which is also the default. Project `som-external.git` will be fetched from `https://github.com/EzurioCP/som-external.git` with revision `refs/tags/LRD-REL-12.x.y.z`.
 
 ### Downloading the board support package source code
 
@@ -191,9 +191,9 @@ First step, pick which release you want. Odds are you want the most recent of yo
 
 Next, use repo to initalize and fetch your release. This is a two-step process: first you tell repo which manifest to use and then you tell it to fetch everything.
 
-    mkdir lrd-7.x.y.z
-    cd lrd-7.x.y.z
-    repo init -u git@github.com:LairdCP/IG60-Laird-Linux-Release-Packages.git -m ig60_7.x.y.z.xml
+    mkdir lrd-12.x.y.z
+    cd lrd-12.x.y.z
+    repo init -u git@github.com:EzurioCP/IG60-Ezurio-Linux-Release-Packages.git -m ig60_12.x.y.z.xml
     repo sync
 
 _Note: Repo will initialize a .repo directory and then place all files directly in the directory that you are in when you run the `repo` command. So we recommend making a subdirectory and working in there._
@@ -205,8 +205,8 @@ Once your repo sync is finished, you are ready to build your own SD card image. 
 
 Once your build completes, you will find the output similar to below:
 ```
-~/git/lrd-7.x.y.z$ cd buildroot/output/ig60llsd/images/
-~/git/lrd-7.x.y.z/buildroot/output/ig60llsd/images$ ls -al
+~/git/lrd-12.x.y.z$ cd buildroot/output/ig60llsd/images/
+~/git/lrd-12.x.y.z/buildroot/output/ig60llsd/images$ ls -al
 at91-ig60ll.dtb
 boot.scr -> ../../../board/configs-common/image/boot_mmc.scr
 ig60sd-summit.tar.bz2
@@ -238,8 +238,8 @@ NAND image can be built by the following:
 
 Once your build completes, you will find the output similar to below:
 ```
-~/git/lrd-7.x.y.z$ cd buildroot/output/ig60ll/images/
-~/git/lrd-7.x.y.z/buildroot/output/ig60ll/images$ ls -al
+~/git/lrd-12.x.y.z$ cd buildroot/output/ig60ll/images/
+~/git/lrd-12.x.y.z/buildroot/output/ig60ll/images$ ls -al
 at91-ig60ll.dtb
 boot.bin
 boot.scr -> ../../../board/configs-common/image/boot.scr
@@ -277,7 +277,7 @@ IG60 supports 3 ways to update software: `local update`, `auto update` and `down
 1. Local update
    Insert a USB disk with .swu file(USB disk must be formatted to fat32 or ext4), which will be automatically mounted to `/media/`. Perform software update by setting the collection, i.g 'main-a', 'full-b':
 
-       swupdate -e stable,<collection>  -i </path/to/swu/file>
+       fw_update </path/to/swu/file>
 
 2. Auto update(secure update service needs to be enabled)
    Insert a USB disk with .swu file(USB disk must be formatted to fat32 or ext4). The secure update service checks whether file `/media/sda1/swupdate.swu` exists, and then starts an update;
@@ -285,7 +285,7 @@ IG60 supports 3 ways to update software: `local update`, `auto update` and `down
 3. Download update
     Software can be updated remotely if a http server is available. Make sure .swu file is already in the web directory before update begins.
 
-        swupdate -e stable,<collection> -d "-u <url of .swu file>"
+        fw_update <url of .swu file>
 
 ### Setup web server
 Python's simple built-in web server here. Go to the dir where images are saved, and run following command to start the web service
@@ -310,11 +310,11 @@ Then add it to your build environment:
 ### Create a custom SDK
 If you'd like to create a custom SDK from your customized source build, while in the target's output directory, issue a `make sdk`:
 ```
-~/git/lrd-7.x.y.z/buildroot/output/ig60llsd$ make sdk
+~/git/lrd-12.x.y.z/buildroot/output/ig60llsd$ make sdk
 ```
 
 ## NetworkManager
-We are using our own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/LairdCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
+We are using our own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/EzurioCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
 
 ## Summit Buildroot br2-external
 The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Summit Buildroot br2-external tree:
@@ -350,7 +350,7 @@ The br2-external mechanism provides a convenient way to customize project specif
 `external.desc`: provides the `name` and an optional short description for the br2-external tree:
 ```
 name: DEMO
-desc: Laird Custom Project Demo
+desc: Custom Project Demo
 ```
  The full path of the br2-external tree will be set to `BR2_EXTERNAL_$(NAME)_PATH` automatically so that it can be used in both Buildroot Kconfig and Makefile. In this case `BR2_EXTERNAL_DEMO_PATH` is set to the full path of `demo` project.
 
@@ -469,7 +469,7 @@ To add a custom package from github etc, a `project` elemenent needs to be added
 where `externals/test` is the place to save the source code of the package. If the project is in a repository other than the default, a `remote` element also needs to be added
 
     <remote name="custom" fetch="ssh://git@github.com/custom" />
-    <project remote="custom" path="demo/package/externals/test" name="test.git" revision="custom-7.x.y.z">
+    <project remote="custom" path="demo/package/externals/test" name="test.git" revision="custom-12.x.y.z">
 
 Run `repo sync` to fetch the source code, and then follow the instruction of `Add a custom package` to make it configurable and buildable.
 
@@ -477,7 +477,7 @@ Run `repo sync` to fetch the source code, and then follow the instruction of `Ad
 This section describes the filesystem and booting strategies for all products based on the 60 Series SOM. These products introduce a new set of features that changes the way the embedded Linux filesystems are built and programmed onto the embedded NAND flash.
 
 ### What's Changed?
-The following is a brief description of the changes from Laird's previous system on module (the WB50NBT) to the 60 Series SOM (and subsequently the IG60-SERIAL):
+The following is a brief description of the changes from Ezuro's previous system on module (the WB50NBT) to the 60 Series SOM (and subsequently the IG60-SERIAL):
 ```
     AT91Bootstrap has been replaced with U-Boot SPL
     U-Boot is now programmed as a FIT (flattened device tree) image
@@ -517,4 +517,4 @@ To enable LTE in the IG60-SERIAL, you'll need to manually set the correct pin. U
 # echo 0 > /sys/devices/platform/gpio/lte_on/value
 ```
 ### Using the Modem DBus API
-The Sentrius IG60 provides access to the embedded LTE modem using the [Linux oFono library](https://git.kernel.org/pub/scm/network/ofono/ofono.git) and associated APIs. You can find an example of the [Modem DBus AP](https://github.com/LairdCP/igsdk/blob/master/python/igsdk/modem.py) here.
+The Sentrius IG60 provides access to the embedded LTE modem using the [Linux oFono service](https://git.kernel.org/pub/scm/network/ofono/ofono.git) and associated APIs. You can find an example of the [Modem DBus AP](https://github.com/EzurioCP/igsdk/blob/master/python/igsdk/modem.py) here.

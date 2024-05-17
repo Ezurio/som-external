@@ -1,5 +1,5 @@
 #####################################################################
-# Laird Industrial Gateway ggv2support
+# Industrial Gateway ggv2support
 #####################################################################
 
 define GGV2SUPPORT_INSTALL_TARGET_CMDS

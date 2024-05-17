@@ -1,5 +1,5 @@
 #####################################################################
-# Laird Industrial Gateway igconfd
+# Industrial Gateway igconfd
 #####################################################################
 
 IGCONFD_VERSION = local

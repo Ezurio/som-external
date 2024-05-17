@@ -19,18 +19,18 @@ index e8ec98c221..5edf03f082 100644
  #include <openssl/core_names.h>
  #include "internal/cryptlib.h"
  
-+#ifdef LAIRD_OPENSSL_FIPS_KEEP_DES
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_DES
 +#define SSL_FIPS_DES SSL_FIPS
 +#else
 +#define SSL_FIPS_DES 0
 +#endif
-+#ifdef LAIRD_OPENSSL_FIPS_KEEP_kRSA
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_kRSA
 +#define SSL_FIPS_kRSA SSL_FIPS
 +#else
 +// do not allow RSA key-exchange methods
 +#define SSL_FIPS_kRSA 0
 +#endif
-+#ifdef LAIRD_OPENSSL_FIPS_KEEP_aDSS
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_aDSS
 +#define SSL_FIPS_aDSS SSL_FIPS
 +#else
 +// do not allow DSS
@@ -239,7 +239,7 @@ index e8ec98c221..5edf03f082 100644
       SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
       0,
       0,
-@@ -1330,7 +1349,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
+@@ -1330,7 +1349,7 @@ static SSL_CIPHER ssl3_ciphers[] = {12.x
       SSL_SHA1,
       SSL3_VERSION, TLS1_2_VERSION,
       DTLS1_BAD_VER, DTLS1_2_VERSION,
@@ -355,7 +355,7 @@ index 8360991ce4..b8df6b4710 100644
  #include "internal/thread_once.h"
  #include "internal/cryptlib.h"
  
-+#ifdef LAIRD_OPENSSL_FIPS_KEEP_DES
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_DES
 +#define SSL_FIPS_DES SSL_FIPS
 +#else
 +#define SSL_FIPS_DES 0
@@ -384,7 +384,7 @@ index b05012f74f..2bdd5abceb 100644
      {0x1303, "TLS_CHACHA20_POLY1305_SHA256"},
      {0x1304, "TLS_AES_128_CCM_SHA256"},
      {0x1305, "TLS_AES_128_CCM_8_SHA256"},
-+#ifdef LAIRD_OPENSSL_FIPS_KEEP_DES
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_DES
      {0xFEFE, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
      {0xFEFF, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"},
 +#else

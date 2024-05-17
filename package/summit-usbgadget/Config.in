@@ -1,7 +1,7 @@
 menuconfig BR2_PACKAGE_SUMMIT_USBGADGET
 	bool "Summit USB Gadget"
 	help
-	  Laird USB Ethernet Gadget
+	  USB Ethernet Gadget
 
 if BR2_PACKAGE_SUMMIT_USBGADGET
 
@@ -15,22 +15,22 @@ choice BR2_PACKAGE_SUMMIT_USBGADGET_TYPE
 	default BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_ECM if BR2_PACKAGE_SUMMIT_LEGACY
 	default BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_NCM
 	help
-	  Laird USB Ethernet Gadget Type
+	  USB Ethernet Gadget Type
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_RNDIS
 	bool "RNDIS"
 	help
-	  Laird RNDIS USB Ethernet Gadget
+	  RNDIS USB Ethernet Gadget
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_NCM
 	bool "NCM"
 	help
-	  Laird NCM USB Ethernet Gadget
+	  NCM USB Ethernet Gadget
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_ECM
 	bool "ECM"
 	help
-	  Laird ECM USB Ethernet Gadget
+	  ECM USB Ethernet Gadget
 
 endchoice
 

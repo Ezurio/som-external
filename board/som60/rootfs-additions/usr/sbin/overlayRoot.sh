@@ -4,7 +4,7 @@
 #
 #  Created 2017 by Pascal Suter @ DALCO AG, Switzerland to work on Raspian as custom init script
 #  (raspbian does not use an initramfs on boot)
-#  Modified by Boris Krasnovskiy to work with Laird Connectivity SOM60
+#  Modified by Boris Krasnovskiy to work with Ezurio SOM60
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by

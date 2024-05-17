@@ -3,4 +3,4 @@ config BR2_PACKAGE_ECHOTEST
 	select BR2_PACKAGE_PYTHON3
 	select BR2_PACKAGE_PYTHON_SERIAL
 	help
-	  Laird Connectivity Serial Echo Test utility
+	  Connectivity Serial Echo Test utility

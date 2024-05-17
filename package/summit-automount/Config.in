@@ -1,7 +1,7 @@
 menuconfig BR2_PACKAGE_SUMMIT_AUTOMOUNT
 	bool "Summit Auto-Mount"
 	help
-	  Laird USB Automount
+	  USB & MMC Automount
 
 if BR2_PACKAGE_SUMMIT_AUTOMOUNT
 config BR2_PACKAGE_SUMMIT_AUTOMOUNT_USB
