@@ -105,6 +105,8 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(SED) '/^rest_api_validate_response/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a rest_api_validate_response: \
 		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_RESPONSE)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a log_routes_loaded: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_LOG_ROUTES_LOADED)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 endef
 
 SUMMIT_RCM_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
