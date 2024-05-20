@@ -44,6 +44,10 @@ all:
 clean:
 	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_ALL))
 
+regenconfig:
+	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -savedefconfig,$(TARGETS_ALL))
+	$(MAKE) $(PARALLEL_OPTS) clean
+
 $(patsubst %,$(OUTPUT_DIR)/%/.config,$(TARGETS_ALL)): $(OUTPUT_DIR)/%/.config: $(CONFIG_DIR)/%_defconfig
 	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* $*_defconfig
 
