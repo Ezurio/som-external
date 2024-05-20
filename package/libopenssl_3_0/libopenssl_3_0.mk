@@ -21,6 +21,11 @@ LIBOPENSSL_3_0_PROVIDES = openssl
 LIBOPENSSL_3_0_CPE_ID_VENDOR = $(LIBOPENSSL_3_0_PROVIDES)
 LIBOPENSSL_3_0_CPE_ID_PRODUCT = $(LIBOPENSSL_3_0_PROVIDES)
 
+ifneq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
+#1002-Check-DSA-parameters-for-excessive-sizes-before-vali.patch
+LIBOPENSSL_3_0_IGNORE_CVES += CVE-2024-4603
+endif
+
 ifeq ($(BR2_m68k_cf),y)
 # relocation truncated to fit: R_68K_GOT16O
 LIBOPENSSL_3_0_CFLAGS += -mxgot
