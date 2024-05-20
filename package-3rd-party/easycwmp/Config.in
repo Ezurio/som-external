@@ -4,5 +4,5 @@ config BR2_PACKAGE_EASYCWMP
 	select BR2_PACKAGE_LIBUCI
 	select BR2_PACKAGE_UBUS
 	help
-      EasyCwmp - TR069 Client
+		EasyCwmp - TR069 Client
 
