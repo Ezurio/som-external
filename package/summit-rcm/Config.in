@@ -127,6 +127,13 @@ config BR2_PACKAGE_SUMMIT_RCM_ALLOW_MUTLIPLE_USER_SESSIONS
 	help
 		Enable multiple sessions for the same user (re-login)
 
+config BR2_PACKAGE_SUMMIT_RCM_LOG_ROUTES_LOADED
+	bool "REST API routes loaded logging"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
+	default n
+	help
+		Enable the logging of all loaded REST API routes
+
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
 	string "AT Interface Serial Port"
 	depends on BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
