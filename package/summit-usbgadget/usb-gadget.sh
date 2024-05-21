@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2018-2020, Ezurio
+# Copyright (c) 2018-2024, Ezurio
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -15,6 +15,7 @@
 
 UDC_DIR=/sys/class/udc
 GADGET_DIR=/sys/kernel/config/usb_gadget
+UDC_NAME=${2}
 
 counter=0
 
@@ -67,27 +68,7 @@ create_acm() {
 	counter=$((counter+1))
 }
 
-create_gadgets () {
-	test -r /etc/default/usb-gadget && . /etc/default/usb-gadget
-
-	[ ${USB_GADGET_ETHER_PORTS:-0}  -gt 0 ] || \
-	[ ${USB_GADGET_SERIAL_PORTS:-0} -gt 0 ] || \
-		{ echo "No usb-gadget specified"; exit 1; }
-
-	if [ "$(cat /sys/devices/soc0/soc_id)" = "at91sam9g20" ]; then
-		modprobe at91_udc
-	else
-		modprobe atmel_usba_udc
-	fi
-
-	modprobe usb_f_fs
-
-	if [ ! -d "${GADGET_DIR}" ]; then
-		mount -t configfs none /sys/kernel/config
-		[ -d "${GADGET_DIR}" ] || { echo "ConfigFS not found"; exit 1; }
-	fi
-
-	for udc_name in $(ls ${UDC_DIR}); do
+create_gadget() {
 		mkdir -p ${GADGET_DIR}/g0
 		cd ${GADGET_DIR}/g0
 
@@ -106,7 +87,8 @@ create_gadgets () {
 		fi
 
 		echo "Ezurio" > strings/0x409/manufacturer
-		cat /sys/firmware/devicetree/base/model > strings/0x409/product
+		read -r model < /sys/firmware/devicetree/base/model
+		echo "${model}" > strings/0x409/product
 
 		mkdir -p configs/c.1/strings/0x409
 		echo "USB Composite Configuration" > configs/c.1/strings/0x409/configuration
@@ -124,13 +106,44 @@ create_gadgets () {
 		done
 
 		ln -s configs/c.1 os_desc/c.1
-		echo ${udc_name} > UDC
-
-		break
-	done
+		echo ${1} > UDC
 }
 
-destroy_gadgets () {
+create_gadgets() {
+	test -r /etc/default/usb-gadget && . /etc/default/usb-gadget
+
+	[ ${USB_GADGET_ETHER_PORTS:-0}  -gt 0 ] || \
+	[ ${USB_GADGET_SERIAL_PORTS:-0} -gt 0 ] || \
+		{ echo "No usb-gadget specified"; exit 1; }
+
+	read -r soc_id < /sys/devices/soc0/soc_id
+	case "${soc_id}" in
+		at91sam9g20)
+			modprobe at91_udc
+			;;
+		at91*|sam*)
+			modprobe atmel_usba_udc
+			;;
+	esac
+
+	modprobe usb_f_fs
+
+	if [ ! -d "${GADGET_DIR}" ]; then
+		mount -t configfs none /sys/kernel/config
+		[ -d "${GADGET_DIR}" ] || { echo "ConfigFS not found"; exit 1; }
+	fi
+
+	if [ -n "${UDC_NAME}" ]; then
+		create_gadget ${UDC_NAME}
+	else
+		for udc_name in $(ls ${UDC_DIR}); do
+			create_gadget ${udc_name}
+			break
+		done
+	fi
+}
+
+destroy_gadgets() {
 	gadget="${GADGET_DIR}/g0"
 
 	[ -e ${gadget} ] || return
@@ -158,6 +171,6 @@ case "${1}" in
 		;;
 
 	*)
-		echo $"Usage: $0 {start|stop}"
+		echo $"Usage: $0 <start|stop> [port name]"
 		exit 1
 esac

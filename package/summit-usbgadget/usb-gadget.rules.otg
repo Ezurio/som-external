@@ -1,0 +1,2 @@
+SUBSYSTEM=="udc", ACTION=="add", RUN += "/usr/bin/usb-gadget.sh start $ENV{USB_UDC_NAME}"
+SUBSYSTEM=="udc", ACTION=="remove", RUN += "/usr/bin/usb-gadget.sh stop $ENV{USB_UDC_NAME}"

@@ -31,6 +31,7 @@ define SUMMIT_USBGADGET_INSTALL_INIT_CONFIG
 	echo 'USB_GADGET_PRODUCT_ID=$(BR2_PACKAGE_SUMMIT_USBGADGET_PRODUCT_ID)'           >> $(TARGET_DIR)/etc/default/usb-gadget
 endef
 
+ifneq ($(BR2_PACKAGE_SUMMIT_USBGADGET_OTG),y)
 define SUMMIT_USBGADGET_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 $(SUMMIT_USBGADGET_PKGDIR)/usb-gadget.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/usb-gadget.service
@@ -49,6 +50,21 @@ else
 define SUMMIT_USBGADGET_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 -t $(TARGET_DIR)/etc/init.d/ \
 		$(SUMMIT_USBGADGET_PKGDIR)/S43usb-gadget
+
+	$(SUMMIT_USBGADGET_INSTALL_INIT_CONFIG)
+endef
+endif
+else
+define SUMMIT_USBGADGET_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 $(SUMMIT_USBGADGET_PKGDIR)/usb-gadget.service.otg \
+		$(TARGET_DIR)/usr/lib/systemd/system/usb-gadget.service
+
+	$(SUMMIT_USBGADGET_INSTALL_INIT_CONFIG)
+endef
+
+define SUMMIT_USBGADGET_INSTALL_INIT_SYSV
+	$(INSTALL) -D -m 0755 $(SUMMIT_USBGADGET_PKGDIR)/usb-gadget.rules.otg \
+		$(TARGET_DIR)/etc/udev/rules.d/99-usb-gadget.rules
 
 	$(SUMMIT_USBGADGET_INSTALL_INIT_CONFIG)
 endef

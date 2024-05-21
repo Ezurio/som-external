@@ -47,6 +47,13 @@ fi
 
 do_mount()
 {
+    if [ -z "${DEVBASE%mmc*}" ]; then
+       read -r mmctype < /sys/block/${DEVBASE%p*}/device/type
+       [ "${mmctype}" = "SD" ] || exit 0
+
+       grep -qF ${DEVICE%p*} /proc/cmdline && exit 0
+    fi
+
     if [ -n "${MOUNT_POINT}" ]; then
         echo "Warning: ${DEVICE} is already mounted at ${MOUNT_POINT}" >&2
         exit 1

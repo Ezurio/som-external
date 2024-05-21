@@ -5,6 +5,23 @@ menuconfig BR2_PACKAGE_SUMMIT_USBGADGET
 
 if BR2_PACKAGE_SUMMIT_USBGADGET
 
+config BR2_PACKAGE_SUMMIT_USBGADGET_OTG
+	bool "USB Gadget OTG"
+	help
+	  USB Gadget OTG
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_VENDOR_ID
+	string "USB Vendor ID"
+	default "0x1fa3"
+	help
+	  USB Gadget Vendor ID
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_PRODUCT_ID
+	string "USB Product ID"
+	default "0x0002"
+	help
+	  USB Gadget Product ID
+
 config BR2_PACKAGE_SUMMIT_USBGADGET_ETHERNET_PORTS
 	int "USB Gadget Ethernet ports"
 	default 1
@@ -34,17 +51,11 @@ config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_ECM
 
 endchoice
 
-config BR2_PACKAGE_SUMMIT_USBGADGET_VENDOR_ID
-	string "USB Vendor ID"
-	default "0x1fa3"
-	help
-	  USB Gadget Vendor ID
-
-config BR2_PACKAGE_SUMMIT_USBGADGET_PRODUCT_ID
-	string "USB Product ID"
-	default "0x0002"
-	help
-	  USB Gadget Product ID
+config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_STRING
+	string
+	default "rndis" if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_RNDIS
+	default "ncm"   if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_NCM
+	default "ecm"   if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_ECM
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_LOCAL_MAC
 	string "USB Ethernet Gadget local MAC address"
@@ -57,13 +68,8 @@ config BR2_PACKAGE_SUMMIT_USBGADGET_REMOTE_MAC
 	default "DE:AD:BE:EF:00:00"
 	help
 	  USB Ethernet Gadget remote MAC address
-endif
 
-config BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_STRING
-	string
-	default "rndis" if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_RNDIS
-	default "ncm"   if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_NCM
-	default "ecm"   if BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_ECM
+endif
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_PORTS
 	int "USB Gadget Serial ports"
