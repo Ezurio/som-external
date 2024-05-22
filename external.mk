@@ -1,5 +1,5 @@
 # Summit branch number, update for every branch
-export BR2_SUMMIT_BRANCH := 0
+export BR2_SUMMIT_BRANCH := 12
 
 ifneq ($(VERSION),)
   export BR2_SUMMIT_BUILD_VERSION = $(VERSION)
