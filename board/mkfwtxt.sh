@@ -5,31 +5,28 @@
 # update-list file
 fwul=${BINARIES_DIR-.}/fw.txt
 
-# optional url
-url=${1%/}
-
 # list of image files: [#]name
 # names may be 6-10 character length
 # prepend with '#' to disable in update-list
 #
-image1=#at91bs.bin
-image2=#u-boot.bin
-image3=kernel.bin
-image4=rootfs.bin
+image1="#at91bs.bin"
+image2="#u-boot.bin"
+image3="kernel.bin"
+image4="rootfs.bin"
 
 # write target-build description
 if [ -n "${SUMMIT_RELEASE_STRING}" ]
 then
   echo "# ${SUMMIT_RELEASE_STRING}" > ${fwul}
 else
-  echo "# $(hostname)-${BR2_TARGET_UBOOT_BOARDNAME-?}" > ${fwul}
+  echo "# $(hostname)-${1-?}" > ${fwul}
 fi
 
 # write update-list
 for n in 1 2 3 4
 do
   # construct image var
-  eval name=\${image${n}} && image=${name#\#}
+  eval name=${image${n}} && image=${name#\#}
 
   # set line prefix as hash or space
   [ ${image} != ${name} ] && x='#' || x=' '
@@ -43,7 +40,7 @@ do
   md5sum ${imagef} | \
 	sed "s,\(^[^ ]\+\) .*[/]\(.*\),${x}  \1  \2  $(stat -Lc "%s" ${imagef})," >>${fwul}
 done
-echo >>${fwul}
+echo >> ${fwul}
 
 # apply optional flags or shell lines
 echo "  flags -c" >>${fwul}
