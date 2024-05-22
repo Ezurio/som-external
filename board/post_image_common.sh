@@ -81,10 +81,7 @@ if [ "${BUILD_TYPE}" = wb50n ]; then
 		echo -e "${ALL_SWU_FILES// /\\n}" | cpio -ovL -H crc > ${BINARIES_DIR}/${SWU_BOOT})
 fi
 
-[ -n "${SUMMIT_FW_TXT_URL}" ] || \
-	SUMMIT_FW_TXT_URL="http://$(hostname)/${BR2_SUMMIT_PRODUCT}"
-
-${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwtxt.sh "${SUMMIT_FW_TXT_URL}" "${BINARIES_DIR}"
+${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwtxt.sh "${BR2_SUMMIT_PRODUCT}-${BR2_SUMMIT_BUILD_VERSION}"
 ${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwusi.sh
 
 if [ ! -x ${TARGET_DIR}/usr/bin/dcas ]; then
