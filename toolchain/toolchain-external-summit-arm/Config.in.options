@@ -1,8 +1,10 @@
 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM
 
 config BR2_TOOLCHAIN_EXTERNAL_PREFIX
-	default "arm-laird-linux-gnueabihf" if BR2_ARM_EABIHF
-	default "arm-laird-linux-gnueabi" if BR2_ARM_EABI
+	default "arm-laird-linux-gnueabihf" if BR2_ARM_EABIHF && (BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7 || BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11)
+	default "arm-laird-linux-gnueabi" if BR2_ARM_EABI && (BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7 || BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11)
+	default "arm-summit-linux-gnueabihf" if BR2_ARM_EABIHF
+	default "arm-summit-linux-gnueabi" if BR2_ARM_EABI
 
 config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
 	default "toolchain-external-summit-arm"
