@@ -26,7 +26,7 @@ fi
 for n in 1 2 3 4
 do
   # construct image var
-  eval name=${image${n}} && image=${name#\#}
+  eval name=\${image${n}} && image=${name#\#}
 
   # set line prefix as hash or space
   [ ${image} != ${name} ] && x='#' || x=' '
