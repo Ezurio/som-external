@@ -1,6 +1,6 @@
 menuconfig BR2_PACKAGE_SUMMIT_FIREWALL
 	bool "Summit Basic Wi-Fi NAT/Firewall"
-	depends on BR2_PACKAGE_LRD_NETWORK_MANAGER
+	depends on BR2_PACKAGE_SUMMIT_NETWORK_MANAGER
 	select BR2_PACKAGE_IPTABLES
 	help
 	  Summit Basic Wi-Fi NAT/Firewall
