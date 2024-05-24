@@ -1,11 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 DRIVE=${1}
 ARG=${1##*/}
 SRCDIR=${0%/*}
-DRIVE_SIZE=/sys/block/${DRIVE##*/}/size
 
 if [ -z "${DRIVE}" -o -z "${ARG}" ]; then
     echo "mksdcard.sh <device>"
@@ -18,17 +17,12 @@ if [ ! -b ${DRIVE} ]; then
     exit
 fi
 
-if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
-    echo "Device is not removable."
-    exit
-fi
-
 if [ $(id -u) -ne 0 ]; then
     echo "This script must be run as root."
     exit
 fi
 
-DRIVE_BLOCKS=$(cat ${DRIVE_SIZE})
+DRIVE_BLOCKS=$(cat /sys/block/${ARG}/size)
 
 if [ "${DRIVE_BLOCKS}" -eq 0 ]; then
     echo "Can not find destination drive \"${DRIVE}\""
@@ -37,6 +31,11 @@ fi
 
 case "${ARG}" in
     sd*)
+        if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
+            echo "Device is not removable."
+            exit
+        fi
+
         PART_BOOT=${DRIVE}1
         ;;
 
@@ -68,15 +67,15 @@ unmount_all() {
 
 check_format() {
     count=0
-    lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE} |\
-        while read -r TYPE FSTYPE SIZE; do
-            [ "${TYPE}" = "part" ] || continue
-            count=$((count+1))
-            case "${count}" in
-                1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return false ;;
-                *) return false ;;
-            esac
-        done && [ ${count} -eq 1 ] || return false
+    while read -r TYPE FSTYPE SIZE; do
+        [ "${TYPE}" = "part" ] || continue
+        count=$((count+1))
+        case "${count}" in
+            1) [ "${FSTYPE}" = "vfat" -a "${SIZE}" = "48M" ] || return ;;
+            *) break ;;
+        esac
+    done < <(lsblk -fln -o TYPE,FSTYPE,SIZE ${DRIVE})
+    [ ${count} -eq 1 ]
 }
 
 # Un-mount all mounted partitions

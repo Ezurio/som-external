@@ -5,7 +5,6 @@ set -e
 DRIVE=${1}
 ARG=${1##*/}
 SRCDIR=${0%/*}
-DRIVE_SIZE=/sys/block/${DRIVE##*/}/size
 
 if [ -z "${DRIVE}" -o -z "${ARG}" ]; then
     echo "mksdcard.sh <device>"
@@ -18,30 +17,30 @@ if [ ! -b ${DRIVE} ]; then
     exit
 fi
 
-if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
-    echo "Device is not removable."
-    exit
-fi
-
 if [ $(id -u) -ne 0 ]; then
     echo "This script must be run as root."
     exit
 fi
 
-DRIVE_BLOCKS=$(cat ${DRIVE_SIZE})
+DRIVE_BLOCKS=$(cat /sys/block/${ARG}/size)
 
 if [ "${DRIVE_BLOCKS}" -eq 0 ]; then
     echo "Can not find destination drive \"${DRIVE}\""
     exit
 fi
 
-if [ ! -e ${SRCDIR}/rootfs.tar ]; then
+if [ ! -r ${SRCDIR}/rootfs.tar ]; then
     echo "Can not find required rootfs.tar file."
     exit
 fi
 
 case "${ARG}" in
     sd*)
+        if [ $(cat /sys/block/${ARG}/removable) -ne 1 ]; then
+            echo "Device is not removable."
+            exit
+        fi
+
         PART_BOOT=${DRIVE}1
         PART_SWAP=${DRIVE}2
         PART_ROOTFS=${DRIVE}3
