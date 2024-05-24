@@ -122,7 +122,7 @@ echo "[Making file systems...]"
 
 # Format newly created partitions
 mkfs.vfat -F 16 -n BOOT ${PART_BOOT} > /dev/null
-mkswap -f -L swap ${PART_SWAP} > /dev/null
+mkswap -f -L swap ${PART_SWAP} > /dev/null 2> /dev/null
 mkfs.ext4 -q -F -L rootfs ${PART_ROOTFS} -E lazy_itable_init=0,lazy_journal_init=0 > /dev/null
 sync
 
