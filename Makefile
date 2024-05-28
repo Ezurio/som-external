@@ -1,5 +1,5 @@
 TARGETS_meta-toolchain = \
-	som60_toolchain wb4x_toolchain
+	som60_toolchain wb4x_toolchain imx8_toolchain
 
 TARGETS_meta-som = \
 	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips wb50n_sysd_fips_11 \
