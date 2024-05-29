@@ -133,6 +133,12 @@ config BR2_PACKAGE_SUMMIT_RCM_LOG_ROUTES_LOADED
 	default n
 	help
 		Enable the logging of all loaded REST API routes
+config BR2_PACKAGE_SUMMIT_RCM_RESTRICT_NETWORK_STATUS
+	bool "Restrict network status"
+	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
+	default n
+	help
+		Restrict the network status endpoints to require login
 
 config BR2_PACKAGE_SUMMIT_RCM_SERIAL_PORT
 	string "AT Interface Serial Port"
