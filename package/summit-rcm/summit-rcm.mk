@@ -107,6 +107,8 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_REST_API_VALIDATE_RESPONSE)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a log_routes_loaded: \
 		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_LOG_ROUTES_LOADED)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a network_status_restricted: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_RESTRICT_NETWORK_STATUS)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 endef
 
 SUMMIT_RCM_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
