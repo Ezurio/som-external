@@ -92,6 +92,10 @@ $(addsuffix -clean,$(TARGETS_ALL)): %-clean:
 	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* distclean
 	rm -rf $(OUTPUT_DIR)/$*
 
+.PHONY: $(addsuffix -source,$(TARGETS))
+$(addsuffix -source,$(TARGETS)): %-source: $(OUTPUT_DIR)/%/.config
+	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* source
+
 .PHONY: $(addsuffix -sdk,$(TARGETS))
 $(addsuffix -sdk,$(TARGETS)): %-sdk: $(OUTPUT_DIR)/%/.config
 	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$@ sdk
