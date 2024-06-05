@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e -x
+
 BOARD_DIR=$(realpath "$(dirname "${0}")")
 
 BUILD_TYPE="${2}"
@@ -9,7 +11,7 @@ BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${B
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD script: starting..."
 
-"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_build.sh" "${BINARIES_DIR}" "${BUILD_TYPE}" "${DEVEL_KEYS}"
+"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/som60/post_build.sh" "${BINARIES_DIR}" "${BUILD_TYPE}" "${DEVEL_KEYS}"
 
 rsync -rlptDWK --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${TARGET_DIR}"
 
