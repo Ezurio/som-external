@@ -134,7 +134,7 @@ MNT_ROOTFS=/mnt/${PART_ROOTFS##*/}
 mkdir -p "${MNT_BOOT}"
 mount "${PART_BOOT}" "${MNT_BOOT}"
 
-cp -t" ${MNT_BOOT}" "${SRCDIR}/boot.bin" "${SRCDIR}/u-boot.itb" "${SRCDIR}/kernel.itb" "${SRCDIR}/uboot.env"
+cp -t "${MNT_BOOT}" "${SRCDIR}/boot.bin" "${SRCDIR}/u-boot.itb" "${SRCDIR}/kernel.itb" "${SRCDIR}/uboot.env"
 sync
 
 umount -f "${MNT_BOOT}" && rm -rf "${MNT_BOOT}"
