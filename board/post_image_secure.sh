@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # post_image_secure.sh
 #
@@ -27,7 +28,7 @@
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 
-BOARD_DIR="${1}"
+#BOARD_DIR="${1}"
 SWU_FILES="${2}"
 SWUPDATE_SIG="${3}"
 SD=${4:-false}
@@ -43,19 +44,19 @@ veritysetup=${HOST_DIR}/sbin/veritysetup
 
 die() { echo "$@" >&2; exit 1; }
 
-grep -qF "SALT" ${BINARIES_DIR}/boot.scr && SECURE_ROOTFS=true || SECURE_ROOTFS=false
+grep -qF "SALT" "${BINARIES_DIR}/boot.scr" && SECURE_ROOTFS=true || SECURE_ROOTFS=false
 
-[ -x ${mkimage} ] || \
+[ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
-[ -x ${openssl} ] || \
+[ -x "${openssl}" ] || \
 	die "no openssl found"
-[ -x ${atmel_pmecc_params} ] || ${SD} || \
+[ -x "${atmel_pmecc_params}" ] || ${SD} || \
 	die "no atmel_pmecc_params found (uboot has not been built?)"
-[ -x ${veritysetup} ] || ! ${SECURE_ROOTFS} || \
+[ -x "${veritysetup}" ] || ! ${SECURE_ROOTFS} || \
 	die "No veritysetup found (host-cryptsetup has not been built?)"
 
 echo "# entering ${BINARIES_DIR} for this script"
-cd ${BINARIES_DIR}
+cd "${BINARIES_DIR}"
 
 # Create keys if not present
 if [ ! -f keys/dev.key ]; then
@@ -77,14 +78,14 @@ cp -f boot.scr boot.scr.nohash
 # Check if we are creating secure rootfs
 if ${SECURE_ROOTFS} ; then
 	# Generate the hash table for squashfs
-	rm -f $rootfs.verity
+	rm -f rootfs.verity
 	${veritysetup} format rootfs.squashfs rootfs.verity > rootfs.verity.header
 	# Get the root hash
 	HASH="$(awk '/Root hash:/ {print $3}' rootfs.verity.header)"
 	SALT="$(awk '/Salt:/ {print $2}' rootfs.verity.header)"
 	BLOCKS="$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)"
-	SIZE=$((${BLOCKS} * 8))
-	OFFSET=$((${BLOCKS} + 1))
+	SIZE=$(("${BLOCKS}" * 8))
+	OFFSET=$(("${BLOCKS}" + 1))
 
 	# Generate a combined rootfs
 	cat rootfs.squashfs rootfs.verity > rootfs.bin
@@ -104,18 +105,18 @@ ${mkimage} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
 cat u-boot-spl-nodtb.bin u-boot-spl.dtb > u-boot-spl.bin
 
 if ${SD} ; then
-	${mkimage} -T atmelimage -d ${BINARIES_DIR}/u-boot-spl.bin ${BINARIES_DIR}/boot.bin
+	${mkimage} -T atmelimage -d "${BINARIES_DIR}/u-boot-spl.bin" "${BINARIES_DIR}/boot.bin"
 else
 	# Generate Atmel PMECC boot.bin from SPL
-	${mkimage} -T atmelimage -n $(${atmel_pmecc_params}) -d u-boot-spl.bin boot.bin
+	${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d u-boot-spl.bin boot.bin
 	# Save off the raw PMECC header
 	dd if=boot.bin of=pmecc.bin bs=208 count=1
 
 	# Support Secure boot key transition
-	if grep -qF boot1.bin ${BINARIES_DIR}/sw-description ; then
+	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
 		SWU_FILES="${SWU_FILES/boot.bin/boot.bin boot1.bin}"
 		SWU_FILES="${SWU_FILES/uboot.env/uboot.env uboot1.env}"
-		cp -af ${BINARIES_DIR}/boot.bin ${BINARIES_DIR}/boot1.bin
+		cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
 	fi
 fi
 
