@@ -23,7 +23,7 @@ find_ubi_device() {
 			break
 		fi
 	done
-	[ -z "${ubi_dev}" ] && exit_on_error 0 "UBI Volume ${1} Does not Exist"
+	[ -n "${ubi_dev}" ] || exit_on_error 0 "UBI Volume ${1} Does not Exist"
 }
 
 migrate_data() {
@@ -65,8 +65,12 @@ mkdir -p "${MOUNT_POINT}" || exit_on_error 0 "Directory Creation for ${MOUNT_POI
 # Don't migrate data from SD
 read -r cmdline < /proc/cmdline
 case "${cmdline}" in
-*/dev/mmc*) do_data_migration=0 ;;
-*) #Don't migrate if /data not mounted
+*/dev/mmc*)
+	do_data_migration=0
+	;;
+
+*)
+	# Don't migrate if /data not mounted
 	if ! grep -qs "${DATA_SRC} " /proc/mounts; then
 		if [ -x /usr/bin/systemd-cat ]; then
 			echo "Data from ${DATA_SRC} not migrated, because it was not mounted." | systemd-cat -t "${0}" -p warning
