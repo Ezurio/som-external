@@ -82,6 +82,7 @@ if grep -qF BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN=y "${BR2_CONF
     ln -sf /data/secret/permanent/provisioning "${TARGET_DIR}/etc/summit-rcm/provisioning"
 
 	# Preserve factory-provisioned files
+	# shellcheck disable=SC2016
 	sed -i 's/rm -fr ${USER_SETTINGS_SECRET_TARGET}\/\*/find ${USER_SETTINGS_SECRET_TARGET} -maxdepth 1 -mindepth 1 ! -name permanent -exec rm -fr {} \\;/g' "${TARGET_DIR}/usr/sbin/do_factory_reset.sh"
 fi
 
@@ -210,9 +211,11 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/aut
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 		cp "${ENCRYPTED_TOOLKIT_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
 		# Configure dev.crt if swupdate CMS is enabled
+		# shellcheck disable=SC2016
 		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
 	else
 		# Configure public key if swupdate signature check is enabled
+		# shellcheck disable=SC2016
 		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
 	fi
 fi

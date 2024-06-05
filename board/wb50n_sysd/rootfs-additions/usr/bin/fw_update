@@ -62,10 +62,10 @@ shift $((OPTIND - 1))
 url="${1}"
 
 if [ "${o_method}" = complete ]; then
-    ${run_on_sd} || die "only 'full' or 'main' update methods supported when booting from flash"
+    ${run_on_sd} || die "only 'full' or 'main' update methods supported when booting from NAND flash"
     p_method=${o_method}
 else
-    ${run_on_sd} && die "only 'complete' update method supported when booting from sd card"
+    ${run_on_sd} && die "only 'complete' update method supported when booting from SD card"
     p_method=${o_method}-${o_side}
 fi
 
@@ -83,9 +83,9 @@ file://*)
     case "${url%:*}" in
     http|https|ftp)
         if [ -x /usr/bin/curl ]; then
-            /usr/bin/curl -LsfI ${url} || die "File ${url} not found"
+            /usr/bin/curl -LsfI "${url}" || die "File ${url} not found"
         elif [ -x /usr/bin/wget ]; then
-            /usr/bin/wget -T4 -t1 --spider -qO - ${url} || die "File ${url} not found"
+            /usr/bin/wget -T4 -t1 --spider -qO - "${url}" || die "File ${url} not found"
         fi
         ;;
     esac
@@ -111,13 +111,12 @@ complete*)
     [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
 
     if ${o_factory}; then
-
         # Mark bad blocks if found
         while read -r line; do
             case "${line}" in
             *u-boot*)
                 mtd=${line%%:*}
-                nandtest -m /dev/${mtd} || die "NAND test failed"
+                nandtest -m "/dev/${mtd}" || die "NAND test failed"
                 ;;
             esac
         done < /proc/mtd
@@ -127,38 +126,38 @@ complete*)
             case "${line}" in
             *u-boot-spl*)
                 mtd=${line%%:*}
-                [ $(cat /sys/class/mtd/${mtd}/bad_blocks) -eq 0 ] || \
+                [ "$(cat "/sys/class/mtd/${mtd}/bad_blocks")" -eq 0 ] || \
                     die "Bad blocks found in ${mtd} \"u-boot-spl\" area"
                 ;;
             *u-boot-env-a*)
                 mtd=${line%%:*}
-                bad_a=$(cat /sys/class/mtd/${mtd}/bad_blocks)
+                bad_a=$(cat "/sys/class/mtd/${mtd}/bad_blocks")
                 ;;
             *u-boot-env-b*)
                 mtd=${line%%:*}
-                bad_b=$(cat /sys/class/mtd/${mtd}/bad_blocks)
+                bad_b=$(cat "/sys/class/mtd/${mtd}/bad_blocks")
                 ;;
             esac
         done < /proc/mtd
 
-        [ ${bad_a} -gt 0 -a ${bad_b} -gt 0 ] && \
+        [ "${bad_a}" -gt 0 ] && [ "${bad_b}" -gt 0 ] && \
             die "Bad blocks found in both u-boot-env areas"
 
         . erase_som_nand
     fi
 
     ubimtd=$(sed -n 's/^\(.*\):.*"ubi"$/\1/p' /proc/mtd)
-    [ -z "${ubimtd}" ] || ubiformat /dev/${ubimtd} -y
+    [ -z "${ubimtd}" ] || ubiformat "/dev/${ubimtd}" -y
     ;;
 esac
 
 case "${url}" in
 *://*)
-    ${download_cmd} | swupdate-client -e stable,${p_method} ${o_verbose} - || die ""
+    ${download_cmd} | swupdate-client -e "stable,${p_method}" ${o_verbose} - || die ""
     ;;
 
 *)
-    swupdate-client -e stable,${p_method} ${o_verbose} "${url}" || die ""
+    swupdate-client -e "stable,${p_method}" ${o_verbose} "${url}" || die ""
     ;;
 esac
 

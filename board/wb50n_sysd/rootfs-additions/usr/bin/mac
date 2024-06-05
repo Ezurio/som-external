@@ -10,14 +10,23 @@ usage()
 {
 	echo "usage: write: ${0##*/} [-nand] [-f] [-s] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
 	echo "       read:  ${0##*/} [-nand]"
-	echo "-nand - uses uboot environment blocks in NAND"
-	echo "-f    - writes addresses into uboot environment"
-	echo "-s    - writes only once (programs only single block)"
+	echo "-nand  - uses uboot environment blocks in NAND"
+	echo "-f     - writes addresses into uboot environment"
+	echo "-e     - erases addresses from uboot environment"
+	echo "-s     - writes only once (programs only single block)"
 }
 
 read_mac()
 {
-	fw_printenv ${fw_opt} -n "${1}"
+	fw_printenv "${fw_opt}" -n "${1}"
+}
+
+store_macs()
+{
+	# shellcheck disable=SC2034
+	for i in ${writes}; do
+		fw_setenv "${fw_opt}" ethaddr "${1}"
+	done
 }
 
 print_macs()
@@ -30,9 +39,7 @@ write_macs()
 	mac1="${1}"
 
 	if ${enable_write}; then
-		for i in ${writes} ; do
-			fw_setenv ${fw_opt} ethaddr "${mac1}"
-		done
+		store_macs "${mac1}"
 	else
 		printf "simulate write Eth0: %s\n" "${mac1}"
 		printf "(specify -f to write)\n"
@@ -42,9 +49,7 @@ write_macs()
 erase_macs() {
 	${enable_erase} || return
 
-	for i in ${writes}; do
-		fw_setenv ${fw_opt} ethaddr
-	done
+	store_macs ''
 }
 
 while true ; do
@@ -59,7 +64,7 @@ while true ; do
 done
 
 case "${#}" in
-	0)	enable_erase && erase_macs || print_macs ; exit ;;
+	0)	{ enable_erase && erase_macs; } || print_macs ; exit ;;
 	1)	;;
 	*)	usage ; exit ;;
 esac

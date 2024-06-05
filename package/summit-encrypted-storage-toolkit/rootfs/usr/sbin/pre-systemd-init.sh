@@ -12,12 +12,14 @@ PERM_DEVICE=ubi0_6
 test -r /etc/default/perm-mount-opts && . /etc/default/perm-mount-opts
 test -z "${PERM_MOUNT_OPTS}" && PERM_MOUNT_OPTS="noatime,nosuid,noexec"
 
-/usr/bin/mount -t ubifs -o ${PERM_MOUNT_OPTS} ${PERM_DEVICE} ${PERM_MOUNT}
+/usr/bin/mount -t ubifs -o "${PERM_MOUNT_OPTS}" ${PERM_DEVICE} ${PERM_MOUNT}
 
 # Make sure there is at least an empty machine-id file
 # (Referenced from symlink on the rootfs)
-[ -f ${PERM_MOUNT}/etc/machine-id ] ||\
-	{ mkdir -p ${PERM_MOUNT}/etc; echo '' > ${PERM_MOUNT}/etc/machine-id; }
+if [ ! -f ${PERM_MOUNT}/etc/machine-id ]; then
+	mkdir -p ${PERM_MOUNT}/etc
+	touch ${PERM_MOUNT}/etc/machine-id
+fi
 
 mkdir -p ${PERM_MOUNT}/log/journal
 

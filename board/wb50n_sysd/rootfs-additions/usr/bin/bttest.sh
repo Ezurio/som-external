@@ -36,10 +36,6 @@ BT_PARAMS="0:0:19b2:0:0:0:0:0:0:1:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:
 # For a detailed description of the settings used please refer to the stty manpage.
 
 
-do_() {
-  echo -e "+ $@"; $@
-}
-
 display_usage() {
     echo "Use to set the WB50 into passthrough mode for production testing."
     echo
@@ -48,7 +44,7 @@ display_usage() {
     echo "  stop - set normal Bluetooth operation"
     echo
     echo "Usage:"
-    echo "  ${0} [action] [/dev/ttyS*]"
+    echo "  ${0} <action> [/dev/ttyS*]"
     echo
 }
 
@@ -59,13 +55,14 @@ bt_on_off()
     echo out > /sys/class/gpio/pioE5/direction
   fi
 
-  echo ${1} > /sys/class/gpio/pioE5/value
+  echo "${1}" > /sys/class/gpio/pioE5/value
 }
 
-exec 2>${ERROR_LOG}
+exec 2> ${ERROR_LOG}
 
-case $1 in
-    start) # Start testing Bluetooth on the specified port
+case "${1}" in
+    start)
+        # Start testing Bluetooth on the specified port
         if [ $# -lt 2 ] || [ ! -c "${2}" ] || [ "${BT_PATH}" = "${2}" ]
         then
             display_usage
@@ -80,11 +77,11 @@ case $1 in
 
         echo "Using ${2} for passthrough."
 
-        echo -n "Shutting down Bluetooth..."
+        printf "Shutting down Bluetooth..."
         systemctl stop btattach
         echo "done."
 
-        echo -n "Mapping reset pin and resetting..."
+        printf "Mapping reset pin and resetting..."
         # Initialize the bt reset gpio, and hold in reset
         bt_on_off 0
         echo "done."
@@ -92,26 +89,26 @@ case $1 in
         # Allow time for the radio to reset
         sleep 1
 
-        echo -n "Releasing radio from reset..."
+        printf "Releasing radio from reset..."
         # Enable the bt chip by releasing the reset gpio
         bt_on_off 1
         echo "done."
 
-        echo -n "Loading Bluetooth firmware..."
+        printf "Loading Bluetooth firmware..."
         /usr/bin/bccmd -t bcsp -d ${BT_PATH} -b 115200 psload -r /lib/firmware/bluetopia/DWM-W311.psr >/dev/null
         echo "done."
 
-        echo -n "Setting parameters for ports..."
+        printf "Setting parameters for ports..."
         # Setup serial port baudrate + params
         stty -F ${BT_PATH} ${BT_PARAMS} > /dev/null
-        stty -F ${2} ${BT_PARAMS} > /dev/null
+        stty -F "${2}" ${BT_PARAMS} > /dev/null
         echo "done."
 
-        echo -n "Setting up passthrough..."
+        printf "Setting up passthrough..."
         # Setup redirects/socat  (and background them)
-        cat < ${2} > ${BT_PATH} &
+        cat < "${2}" > ${BT_PATH} &
         echo $! > /tmp/bttest.rx.pid
-        cat < ${BT_PATH} > ${2} &
+        cat < "${BT_PATH}" > "${2}" &
         echo $! > /tmp/bttest.tx.pid
         echo "done."
 
@@ -119,27 +116,28 @@ case $1 in
         echo "WB50 Bluetooth now in passthrough test mode."
     ;;
 
-    stop) # Stop testing
+    stop)
+        # Stop testing
         if [ ! -e /tmp/bttest.rx.pid ] || [ ! -e /tmp/bttest.tx.pid ]
         then
             echo "Test mode not running, exiting"
             exit 1
         fi
 
-        echo -n "Mapping reset pin and resetting..."
+        printf "Mapping reset pin and resetting..."
         bt_on_off 0
         echo "done."
 
-        echo -n "Tearing down passthrough..."
+        printf "Tearing down passthrough..."
         # Kill the PID's of the passthrough
-        read -r BT_RXPID < /tmp/bttest.rx.pid && kill ${BT_RXPID}
-        read -r BT_TXPID < /tmp/bttest.tx.pid && kill ${BT_TXPID}
+        read -r BT_RXPID < /tmp/bttest.rx.pid && kill "${BT_RXPID}"
+        read -r BT_TXPID < /tmp/bttest.tx.pid && kill "${BT_TXPID}"
         rm -f /tmp/bttest*
         echo "done."
 
         sleep 1
 
-        echo -n "Starting Bluetooth..."
+        printf "Starting Bluetooth..."
         systemctl start btattach
         echo "done."
     ;;

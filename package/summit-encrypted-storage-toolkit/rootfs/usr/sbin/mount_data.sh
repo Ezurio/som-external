@@ -30,7 +30,7 @@ start)
 
 	/usr/bin/fscryptctl set_policy ${FSCRYPT_KEY} ${DATA_SECRET} >/dev/null
 
-	. /usr/sbin/do_factory_reset.sh check
+	/usr/sbin/do_factory_reset.sh check
 
 	echo "Secure Boot Cycle Complete" >/dev/console
 	;;

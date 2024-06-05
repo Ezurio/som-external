@@ -6,7 +6,7 @@ case "${1}" in
 		[ -f "${mfg_mode}" ] && read -r mfg_val < ${mfg_mode} && \
 		[ "${mfg_val}" = 1 ] && baud=115200 || baud=3000000
 
-		/usr/bin/btattach -B /dev/ttyS1 -P h4 -S ${baud} &
+		/usr/bin/btattach -B /dev/ttyS1 -P h4 -S "${baud}" &
 		;;
 
 	stop)
@@ -14,7 +14,7 @@ case "${1}" in
 		;;
 
 	*)
-		echo $"Usage: ${0} {start|stop}"
+		echo "Usage: ${0} <start|stop>"
 		exit 1
 		;;
 esac

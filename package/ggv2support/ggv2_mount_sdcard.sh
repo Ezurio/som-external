@@ -95,7 +95,7 @@ start)
 
 stop)
     keyctl search @us user factory_reset > /dev/null && NORST=false || NORST=true
-    umount_sd ${NORST}
+    umount_sd "${NORST}"
     ;;
 
 prepare)

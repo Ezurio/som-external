@@ -14,34 +14,31 @@
 #
 # contact: support@ezurio.com
 
-if [ ! $1 ]
-then
-	echo "Usage: $0 <pathname>"
+if [ -z "${1}" ]; then
+	echo "Usage: ${0} <pathname>"
 	exit
 fi
 
-if [ ! -d $1 ]
-then
-	echo "Error: Cannot find directory '$1'"
+if [ ! -d "${1}" ]; then
+	echo "Error: Cannot find directory '${1}'"
 	exit
 fi
 
-cd $1
+cd "${1}" || exit
 
 # Remove old hash files
 rm -f [0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z].[0-9]*
 
 # Create hashes of each file, avoiding collisions with an incremental suffix
-ls -1 *.pem | while read cert_file
-do
-	hash=`openssl x509 -hash -noout -in $cert_file 2> /dev/null`
-	if [ $? = 0 ]
-	then
-		suffix=0
-		while [ -e $hash.$suffix ]
-		do
-			suffix=`expr $suffix + 1`
-		done
-		ln -s $cert_file $hash.$suffix
-	fi
+for cert_file in *.pem; do
+	[ -r "${cert_file}" ] || continue
+	[ -L "${cert_file}" ] && continue
+
+	hash=$(openssl x509 -hash -noout -in "${cert_file}" 2> /dev/null) || continue
+
+	suffix=0
+	while [ -e "${hash}.${suffix}" ]; do
+		suffix=$((suffix + 1))
+	done
+	ln -s "${cert_file}" "${hash}.${suffix}"
 done
