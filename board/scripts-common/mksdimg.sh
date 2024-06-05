@@ -25,8 +25,8 @@ elif [ ! -d "${ROOTFSDIR}" ]; then
 	exit 2
 fi
 
-[ "${ROOTFS_EXTRA_SIZE}" -eq "${ROOTFS_EXTRA_SIZE}" ] 2>/dev/null
-if [ $? -ne 0 ]; then
+
+if ! [ "${ROOTFS_EXTRA_SIZE}" -eq "${ROOTFS_EXTRA_SIZE}" ] 2>/dev/null; then
 	echo "rootfs free space size is not a number" >&2
 	exit 2
 fi
@@ -62,76 +62,76 @@ SWAP_START_MiB=${BOOT_END_MiB}
 SWAP_END_MiB=$((SWAP_START_MiB + SWAP_IMG_SIZE_MiB))
 
 ROOTFS_START_MiB=${SWAP_END_MiB}
-ROOTFS_END_MiB=$(( ROOTFS_START_MiB + ROOTFS_IMG_SIZE_MiB ))
+#ROOTFS_END_MiB=$(( ROOTFS_START_MiB + ROOTFS_IMG_SIZE_MiB ))
 
 TMPDIR=$(mktemp -d)
 IMGTMPFILE=${TMPDIR}/${IMGFILE##*/}
 
 # Create disk image placeholder
-fallocate -l ${BOOT_START_MiB}MiB ${IMGTMPFILE}
+fallocate -l ${BOOT_START_MiB}MiB "${IMGTMPFILE}"
 
 echo "[Creating boot partition...]"
 
 # Create boot partition image
-mkfs.vfat -F 16 -n BOOT -S ${BOOT_LBS} -C ${TMPDIR}/boot.img ${BOOT_BLOCKS} > /dev/null
+mkfs.vfat -F 16 -n BOOT -S ${BOOT_LBS} -C "${TMPDIR}/boot.img" ${BOOT_BLOCKS} > /dev/null
 
 # Add files to boot partition image
-mcopy -i ${TMPDIR}/boot.img ${SRCDIR}/boot.bin ::/
-mcopy -i ${TMPDIR}/boot.img ${SRCDIR}/u-boot.itb ::/
-mcopy -i ${TMPDIR}/boot.img ${SRCDIR}/kernel.itb ::/
-mcopy -i ${TMPDIR}/boot.img ${SRCDIR}/uboot.env ::/
+mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/boot.bin" ::/
+mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/u-boot.itb" ::/
+mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/kernel.itb" ::/
+mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/uboot.env" ::/
 
 # Add boot partition to disk image
-cat ${TMPDIR}/boot.img >> ${IMGTMPFILE}
-rm -f ${TMPDIR}/boot.img
+cat "${TMPDIR}/boot.img" >> "${IMGTMPFILE}"
+rm -f "${TMPDIR}/boot.img"
 
 echo "[Creating swap partition...]"
 
 # Create swap partition image
-fallocate -l ${SWAP_IMG_SIZE_MiB}MiB ${TMPDIR}/swap.img
-chmod 600 ${TMPDIR}/swap.img
+fallocate -l ${SWAP_IMG_SIZE_MiB}MiB "${TMPDIR}/swap.img"
+chmod 600 "${TMPDIR}/swap.img"
 
 # Format swap partition image
-mkswap -L swap ${TMPDIR}/swap.img > /dev/null
+mkswap -L swap "${TMPDIR}/swap.img" > /dev/null
 
 # Add swap partition to disk image
-cat ${TMPDIR}/swap.img >> ${IMGTMPFILE}
-rm -f ${TMPDIR}/swap.img
+cat "${TMPDIR}/swap.img" >> "${IMGTMPFILE}"
+rm -f "${TMPDIR}/swap.img"
 
 echo "[Creating rootfs partition...]"
 
 # Create rootfs directory for mkfs.ext4
 if [ -z "${ROOTFSDIR}" ]; then
 	ROOTFSDIR=${TMPDIR}/rootfs.tmp
-	mkdir ${ROOTFSDIR}
-	tar xf ${SRCDIR}/rootfs.tar -C ${ROOTFSDIR}
+	mkdir "${ROOTFSDIR}"
+	tar xf "${SRCDIR}/rootfs.tar" -C "${ROOTFSDIR}"
 fi
 
 # Create rootfs partition image
 HOST_MKFS=${SRCDIR}/../host/sbin/mkfs.ext4
-[ -f ${HOST_MKFS} ] || HOST_MKFS=mkfs.ext4
+[ -f "${HOST_MKFS}" ] || HOST_MKFS=mkfs.ext4
 
-fakeroot ${HOST_MKFS} -q -L rootfs -F -b ${BLOCK_SIZE} -d ${ROOTFSDIR} \
-	-E lazy_itable_init=0,lazy_journal_init=0 ${TMPDIR}/rootfs.img ${ROOTFS_BLOCKS}
-rm -rf ${TMPDIR}/rootfs.tmp
+fakeroot "${HOST_MKFS}" -q -L rootfs -F -b ${BLOCK_SIZE} -d "${ROOTFSDIR}" \
+	-E lazy_itable_init=0,lazy_journal_init=0 "${TMPDIR}/rootfs.img" ${ROOTFS_BLOCKS}
+rm -rf "${TMPDIR}/rootfs.tmp"
 
 # Add rootfs partition to disk image
-cat ${TMPDIR}/rootfs.img >> ${IMGTMPFILE}
-rm -f ${TMPDIR}/rootfs.img
+cat "${TMPDIR}/rootfs.img" >> "${IMGTMPFILE}"
+rm -f "${TMPDIR}/rootfs.img"
 
 # Create image partition table
-parted -s ${IMGTMPFILE} mklabel msdos unit MiB \
+parted -s "${IMGTMPFILE}" mklabel msdos unit MiB \
 	mkpart primary fat16 ${BOOT_START_MiB} ${BOOT_END_MiB} set 1 lba on set 1 boot on \
 	mkpart primary linux-swap ${SWAP_START_MiB} ${SWAP_END_MiB} \
 	mkpart primary ext4 ${ROOTFS_START_MiB} 100%
 
 echo "[Compressing card image...]"
-xz -9cT 0 ${IMGTMPFILE} > ${IMGFILE}.xz
+xz -9cT 0 "${IMGTMPFILE}" > "${IMGFILE}.xz"
 
 echo "[Image file: ${IMGFILE}.xz]"
 echo "SD Card Programming: umount /dev/sdX? ; xz -dc ${IMGFILE}.xz | sudo dd of=/dev/sdX bs=4M conv=fsync"
 
-rm -rf ${TMPDIR}
+rm -rf "${TMPDIR}"
 sync
 
 echo "[Done]"

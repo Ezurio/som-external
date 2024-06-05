@@ -26,4 +26,4 @@ CUSTOMER_DIR=${2}
     "${REST_SERVER_CERTS_DIR}"/ca.crt \
     "${CUSTOMER_DIR}"
 
-mv -f rodata.img ${1}/package/lrd/lrd-encrypted-storage-toolkit/rootfs/etc/rodata
+mv -f rodata.img "${1}/package/lrd/lrd-encrypted-storage-toolkit/rootfs/etc/rodata"

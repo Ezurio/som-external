@@ -13,7 +13,7 @@
 # This provides a way to copy in data living in a custom br2-external.
 
 [ $# -lt 5 ] && echo "usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
-[ $(id -u) -ne 0 ] && echo "Please run as root" && exit 1
+[ "$(id -u)" -ne 0 ] && echo "Please run as root" && exit 1
 
 KEY_BIN="${1}"
 UPDATE_PUB_CERT="${2}"
@@ -43,7 +43,7 @@ EXT4_BLOCK_SIZE=4096
 KEY_DESC="ffffffffffffffff"
 
 exit_on_error() {
-  echo $1
+  echo "${1}"
   umount -fq ${RODATA_MNT_DIR} || true
   rm -f ${RODATA_IMG}
   exit 1
@@ -68,12 +68,12 @@ mkdir -p ${RODATA_MNT_DIR} || exit_on_error "Directory Creation for ${RODATA_DIR
 fallocate -l ${RODATA_SIZE}KiB ${RODATA_IMG} || exit_on_error "Creation of block image failed"
 mkfs.ext4 -O encrypt -O ^has_journal -b ${EXT4_BLOCK_SIZE} ${RODATA_IMG} || exit_on_error "EXT4 formatting failed"
 
-mount -o loop=${LOOP_DEVICE} ${RODATA_IMG} ${RODATA_MNT_DIR} || exit_on_error "Mounting ${LOOP_DEVICE} failed"
+mount -o loop="${LOOP_DEVICE}" ${RODATA_IMG} ${RODATA_MNT_DIR} || exit_on_error "Mounting ${LOOP_DEVICE} failed"
 
 #
 # Create encrypted directory and apply policy (must be done on empty directory)
 #
-cat ${KEY_BIN} | ${FSCRYPTCTL} insert_key --desc=${KEY_DESC}
+${FSCRYPTCTL} insert_key --desc=${KEY_DESC} < "${KEY_BIN}"
 mkdir -p ${SECRET_DIR} || exit_on_error "Failed to create ${SECRET_DIR}"
 ${FSCRYPTCTL} set_policy ${KEY_DESC} ${SECRET_DIR} || exit_on_error "Failed to apply encryption policy"
 
@@ -81,22 +81,22 @@ ${FSCRYPTCTL} set_policy ${KEY_DESC} ${SECRET_DIR} || exit_on_error "Failed to a
 # Create and populate REST server certificate and key under encrypted directory
 #
 mkdir -p ${REST_SERVER_SSL_DIR} || exit_on_error "Failed to create ${REST_SERVER_SSL_DIR}"
-cp ${REST_SERVER_CERT} ${REST_SERVER_CERT_DEST} || exit_on_error "Failed to populate REST server certficate"
-cp ${REST_SERVER_PRIV_KEY} ${REST_SERVER_KEY_DEST} || exit_on_error "Failed to populate REST server key"
-cp ${REST_SERVER_CERT_CHAIN} ${REST_SERVER_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server certificate chain"
+cp "${REST_SERVER_CERT}" ${REST_SERVER_CERT_DEST} || exit_on_error "Failed to populate REST server certficate"
+cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_KEY_DEST} || exit_on_error "Failed to populate REST server key"
+cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server certificate chain"
 
 #
 # Populate WebLCM provisioning certificates and key under encrypted directory
 #
-cp ${REST_SERVER_CERT} ${REST_SERVER_PROVISIONING_CERT_DEST} || exit_on_error "Failed to populate REST server provisioning certficate"
-cp ${REST_SERVER_PRIV_KEY} ${REST_SERVER_PROVISIONING_KEY_DEST} || exit_on_error "Failed to populate REST server provisioning key"
-cp ${REST_SERVER_CERT_CHAIN} ${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server provisioning certificate chain"
+cp "${REST_SERVER_CERT}" ${REST_SERVER_PROVISIONING_CERT_DEST} || exit_on_error "Failed to populate REST server provisioning certficate"
+cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_PROVISIONING_KEY_DEST} || exit_on_error "Failed to populate REST server provisioning key"
+cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server provisioning certificate chain"
 
 #
 # Create and populate update public certificate
 #
 mkdir -p ${UPDATE_CERT_DIR} || exit_on_error "Failed to create ${UPDATE_CERT_DIR}"
-cp ${UPDATE_PUB_CERT} ${UPDATE_CERT_DEST} || exit_on_error "Failed to populate update certificate"
+cp "${UPDATE_PUB_CERT}" ${UPDATE_CERT_DEST} || exit_on_error "Failed to populate update certificate"
 
 #
 # Copy in optional customer data
@@ -109,7 +109,7 @@ fi
 # Clean up
 #
 sync
-umount ${RODATA_MNT_DIR}
-keyctl unlink $(keyctl search @s logon fscrypt:ffffffffffffffff)
+umount "${RODATA_MNT_DIR}"
+keyctl unlink "$(keyctl search @s logon fscrypt:ffffffffffffffff)"
 
 echo "Successfully created factory data in ${RODATA_IMG}"

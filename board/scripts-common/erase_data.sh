@@ -17,7 +17,7 @@ find_ubi_device() {
 	ubi_dev=""
 	for f in /sys/class/ubi/*; do
 		if [ -f "${f}/name" ] &&
-			read -r ubi_name <${f}/name &&
+			read -r ubi_name < "${f}/name" &&
 			[ "${1}" = "${ubi_name}" ]; then
 			ubi_dev="/dev/${f#/sys/class/ubi/}"
 			break
