@@ -37,7 +37,7 @@ fi
 
 hash_check() {
 	${fipshmac} "${1}/${2}"
-	if [ "$(cat "${1}/.${2}".hmac)" == "$(cat "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac")" ]; then
+	if [ "$(cat "${1}/.${2}".hmac)" = "$(cat "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac")" ]; then
 		rm "${1}/.${2}".hmac
 	else
 		rm "${1}/.${2}".hmac
@@ -107,6 +107,7 @@ esac
 size_check 'kernel.bin' ${limit}
 size_check 'u-boot.bin' 3
 
+# shellcheck disable=SC2086
 tar -cjhf "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar.bz2" \
 	--owner=root --group=root -C "${BINARIES_DIR}" \
 	at91bs.bin u-boot.bin kernel.bin rootfs.bin \

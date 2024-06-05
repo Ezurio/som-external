@@ -25,7 +25,7 @@ do_check_and_reset() {
 	if [ -f "${RESET_INIDICATOR}" ]; then
 		# Delete all user data, but not the /data/secret dir as it is encrypted.
 		find /data -maxdepth 1 -mindepth 1 ! -name secret -exec rm -fr {} \;
-		rm -fr ${USER_SETTINGS_SECRET_TARGET}/*
+		rm -fr "${USER_SETTINGS_SECRET_TARGET:?}/"*
 
 		# Run factory reset hooks for external components
 		for hook_sh in /usr/sbin/factory_reset_*.sh; do
@@ -60,7 +60,7 @@ do_check_and_reset() {
 	[ -f "${USER_SETTINGS_MISC_TARGET}/timezone" ] || \
 		echo "Etc/UTC" > "${USER_SETTINGS_MISC_TARGET}/timezone"
 
-	ln -sf ${FACTORY_SETTING_DEFAULT_ZONE}/$(cat ${FACTORY_SETTING_TIMEZONE}) $(readlink ${FACTORY_SETTING_LOCALTIME}) || \
+	ln -sf ${FACTORY_SETTING_DEFAULT_ZONE}/"$(cat ${FACTORY_SETTING_TIMEZONE})" "$(readlink ${FACTORY_SETTING_LOCALTIME})" || \
 		exit_on_error "Unable to create localtime link"
 
 	touch "${FACTORY_SETTING_ADJTIME_FILE}" || exit_on_error "unable to create adjtime file"
@@ -79,6 +79,6 @@ case "${1}" in
 
 	*)
 		echo "Usage: ${0} <reset | check>"
-		exit -1
+		exit 1
 		;;
 esac

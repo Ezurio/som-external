@@ -7,7 +7,7 @@ bt_on_off()
 		echo out > /sys/class/gpio/pioE5/direction
 	fi
 
-	echo ${1} > /sys/class/gpio/pioE5/value
+	echo "${1}" > /sys/class/gpio/pioE5/value
 }
 
 case "${1}" in
@@ -28,7 +28,7 @@ case "${1}" in
 		;;
 
 	*)
-		echo $"Usage: ${0} {start|stop}"
+		echo "Usage: ${0} <start|stop>"
 		exit 1
 		;;
 esac

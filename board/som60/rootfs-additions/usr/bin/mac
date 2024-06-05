@@ -28,7 +28,15 @@ usage()
 
 read_mac()
 {
-	fw_printenv ${fw_opt} -n "${1}"
+	fw_printenv "${fw_opt}" -n "${1}"
+}
+
+store_macs()
+{
+	# shellcheck disable=SC2034
+	for i in ${writes}; do
+		printf "ethaddr=%s\neth1addr=%s\n", "$@" | fw_setenv "${fw_opt}" -s -
+	done
 }
 
 print_macs()
@@ -46,24 +54,22 @@ set_mac()
 {
 	# $1 - mac in numeric format
 	# $2 - mac of-node
-	printf "\\x$(printf "%012x" "${1}" | sed 's/../&\\x/g;s/\\x$//')" | dd of=${NVMEM_FILE} count=1 bs=6 seek="$(get_cell_offset "${2}")" oflag=seek_bytes status=none
+	printf '\x%s' "$(printf "%012x" "${1}" | sed 's/../&\\x/g;s/\\x$//')" | dd of=${NVMEM_FILE} count=1 bs=6 seek="$(get_cell_offset "${2}")" oflag=seek_bytes status=none
 }
 
 write_macs()
 {
 	mac1="${1}"
-	mac0_numeric="$(( 0x${mac1//:/} + 1 ))"
+	mac1_numeric="$(( $(echo "${mac1}" | sed 's/^/0x/;s/://g') ))"
+	mac0_numeric="$(( mac1_numeric + 1 ))"
 	mac0_hex="$(printf "%012x" ${mac0_numeric} | sed 's/../&:/g;s/:$//')"
 
 	if ${enable_write} ; then
 		if ${nvmem}; then
-			mac1_numeric="$(( 0x${mac1//:/} ))"
 			set_mac "${mac0_numeric}" "${MACB0_ADDRESS_NODE}"
 			set_mac "${mac1_numeric}" "${MACB1_ADDRESS_NODE}"
 		else
-			for i in ${writes}; do
-				echo -e "ethaddr=${mac0_hex}\neth1addr=${mac1}\n" | fw_setenv ${fw_opt} -s -
-			done
+			store_macs "${mac0_hex}", "${mac1}"
 		fi
 	else
 		printf "simulate write macb0: %s\n" "${mac0_hex}"
@@ -80,9 +86,7 @@ erase_macs() {
 		set_mac 0 "${MACB1_ADDRESS_NODE}"
 	fi
 
-	for i in ${writes}; do
-		echo -e "ethaddr=\neth1addr=\n" | fw_setenv ${fw_opt} -s -
-	done
+	store_macs '' ''
 }
 
 while true ; do
@@ -98,7 +102,7 @@ while true ; do
 done
 
 case "${#}" in
-	0)	enable_erase && erase_macs || print_macs ; exit ;;
+	0)	{ enable_erase && erase_macs; } || print_macs ; exit ;;
 	1)	;;
 	*)	usage ; exit ;;
 esac

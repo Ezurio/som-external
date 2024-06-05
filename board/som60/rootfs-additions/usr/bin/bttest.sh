@@ -36,10 +36,6 @@ BT_PARAMS="0:4:1cb2:a30:3:1c:7f:15:4:0:1:0:11:13:1a:0:12:f:17:16:0:0:0:0:0:0:0:0
 # For a detailed description of the settings used please refer to the stty manpage.
 
 
-do_() {
-  echo -e "+ $@"; $@
-}
-
 display_usage() {
     echo "Use to set the SOM60 into passthrough mode for production testing."
     echo
@@ -54,8 +50,9 @@ display_usage() {
 
 exec 2> ${ERROR_LOG}
 
-case ${1} in
-    start) # Start testing Bluetooth on the specified port
+case "${1}" in
+    start)
+        # Start testing Bluetooth on the specified port
         if [ $# -lt 2 ] || [ ! -c "${2}" ] || [ "${BT_PATH}" = "${2}" ]
         then
             display_usage
@@ -70,27 +67,27 @@ case ${1} in
 
         echo "Using ${2} for passthrough."
 
-        echo -n "Shutting down Bluetooth..."
+        printf "Shutting down Bluetooth..."
         systemctl stop btattach
         echo "done."
 
-        echo -n "Setting parameters for ports..."
+        printf "Setting parameters for ports..."
         # Setup serial port baudrate + params
         stty -F ${BT_PATH} ${BT_PARAMS} > /dev/null
-        stty -F ${2} ${BT_PARAMS} > /dev/null
+        stty -F "${2}" ${BT_PARAMS} > /dev/null
 
         mfg_mode=/sys/class/ieee80211/phy0/device/lrd/mfg_mode
         [ -f "${mfg_mode}" ] && read -r mfg_val < ${mfg_mode} && \
         [ "${mfg_val}" = 1 ] && baud=115200 || baud=3000000
-        stty -F ${BT_PATH} speed ${baud} > /dev/null
+        stty -F ${BT_PATH} speed "${baud}" > /dev/null
 
         echo "done."
 
-        echo -n "Setting up passthrough..."
+        printf "Setting up passthrough..."
         # Setup redirects/socat  (and background them)
-        cat < ${2} > ${BT_PATH} &
+        cat < "${2}" > ${BT_PATH} &
         echo $! > /tmp/bttest.rx.pid
-        cat < ${BT_PATH} > ${2} &
+        cat < "${BT_PATH}" > "${2}" &
         echo $! > /tmp/bttest.tx.pid
         echo "done."
 
@@ -98,21 +95,22 @@ case ${1} in
         echo "SOM60 Bluetooth now in passthrough test mode."
     ;;
 
-    stop) # Stop testing
+    stop)
+        # Stop testing
         if [ ! -e /tmp/bttest.rx.pid ] || [ ! -e /tmp/bttest.tx.pid ]
         then
             echo "Test mode not running, exiting"
             exit 1
         fi
 
-        echo -n "Tearing down passthrough..."
+        printf "Tearing down passthrough..."
         # Kill the PID's of the passthrough
-        read -r BT_RXPID < /tmp/bttest.rx.pid && kill ${BT_RXPID}
-        read -r BT_TXPID < /tmp/bttest.tx.pid && kill ${BT_TXPID}
+        read -r BT_RXPID < /tmp/bttest.rx.pid && kill "${BT_RXPID}"
+        read -r BT_TXPID < /tmp/bttest.tx.pid && kill "${BT_TXPID}"
         rm -f /tmp/bttest*
         echo "done."
 
-        echo -n "Starting Bluetooth..."
+        printf "Starting Bluetooth..."
         systemctl start btattach
         echo "done."
     ;;

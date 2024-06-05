@@ -3,7 +3,7 @@
 INIT=/usr/sbin/init
 
 fail() {
-	echo -e "\nFIPS Integrity check Failed: $1\n"
+	printf "\nFIPS Integrity check Failed: %s\n", "${1}" >&2
 	/usr/sbin/reboot -f
 }
 
@@ -48,20 +48,20 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
-	/usr/sbin/dumpimage -T flat_dt -p 0 -o /tmp/Image.${IMGTYP} ${KERNEL} >/dev/null || \
+	/usr/sbin/dumpimage -T flat_dt -p 0 -o "/tmp/Image.${IMGTYP}" "${KERNEL}" >/dev/null || \
 		fail "Cannot extract kernel image error: $?"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/libcrypto.so.1.0.0 || \
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
 			fail "fipscheck error: $?"
 	else
 		ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck /tmp/Image.${IMGTYP} /usr/lib/ossl-modules/fips.so || \
+		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
 			fail "fipscheck error: $?"
 	fi
 
-	#shred -zufn 0 /tmp/Image.${IMGTYP}
-	rm -f /tmp/Image.${IMGTYP}
+	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
+	rm -f "/tmp/Image.${IMGTYP}"
 
 	${BOOT_MOUNT} && umount /boot
 	${TMP_MOUNT} && umount /tmp
@@ -78,7 +78,8 @@ fi
 echo "Launching: ${INIT}"
 
 if [ "${INIT#*.}" = "sh" ]; then
-	. ${INIT}
+	# shellcheck source=/dev/null
+	. "${INIT}"
 else
 	exec ${INIT}
 fi

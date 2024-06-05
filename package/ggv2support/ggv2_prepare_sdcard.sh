@@ -10,6 +10,6 @@ systemctl stop ggv2sdmount.service
 
 /bin/keyctl link @us @s
 
-. ggv2_mount_sdcard.sh prepare
+ggv2_mount_sdcard.sh prepare
 
 systemctl start ggv2sdmount.service

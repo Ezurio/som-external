@@ -45,7 +45,7 @@
 #  entry from the cmdline.txt file and reboot, make the changes, add the init= entry and reboot once more.
 
 fail() {
-    echo -e "$1"
+    echo "${1}"
     /bin/sh
 }
 
@@ -67,7 +67,7 @@ mkdir /mnt/rw
 # Find our running ubiblock
 read -r cmdline </proc/cmdline
 for x in ${cmdline}; do
-    case "$x" in
+    case "${x}" in
     ubi.block=*)
         BLOCK=${x#*,}
         ;;
@@ -76,7 +76,7 @@ done
 
 OVERLAY=$((BLOCK + 1))
 
-mount -o noatime -t ubifs ubi0_$OVERLAY /mnt/rw ||
+mount -o noatime -t ubifs ubi0_${OVERLAY} /mnt/rw ||
     fail "ERROR: could not create tempfs for upper filesystem"
 
 mkdir -p /mnt/rw/upper
@@ -84,11 +84,12 @@ mkdir -p /mnt/rw/work
 mkdir /mnt/newroot
 
 # mount root filesystem readonly
+# shellcheck disable=SC2046
 set -- $(mount | awk '$3 == "/" {print $1, $5}')
-rootDev=$1
-rootFsType=$2
+rootDev=${1}
+rootFsType=${2}
 
-mount -t $rootFsType -o noatime,ro $rootDev /mnt/lower ||
+mount -t "${rootFsType}" -o noatime,ro "${rootDev}" /mnt/lower ||
     fail "ERROR: could not ro-mount original root partition"
 
 mount -t overlay -o noatime,lowerdir=/mnt/lower,upperdir=/mnt/rw/upper,workdir=/mnt/rw/work overlayfs-root /mnt/newroot ||
@@ -99,14 +100,15 @@ mkdir -p /mnt/newroot/ro
 mkdir -p /mnt/newroot/rw
 
 # remove root mount from fstab (this is already a non-permanent modification)
-grep -v /dev/root /mnt/lower/etc/fstab >/mnt/newroot/etc/fstab &&
-    echo "#the original root mount has been removed by overlayRoot.sh\n" \
-        "#this is only a temporary modification, the original fstab\n" \
-        "#stored on the disk can be found in /ro/etc/fstab\n" \
-        >>/mnt/newroot/etc/fstab
+grep -v /dev/root /mnt/lower/etc/fstab >/mnt/newroot/etc/fstab && 
+cat <<EOF >>/mnt/newroot/etc/fstab
+# the original root mount has been removed by overlayRoot.sh
+# this is only a temporary modification, the original fstab
+# stored on the disk can be found in /ro/etc/fstab
+EOF
 
 # change to the new overlay root
-cd /mnt/newroot
+cd /mnt/newroot || fail "ERROR: could not change to new root"
 pivot_root . mnt
 
 exec chroot . sh -c "$(
