@@ -23,7 +23,7 @@ for x in ${cmdline}; do
 	esac
 done
 
-fw_printenv -n bootcmd | grep -i 0x000e0000 && \
+fw_printenv -n bootcmd | grep -qFi 0x000e0000 && \
 	KERNEL=/dev/mtd4 || KERNEL=/dev/mtd5
 
 if [ -f /dev/hwrng ]; then
@@ -32,7 +32,7 @@ if [ -f /dev/hwrng ]; then
 fi
 
 [ -f /proc/sys/crypto/fips_enabled ] &&
-	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
+	read -r FIPS_ENABLED < /proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	echo "FIPS Integrity check Started"
