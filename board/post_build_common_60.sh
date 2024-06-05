@@ -1,17 +1,18 @@
 #! /bin/bash
 
+# enable tracing and exit on errors
+set -x -e
+
 BOARD_DIR="${1}"
 BUILD_TYPE="${2}"
 ENCRYPTED_TOOLKIT_DIR="$(realpath "${3}")"
-fipshmac=${HOST_DIR}/bin/fipshmac
-
-# enable tracing and exit on errors
-set -x -e
 
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: starting..."
+
+fipshmac=${HOST_DIR}/bin/fipshmac
 
 case "${BUILD_TYPE}" in
 *sd) SD=true  ;;
