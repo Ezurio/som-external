@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -x -e
+
 BUILD_TYPE="${2}"
 
 echo "WB50n POST IMAGE script: starting..."

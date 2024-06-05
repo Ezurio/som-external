@@ -1,8 +1,10 @@
 #! /bin/bash
 
+set -x -e
+
 BUILD_TYPE="${2}"
 
-echo "WB50n POST BUILD legacy script: starting..."
+echo "WB50n POST BUILD script: starting..."
 
 # source the common post build legacy script
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_build_common_legacy.sh" "${BUILD_TYPE}"

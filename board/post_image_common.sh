@@ -81,6 +81,8 @@ if [ "${BUILD_TYPE}" = wb50n ]; then
 	SWU_BOOT=${BR2_SUMMIT_PRODUCT}-boot.swu
 	( cd "${BINARIES_DIR}" && \
 		echo -e "${ALL_SWU_FILES// /\\n}" | cpio -ovL -H crc > "${BINARIES_DIR}/${SWU_BOOT}")
+else
+	SWU_BOOT=""
 fi
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/mkfwtxt.sh" "${BR2_SUMMIT_PRODUCT}-${BR2_SUMMIT_BUILD_VERSION}"
@@ -108,6 +110,6 @@ size_check 'u-boot.bin' 3
 tar -cjhf "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar.bz2" \
 	--owner=root --group=root -C "${BINARIES_DIR}" \
 	at91bs.bin u-boot.bin kernel.bin rootfs.bin \
-	fw_update fw_select fw_usi fw.txt "${SWU_BOOT}"
+	fw_update fw_select fw_usi fw.txt ${SWU_BOOT}
 
 echo "COMMON POST IMAGE script: done."
