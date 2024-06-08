@@ -176,9 +176,8 @@ if [ ${EXT} != gz ]; then
 	sed "s/Image.gz/Image.${EXT}/g;s/gzip/${EXT}/g" -i "${BINARIES_DIR}/kernel.its"
 fi
 
-kver=$(grep -aom 1 'Linux version [0-9.]\+' "${BINARIES_DIR}/Image")
-kver="${kver##* }"
-sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${LOCVER}\"/g" -i "${BINARIES_DIR}/kernel.its"
+kver=$(make -C "${BUILD_DIR}/linux-custom" kernelrelease)
+sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}\"/g" -i "${BINARIES_DIR}/kernel.its"
 fi
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
