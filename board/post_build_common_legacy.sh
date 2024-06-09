@@ -138,7 +138,10 @@ gzip -c "${TARGET_DIR}/etc/network/interfaces" > "${TARGET_DIR}/etc/network/inte
 # This may be overwritten by a proper release file.
 LOCRELSTR="${SUMMIT_RELEASE_STRING}"
 if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" = "0.0.0.0" ]; then
-	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0-$(/bin/date +%Y%m%d%H%M)"
+	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0"
+	DATE_SUFFIX="-$(date +%Y%m%d)"
+else
+	DATE_SUFFIX=""
 fi
 echo "${LOCRELSTR}" > "${TARGET_DIR}/etc/issue"
 
@@ -147,7 +150,7 @@ NAME="Summit Linux"
 VERSION="${LOCRELSTR}"
 ID=${BR2_SUMMIT_PRODUCT}
 VERSION_ID=${BR2_SUMMIT_BUILD_VERSION}
-BUILD_ID=${LOCRELSTR##* }
+BUILD_ID=${BR2_SUMMIT_PRODUCT}-${BR2_SUMMIT_BUILD_VERSION}${DATE_SUFFIX}
 PRETTY_NAME="${LOCRELSTR}"
 EOF
 
