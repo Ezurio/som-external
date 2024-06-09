@@ -50,7 +50,16 @@ cat >> "${fwul}" << EOF
 # transfer-list
   /etc/summit/profiles.conf
   /etc/network/interfaces
-  /etc/ssl
+  /etc/ssl/*.crt
+  /etc/ssl/*.der
+  /etc/ssl/*.key
+  /etc/ssl/*.p7*
+  /etc/ssl/*.p8*
+  /etc/ssl/*.p12
+  /etc/ssl/*.pac
+  /etc/ssl/*.pem
+  /etc/ssl/*.pfx
+  /etc/ssl/*.spc
   /root/.ssh
   /etc/dcas.conf
 EOF
