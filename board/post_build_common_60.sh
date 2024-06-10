@@ -258,7 +258,7 @@ if ${SD} ; then
 	ln -rsf "${CCONF_DIR}/u-boot_mmc.scr" "${BINARIES_DIR}/u-boot.scr"
 
 	# Copy mksdcard.sh and mksdimg.sh to images
-	ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIDATE_SUFFIXES_DIR}/mksdcard.sh"
+	ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 	ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 else
 	ln -rsf "${BOARD_DIR}/configs/sw-description" "${BINARIES_DIR}/sw-description"
