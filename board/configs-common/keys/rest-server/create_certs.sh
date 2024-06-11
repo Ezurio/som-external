@@ -5,5 +5,6 @@ openssl req -out ca.csr -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -pkeyop
 openssl x509 -req -days 3650 -in ca.csr -signkey ca.key -out ca.crt
 openssl req -out server.csr -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -pkeyopt ec_param_enc:named_curve -nodes -keyout server.key -config server.cnf
 openssl x509 -req -days 3650 -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt -sha256 -extfile san.ext
+cat server.crt server.key > server.pem
 
 rm ca.csr car.key server.csr -fr

@@ -81,6 +81,10 @@ if [ ! -x "${TARGET_DIR}/usr/sbin/lighttpd" ]; then
 	rm -f "${TARGET_DIR}/etc/init.d/opt/S50lighty"
 	rm -f "${TARGET_DIR}/etc/init.d/S99lighttpd"
 	sed -i 's/^http/#http/' "${TARGET_DIR}/etc/inetd.conf"
+else
+	# install weblcm certs
+	mkdir -p "${TARGET_DIR}/etc/weblcm/certs"
+	cp -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.pem" "${TARGET_DIR}/etc/weblcm/certs/server.pem"
 fi
 
 if [ ! -x "${TARGET_DIR}/usr/sbin/proftpd" ]; then
