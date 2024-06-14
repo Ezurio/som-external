@@ -1,10 +1,3 @@
-config BR2_LRD_DEVEL_BUILD
-	bool
-	option env="BR2_LRD_DEVEL_BUILD"
-	help
-		Internal developers can set this flag to build directly from 
-		the internal repositories
-
 config BR2_SUMMIT_SECURE_BOOT
 	bool "Summit Secure Boot"
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
