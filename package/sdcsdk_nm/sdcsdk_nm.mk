@@ -7,9 +7,10 @@
 SDCSDK_NM_VERSION = local
 SDCSDK_NM_SITE = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/externals/sdcsdk_nm
 SDCSDK_NM_SITE_METHOD = local
+SDCSDK_LICENSE = Ezurio
+SDCSDK_LICENSE_FILES = LICENSE.ezurio
 SDCSDK_NM_INSTALL_STAGING = YES
-
-SDCSDK_NM_DEPENDENCIES = libnl host-pkgconf lrd-userspace-examples
+SDCSDK_NM_DEPENDENCIES = libnl host-pkgconf summit-userspace-examples
 
 define SDCSDK_NM_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
@@ -33,10 +34,6 @@ endef
 define SDCSDK_NM_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/libsdc_sdk_nm.so.1.0 $(TARGET_DIR)/usr/lib/libsdc_sdk_nm.so.1.0
 	ln -rsf $(TARGET_DIR)/usr/lib/libsdc_sdk_nm.so.1.0 $(TARGET_DIR)/usr/lib/libsdc_sdk_nm.so.1
-endef
-
-define SDCSDK_NM_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/lib/libsdc_sdk*
 endef
 
 $(eval $(generic-package))

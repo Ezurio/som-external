@@ -158,46 +158,39 @@ tar -C "${BINARIES_DIR}" -chf "${RELEASE_FILE}" \
 	boot.bin u-boot.itb kernel.itb
 
 if ${SECURE_BOOT} ; then
-	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-		--owner=root --group=root \
+	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+		-C "${BINARIES_DIR}" \
 		u-boot-spl.dtb u-boot-spl-nodtb.bin u-boot.dtb \
-		u-boot-nodtb.bin u-boot.its boot.scr
-
-	tar -C "${HOST_DIR}/usr/bin" -rhf "${RELEASE_FILE}" \
-		--owner=root --group=root \
-		fdtget fdtput
-
-	tar -C "${BUILD_DIR}/uboot-custom/tools" -rhf "${RELEASE_FILE}" \
-		--owner=root --group=root \
+		u-boot-nodtb.bin u-boot.its boot.scr \
+		-C "${HOST_DIR}/usr/bin" \
+		fdtget fdtput \
+		-C "${BUILD_DIR}/uboot-custom/tools" \
 		mkimage
 fi
 
 if ${SD} ; then
-	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-		--owner=root --group=root \
+	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+		-C "${BINARIES_DIR}" \
 		uboot.env rootfs.tar mksdcard.sh mksdimg.sh
 else
-	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-		--owner=root --group=root \
+	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+		-C "${BINARIES_DIR}" \
 		rootfs.bin "${BR2_SUMMIT_PRODUCT}.swu"
 
 	if ${SECURE_BOOT} ; then
-		tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-			--owner=root --group=root \
+		tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+			-C "${BINARIES_DIR}" \
 			pmecc.bin uboot.env erase_data.sh sw-description
 	fi
 
 	if ${ENCRYPTED_TOOLKIT} ; then
 		DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
-		tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-			--owner=root --group=root \
-			u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity
-
-		tar -C "${HOST_DIR}/usr/bin" -rhf "${RELEASE_FILE}" \
-			--owner=root --group=root \
+		tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+			-C "${BINARIES_DIR}" \
+			u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity \
+			-C "${HOST_DIR}/usr/bin" \
 			fscryptctl
 	fi
-
 fi
 
 # Move back the OpenJDK 'modules' dependency to the target directory
