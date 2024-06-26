@@ -5,7 +5,7 @@
 ################################################################################
 
 LORA_GATEWAY_BRIDGE_VERSION = 2.1.5
-LORA_GATEWAY_BRIDGE_SITE = $(call github,chirpstack,chirpstack-gateway-bridge)
+LORA_GATEWAY_BRIDGE_SITE = $(call github,chirpstack,chirpstack-gateway-bridge,$(LORA_GATEWAY_BRIDGE_VERSION))
 LORA_GATEWAY_BRIDGE_LICENSE = MIT
 LORA_GATEWAY_BRIDGE_LICENSE_FILES = LICENSE
 
@@ -28,7 +28,7 @@ define LORA_GATEWAY_BRIDGE_BUILD_CMDS
 endef
 
 define LORA_GATEWAY_BRIDGE_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/build/lora-gateway-bridge $(TARGET_DIR)/usr/sbin/lora-gateway-bridge
+	$(INSTALL) -D -m 0755 -t $(TARGET_DIR)/usr/sbin $(@D)/build/lora-gateway-bridge
 endef
 
 $(eval $(generic-package))

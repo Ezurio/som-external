@@ -5,8 +5,10 @@
 ################################################################################
 
 LIBLORAGW_VERSION = v4.1.3
-LIBLORAGW_SITE = $(call github,Lora-net,lora_gateway)
+LIBLORAGW_SITE = $(call github,Lora-net,lora_gateway,$(LIBLORAGW_VERSION))
 LIBLORAGW_INSTALL_STAGING = YES
+LIBLORAGW_LICENSE = BSD-3-Clause
+LIBLORAGW_LICENSE_FILES = LICENSE
 
 define LIBLORAGW_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)

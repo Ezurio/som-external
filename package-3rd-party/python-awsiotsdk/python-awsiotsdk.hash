@@ -1,3 +1,2 @@
-# md5, sha256 from https://pypi.org/pypi/awsiotsdk/json
-md5  3c796ca395a1b7e293f684e0b8f94fe5  awsiotsdk-1.21.0.tar.gz
-sha256  c3e89d974ce0f82f2e7edcfa1052d8343d68002d87b50afc470c85a6f3854858  awsiotsdk-1.21.0.tar.gz
+# sha256 from https://pypi.org/pypi/awsiotsdk/json
+sha256  e87dc245551f0391ad3fe246cd99bfd2379a93a2aeca00652aed68a49c3c697b  awsiotsdk-1.21.5.tar.gz
