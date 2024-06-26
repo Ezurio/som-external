@@ -5,9 +5,7 @@
 ################################################################################
 
 TTN_FORWARDER_VERSION = v2.0.2
-TTN_FORWARDER_SITE = https://github.com/TheThingsNetwork/packet_forwarder/archive
-TTN_FORWARDER_SOURCE = $(TTN_FORWARDER_VERSION).tar.gz
-
+TTN_FORWARDER_SITE = $(call github,TheThingsNetwork,packet_forwarder,$(TTN_FORWARDER_VERSION))
 TTN_FORWARDER_LICENSE = MIT
 TTN_FORWARDER_LICENSE_FILES = LICENSE
 

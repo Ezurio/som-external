@@ -3,14 +3,14 @@
 # NetBIOS responder program
 #
 #############################################################
-
-# source included in buildroot
 NBNSD_VERSION = local
-NBNSD_SOURCE =
+NBNSD_SITE = $(NBNSD_PKGDIR)
+NBNSD_SITE_METHOD = local
 NBNSD_LICENSE = MIT
+NBNSD_LICENSE_FILES = nbnsd.c
 
 define NBNSD_EXTRACT_CMDS
-	cp package/nbnsd/nbnsd.c $(@D)
+	cp $(NBNSD_PKGDIR)/nbnsd.c $(@D)
 endef
 
 define NBNSD_BUILD_CMDS
@@ -19,13 +19,8 @@ define NBNSD_BUILD_CMDS
 endef
 
 define NBNSD_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 755 $(@D)/nbnsd $(TARGET_DIR)/usr/sbin/
-	$(INSTALL) -m 0755 -D package/nbnsd/S91nbnsd $(TARGET_DIR)/etc/init.d/S91nbnsd
-endef
-
-define NBNSD_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/sbin/nbnsd
-	rm -f $(TARGET_DIR)/etc/init.d/S91nbnsd
+	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/usr/sbin $(@D)/nbnsd
+	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/etc/init.d $(NBNSD_PKGDIR)/S91nbnsd
 endef
 
 $(eval $(generic-package))

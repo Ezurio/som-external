@@ -5,7 +5,9 @@
 ################################################################################
 
 LORA_PACKET_FORWARDER_VERSION = v3.1.0
-LORA_PACKET_FORWARDER_SITE = $(call github,Lora-net,packet_forwarder)
+LORA_PACKET_FORWARDER_SITE = $(call github,Lora-net,packet_forwarder,$(LORA_PACKET_FORWARDER_VERSION))
+LORA_PACKET_FORWARDER_LICENSE = BSD-3-Clause, MIT
+LORA_PACKET_FORWARDER_LICENSE_FILES = LICENSE
 
 LORA_PACKET_FORWARDER_DEPENDENCIES = libloragw
 
@@ -20,7 +22,7 @@ define LORA_PACKET_FORWARDER_INSTALL_TARGET_CMDS
 endef
 
 define LORA_PACKET_FORWARDER_INSTALL_INIT_SYSV
-	$(INSTALL) -D -t $(TARGET_DIR)/etc/init.d -m 755 $(LORA_PACKET_FORWARDER_PKGDIR)/S95lora_pkt_fwd
+	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/etc/init.d $(LORA_PACKET_FORWARDER_PKGDIR)/S95lora_pkt_fwd
 endef
 
 $(eval $(generic-package))

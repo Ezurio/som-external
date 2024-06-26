@@ -4,7 +4,9 @@
 #
 ################################################################################
 EASYCWMP_VERSION = 8a4c3f36d49cd85b33ebb8b9f05b448bcad85e51
-EASYCWMP_SITE = $(call github,pivasoftware,easycwmp)
+EASYCWMP_SITE = $(call github,pivasoftware,easycwmp,$(EASYCWMP_VERSION))
+EASYCWMP_LICENCE = GPL-2.0
+EASYCWMP_LICENCE_FILES = COPYING
 EASYCWMP_DEPENDENCIES = libcurl libubox ubus openssl libuci microxml
 
 EASYCWMP_AUTORECONF = YES
