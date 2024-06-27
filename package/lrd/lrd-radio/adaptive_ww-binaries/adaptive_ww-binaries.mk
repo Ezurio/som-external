@@ -6,7 +6,7 @@ ADAPTIVE_WW_BINARIES_STRIP_COMPONENTS = 0
 ADAPTIVE_WW_BINARIES_SOURCE = adaptive_ww$(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_ARCH))-$(ADAPTIVE_WW_BINARIES_VERSION).tar.bz2
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-  ADAPTIVE_WW_BINARIES_SITE = https://files.devops.rfpros.com/builds/linux/adaptive_ww/laird/$(ADAPTIVE_WW_BINARIES_VERSION)
+  ADAPTIVE_WW_BINARIES_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/adaptive_ww/laird/$(ADAPTIVE_WW_BINARIES_VERSION)
 else
   ADAPTIVE_WW_BINARIES_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(ADAPTIVE_WW_BINARIES_VERSION)
 endif

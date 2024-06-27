@@ -7,7 +7,7 @@ WB45N_FIRMWARE_BINARIES_LICENSE_FILES = COPYING
 WB45N_FIRMWARE_BINARIES_EXTRA_DOWNLOADS = laird-ath6k-6003-firmware-$(WB45N_FIRMWARE_BINARIES_VERSION).tar.bz2
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-  WB45N_FIRMWARE_BINARIES_SITE =  https://files.devops.rfpros.com/builds/linux/firmware/$(WB45N_FIRMWARE_BINARIES_VERSION)
+  WB45N_FIRMWARE_BINARIES_SITE =  https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/firmware/$(WB45N_FIRMWARE_BINARIES_VERSION)
 else
   WB45N_FIRMWARE_BINARIES_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(WB45N_FIRMWARE_BINARIES_VERSION)
 endif
