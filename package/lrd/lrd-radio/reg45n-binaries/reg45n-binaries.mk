@@ -4,7 +4,7 @@ REG45N_BINARIES_STRIP_COMPONENTS = 0
 REG45N_BINARIES_LICENSE = GPL-2.0
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-	REG45N_BINARIES_SITE = https://files.devops.rfpros.com/builds/linux/reg45n/laird/$(REG45N_BINARIES_VERSION)
+	REG45N_BINARIES_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/reg45n/laird/$(REG45N_BINARIES_VERSION)
 else
 	REG45N_BINARIES_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(REG45N_BINARIES_VERSION)
 endif

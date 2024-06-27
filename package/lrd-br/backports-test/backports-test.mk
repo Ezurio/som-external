@@ -23,7 +23,7 @@ HOST_BACKPORTS_TEST_DEPENDENCIES = \
 BACKPORTS_TEST_TOOLDIR = $(BR2_EXTERNAL_LRD_SOM_PATH)/package/lrd/externals/backports/devel
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-  BACKPORTS_TEST_SITE = https://files.devops.rfpros.com/builds/linux/backports/laird/$(BACKPORTS_TEST_VERSION)
+  BACKPORTS_TEST_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/backports/laird/$(BACKPORTS_TEST_VERSION)
 else
   BACKPORTS_TEST_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(BACKPORTS_TEST_VERSION)
 endif
