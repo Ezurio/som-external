@@ -19,7 +19,7 @@ LRD_LINUX_BACKPORTS_SOURCE = backports-laird-$(LRD_LINUX_BACKPORTS_VERSION).tar.
 BR_NO_CHECK_HASH_FOR += $(LRD_LINUX_BACKPORTS_SOURCE)
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-LRD_LINUX_BACKPORTS_SITE = https://files.devops.rfpros.com/builds/linux/backports/laird/$(LRD_LINUX_BACKPORTS_VERSION)
+LRD_LINUX_BACKPORTS_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/backports/laird/$(LRD_LINUX_BACKPORTS_VERSION)
 else
 LRD_LINUX_BACKPORTS_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(LRD_LINUX_BACKPORTS_VERSION)
 endif

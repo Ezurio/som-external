@@ -4,7 +4,7 @@ MFG60N_BINARIES_STRIP_COMPONENTS = 0
 MFG60N_BINARIES_LICENSE = GPL-2.0
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-MFG60N_BINARIES_SITE = https://files.devops.rfpros.com/builds/linux/mfg60n/laird/$(MFG60N_BINARIES_VERSION)
+MFG60N_BINARIES_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/mfg60n/laird/$(MFG60N_BINARIES_VERSION)
 else
 MFG60N_BINARIES_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(MFG60N_BINARIES_VERSION)
 endif

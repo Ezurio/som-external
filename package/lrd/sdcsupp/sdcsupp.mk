@@ -13,7 +13,7 @@ else
 SDCSUPP_VERSION = $(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE))
 SDCSUPP_SOURCE = summit_supplicant-src-$(SDCSUPP_VERSION).tar.gz
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-SDCSUPP_SITE = https://files.devops.rfpros.com/builds/linux/summit_supplicant/laird/$(SDCSUPP_VERSION)
+SDCSUPP_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/summit_supplicant/laird/$(SDCSUPP_VERSION)
 else
 SDCSUPP_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(SDCSUPP_VERSION)
 endif

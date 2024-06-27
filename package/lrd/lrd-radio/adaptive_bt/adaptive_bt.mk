@@ -13,7 +13,7 @@ ADAPTIVE_BT_VERSION = $(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE)
 ADAPTIVE_BT_SOURCE = adaptive_bt-src-$(ADAPTIVE_BT_VERSION).tar.gz
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-	ADAPTIVE_BT_SITE = https://files.devops.rfpros.com/builds/linux/adaptive_bt/src/$(ADAPTIVE_BT_VERSION)
+	ADAPTIVE_BT_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/adaptive_bt/src/$(ADAPTIVE_BT_VERSION)
 else
 	ADAPTIVE_BT_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(ADAPTIVE_BT_VERSION)
 endif

@@ -13,7 +13,7 @@ else
 SUMMIT_HOSTAPD_VERSION = $(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_VERSION_VALUE))
 SUMMIT_HOSTAPD_SOURCE = summit_supplicant-src-$(SUMMIT_HOSTAPD_VERSION).tar.gz
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-SUMMIT_HOSTAPD_SITE = https://files.devops.rfpros.com/builds/linux/summit_supplicant/laird/$(SUMMIT_HOSTAPD_VERSION)
+SUMMIT_HOSTAPD_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/summit_supplicant/laird/$(SUMMIT_HOSTAPD_VERSION)
 else
 SUMMIT_HOSTAPD_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(SUMMIT_HOSTAPD_VERSION)
 endif
