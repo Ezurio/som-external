@@ -8,7 +8,7 @@ else
 endif
 
 ifneq ($(RFPROS_FILESHARE_USER),)
-  RFPROS_FILESHARE_AUTH ?= ${RFPROS_FILESHARE_USER}:${RFPROS_FILESHARE_PASS}@
+  export RFPROS_FILESHARE_AUTH ?= ${RFPROS_FILESHARE_USER}:${RFPROS_FILESHARE_PASS}@
 endif
 
 export SUMMIT_SOM_URI_BASE_ARCHIVE  ?= https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL
