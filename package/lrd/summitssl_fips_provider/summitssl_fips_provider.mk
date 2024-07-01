@@ -18,7 +18,7 @@ SUMMITSSL_FIPS_PROVIDER_LICENSE = Apache-2.0
 SUMMITSSL_FIPS_PROVIDER_EXTRA_DOWNLOADS = $(SUMMITSSL_FIPS_PROVIDER_PREFIX)$(call qstrip,$(BR2_PACKAGE_LRD_RADIO_STACK_ARCH))-$(SUMMITSSL_FIPS_PROVIDER_VERSION).tar.bz2
 
 ifeq ($(MSD_BINARIES_SOURCE_LOCATION),laird_internal)
-  SUMMITSSL_FIPS_PROVIDER_SITE = https://files.devops.rfpros.com/builds/linux/laird_openssl_fips/$(SUMMITSSL_FIPS_PROVIDER_VERSION)
+  SUMMITSSL_FIPS_PROVIDER_SITE = https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux/laird_openssl_fips/$(SUMMITSSL_FIPS_PROVIDER_VERSION)
 else
   SUMMITSSL_FIPS_PROVIDER_SITE = https://github.com/LairdCP/wb-package-archive/releases/download/LRD-REL-$(SUMMITSSL_FIPS_PROVIDER_VERSION)
 endif
