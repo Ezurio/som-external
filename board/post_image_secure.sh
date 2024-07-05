@@ -127,7 +127,9 @@ mv -f boot.scr.nohash boot.scr
 
 cd -
 
-# Call script to generate secure SWU
-"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_secure_swu.sh" "${BR2_SUMMIT_PRODUCT}" "${BINARIES_DIR}" "${SWU_FILES}" "${SWUPDATE_SIG}"
+# Call script to generate secure SWU for NAND images
+if ! ${SD} ; then
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_secure_swu.sh" "${BR2_SUMMIT_PRODUCT}" "${BINARIES_DIR}" "${SWU_FILES}" "${SWUPDATE_SIG}"
+fi
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: done."
