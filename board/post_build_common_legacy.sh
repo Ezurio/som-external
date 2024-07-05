@@ -168,7 +168,7 @@ CCONF_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/imag
 DTB="$(sed -n 's/^BR2_LINUX_KERNEL_INTREE_DTS_NAME="\(.*\)"$/\1/p' "${BR2_CONFIG}")"
 # Look for DTB in custom path
 [ -n "${DTB}" ] || \
-	DTB="$(sed 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="\(.*\)",\1,; s,\s,\n,g'" ${BR2_CONFIG}" | sed -n 's,.*/\(.*\).dts$,\1,p')"
+	DTB="$(sed 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="\(.*\)",\1,; s,\s,\n,g' "${BR2_CONFIG}" | sed -n 's,.*/\(.*\).dts$,\1,p')"
 
 DTB="${DTB##*/}"
 
