@@ -63,11 +63,17 @@ while true ; do
 	esac
 done
 
-case "${#}" in
-	0)	{ enable_erase && erase_macs; } || print_macs ; exit ;;
-	1)	;;
-	*)	usage ; exit ;;
-esac
+if [ $# -gt 1 ]; then
+	usage
+	exit
+elif [ $# -eq 0 ] && ! ${enable_erase}; then
+	print_macs
+	exit
+fi
+
+erase_macs
+
+[ $# -eq 1 ] || exit
 
 # Support MAC address from bar code scanner (without ':'), production request
 case "${1}" in
