@@ -6,6 +6,8 @@ After=network.target igprovd.service
 [Service]
 Type=notify
 ExecStart=/usr/bin/igconfd
+CapabilityBoundingSet=CAP_NET_ADMIN
+NotifyAccess=all
 
 [Install]
 WantedBy=multi-user.target
