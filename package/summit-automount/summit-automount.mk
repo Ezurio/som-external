@@ -27,8 +27,6 @@ define SUMMIT_AUTOMOUNT_INSTALL_TARGET_CMDS
 		>> $(TARGET_DIR)/etc/default/usb-mount
 	echo "MOUNT_USER_EXEC='$(SUMMIT_AUTOMOUNT_INSTALL_MOUNT_USER_EXEC)'" \
 		>> $(TARGET_DIR)/etc/default/usb-mount
-
-	${SUMMIT_AUTOMOUNT_INSTALL_USB_UPDATE}
 endef
 
 $(eval $(generic-package))
