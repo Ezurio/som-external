@@ -1,7 +1,7 @@
 [Unit]
 Description=IG Configuration Service
 Wants=igprovd.service
-After=network.target bluetooth.service igprovd.service
+After=network.target igprovd.service
 
 [Service]
 Type=notify
