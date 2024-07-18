@@ -49,13 +49,8 @@ esac
 # See if this drive is already mounted, and if so where
 MOUNT_POINT="$(awk -v DEV="${DEVICE}" '($1 == DEV) { print $2 }' /proc/mounts)"
 
-if [ -x /usr/bin/systemd-mount ]; then 
-    MOUNT="/usr/bin/systemd-mount --fsck=no --no-block"
-    UMOUNT="/usr/bin/systemd-umount"
-else
-    MOUNT="/usr/bin/mount"
-    UMOUNT="/usr/bin/umount"
-fi
+MOUNT="/usr/bin/mount"
+UMOUNT="/usr/bin/umount"
 
 do_mount()
 {
@@ -80,6 +75,7 @@ do_mount()
             { echo "${DEVICE} is not a fileystem" >&2; exit 1; }
 
         ID_FS_LABEL=$(parse_blkid "${BLKID}" LABEL)
+        ID_FS_LABEL=$(echo "${ID_FS_LABEL}" | sed -e 's/ /_/g')
     fi
 
     # Figure out a mount point to use
