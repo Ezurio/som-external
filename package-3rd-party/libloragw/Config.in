@@ -1,5 +1,0 @@
-config BR2_PACKAGE_LIBLORAGW
-	bool "libloragw"
-	help
-		Semtech libloragw
-
