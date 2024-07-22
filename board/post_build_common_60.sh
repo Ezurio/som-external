@@ -271,12 +271,10 @@ ln -rsf "${CCONF_DIR}/u-boot.scr.its" "${BINARIES_DIR}/u-boot.scr.its"
 # Generate kernel FIT image script
 # kernel.its references zImage and at91-dvk_som60.dtb, and all three
 # files must be in current directory for mkimage.
-DTB="$(sed -n 's/^BR2_LINUX_KERNEL_INTREE_DTS_NAME="\(.*\)"$/\1/p' "${BR2_CONFIG}")"
+DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CONFIG}")"
 # Look for DTB in custom path
 [ -n "${DTB}" ] || \
-	DTB="$(sed 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="\(.*\)",\1,; s,\s,\n,g' "${BR2_CONFIG}" | sed -n 's,.*/\(.*\).dts$,\1,p')"
-
-DTB="${DTB##*/}"
+	DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
 
 sed -i "s/at91-dvk_som60/${DTB}/g" "${BINARIES_DIR}/kernel.its"
 
