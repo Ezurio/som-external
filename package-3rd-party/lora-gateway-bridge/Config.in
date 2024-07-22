@@ -1,7 +1,0 @@
-config BR2_PACKAGE_LORA_GATEWAY_BRIDGE
-	bool "lora-gateway-bridge"
-	depends on BR2_PACKAGE_HOST_GO_ARCH_SUPPORTS
-	select BR2_PACKAGE_LORA_PACKET_FORWARDER
-	help
-		Shim MQTT to the semtech packet forwarder.
-

@@ -1,4 +1,0 @@
-config BR2_PACKAGE_NBNSD
-	bool "nbnsd"
-	help
-	  A free and minimal NetBIOS Name Service responder daemon

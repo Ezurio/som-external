@@ -1,7 +1,0 @@
-config BR2_PACKAGE_NORDIC_OTA
-	bool "Nordic OTA utility"
-	select BR2_PACKAGE_GATTLIB
-	help
-	  Utility to deploy upgrade hex files to nordic based devices in
-	  DFU mode over BLE.
-

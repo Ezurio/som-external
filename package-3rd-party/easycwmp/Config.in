@@ -1,8 +1,0 @@
-config BR2_PACKAGE_EASYCWMP
-	bool "easycwmp"
-	select BR2_PACKAGE_MICROXML
-	select BR2_PACKAGE_LIBUCI
-	select BR2_PACKAGE_UBUS
-	help
-		EasyCwmp - TR069 Client
-

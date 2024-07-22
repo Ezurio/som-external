@@ -1,5 +1,0 @@
-config BR2_PACKAGE_MICROXML
-	bool "microxml"
-	help
-		Micro XML
-
