@@ -3,6 +3,7 @@
  * Copyright (C) 2018-2024 Ezurio
  *
  * Minimal dts for a SPL FIT image payload.
+ *
  */
 
 /dts-v1/;
