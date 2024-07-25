@@ -87,6 +87,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-userspace-examples/Config.i
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-wifi-bridge/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-legacy/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-python/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/kernel-module-pac193x/Config.in"
 endmenu
 
 menu "Packages (3rd party)"

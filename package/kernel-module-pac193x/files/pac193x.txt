@@ -1,0 +1,85 @@
+* Microchip pac1934/2/1 chip family of energy monitors (ADC)
+
+The node for this driver must be a child node of a I2C controller, hence
+all mandatory properties for your controller must be specified. See directory:
+
+        Documentation/devicetree/bindings/i2c
+
+for more details.
+
+Required properties:
+  - compatible: Should be one of
+		"microchip,pac1934"
+		"microchip,pac1932"
+		"microchip,pac1931"
+		
+  - reg: Should contain the pac1934/2/1 I2C address
+
+  - samp-rate: This is the default chip's sampling rate. It can be one of 
+  following values: 8, 64, 256, 1024 samples per second
+  
+Required subnodes:
+
+The ADC channels are configured as subnodes of the ADC. All the chip's 
+channels are sampling at the speed specified by the "samp-rate"
+For each pac193x variant there should be a certain number of subnodes
+which will be equal to the number of physical channels built in the part 
+
+Required channel node properties:
+
+Optional channel node properties:
+  - channel_enabled: A boolean property. Indicates whether the given channel
+    is enabled
+
+	- bi-dir: A boolean property. Indicated whether the given channel is set
+    for bi-directional energy and power computation
+
+	- uohms-shunt-res: 
+    Value type: <u32>
+	Definition: Value, in micro Ohms, of the current sense shunt resistor 
+	            for the given channel
+
+	- rail-name - An optional string to name a certain channel
+  
+Example:
+&i2c0 {
+	pac193x@10 {
+		compatible = "microchip,pac1934";
+		reg = <0x10>;
+		samp-rate = <64>;
+		status = "okay";
+
+		ch1: channel@0 {
+			bi-dir;
+			uohms-shunt-res = <1000>; /* shunt resistor is 1 milliohm */
+			rail-name = "CPU";
+			channel_enabled;
+		};
+
+		ch2: channel@1 {
+			/* uni-directional channel because of missing "bi-dir" property */
+			uohms-shunt-res = <10000>; /* shunt resistor is 10 milliohm */
+			rail-name = "GPU";
+			channel_enabled;
+		};
+
+		ch3: channel@2 {
+			/* channel disabled - no boolean property "channel_enabled" present */
+		};
+
+		ch4: channel@3 {
+			bi-dir;
+			uohms-shunt-res = <1000000>; /* shunt resistor is 1 ohm */
+			rail-name = "NET";
+			channel_enabled;
+		};
+	};
+};
+
+This device node describes a pac1934 chip sitting on i2c0 bus
+with address 0x10.
+The initial sampling rate for all the channels is set to 64 samples/second
+Channels 1, 2 and 4 are enabled while channel 3 is disabled
+Each channel has its own sense resistor values in micro-ohms.
+Channels 1 and 4 are set for bi-directional operation, while
+channel 2 works in uni-directional mode.
