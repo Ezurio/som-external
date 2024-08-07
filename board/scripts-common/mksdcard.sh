@@ -114,8 +114,14 @@ check_format() {
 			3) [ "${TYPE}" = "83" ] && [ "${SIZE}" =   "${PERM_SIZE}M" ] ;;
 			4) [ "${TYPE}" =  "5" ] ;;
 			5) [ "${TYPE}" = "83" ] && [ "${SIZE}" = "${ROOTFS_SIZE}M" ] ;;
-			6) [ "${TYPE}" = "83" ] ;;
-		esac || break
+			6) [ "${TYPE}" = "83" ] &&
+				case "${ROOTFS_DATA_SIZE}" in
+					-) [ -z "$(sfdisk -q --list-free "${TARGET}")" ] ;;
+					"${SIZE}") ;;
+					*) false ;;
+				esac
+				;;
+		esac || num=255 break
 	done < "${temp}"
 
 	rm -f "${temp}"
@@ -197,19 +203,23 @@ else
 fi
 
 # Read partition table and create partitions
-sfdisk -qlo device "${TARGET}" |
+temp=$(mktemp -t mksdcard.XXXXXX)
+sfdisk -qlo device "${TARGET}" > "${temp}"
 while read -r DEVICE; do
 	num=${DEVICE#"${TARGET}"}
 	num=${num#p}
 	case ${num} in
-		1) create_boot_partition "${DEVICE}" ;;
-		2) create_swap_partition "${DEVICE}" ;;
-		3) create_ext4_partition "${DEVICE}" "perm" ;;
-		5) create_rootfs_partition "${DEVICE}" ;;
-		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" ;;
+		1) create_boot_partition "${DEVICE}" & ;;
+		2) create_swap_partition "${DEVICE}" & ;;
+		3) create_ext4_partition "${DEVICE}" "perm" & ;;
+		5) create_rootfs_partition "${DEVICE}" & ;;
+		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" & ;;
 	esac
-done
+done < "${temp}"
+rm -f "${temp}"
 
+echo "[Waiting for writes to complete ...]"
+wait
 sync
 
 unmount_all "${TARGET}"

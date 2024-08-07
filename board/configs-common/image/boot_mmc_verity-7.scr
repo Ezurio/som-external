@@ -3,6 +3,6 @@ dm_table="vroot,,ro,0 SIZE verity 1 /dev/mmcblk0p5 /dev/mmcblk0p5 4096 4096 BLOC
 initlrd="initlrd=/usr/sbin/pre-systemd-init.sh"
 
 setenv bootargs "root=/dev/dm-0 rootwait rootfstype=squashfs ro
-dm=\"${dm_table}\"
+rootdelay=1 dm=\"${dm_table}\"
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
 loglevel=3 systemd.show_status=0"
