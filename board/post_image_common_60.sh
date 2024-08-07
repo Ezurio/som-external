@@ -95,13 +95,13 @@ else
 	fi
 fi
 
+# Copy rootfs
+ln -sf rootfs.squashfs "${BINARIES_DIR}/rootfs.bin"
+
 # Generate images
 if ! ${SECURE_BOOT} ; then
 	# Generate non-secured artifacts
 	(cd "${BINARIES_DIR}" && ${mkimage} -f kernel.its kernel.itb && ${mkimage} -f u-boot.its u-boot.itb) || exit 1
-
-	# Copy rootfs
-	ln -sf rootfs.squashfs "${BINARIES_DIR}/rootfs.bin"
 
 	cat "${BINARIES_DIR}/u-boot-spl-nodtb.bin" "${BINARIES_DIR}/u-boot-spl.dtb" > "${BINARIES_DIR}/u-boot-spl.bin"
 	if ${SD} ; then
@@ -114,22 +114,22 @@ if ! ${SECURE_BOOT} ; then
 		${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d "${BINARIES_DIR}/u-boot-spl.bin" "${BINARIES_DIR}/boot.bin"
 	fi
 else
-	# Generate all secured artifacts (NAND, SWU packages)
+	# Generate all secured artifacts
 	UBOOT_VER=${UBOOT_VER} "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh" "${SD}"
 fi
 
 if ! ${SD} ; then
-	ALL_SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
+	SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
 
 	# Support Secure boot key transition
 	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
-		ALL_SWU_FILES="${ALL_SWU_FILES/boot.bin/boot.bin boot1.bin}"
-		ALL_SWU_FILES="${ALL_SWU_FILES/uboot.env/uboot.env uboot1.env}"
+		SWU_FILES="${SWU_FILES/boot.bin/boot.bin boot1.bin}"
+		SWU_FILES="${SWU_FILES/uboot.env/uboot.env uboot1.env}"
 		cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
 	fi
 
 	# Call script to generate secure SWU
-	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh" "${ALL_SWU_FILES}"
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh" "${SWU_FILES}"
 fi
 
 if ! ${SD} ; then
@@ -141,7 +141,7 @@ if ! ${SD} ; then
 	size_check u-boot.itb 7
 fi
 
-RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
+RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
 tar -C "${BINARIES_DIR}" -chf "${RELEASE_FILE}" \
 	--owner=root --group=root \
@@ -196,7 +196,7 @@ then
 	rm -rf "${BINARIES_DIR}/jdk"
 
 	# Add the dependency tarball to the release archive
-	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz
+	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-openjdk.tar.gz
 	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
 		--owner=root --group=root \
 		"${OPENJDK_TARBALL_FILE}"

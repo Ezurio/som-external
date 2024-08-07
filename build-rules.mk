@@ -18,12 +18,10 @@ OUTPUT_DIR ?= $(abspath $(BR_DIR)/../output)
 
 TARGETS_ALL = $(TARGETS) $(TARGETS_COMPONENT)
 
-ifeq ($(VERSION),)
-release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-summit
-else
-release_name = $(1)$(BR2_LRD_BUILD_SUFFIX)-summit-$(VERSION)
-endif
+BR2_SUMMIT_BRANCH ?= $(shell sed -rn 's/.*BR2_SUMMIT_BRANCH :?= ([0-9]+).*/\1/p' $(call external_name,som-external/external.mk))
+BR2_SUMMIT_BUILD_VERSION ?= $(if $(VERSION),$(VERSION),0.$(BR2_SUMMIT_BRANCH).0.0)
 
+release_name = $(1)$(BR2_SUMMIT_BUILD_SUFFIX)-summit-$(BR2_SUMMIT_BUILD_VERSION)
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
 
 ifeq ($(PARALLEL_JOBS),)
@@ -102,9 +100,9 @@ $(addsuffix -sdk,$(TARGETS)): %-sdk: $(OUTPUT_DIR)/%/.config
 
 .PHONY: $(addsuffix -legal-info,$(TARGETS_ALL))
 $(addsuffix -legal-info,$(TARGETS_ALL)): %-legal-info: $(OUTPUT_DIR)/%/.config
-	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* legal-info
+	$(MAKE) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* legal-info
 	tar --exclude=*sources -C $(OUTPUT_DIR)/$*/legal-info/ \
-		--owner=0 --group=0 --numeric-owner \
+		--owner=root --group=root \
 		-cjf $(OUTPUT_DIR)/$*/images/legal-info.tar.bz2 .
 
 .PHONY: $(addsuffix -vigiles,$(TARGETS))
@@ -117,7 +115,7 @@ endif
 $(addsuffix -full,$(TARGETS)): %-full: % %-legal-info %-sdk
 	bzip2 -d $(call release_file,$*).bz2
 	tar -C $(OUTPUT_DIR)/$*/images -rf $(call release_file,$*) \
-		--owner=0 --group=0 --numeric-owner \
+		--owner=root --group=root \
 		legal-info.tar.bz2 $*-sdk.tar.gz
 	bzip2 $(call release_file,$*)
 
@@ -125,7 +123,7 @@ $(addsuffix -full,$(TARGETS)): %-full: % %-legal-info %-sdk
 $(addsuffix -full-legal,$(TARGETS)): %-full-legal: % %-legal-info
 	bzip2 -d $(call release_file,$*).bz2
 	tar -C "$(OUTPUT_DIR)/$*/images" -rf $(call release_file,$*) \
-		--owner=0 --group=0 --numeric-owner \
+		--owner=root --group=root \
 		legal-info.tar.bz2
 	bzip2 $(call release_file,$*)
 

@@ -88,7 +88,7 @@ make_ext4() {
 create_ext4_partition() {
 	echo "[Creating \"${2}\" partition...]"
 
-	EXT4_PART="${TMPDIR}/${2}.part"
+	EXT4_PART="${WORKDIR_TMP}/${2}.part"
 
 	# Format ext4 partition image
 	make_ext4 "${2}" "${EXT4_PART}" "${3}M"
@@ -104,7 +104,7 @@ create_ext4_partition() {
 create_boot_partition() {
 	echo "[Creating \"boot\" partition...]"
 
-	BOOT_PART="${TMPDIR}/boot.part"
+	BOOT_PART="${WORKDIR_TMP}/boot.part"
 
 	# Format boot partition
 	mkfs.vfat -F 32 -n BOOT -C "${BOOT_PART}" $(( BOOT_SIZE * 1024 )) > /dev/null
@@ -132,7 +132,7 @@ create_boot_partition() {
 create_swap_partition() {
 	echo "[Creating \"swap\" partition...]"
 
-	SWAP_PART="${TMPDIR}/swap.part"
+	SWAP_PART="${WORKDIR_TMP}/swap.part"
 
 	# Create swap partition image
 	fallocate -l ${SWAP_SIZE}MiB "${SWAP_PART}"
@@ -155,10 +155,10 @@ create_rootfs_partition() {
 	append_image "${1}" "${SRCDIR}/rootfs.bin"
 }
 
-trap 'rm -rf ${TMPDIR}' EXIT
+trap 'rm -rf ${WORKDIR_TMP}' EXIT
 
-TMPDIR=$(mktemp -d -t mksdimg.XXXXXX)
-TARGET_TMP=${TMPDIR}/${TARGET##*/}
+WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
+TARGET_TMP="${WORKDIR_TMP}/image"
 
 echo "[Creating SD card image...]"
 
@@ -168,7 +168,7 @@ fallocate -l ${IMAGE_SIZE}M "${TARGET_TMP}"
 # Create image partition table
 if ${boot_only}; then
 	printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
-		sfdisk -q "${IMGTMPFILE}"
+		sfdisk -q "${TARGET_TMP}"
 else
 	printf ',%sM,0xc,*\n,%sM,S\n,%sM,L\n,-,Ex\n,%sM,L\n,-,L\n' \
 		${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} "${ROOTFS_SIZE}" | \
@@ -207,7 +207,7 @@ if [ -f "${TARGET}.bmap" ]; then
 fi
 
 # Remove temporary directory
-rm -rf "${TMPDIR}"
+rm -rf "${WORKDIR_TMP}"
 
 # Flush file system buffers
 sync

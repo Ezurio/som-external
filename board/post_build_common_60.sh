@@ -214,8 +214,6 @@ case "${BUILD_TYPE}" in
 		;;
 esac
 
-if [ "${BUILD_TYPE}" != ig60 ]; then
-
 if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
@@ -294,8 +292,6 @@ DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CO
 	DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
 
 sed -i "s/at91-dvk_som60/${DTB}/g" "${BINARIES_DIR}/kernel.its"
-
-fi
 
 case "${BUILD_TYPE}" in
 	wb50n*) SOM=wb50n ;;
