@@ -58,6 +58,7 @@ cd "${BINARIES_DIR}"
 
 # Create keys if not present
 if [ ! -f keys/key.bin ]; then
+	mkdir -p keys
 	# Create random key, for AES128, key is 16 bytes long
 	dd if=/dev/random of=keys/key.bin bs=16 count=1
 	# Create random IV, AES block is 16 bytes, regardless of key size

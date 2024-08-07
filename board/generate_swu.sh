@@ -58,6 +58,7 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/aut
 
 	# Create keys if not present
 	if [ ! -f "${BINARIES_DIR}"/keys/dev.key ]; then
+		mkdir -p "${BINARIES_DIR}"/keys
 		${openssl} genrsa -out "${BINARIES_DIR}"/keys/dev.key 2048
 		${openssl} req -batch -new -x509 -key "${BINARIES_DIR}"/keys/dev.key -out "${BINARIES_DIR}"/keys/dev.crt
 	fi
