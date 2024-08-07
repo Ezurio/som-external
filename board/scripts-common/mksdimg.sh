@@ -176,18 +176,21 @@ else
 fi
 
 # Read partition table and create partitions
-sfdisk -qlo device,start "${TARGET_TMP}" |
+sfdisk -qlo device,start "${TARGET_TMP}" > "${WORKDIR_TMP}/partitions"
 while read -r DEVICE START; do
-	num=${DEVICE#"${TARGET}"}
+	num=${DEVICE#"${TARGET_TMP}"}
 	num=${num#p}
 	case ${num} in
-		1) create_boot_partition "${START}" ;;
-		2) create_swap_partition "${START}" ;;
-		3) create_ext4_partition "${START}" "perm" "${PERM_SIZE}" ;;
-		5) create_rootfs_partition "${START}" ;;
-		6) create_ext4_partition "${START}" "rootfs_data_a" "${ROOTFS_DATA_SIZE}" ;;
+		1) create_boot_partition "${START}" & ;;
+		2) create_swap_partition "${START}" & ;;
+		3) create_ext4_partition "${START}" "perm" "${PERM_SIZE}" & ;;
+		5) create_rootfs_partition "${START}" & ;;
+		6) create_ext4_partition "${START}" "rootfs_data_a" "${ROOTFS_DATA_SIZE}" & ;;
 	esac
-done
+done < "${WORKDIR_TMP}/partitions"
+rm -f "${WORKDIR_TMP}/partitions"
+
+wait
 
 # Create sparse image
 fallocate -d "${TARGET_TMP}"
