@@ -1,39 +1,38 @@
 #!/bin/sh
 
-INIT=/usr/sbin/init
-
-fail() {
-	printf "\nFIPS Integrity check Failed: %s\n", "${1}" >&2
+die() {
+	printf "\nFIPS Integrity check Failed: %s\n" "${1}" >&2
 	/usr/sbin/reboot -f
 }
 
-[ -f /dev/hwrng ] && chmod 644 /dev/hwrng
+[ ! -f /dev/hwrng ] || chmod 644 /dev/hwrng
 
 mount -t proc -o rw,nosuid,nodev,noexec proc /proc ||
-	fail "ERROR: could not mount /proc"
+	die "ERROR: could not mount /proc"
 
 [ -f /proc/sys/crypto/fips_enabled ] &&
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
-if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
+if [ "${FIPS_ENABLED}" = "1" ]; then
 	echo "FIPS Integrity check Started"
 
+	# shellcheck source=/dev/null
 	. /usr/sbin/boot-rootfs.sh || fail
 
-	case "${rootDevActual}" in
+	case "${rootDevActual:?}" in
 		mmcblk*)
 			KERNEL=/boot/kernel.itb
 			BOOT_MOUNT=true
 			mkdir -p /boot
-			mount -t "${rootFsType}" -o ro /dev/${rootDevPrefix}1 /boot 2>/dev/null || \
-				fail "Cannot mount /boot: $?"
+			mount -t "${rootFsType:?}" -o ro "/dev/${rootDevPrefix:?}1" /boot 2>/dev/null || \
+				die "Cannot mount /boot: $?"
 			;;
 		ubi*)
-			KERNEL="/dev/${rootDevPrefix}$((rootBlock - 1))"
+			KERNEL="/dev/${rootDevPrefix}$((${rootBlock:?} - 1))"
 			BOOT_MOUNT=false
 			;;
 		*)
-			fail "ERROR: unsupported root device: ${rootDevActual}"
+			die "ERROR: unsupported root device: ${rootDevActual}"
 			;;
 	esac
 
@@ -43,15 +42,15 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
 	/usr/sbin/dumpimage -T flat_dt -p 0 -o "/tmp/Image.${IMGTYP}" "${KERNEL}" >/dev/null || \
-		fail "Cannot extract kernel image error: $?"
+		die "Cannot extract kernel image error: $?"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
-			fail "fipscheck error: $?"
+			die "fipscheck error: $?"
 	else
 		ossl-fipsload -B
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
-			fail "fipscheck error: $?"
+			die "fipscheck error: $?"
 	fi
 
 	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
@@ -61,13 +60,15 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	${TMP_MOUNT} && umount /tmp
 
 	# trigger kernel crypto gcm self-test
-	modprobe tcrypt mode=35 || fail "Boot gcm(aes) test failed: $?"
+	modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"
 	modprobe -r tcrypt
 
 	echo "FIPS Integrity check Success"
 fi
 
 INIT=$(sed -nr 's/.*initlrd=([^ ]+).*/\1/p' /proc/cmdline)
+
+[ -n "${INIT}" ] || INIT=/usr/sbin/init
 
 echo "Launching: ${INIT}"
 
