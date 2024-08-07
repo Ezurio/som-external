@@ -17,7 +17,7 @@ set -x -e
 
 SWU_FILES="${1}"
 
-echo "${BR2_SUMMIT_PRODUCT^^} Generate Secure SWU script: starting..."
+echo "${BR2_SUMMIT_PRODUCT^^} Generate SWU script: starting..."
 
 die() { echo "$@" >&2; exit 1; }
 
@@ -32,7 +32,7 @@ cp -af "${BINARIES_DIR}"/sw-description "${BINARIES_DIR}"/sw-description-saved
 # CONFIG_HASH_VERIFY is enabled.  Hashes are required in SWU files if CONFIG_SIGNED_IMAGES
 # is set.  Older images did not enable either CONFIG_HASH_VERIFY or CONFIG_SIGNED_IMAGES,
 # so remove hashes unless they are required for signed image support.
-if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}/swupdate*/include/config/auto.conf"; then
+if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 	# Secure tooling checks
 	openssl=$(command -v openssl)
 	[ -x "${openssl}" ] || \
@@ -57,12 +57,12 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}/swupdate*/include/config/auto
 	SWU_FILES=${SWU_FILES/sw-description/sw-description sw-description.sig}
 
 	# Create keys if not present
-	if [ ! -f keys/dev.key ]; then
+	if [ ! -f "${BINARIES_DIR}"/keys/dev.key ]; then
 		${openssl} genrsa -out "${BINARIES_DIR}"/keys/dev.key 2048
 		${openssl} req -batch -new -x509 -key "${BINARIES_DIR}"/keys/dev.key -out "${BINARIES_DIR}"/keys/dev.crt
 	fi
 
-	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}/swupdate*/include/config/auto.conf"; then
+	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
 		${openssl} cms -sign -in sw-description -out sw-description.sig \
 			-signer "${BINARIES_DIR}"/keys/dev.crt -inkey "${BINARIES_DIR}"/keys/dev.key \
 			-outform DER -nosmimecap -binary
