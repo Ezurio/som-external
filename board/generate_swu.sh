@@ -63,7 +63,7 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/aut
 	fi
 
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
-		${openssl} cms -sign -in sw-description -out sw-description.sig \
+		${openssl} cms -sign -in "${BINARIES_DIR}"/sw-description -out "${BINARIES_DIR}"/sw-description.sig \
 			-signer "${BINARIES_DIR}"/keys/dev.crt -inkey "${BINARIES_DIR}"/keys/dev.key \
 			-outform DER -nosmimecap -binary
 	else
