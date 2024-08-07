@@ -1,4 +1,6 @@
 #! /bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 notify() {
     [ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh "${1}"
@@ -38,10 +40,21 @@ o_restart=true
 o_factory=false
 
 # determine update side
-grep -q "ubi.block=0,1" /proc/cmdline && o_side=b || o_side=a
+. /usr/sbin/boot-rootfs.sh || die
 
-grep -q "root=/dev/mmcblk" /proc/cmdline && \
-    run_on_sd=true || run_on_sd=false
+case "${rootDevActual}" in
+    mmcblk*)
+        run_on_sd=true
+        o_side=a
+        ;;
+    ubi*)
+        run_on_sd=false
+        [ "${rootBlock}" = 1 ] && o_side=b || o_side=a
+        ;;
+    *)
+        die "ERROR: unsupported root device: ${rootDevActual}"
+        ;;
+esac
 
 ${run_on_sd} && o_method=complete || o_method=full
 

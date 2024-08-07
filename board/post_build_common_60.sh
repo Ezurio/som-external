@@ -1,4 +1,6 @@
 #! /bin/bash
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 # enable tracing and exit on errors
 set -x -e
@@ -47,6 +49,7 @@ PRETTY_NAME="${LOCRELSTR}"
 EOF
 
 # Copy the product specific rootfs additions, strip host user access control
+rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-60/" "${TARGET_DIR}"
 rsync -rlptDWK --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${TARGET_DIR}"
 
 # Split out OpenJDK dependencies to a separate tarball to support
@@ -92,26 +95,21 @@ fi
 [ -f "${BINARIES_DIR}/u-boot-initial-env" ] && \
 	cp -ft "${TARGET_DIR}/etc" "${BINARIES_DIR}/u-boot-initial-env"
 
-if ${SD}; then
-	if [ -f "${TARGET_DIR}/usr/lib/libsystemd.so" ]; then
-		echo '/dev/root / auto rw,noatime 0 1' > "${TARGET_DIR}/etc/fstab"
-		echo '/dev/mmcblk0p2 none swap defaults 0 0' >> "${TARGET_DIR}/etc/fstab"
-		echo '/dev/mmcblk0p1 /boot vfat rw,noexec,nosuid,nodev,noatime 0 0' >> "${TARGET_DIR}/etc/fstab"
-	elif ! grep -qF "/boot" "${TARGET_DIR}/etc/fstab"; then
-		echo '/dev/mmcblk0p2 none swap defaults 0 0' >> "${TARGET_DIR}/etc/fstab"
-		echo '/dev/mmcblk0p1 /boot vfat rw,noexec,nosuid,nodev,noatime 0 0' >> "${TARGET_DIR}/etc/fstab"
-		mkdir -p "${TARGET_DIR}/boot"
-	fi
-
-	sed -i 's,^/dev/mtd,# /dev/mtd,' "${TARGET_DIR}/etc/fw_env.config"
-else
-	echo '/dev/root / auto ro 0 0' > "${TARGET_DIR}/etc/fstab"
-	sed -i 's,^/boot/,# /boot/,' "${TARGET_DIR}/etc/fw_env.config"
+if ! grep -qF BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=y "${BR2_CONFIG}" ; then
+	sed -i -r '\,/dev/root, s,rw,ro,' "${TARGET_DIR}/etc/fstab"
 fi
 
-if ${ENCRYPTED_TOOLKIT} || [ "${BUILD_TYPE}" = ig60 ]; then
-	# Securely mount /var on tmpfs
-	echo "tmpfs /var tmpfs mode=1777,noexec,nosuid,nodev,noatime 0 0" >> "${TARGET_DIR}/etc/fstab"
+if ${SD}; then
+	if ! grep -qF "/boot" "${TARGET_DIR}/etc/fstab"; then
+		echo '/dev/mmcblk0p1 /boot vfat rw,noexec,nosuid,nodev,noatime 0 0' >> "${TARGET_DIR}/etc/fstab"
+		${ENCRYPTED_TOOLKIT} || \
+			echo '/dev/mmcblk0p2 none swap defaults 0 0' >> "${TARGET_DIR}/etc/fstab"
+	fi
+
+	mkdir -p "${TARGET_DIR}/boot"
+	sed -i '\,/dev/mtd, s,^,# ,' "${TARGET_DIR}/etc/fw_env.config"
+else
+	sed -i '\,/boot/, s,^,# ,' "${TARGET_DIR}/etc/fw_env.config"
 fi
 
 # No need to detect SmartMedia cards, thus remove errors and speedup boot
@@ -200,12 +198,21 @@ rm -rf "${TARGET_DIR}/usr/lib/gobject-introspection/"
 rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -f "${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress"
 
-${SD} && echo 'export TMPDIR=/var/' > "${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf"
+if ${SD} && ! ${ENCRYPTED_TOOLKIT}; then
+	echo 'export TMPDIR=/opt/swupdate' > "${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf"
+	mkdir -p "${TARGET_DIR}/opt/swupdate"
+fi
 
 if [ ! -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
 	rm -rf "${TARGET_DIR}/usr/lib/systemd"
 	rm -rf "${TARGET_DIR}/etc/systemd"
 fi
+
+case "${BUILD_TYPE}" in
+	wb50n*) 
+		rm -f "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/eth1.nmconnection"
+		;;
+esac
 
 if [ "${BUILD_TYPE}" != ig60 ]; then
 
@@ -246,15 +253,25 @@ else
 fi
 
 if ${ENCRYPTED_TOOLKIT} ; then
+	rm -f "${TARGET_DIR}/usr/sbin/overlayRoot.sh"
 	# Use verity boot script
-	ln -rsf "${CCONF_DIR}/boot_verity.scr" "${BINARIES_DIR}/boot.scr"
+	if ! ${SD} ; then
+		ln -rsf "${CCONF_DIR}/boot_verity.scr" "${BINARIES_DIR}/boot.scr"
+	elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
+		ln -rsf "${CCONF_DIR}/boot_mmc_verity-7.scr" "${BINARIES_DIR}/boot.scr"
+	else
+		ln -rsf "${CCONF_DIR}/boot_mmc_verity.scr" "${BINARIES_DIR}/boot.scr"
+	fi
 else
 	# Use standard boot script
-	ln -rsf "${CCONF_DIR}/boot.scr" "${BINARIES_DIR}/boot.scr"
+	if ${SD} ; then
+		ln -rsf "${CCONF_DIR}/boot_mmc.scr" "${BINARIES_DIR}/boot.scr"
+	else
+		ln -rsf "${CCONF_DIR}/boot.scr" "${BINARIES_DIR}/boot.scr"
+	fi
 fi
 
 if ${SD} ; then
-	ln -rsf "${CCONF_DIR}/boot_mmc.scr" "${BINARIES_DIR}/boot.scr"
 	ln -rsf "${CCONF_DIR}/u-boot_mmc.scr" "${BINARIES_DIR}/u-boot.scr"
 
 	# Copy mksdcard.sh and mksdimg.sh to images

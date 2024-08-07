@@ -1,6 +1,7 @@
 #! /bin/bash
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
-BOARD_DIR="${1}"
 BUILD_TYPE="${2}"
 
 # enable tracing and exit on errors
@@ -26,10 +27,12 @@ grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" "${BR2_CONFIG}" \
 grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" \
 	&& SECURE_BOOT=true || SECURE_BOOT=false
 
+UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version)
+
 # Tooling checks
-mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
-atmel_pmecc_params=${BUILD_DIR}/uboot-custom/tools/atmel_pmecc_params
-mkenvimage=${BUILD_DIR}/uboot-custom/tools/mkenvimage
+mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
+atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
+mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 fipshmac=${HOST_DIR}/bin/fipshmac
 
 die() { echo "$@" >&2; exit 1; }
@@ -81,6 +84,7 @@ then
 	hash_check "${TARGET_DIR}/usr/lib/ossl-modules" fips.so
 fi
 
+# Generate U-Boot environment
 if ${SD} ; then
 	${mkenvimage} -p 0 -s 131072 -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
 else
@@ -91,29 +95,15 @@ else
 	fi
 fi
 
-# swupdate will reject an SWU file with sw-description containing hashes unless
-# CONFIG_HASH_VERIFY is enabled.  Hashes are required in SWU files if CONFIG_SIGNED_IMAGES
-# is set.  Older images did not enable either CONFIG_HASH_VERIFY or CONFIG_SIGNED_IMAGES,
-# so remove hashes unless they are required for signed image support.
-if ! grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}/swupdate*/include/config/auto.conf"; then
-	# Remove sha lines in SWU scripts
-	[ ! -f "${BINARIES_DIR}/sw-description" ] || \
-		sed -i -e "/sha256/d" "${BINARIES_DIR}/sw-description"
-	sign_method=""
-elif grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}/swupdate*/include/config/auto.conf"; then
-	sign_method="cms"
-else
-	sign_method="rawrsa"
-fi
-
-ALL_SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
-
+# Generate images
 if ! ${SECURE_BOOT} ; then
 	# Generate non-secured artifacts
-	echo "# entering ${BINARIES_DIR} for the next command"
 	(cd "${BINARIES_DIR}" && ${mkimage} -f kernel.its kernel.itb && ${mkimage} -f u-boot.its u-boot.itb) || exit 1
-	cat "${BINARIES_DIR}/u-boot-spl-nodtb.bin" "${BINARIES_DIR}/u-boot-spl.dtb" > "${BINARIES_DIR}/u-boot-spl.bin"
 
+	# Copy rootfs
+	ln -sf rootfs.squashfs "${BINARIES_DIR}/rootfs.bin"
+
+	cat "${BINARIES_DIR}/u-boot-spl-nodtb.bin" "${BINARIES_DIR}/u-boot-spl.dtb" > "${BINARIES_DIR}/u-boot-spl.bin"
 	if ${SD} ; then
 		${mkimage} -T atmelimage -d "${BINARIES_DIR}/u-boot-spl.bin" "${BINARIES_DIR}/boot.bin"
 	else
@@ -122,24 +112,24 @@ if ! ${SECURE_BOOT} ; then
 
 		# Generate Atmel PMECC boot.bin from SPL
 		${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d "${BINARIES_DIR}/u-boot-spl.bin" "${BINARIES_DIR}/boot.bin"
-		# Copy rootfs
-		ln -rsf "${BINARIES_DIR}/rootfs.squashfs" "${BINARIES_DIR}/rootfs.bin"
-
-		# Support Secure boot key transition
-		if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
-			ALL_SWU_FILES="${ALL_SWU_FILES/boot.bin/boot.bin boot1.bin}"
-			ALL_SWU_FILES="${ALL_SWU_FILES/uboot.env/uboot.env uboot1.env}"
-			cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
-		fi
-
-		# Generate SWU
-		( cd "${BINARIES_DIR}" && \
-			echo -e "${ALL_SWU_FILES// /\\n}" |\
-			cpio -ovL -H crc > "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}.swu")
 	fi
 else
 	# Generate all secured artifacts (NAND, SWU packages)
-	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh" "${BOARD_DIR}" "${ALL_SWU_FILES}" "${sign_method}" "${SD}"
+	UBOOT_VER=${UBOOT_VER} "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh" "${SD}"
+fi
+
+if ! ${SD} ; then
+	ALL_SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
+
+	# Support Secure boot key transition
+	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
+		ALL_SWU_FILES="${ALL_SWU_FILES/boot.bin/boot.bin boot1.bin}"
+		ALL_SWU_FILES="${ALL_SWU_FILES/uboot.env/uboot.env uboot1.env}"
+		cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
+	fi
+
+	# Call script to generate secure SWU
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh" "${ALL_SWU_FILES}"
 fi
 
 if ! ${SD} ; then
@@ -155,7 +145,7 @@ RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VE
 
 tar -C "${BINARIES_DIR}" -chf "${RELEASE_FILE}" \
 	--owner=root --group=root \
-	boot.bin u-boot.itb kernel.itb
+	boot.bin u-boot.itb kernel.itb rootfs.bin
 
 if ${SECURE_BOOT} ; then
 	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
@@ -168,28 +158,28 @@ if ${SECURE_BOOT} ; then
 		mkimage
 fi
 
+if ${ENCRYPTED_TOOLKIT} ; then
+	DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
+	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+		-C "${BINARIES_DIR}" \
+		u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity \
+		-C "${HOST_DIR}/usr/bin" \
+		fscryptctl
+fi
+
 if ${SD} ; then
 	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
-		uboot.env rootfs.tar mksdcard.sh mksdimg.sh
+		uboot.env mksdcard.sh mksdimg.sh
 else
 	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
-		rootfs.bin "${BR2_SUMMIT_PRODUCT}.swu"
+		"${BR2_SUMMIT_PRODUCT}.swu"
 
 	if ${SECURE_BOOT} ; then
 		tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
 			pmecc.bin uboot.env erase_data.sh sw-description
-	fi
-
-	if ${ENCRYPTED_TOOLKIT} ; then
-		DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
-		tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
-			-C "${BINARIES_DIR}" \
-			u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity \
-			-C "${HOST_DIR}/usr/bin" \
-			fscryptctl
 	fi
 fi
 
@@ -198,18 +188,18 @@ fi
 # dependency tarball to the release archive
 if grep -qF "BR2_SUMMIT_OPENJDK_GGV2=y" "${BR2_CONFIG}"
 then
-        # Delete the symlink and move back the original 'modules' file
-        rm -f "${TARGET_DIR}/usr/lib/jvm/lib/modules"
-        mv "${BINARIES_DIR}/jdk/lib/modules" "${TARGET_DIR}/usr/lib/jvm/lib/"
+	# Delete the symlink and move back the original 'modules' file
+	rm -f "${TARGET_DIR}/usr/lib/jvm/lib/modules"
+	mv "${BINARIES_DIR}/jdk/lib/modules" "${TARGET_DIR}/usr/lib/jvm/lib/"
 
-        # Delete the temporary 'jdk' directory
-        rm -rf "${BINARIES_DIR}/jdk"
+	# Delete the temporary 'jdk' directory
+	rm -rf "${BINARIES_DIR}/jdk"
 
-        # Add the dependency tarball to the release archive
+	# Add the dependency tarball to the release archive
 	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz
-        tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
-			--owner=root --group=root \
-    		"${OPENJDK_TARBALL_FILE}"
+	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
+		--owner=root --group=root \
+		"${OPENJDK_TARBALL_FILE}"
 fi
 
 bzip2 -f "${RELEASE_FILE}"

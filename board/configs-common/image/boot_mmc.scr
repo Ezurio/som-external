@@ -1,5 +1,6 @@
-initlrd=
+initlrd="initlrd=/usr/sbin/overlayRoot.sh"
 
-setenv bootargs "root=/dev/mmcblk0p3 rootwait resume=/dev/mmcblk0p2 resumewait rw
+setenv bootargs "root=/dev/mmcblk0p5 rootwait rootfstype=squashfs ro
+resume=/dev/mmcblk0p2 resumewait
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
 loglevel=4 ${bootargs}"

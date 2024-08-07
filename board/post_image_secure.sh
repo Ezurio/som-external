@@ -1,15 +1,13 @@
 #!/bin/bash
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 #
-# post_image_secure.sh
-#
-# Generate all secure NAND artificats
-# and calls script to generate secure SWU artifacts
+# Generate all secure image artificats
 #
 # Inputs - must be located in BINARIES_DIR:
 #
-#	keys/dev.key			Kernel & SWU signing private key
-#	keys/dev.crt			Kernel 7 SWU signing public key
 #	keys/key.bin			U-Boot symmetric encryption key
+#	keys/key-iv.bin			U-Boot symmetric encryption iv
 #	boot.scr			Kernel boot script template
 #	u-boot-spl.dtb			U-Boot SPL FDT
 #	u-boot.its			U-Boot FIT image script
@@ -17,7 +15,7 @@
 #	kernel.its			Kernel FIT image descriptor
 #	zImage				Kernel
 #	at91-??.dtb			Kernel FDT
-#	rootfs.squashfs			RootFS
+#	rootfs.squashfs			rootFS
 #
 # Secured artifacts generated in BINARIES_DIR:
 #
@@ -28,23 +26,23 @@
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 
-#BOARD_DIR="${1}"
-SWU_FILES="${2}"
-SWUPDATE_SIG="${3}"
-SD=${4:-false}
+SD=${1:-false}
 
 # enable tracing and exit on errors
 set -x -e
 
-# Secure tooling checks
-mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
-atmel_pmecc_params=${BUILD_DIR}/uboot-custom/tools/atmel_pmecc_params
-openssl=$(which openssl)
-veritysetup=${HOST_DIR}/sbin/veritysetup
-
 die() { echo "$@" >&2; exit 1; }
 
 grep -qF "SALT" "${BINARIES_DIR}/boot.scr" && SECURE_ROOTFS=true || SECURE_ROOTFS=false
+
+[ -n "${UBOOT_VER}" ] ||
+	UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version)
+
+# Secure tooling checks
+mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
+atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
+openssl=$(command -v openssl)
+veritysetup=${HOST_DIR}/sbin/veritysetup
 
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
@@ -59,9 +57,7 @@ echo "# entering ${BINARIES_DIR} for this script"
 cd "${BINARIES_DIR}"
 
 # Create keys if not present
-if [ ! -f keys/dev.key ]; then
-	${openssl} genrsa -out keys/dev.key 2048
-	${openssl} req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
+if [ ! -f keys/key.bin ]; then
 	# Create random key, for AES128, key is 16 bytes long
 	dd if=/dev/random of=keys/key.bin bs=16 count=1
 	# Create random IV, AES block is 16 bytes, regardless of key size
@@ -81,13 +77,14 @@ if ${SECURE_ROOTFS} ; then
 	rm -f rootfs.verity
 	${veritysetup} format rootfs.squashfs rootfs.verity > rootfs.verity.header
 	# Get the root hash
-	HASH="$(awk '/Root hash:/ {print $3}' rootfs.verity.header)"
-	SALT="$(awk '/Salt:/ {print $2}' rootfs.verity.header)"
-	BLOCKS="$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)"
-	SIZE=$(("${BLOCKS}" * 8))
-	OFFSET=$(("${BLOCKS}" + 1))
+	HASH=$(awk '/Root hash:/ {print $3}' rootfs.verity.header)
+	SALT=$(awk '/Salt:/ {print $2}' rootfs.verity.header)
+	BLOCKS=$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)
+	SIZE=$((BLOCKS * 8))
+	OFFSET=$((BLOCKS + 1))
 
 	# Generate a combined rootfs
+	rm -f rootfs.bin
 	cat rootfs.squashfs rootfs.verity > rootfs.bin
 
 	# Generate the kernel boot script
@@ -111,13 +108,6 @@ else
 	${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d u-boot-spl.bin boot.bin
 	# Save off the raw PMECC header
 	dd if=boot.bin of=pmecc.bin bs=208 count=1
-
-	# Support Secure boot key transition
-	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
-		SWU_FILES="${SWU_FILES/boot.bin/boot.bin boot1.bin}"
-		SWU_FILES="${SWU_FILES/uboot.env/uboot.env uboot1.env}"
-		cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
-	fi
 fi
 
 # Restore unsecured components
@@ -126,10 +116,5 @@ rm -rf unsecured_images/
 mv -f boot.scr.nohash boot.scr
 
 cd -
-
-# Call script to generate secure SWU for NAND images
-if ! ${SD} ; then
-	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_secure_swu.sh" "${BR2_SUMMIT_PRODUCT}" "${BINARIES_DIR}" "${SWU_FILES}" "${SWUPDATE_SIG}"
-fi
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: done."

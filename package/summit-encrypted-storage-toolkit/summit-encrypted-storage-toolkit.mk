@@ -71,12 +71,20 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	if [ -d $(BACKUP_SECRET_DIR)/weblcm-python/ssl ]; then \
 		rm -rf $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
 		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
-	fi;
+	fi
 
 	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
 		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
 		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
-	fi;
+	fi
+
+	if ! grep -qF noexec $(TARGET_DIR)/usr/lib/systemd/system/var.mount; then \
+		$(SED) '/^Options=/ s/$$/,noexec/' $(TARGET_DIR)/usr/lib/systemd/system/var.mount; \
+	fi
+
+	if ! grep -qF noexec $(TARGET_DIR)/usr/lib/systemd/system/tmp.mount; then \
+		$(SED) '/^Options=/ s/$$/,noexec/' $(TARGET_DIR)/usr/lib/systemd/system/tmp.mount; \
+	fi
 endef
 
 SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK

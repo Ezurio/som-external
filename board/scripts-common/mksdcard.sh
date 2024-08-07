@@ -1,62 +1,88 @@
-#!/bin/bash
+#!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
+
+SRCDIR=${0%/*}
+ROOTFS_DATA_SIZE=
+SECURE=false
+
+die () {
+	echo "$@" >&2
+	exit 1
+}
+
+usage() {
+	echo "mksdcard.sh [-s] [-r <size MiB> ] [-h] <device>" >&2
+	echo "  -s: Secure boot" >&2
+	echo "  -r: rootfs_data size in MiB" >&2
+	echo "  -h: Show this help" >&2
+	echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
+	exit 1
+}
+
+while getopts sr:f:h name; do
+    case ${name} in
+    r)  ROOTFS_DATA_SIZE=${OPTARG} 
+		if ! [ "${ROOTFS_DATA_SIZE}" -eq "${ROOTFS_DATA_SIZE}" ] 2>/dev/null; then
+			echo "rootfs_data size is not a number" >&2
+			exit 1
+		fi
+		;;
+	f)  SRCDIR=${OPTARG} ;;
+	s)  SECURE=true ;;
+	?)  usage ;;
+	esac
+done
+shift $((OPTIND - 1))
+
+TARGET="${1}"
+
+[ -n "${TARGET}" ] || usage
+
+[ -b "${TARGET}" ] ||
+	die "Device \"${TARGET}\" not found"
+
+[ "$(cat "/sys/block/${TARGET##*/}/size")" -ne 0 ] ||
+	die "Device \"${TARGET}\" not found"
+
+case "${TARGET}" in
+	/dev/sd*)
+		# Check to avoid formatting local hard drives
+		[ "$(cat "/sys/block/${TARGET##*/}/removable")" -eq 1 ] ||
+			die "Device is not removable."
+		;;
+esac
+
+[ "$(id -u)" -eq 0 ] ||
+	die "This script must be run as root."
 
 set -e
 
-DRIVE=${1}
-ARG=${1##*/}
-SRCDIR=${0%/*}
+# Specify partition sizes in MiB
+BOOT_SIZE=48
+SWAP_SIZE=256
+PERM_SIZE=48
 
-if [ -z "${DRIVE}" ] || [ -z "${ARG}" ]; then
-    echo "mksdcard.sh <device>"
-    echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
-    exit
+{ [ -f "${SRCDIR}/rootfs.bin" ] || [ -f "${SRCDIR}/kernel.itb" ]; } && \
+	boot_only=false maxpart=6 || boot_only=true maxpart=1
+
+if ! ${boot_only}; then
+	# Calculate rootfs size
+	ROOTFS_SIZE=$(stat -c %s "$(realpath "${SRCDIR}/rootfs.bin")")
+	# Align rootfs size to 1MiB
+	ROOTFS_SIZE=$(( ROOTFS_SIZE / (1024 * 1024) + 1 ))
+
+	# Set rootfs size to image size or 48 MiB
+	# whatever is greater by default
+	ROOTFS_SIZE=$(( ROOTFS_SIZE > 48 ? ROOTFS_SIZE : 48 ))
+
+	if [ -z "${ROOTFS_DATA_SIZE}" ]; then
+		# Set rootfs_data size to 25% of the rootfs size
+		ROOTFS_DATA_SIZE="-"
+	else
+		ROOTFS_DATA_SIZE=${ROOTFS_DATA_SIZE}M
+	fi
 fi
-
-if [ ! -b "${DRIVE}" ]; then
-    echo "Can not find destination drive \"${DRIVE}\""
-    exit
-fi
-
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root."
-    exit
-fi
-
-DRIVE_BLOCKS=$(cat "/sys/block/${ARG}/size")
-
-if [ "${DRIVE_BLOCKS}" -eq 0 ]; then
-    echo "Can not find destination drive \"${DRIVE}\""
-    exit
-fi
-
-if [ ! -r "${SRCDIR}/rootfs.tar" ]; then
-    echo "Can not find required rootfs.tar file."
-    exit
-fi
-
-case "${ARG}" in
-    sd*)
-        if [ "$(cat "/sys/block/${ARG}/removable")" -ne 1 ]; then
-            echo "Device is not removable."
-            exit
-        fi
-
-        PART_BOOT=${DRIVE}1
-        PART_SWAP=${DRIVE}2
-        PART_ROOTFS=${DRIVE}3
-        ;;
-
-    mmcblk*)
-        PART_BOOT=${DRIVE}p1
-        PART_SWAP=${DRIVE}p2
-        PART_ROOTFS=${DRIVE}p3
-        ;;
-
-    *)
-        echo "Invalid device name: ${ARG}"
-        exit
-        ;;
-esac
 
 which udisksctl > /dev/null && udisk=1 || udisk=0
 
@@ -75,79 +101,114 @@ unmount_all() {
 }
 
 check_format() {
-    count=0
-    while read -r TYPE FSTYPE SIZE; do
-        [ "${TYPE}" = "part" ] || continue
-        count=$((count+1))
-        case "${count}" in
-            1) [ "${FSTYPE}" = "vfat" ] && [ "${SIZE}" = "48M" ] || return ;;
-            2) [ "${FSTYPE}" = "swap" ] && [ "${SIZE}" = "256M" ] || return ;;
-            3) [ "${FSTYPE}" = "ext4" ] || return ;;
-            *) break ;;
-        esac
-    done < <(lsblk -fln -o TYPE,FSTYPE,SIZE "${DRIVE}")
-    [ ${count} -eq 3 ]
+	temp=$(mktemp -t mksdcard.XXXXXX)
+	sfdisk -qlo device,id,size "${TARGET}" > "${temp}"
+
+	num=0
+	while read -r DEVICE TYPE SIZE; do
+		num=${DEVICE#"${TARGET}"}
+		case "${num}" in
+			1) [ "${TYPE}" =  "c" ] && [ "${SIZE}" =   "${BOOT_SIZE}M" ] ;;
+			2) [ "${TYPE}" = "82" ] && [ "${SIZE}" =   "${SWAP_SIZE}M" ] ;;
+			3) [ "${TYPE}" = "83" ] && [ "${SIZE}" =   "${PERM_SIZE}M" ] ;;
+			4) [ "${TYPE}" =  "5" ] ;;
+			5) [ "${TYPE}" = "83" ] && [ "${SIZE}" = "${ROOTFS_SIZE}M" ] ;;
+			6) [ "${TYPE}" = "83" ] ;;
+		esac || break
+	done < "${temp}"
+
+	rm -f "${temp}"
+	[ "${num}" -eq "${maxpart}" ] 2> /dev/null
+}
+
+# Create ext4 file system image
+create_ext4_partition() {
+	echo "[Creating \"${2}\" partition...]"
+
+	mkfs.ext4 -q -F -m 1 -L "${2}" \
+		-E root_owner=0:0,lazy_itable_init=0,lazy_journal_init=0 \
+		-O encrypt,ext_attr "${1}" > /dev/null
+}
+
+# Create boot partition
+create_boot_partition() {
+	echo "[Creating \"boot\" partition...]"
+
+	# Format boot partition
+	mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
+
+	${SECURE} && EXT="cip" || EXT="bin"
+
+	BOOT_PART=$(mktemp -d -t mksdcard.XXXXXX)
+	mount "${1}" "${BOOT_PART}"
+
+	# Copy files to boot partition
+	cp -t "${BOOT_PART}" \
+		"${SRCDIR}/boot.${EXT}" \
+		"${SRCDIR}/u-boot.itb" \
+		"${SRCDIR}/uboot.env"
+
+	${boot_only} ||
+		cp -t "${BOOT_PART}" "${SRCDIR}/kernel.itb"
+
+	sync
+
+	umount -f "${BOOT_PART}" && rmdir "${BOOT_PART}"
+}
+
+# Create swap partition
+create_swap_partition() {
+	echo "[Creating \"swap\" partition...]"
+
+	mkswap -f -L swap "${1}" > /dev/null 2> /dev/null
+}
+
+# Create rootfs partition
+create_rootfs_partition() {
+	echo "[Creating \"rootfs_a\" partition...]"
+
+	# Copy files to rootfs partition
+	dd if="${SRCDIR}/rootfs.bin" of="${1}" bs=1M conv=fsync status=none
 }
 
 # Un-mount all mounted partitions
-unmount_all "${DRIVE}"
+unmount_all "${TARGET}"
+
+echo "[Creating SD card image...]"
 
 if ! check_format ; then
-    # Check if device is busy
-    hdparm -z "${DRIVE}" >/dev/null
+	echo "[Partitioning ${TARGET}...]"
 
-    echo "[Partitioning ${DRIVE}...]"
+# Create device partition table
+	if ${boot_only}; then
+		printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
+			sfdisk -q "${IMGTMPFILE}"
+	else
+		printf ',%sM,0xc,*\n,%sM,S\n,%sM,L\n,-,Ex\n,%sM,L\n,%s,L\n' \
+			${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} "${ROOTFS_SIZE}" \
+			"${ROOTFS_DATA_SIZE}" | \
+			sfdisk -q -W always "${TARGET}" 2> /dev/null
+	fi
 
-    # Wipe MBR, GPT, and Partition Table
-    dd if=/dev/zero of="${DRIVE}" bs=512 count=34 status=none
-    dd if=/dev/zero of="${DRIVE}" bs=512 count=34 seek=$((DRIVE_BLOCKS-34)) status=none
-    dd if=/dev/zero of="${DRIVE}" bs=1KiB count=1 seek=1024 status=none
-    dd if=/dev/zero of="${DRIVE}" bs=1KiB count=4 seek=$((49*1024)) status=none
-    dd if=/dev/zero of="${DRIVE}" bs=1KiB count=4 seek=$((305*1024)) status=none
-
-    parted -s "${DRIVE}" mklabel msdos unit MiB \
-        mkpart primary fat16 1 49 set 1 lba on set 1 boot on \
-        mkpart primary linux-swap 49 305 \
-        mkpart primary ext4 305 100% \
-    || exit
-
-    sync
-    sleep 1
+	sync
 else
-    echo "[Reuse existing partitioning ${DRIVE}...]"
+	echo "[Reusing existing partitioning ...]"
 fi
 
-echo "[Making file systems...]"
+# Read partition table and create partitions
+sfdisk -qlo device "${TARGET}" |
+while read -r DEVICE; do
+	case ${DEVICE#"${TARGET}"} in
+		1) create_boot_partition "${DEVICE}" ;;
+		2) create_swap_partition "${DEVICE}" ;;
+		3) create_ext4_partition "${DEVICE}" "perm" ;;
+		5) create_rootfs_partition "${DEVICE}" ;;
+		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" ;;
+	esac
+done
 
-# Format newly created partitions
-mkfs.vfat -F 16 -n BOOT "${PART_BOOT}" > /dev/null
-mkswap -f -L swap "${PART_SWAP}" > /dev/null 2> /dev/null
-mkfs.ext4 -q -F -L rootfs "${PART_ROOTFS}" -E lazy_itable_init=0,lazy_journal_init=0 > /dev/null
 sync
 
-echo "[Copying files...]"
-
-MNT_BOOT=/mnt/${PART_BOOT##*/}
-MNT_ROOTFS=/mnt/${PART_ROOTFS##*/}
-
-# Copy files to boot partition
-mkdir -p "${MNT_BOOT}"
-mount "${PART_BOOT}" "${MNT_BOOT}"
-
-cp -t "${MNT_BOOT}" "${SRCDIR}/boot.bin" "${SRCDIR}/u-boot.itb" "${SRCDIR}/kernel.itb" "${SRCDIR}/uboot.env"
-sync
-
-umount -f "${MNT_BOOT}" && rm -rf "${MNT_BOOT}"
-
-# Copy files to rootfs partition
-mkdir -p "${MNT_ROOTFS}"
-mount -o noatime "${PART_ROOTFS}" "${MNT_ROOTFS}" || exit
-
-tar xf "${SRCDIR}/rootfs.tar" -C "${MNT_ROOTFS}"
-sync
-
-umount "${MNT_ROOTFS}" && rm -rf "${MNT_ROOTFS}"
-
-unmount_all "${DRIVE}"
+unmount_all "${TARGET}"
 
 echo "[Done]"

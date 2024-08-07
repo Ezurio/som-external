@@ -1,9 +1,8 @@
-dm_table="vroot,,ro,0 SIZE verity 1 /dev/ubiblock0_${bootvol} /dev/ubiblock0_${bootvol} 4096 4096 BLOCKS OFFSET sha256 HASH SALT"
+dm_table="vroot,,,ro,0 SIZE verity 1 /dev/mmcblk0p5 /dev/mmcblk0p5 4096 4096 BLOCKS OFFSET sha256 HASH SALT"
 
 initlrd="initlrd=/usr/sbin/pre-systemd-init.sh"
 
 setenv bootargs "root=/dev/dm-0 rootwait rootfstype=squashfs ro
-ubi.mtd=ubi ubi.block=0,${bootvol}
-dm=\"${dm_table}\"
+dm-mod.create=\"${dm_table}\" dm-mod.waitfor=/dev/mmcblk0p5
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
 loglevel=3 systemd.show_status=0"
