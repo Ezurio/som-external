@@ -21,8 +21,8 @@ die() { echo "$@" >&2; exit 1; }
 ${mkenvimage} -p 0 -s 131072 -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
 
 # Copy mksdcard.sh and mksdimg.sh to images
-ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/mksdcard_legacy-wbx3.sh" "${BINARIES_DIR}/mksdcard.sh"
-ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/mksdimg_legacy-wbx3.sh" "${BINARIES_DIR}/mksdimg.sh"
+ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
+ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 
 if [ -n "${VERSION}" ]; then
 	RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${VERSION}.tar.bz2"

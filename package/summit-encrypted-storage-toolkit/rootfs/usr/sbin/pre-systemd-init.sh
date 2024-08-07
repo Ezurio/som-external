@@ -6,13 +6,34 @@
 # require a writeable filesystem.
 
 PERM_MOUNT=/perm
-PERM_DEVICE=ubi0_6
+
+. /usr/sbin/boot-rootfs.sh
+
+case "${rootDevActual}" in
+    mmcblk*)
+		read -r soc_id < /sys/devices/soc0/soc_id
+		case "${soc_id}" in
+			at91*|sam*)
+				PERM_DEVICE=/dev/${rootDevPrefix}3
+				;;
+			*)
+				PERM_DEVICE=/dev/${rootDevPrefix}7
+				;;
+		esac
+        ;;
+    ubi*)
+        PERM_DEVICE=${rootDevPrefix}6
+        ;;
+    *)
+        fail "ERROR: unsupported root device: ${rootDevActual}"
+        ;;
+esac
 
 # Use custom perm mount options, if present
 test -r /etc/default/perm-mount-opts && . /etc/default/perm-mount-opts
 test -z "${PERM_MOUNT_OPTS}" && PERM_MOUNT_OPTS="noatime,nosuid,noexec"
 
-/usr/bin/mount -t ubifs -o "${PERM_MOUNT_OPTS}" ${PERM_DEVICE} ${PERM_MOUNT}
+/usr/bin/mount -t "${rootFsType}" -o "${PERM_MOUNT_OPTS}" "${PERM_DEVICE}" ${PERM_MOUNT}
 
 # Make sure there is at least an empty machine-id file
 # (Referenced from symlink on the rootfs)

@@ -7,29 +7,10 @@ fail() {
 	/usr/sbin/reboot -f
 }
 
-mount -t proc proc /proc 2>/dev/null
-PROC_MOUNT=$?
-BOOT_MOUNT=false
-
-read -r cmdline </proc/cmdline
-for x in ${cmdline}; do
-	case "$x" in
-	ubi.block=*)
-		KERNEL=/dev/ubi0_$((${x#*,} - 1))
-		;;
-
-	root=/dev/mmcblk0p*)
-		KERNEL=/boot/kernel.itb
-		BOOT_MOUNT=true
-		;;
-
-	initlrd=*)
-		INIT=${x#initlrd=}
-		;;
-	esac
-done
-
 [ -f /dev/hwrng ] && chmod 644 /dev/hwrng
+
+mount -t proc -o rw,nosuid,nodev,noexec proc /proc ||
+	fail "ERROR: could not mount /proc"
 
 [ -f /proc/sys/crypto/fips_enabled ] &&
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
@@ -37,14 +18,27 @@ done
 if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	echo "FIPS Integrity check Started"
 
+	. /usr/sbin/boot-rootfs.sh || fail
+
+	case "${rootDevActual}" in
+		mmcblk*)
+			KERNEL=/boot/kernel.itb
+			BOOT_MOUNT=true
+			mkdir -p /boot
+			mount -t "${rootFsType}" -o ro /dev/${rootDevPrefix}1 /boot 2>/dev/null || \
+				fail "Cannot mount /boot: $?"
+			;;
+		ubi*)
+			KERNEL="/dev/${rootDevPrefix}$((rootBlock - 1))"
+			BOOT_MOUNT=false
+			;;
+		*)
+			fail "ERROR: unsupported root device: ${rootDevActual}"
+			;;
+	esac
+
 	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null && \
 		TMP_MOUNT=true || TMP_MOUNT=false
-
-	if ${BOOT_MOUNT}; then
-		mkdir -p /boot
-		mount -t vfat -o noatime,ro /dev/mmcblk0p1 /boot 2>/dev/null || \
-			fail "Cannot mount /boot: $?"
-	fi
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
@@ -73,7 +67,7 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	echo "FIPS Integrity check Success"
 fi
 
-[ ${PROC_MOUNT} -eq 0 ] && umount /proc
+INIT=$(sed -nr 's/.*initlrd=([^ ]+).*/\1/p' /proc/cmdline)
 
 echo "Launching: ${INIT}"
 

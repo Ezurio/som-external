@@ -1,137 +1,215 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
-trap 'rm -rf ${TMPDIR}' EXIT
-
-IMGFILE=$1
-ROOTFS_EXTRA_SIZE=${2:-0}
-ROOTFSDIR=$3
 SRCDIR=${0%/*}
+ROOTFS_DATA_SIZE=
+SECURE=false
 
-BLOCK_SIZE=1024
-MiBCONVERTER=$(( 1024 * 1024 ))
+die () {
+    echo "$@" >&2
+    exit 1
+}
 
-if [ -z "${IMGFILE}" ]; then
-	echo "mksdimg.sh <output filename> [rootfs free space size in MiB] [rootfs source directory]" >&2
-	exit 2
-fi
+usage() {
+	echo "mksdimg.sh [-s] [-r <size MiB> ] [-h] <image>" >&2
+	echo "  -s: Secure boot" >&2
+	echo "  -r: rootfs_data size in MiB" >&2
+	echo "  -h: Show this help" >&2
+    echo "  <image> is the image file to create"
+	exit 1
+}
 
-if [ -z "${ROOTFSDIR}" ]; then
-	if [ ! -f "${SRCDIR}/rootfs.tar" ]; then
-		echo "Could not find required rootfs.tar file." >&2
-		exit 2
-	fi
-elif [ ! -d "${ROOTFSDIR}" ]; then
-	echo "Could not find requested rootfs directory: ${ROOTFSDIR}." >&2
-	exit 2
-fi
+while getopts sr:f:h name; do
+    case ${name} in
+    r)  ROOTFS_DATA_SIZE=${OPTARG} 
+		if ! [ "${ROOTFS_DATA_SIZE}" -eq "${ROOTFS_DATA_SIZE}" ] 2>/dev/null; then
+			echo "rootfs_data size is not a number" >&2
+			exit 1
+		fi
+		;;
+	f)  SRCDIR=${OPTARG} ;;
+    s)  SECURE=true ;;
+    ?)  usage ;;
+    esac
+done
+shift $((OPTIND - 1))
 
+TARGET="${1}"
 
-if ! [ "${ROOTFS_EXTRA_SIZE}" -eq "${ROOTFS_EXTRA_SIZE}" ] 2>/dev/null; then
-	echo "rootfs free space size is not a number" >&2
-	exit 2
-fi
+[ -n "${TARGET}" ] || usage
 
 set -e
 
-echo "[Creating card image...]"
+# Specify partition sizes in MiB
+PART_SIZE=1
+BOOT_SIZE=48
+SWAP_SIZE=256
+PERM_SIZE=48
 
-# Calculate size of the rootfs file system
-ROOTFS_FILE_SIZE=$(stat -c%s "${SRCDIR}/rootfs.tar")
+{ [ -f "${SRCDIR}/rootfs.bin" ] || [ -f "${SRCDIR}/kernel.itb" ]; } && \
+	boot_only=false || boot_only=true
 
-# Set image free space to 120 % of the used space by default
-if [ "${ROOTFS_EXTRA_SIZE}" -eq 0 ]; then
-	ROOTFS_EXTRA_SIZE=$(( ROOTFS_FILE_SIZE * 12 / 10 ))
+if ${boot_only}; then
+	# Calculate total image size
+	IMAGE_SIZE=$(( BOOT_SIZE + PART_SIZE ))
 else
-	ROOTFS_EXTRA_SIZE=$(( ROOTFS_EXTRA_SIZE * MiBCONVERTER ))
+	# Calculate rootfs size
+	ROOTFS_SIZE=$(stat -c %s "$(realpath "${SRCDIR}/rootfs.bin")")
+	# Align rootfs size to 1MiB
+	ROOTFS_SIZE=$(( ROOTFS_SIZE / (1024 * 1024) + 1 ))
+
+	# Set rootfs_data size to 25% of the rootfs size or 256 MiB
+	# whatever is greater by default
+	if [ -z "${ROOTFS_DATA_SIZE}" ]; then
+		# Set rootfs_data size to 25% of the rootfs size
+		ROOTFS_DATA_SIZE=$(( ROOTFS_SIZE / 4 ))
+		# Set rootfs_data size 256 MiB if smaller
+		ROOTFS_DATA_SIZE=$(( ROOTFS_DATA_SIZE > 256 ? ROOTFS_DATA_SIZE : 256 ))
+	fi
+
+	# Calculate total image size
+	IMAGE_SIZE=$(( BOOT_SIZE + SWAP_SIZE + PERM_SIZE + ROOTFS_SIZE + ROOTFS_DATA_SIZE + 3 * PART_SIZE ))
 fi
 
-# Calculate partitions
-BOOT_IMG_SIZE_MiB=48
-BOOT_LBS=512
-BOOT_BLOCKS=$(( BOOT_IMG_SIZE_MiB * MiBCONVERTER / BLOCK_SIZE ))
+# Append partition image to disk image
+append_image() {
+	dd if="${2}" of="${TARGET_TMP}" bs=512 seek="${1}" conv=notrunc status=none
+}
 
-SWAP_IMG_SIZE_MiB=256
+# Create ext4 file system image
+make_ext4() {
+	mkfs.ext4 -q -F -m 1 -L "${1}" \
+		-E root_owner=0:0,lazy_itable_init=0,lazy_journal_init=0 \
+		-O encrypt,ext_attr "${2}" "${3}" > /dev/null
+}
 
-ROOTFS_IMG_SIZE_MiB=$(( (ROOTFS_FILE_SIZE + ROOTFS_EXTRA_SIZE) / MiBCONVERTER + 1 ))
-ROOTFS_BLOCKS=$(( ROOTFS_IMG_SIZE_MiB * MiBCONVERTER / BLOCK_SIZE ))
+# Create ext4 partition
+create_ext4_partition() {
+	echo "[Creating \"${2}\" partition...]"
 
-BOOT_START_MiB=1
-BOOT_END_MiB=$((BOOT_START_MiB + BOOT_IMG_SIZE_MiB))
+	EXT4_PART="${TMPDIR}/${2}.part"
 
-SWAP_START_MiB=${BOOT_END_MiB}
-SWAP_END_MiB=$((SWAP_START_MiB + SWAP_IMG_SIZE_MiB))
+	# Format ext4 partition image
+	make_ext4 "${2}" "${EXT4_PART}" "${3}M"
 
-ROOTFS_START_MiB=${SWAP_END_MiB}
-#ROOTFS_END_MiB=$(( ROOTFS_START_MiB + ROOTFS_IMG_SIZE_MiB ))
+	# Add ext4 partition to disk image
+	append_image "${1}" "${EXT4_PART}"
 
-TMPDIR=$(mktemp -d)
-IMGTMPFILE=${TMPDIR}/${IMGFILE##*/}
+	# Remove ext4 partition image
+	rm -f "${EXT4_PART}"
+}
 
-# Create disk image placeholder
-fallocate -l ${BOOT_START_MiB}MiB "${IMGTMPFILE}"
+# Create boot partition
+create_boot_partition() {
+	echo "[Creating \"boot\" partition...]"
 
-echo "[Creating boot partition...]"
+	BOOT_PART="${TMPDIR}/boot.part"
 
-# Create boot partition image
-mkfs.vfat -F 16 -n BOOT -S ${BOOT_LBS} -C "${TMPDIR}/boot.img" ${BOOT_BLOCKS} > /dev/null
+	# Format boot partition
+	mkfs.vfat -F 32 -n BOOT -C "${BOOT_PART}" $(( BOOT_SIZE * 1024 )) > /dev/null
 
-# Add files to boot partition image
-mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/boot.bin" ::/
-mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/u-boot.itb" ::/
-mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/kernel.itb" ::/
-mcopy -i "${TMPDIR}/boot.img" "${SRCDIR}/uboot.env" ::/
+	${SECURE} && EXT="cip" || EXT="bin"
 
-# Add boot partition to disk image
-cat "${TMPDIR}/boot.img" >> "${IMGTMPFILE}"
-rm -f "${TMPDIR}/boot.img"
+	# Copy files to boot partition
+	mcopy -i "${BOOT_PART}" \
+		"${SRCDIR}/boot.${EXT}" \
+		"${SRCDIR}/u-boot.itb" \
+		"${SRCDIR}/uboot.env" \
+		::/
 
-echo "[Creating swap partition...]"
+	${boot_only} ||
+		mcopy -i "${BOOT_PART}" "${SRCDIR}/kernel.itb" ::\
 
-# Create swap partition image
-fallocate -l ${SWAP_IMG_SIZE_MiB}MiB "${TMPDIR}/swap.img"
-chmod 600 "${TMPDIR}/swap.img"
+	# Add boot partition to disk image
+	append_image "${1}" "${BOOT_PART}"
 
-# Format swap partition image
-mkswap -L swap "${TMPDIR}/swap.img" > /dev/null
+	# Remove boot partition image
+	rm -f "${BOOT_PART}"
+}
 
-# Add swap partition to disk image
-cat "${TMPDIR}/swap.img" >> "${IMGTMPFILE}"
-rm -f "${TMPDIR}/swap.img"
+# Create swap partition
+create_swap_partition() {
+	echo "[Creating \"swap\" partition...]"
 
-echo "[Creating rootfs partition...]"
+	SWAP_PART="${TMPDIR}/swap.part"
 
-# Create rootfs directory for mkfs.ext4
-if [ -z "${ROOTFSDIR}" ]; then
-	ROOTFSDIR=${TMPDIR}/rootfs.tmp
-	mkdir "${ROOTFSDIR}"
-	tar xf "${SRCDIR}/rootfs.tar" -C "${ROOTFSDIR}"
-fi
+	# Create swap partition image
+	fallocate -l ${SWAP_SIZE}MiB "${SWAP_PART}"
+	chmod 600 "${SWAP_PART}"
 
-# Create rootfs partition image
-HOST_MKFS=${SRCDIR}/../host/sbin/mkfs.ext4
-[ -f "${HOST_MKFS}" ] || HOST_MKFS=mkfs.ext4
+	# Format swap partition image
+	mkswap -L swap "${SWAP_PART}" > /dev/null
 
-fakeroot "${HOST_MKFS}" -q -L rootfs -F -b ${BLOCK_SIZE} -d "${ROOTFSDIR}" \
-	-E lazy_itable_init=0,lazy_journal_init=0 "${TMPDIR}/rootfs.img" ${ROOTFS_BLOCKS}
-rm -rf "${TMPDIR}/rootfs.tmp"
+	# Add swap partition to disk image
+	append_image "${1}" "${SWAP_PART}"
 
-# Add rootfs partition to disk image
-cat "${TMPDIR}/rootfs.img" >> "${IMGTMPFILE}"
-rm -f "${TMPDIR}/rootfs.img"
+	# Remove swap partition image
+	rm -f "${SWAP_PART}"
+}
+
+# Create rootfs partition
+create_rootfs_partition() {
+	echo "[Creating \"rootfs_a\" partition...]"
+
+	append_image "${1}" "${SRCDIR}/rootfs.bin"
+}
+
+trap 'rm -rf ${TMPDIR}' EXIT
+
+TMPDIR=$(mktemp -d -t mksdimg.XXXXXX)
+TARGET_TMP=${TMPDIR}/${TARGET##*/}
+
+echo "[Creating SD card image...]"
+
+# Create disk image
+fallocate -l ${IMAGE_SIZE}M "${TARGET_TMP}"
 
 # Create image partition table
-parted -s "${IMGTMPFILE}" mklabel msdos unit MiB \
-	mkpart primary fat16 ${BOOT_START_MiB} ${BOOT_END_MiB} set 1 lba on set 1 boot on \
-	mkpart primary linux-swap ${SWAP_START_MiB} ${SWAP_END_MiB} \
-	mkpart primary ext4 ${ROOTFS_START_MiB} 100%
+if ${boot_only}; then
+	printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
+		sfdisk -q "${IMGTMPFILE}"
+else
+	printf ',%sM,0xc,*\n,%sM,S\n,%sM,L\n,-,Ex\n,%sM,L\n,-,L\n' \
+		${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} "${ROOTFS_SIZE}" | \
+		sfdisk -q "${TARGET_TMP}"
+fi
 
-echo "[Compressing card image...]"
-xz -9cT 0 "${IMGTMPFILE}" > "${IMGFILE}.xz"
+# Read partition table and create partitions
+sfdisk -qlo device,start "${TARGET_TMP}" |
+while read -r DEVICE START; do
+	case ${DEVICE#"${TARGET_TMP}"} in
+		1) create_boot_partition "${START}" ;;
+		2) create_swap_partition "${START}" ;;
+		3) create_ext4_partition "${START}" "perm" "${PERM_SIZE}" ;;
+		5) create_rootfs_partition "${START}" ;;
+		6) create_ext4_partition "${START}" "rootfs_data_a" "${ROOTFS_DATA_SIZE}" ;;
+	esac
+done
 
-echo "[Image file: ${IMGFILE}.xz]"
-echo "SD Card Programming: umount /dev/sdX? ; xz -dc ${IMGFILE}.xz | sudo dd of=/dev/sdX bs=4M conv=fsync"
+# Create sparse image
+fallocate -d "${TARGET_TMP}"
 
+# Create bmap file
+if command -v bmaptool > /dev/null; then
+	echo "[Creating bmap file...]"
+	bmaptool create -o "${TARGET}.bmap" "${TARGET_TMP}"
+fi
+
+echo "[Compressing SD card image...]"
+xz -9cqT 0 "${TARGET_TMP}" > "${TARGET}.xz"
+
+echo "[Image file: ${TARGET}.xz]"
+echo "SD Card Programming, example using dd or bmaptool:"
+echo "  umount /dev/sdX? ; xz -dc ${TARGET}.xz | sudo dd of=/dev/sdX bs=4M conv=fsync"
+if [ -f "${TARGET}.bmap" ]; then
+	echo "  umount /dev/sdX? ; bmaptool copy ${TARGET}.xz /dev/sdX"
+fi
+
+# Remove temporary directory
 rm -rf "${TMPDIR}"
+
+# Flush file system buffers
 sync
 
 echo "[Done]"
