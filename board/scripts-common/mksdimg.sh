@@ -178,7 +178,9 @@ fi
 # Read partition table and create partitions
 sfdisk -qlo device,start "${TARGET_TMP}" |
 while read -r DEVICE START; do
-	case ${DEVICE#"${TARGET_TMP}"} in
+	num=${DEVICE#"${TARGET}"}
+	num=${num#p}
+	case ${num} in
 		1) create_boot_partition "${START}" ;;
 		2) create_swap_partition "${START}" ;;
 		3) create_ext4_partition "${START}" "perm" "${PERM_SIZE}" ;;

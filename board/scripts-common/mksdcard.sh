@@ -107,6 +107,7 @@ check_format() {
 	num=0
 	while read -r DEVICE TYPE SIZE; do
 		num=${DEVICE#"${TARGET}"}
+		num=${num#p}
 		case "${num}" in
 			1) [ "${TYPE}" =  "c" ] && [ "${SIZE}" =   "${BOOT_SIZE}M" ] ;;
 			2) [ "${TYPE}" = "82" ] && [ "${SIZE}" =   "${SWAP_SIZE}M" ] ;;
@@ -198,7 +199,9 @@ fi
 # Read partition table and create partitions
 sfdisk -qlo device "${TARGET}" |
 while read -r DEVICE; do
-	case ${DEVICE#"${TARGET}"} in
+	num=${DEVICE#"${TARGET}"}
+	num=${num#p}
+	case ${num} in
 		1) create_boot_partition "${DEVICE}" ;;
 		2) create_swap_partition "${DEVICE}" ;;
 		3) create_ext4_partition "${DEVICE}" "perm" ;;
