@@ -1,0 +1,15 @@
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 5e3253cfc790..a1a288c40b05 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -1343,8 +1343,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
+ 	if (IS_ERR(sai->bus_clk) && PTR_ERR(sai->bus_clk) != -EPROBE_DEFER)
+ 		sai->bus_clk = devm_clk_get(dev, "sai");
+ 	if (IS_ERR(sai->bus_clk)) {
+-		dev_err(dev, "failed to get bus clock: %ld\n",
+-				PTR_ERR(sai->bus_clk));
++		dev_err_probe(dev, PTR_ERR(sai->bus_clk),
++			"failed to get bus clock\n");
+ 		/* -EPROBE_DEFER */
+ 		return PTR_ERR(sai->bus_clk);
+ 	}

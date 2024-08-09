@@ -1,0 +1,45 @@
+From f4b3948e5a90f49b33e89b019d3c641ab9a6fc59 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Fri, 16 Dec 2022 21:08:19 +0100
+Subject: [PATCH] soc: imx: imx8mp-blk-ctrl: add instance specific probe
+ function
+
+Allow the specific blk-ctrl instance to define a function, which will
+be called during probe to provide device specific extensions.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Tested-by: Lukas F. Hartmann <lukas@mntre.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+---
+ drivers/soc/imx/imx8mp-blk-ctrl.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/soc/imx/imx8mp-blk-ctrl.c b/drivers/soc/imx/imx8mp-blk-ctrl.c
+index 0e3b6ba22f94..b3d9f6e083ba 100644
+--- a/drivers/soc/imx/imx8mp-blk-ctrl.c
++++ b/drivers/soc/imx/imx8mp-blk-ctrl.c
+@@ -60,6 +60,7 @@ struct imx8mp_blk_ctrl_domain {
+ 
+ struct imx8mp_blk_ctrl_data {
+ 	int max_reg;
++	int (*probe) (struct imx8mp_blk_ctrl *bc);
+ 	notifier_fn_t power_notifier_fn;
+ 	void (*power_off) (struct imx8mp_blk_ctrl *bc, struct imx8mp_blk_ctrl_domain *domain);
+ 	void (*power_on) (struct imx8mp_blk_ctrl *bc, struct imx8mp_blk_ctrl_domain *domain);
+@@ -634,6 +635,12 @@ static int imx8mp_blk_ctrl_probe(struct platform_device *pdev)
+ 		goto cleanup_provider;
+ 	}
+ 
++	if (bc_data->probe) {
++		ret = bc_data->probe(bc);
++		if (ret)
++			goto cleanup_provider;
++	}
++
+ 	dev_set_drvdata(dev, bc);
+ 
+ 	return 0;
+-- 
+2.41.0
+
