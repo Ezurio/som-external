@@ -1,0 +1,31 @@
+From 07a42c1480ef460fbd2f5b810802be6ce261a85b Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Fri, 16 Dec 2022 21:08:21 +0100
+Subject: [PATCH] arm64: dts: imx8mp: add clock-cells to hsio-blk-ctrl
+
+The HSIO blk-ctrl exposes the high performance PLL as
+a simple clock.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Tested-by: Lukas F. Hartmann <lukas@mntre.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+---
+ arch/arm64/boot/dts/freescale/imx8mp.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+index a73509926e07..dc1867d6e2a1 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+@@ -1445,6 +1445,7 @@ hsio_blk_ctrl: blk-ctrl@32f10000 {
+ 				power-domain-names = "bus", "usb", "usb-phy1",
+ 						     "usb-phy2", "pcie", "pcie-phy";
+ 				#power-domain-cells = <1>;
++				#clock-cells = <0>;
+ 			};
+ 
+ 			hdmi_blk_ctrl: blk-ctrl@32fc0000 {
+-- 
+2.41.0
+

@@ -1,0 +1,39 @@
+From ba70e1733238b3d4b53a5f030db629d3331110ec Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Fri, 16 Dec 2022 21:08:17 +0100
+Subject: [PATCH] dt-bindings: soc: imx8mp-hsio-blk-ctrl: add clock cells
+
+The HSIO blk-ctrl has a internal PLL, which can be used as a reference
+clock for the PCIe PHY. Add clock-cells to the binding to allow the
+driver to expose this PLL.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+---
+ .../devicetree/bindings/soc/imx/fsl,imx8mp-hsio-blk-ctrl.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/soc/imx/fsl,imx8mp-hsio-blk-ctrl.yaml b/Documentation/devicetree/bindings/soc/imx/fsl,imx8mp-hsio-blk-ctrl.yaml
+index c29181a9745b..1fe68b53b1d8 100644
+--- a/Documentation/devicetree/bindings/soc/imx/fsl,imx8mp-hsio-blk-ctrl.yaml
++++ b/Documentation/devicetree/bindings/soc/imx/fsl,imx8mp-hsio-blk-ctrl.yaml
+@@ -39,6 +39,9 @@ properties:
+       - const: pcie
+       - const: pcie-phy
+ 
++  '#clock-cells':
++    const: 0
++
+   clocks:
+     minItems: 2
+     maxItems: 2
+@@ -85,4 +88,5 @@ examples:
+         power-domain-names = "bus", "usb", "usb-phy1",
+                              "usb-phy2", "pcie", "pcie-phy";
+         #power-domain-cells = <1>;
++        #clock-cells = <0>;
+     };
+-- 
+2.41.0
+

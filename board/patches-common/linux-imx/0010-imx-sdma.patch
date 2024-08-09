@@ -1,0 +1,14 @@
+diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
+index 8e53c1949bdf..c6e494b4ffdf 100644
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -1211,6 +1211,9 @@ static int sdma_load_context(struct sdma_channel *sdmac)
+ 	int ret;
+ 	unsigned long flags;
+ 
++	if (!bd0)
++		return -EBUSY;
++
+ 	if (sdmac->direction == DMA_DEV_TO_MEM)
+ 		load_address = sdmac->pc_from_device;
+ 	else if (sdmac->direction == DMA_DEV_TO_DEV)
