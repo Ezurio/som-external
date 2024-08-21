@@ -1,0 +1,5 @@
+menuconfig BR2_PACKAGE_SUMMIT_UPDATE
+	bool "Summit Software Update"
+	select BR2_PACKAGE_SWUPDATE
+	help
+	  Support for software updates

@@ -1,4 +1,7 @@
 #!/bin/sh
+# shellcheck disable=SC2034
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 fail() {
     echo "$@" >&2
@@ -42,3 +45,87 @@ case "${rootDevActual}" in
         fail "ERROR: unsupported root device: ${rootDevActual}"
         ;;
 esac
+
+rootDevType() {
+    case "${rootDevActual}" in
+        mmcblk*)
+            read -r rootMMCTypeV < "/sys/block/${rootDevName}/device/type"
+            echo "${rootMMCTypeV}"
+            ;;
+        ubi*)
+            echo "ubi"
+            ;;
+    esac
+}
+
+getPart() {
+    PART="${1}"
+
+    case "${PART}" in
+    rootfs)
+        echo "${rootDevPrefix}${rootBlock}"
+        return
+        ;;
+
+    kernel|rootfs_data)
+        SIDE=$(getSide)
+        [ -z "${SIDE}" ] || PART="${PART}_${SIDE}"
+        ;;
+    esac
+
+    case "${rootDevActual}" in
+        mmcblk*)
+            if [ "$(/usr/bin/lsblk -ndlo PTTYPE "/dev/${rootDevName}" 2>/dev/null)" = gpt ]; then
+                /usr/bin/lsblk -nlo PARTLABEL,NAME "/dev/${rootDevName}" | awk "\$1 == \"${PART}\" { print \$2 }"
+            else
+                case "${PART}" in
+                    boot)           echo "${rootDevPrefix}1" ;;
+                    swap)           echo "${rootDevPrefix}2" ;;
+                    perm)           echo "${rootDevPrefix}3" ;;
+                    rootfs_a)       echo "${rootDevPrefix}5" ;;
+                    rootfs_data_a)  echo "${rootDevPrefix}6" ;;
+                esac
+            fi
+            ;;
+
+        ubi*)
+            for f in /sys/class/ubi/"${rootDevPrefix}"*; do
+                read -r ubi_name < "${f}/name"
+                if [ "${ubi_name}" = "${PART}" ]; then
+                    echo "${f#/sys/class/ubi/}"
+                    break
+                fi
+            done
+            ;;
+    esac
+}
+
+getSide() {
+    bootSide=$(sed -rn 's,.*bootside=([ab]).*,\1,p' /proc/cmdline)
+    if [ -n "${bootSide}" ]; then
+        echo "${bootSide}"
+        return
+    fi
+
+    case "${rootDevActual}" in
+        mmcblk*)
+            if [ "$(/usr/bin/lsblk -ndlo PTTYPE "/dev/${rootDevPrefix}${rootBlock}" 2>/dev/null)" = gpt ]; then
+                bootside=$(/usr/bin/lsblk -ndlo PARTLABEL "/dev/${rootDevPrefix}${rootBlock}")
+                bootside=${bootside##*_}
+            else
+                bootside=a
+            fi
+            ;;
+
+        ubi*)
+            if [ -f "/sys/class/ubi/${rootDevPrefix}${rootBlock}/name" ]; then
+                read -r bootside < "/sys/class/ubi/${rootDevPrefix}${rootBlock}/name"
+                bootside=${bootside##*_}
+            fi
+            ;;
+    esac
+
+    case ${bootside} in
+        a|b) echo "${bootside}" ;;
+    esac
+}

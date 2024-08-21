@@ -114,7 +114,7 @@ endif
 .PHONY: $(addsuffix -full,$(TARGETS))
 $(addsuffix -full,$(TARGETS)): %-full: % %-legal-info %-sdk
 	bzip2 -d $(call release_file,$*).bz2
-	tar -C $(OUTPUT_DIR)/$*/images -rf $(call release_file,$*) \
+	tar -C $(OUTPUT_DIR)/$*/images -rSf $(call release_file,$*) \
 		--owner=root --group=root \
 		legal-info.tar.bz2 $*-sdk.tar.gz
 	bzip2 $(call release_file,$*)
@@ -122,7 +122,7 @@ $(addsuffix -full,$(TARGETS)): %-full: % %-legal-info %-sdk
 .PHONY: $(addsuffix -full-legal,$(TARGETS))
 $(addsuffix -full-legal,$(TARGETS)): %-full-legal: % %-legal-info
 	bzip2 -d $(call release_file,$*).bz2
-	tar -C "$(OUTPUT_DIR)/$*/images" -rf $(call release_file,$*) \
+	tar -C "$(OUTPUT_DIR)/$*/images" -rSf $(call release_file,$*) \
 		--owner=root --group=root \
 		legal-info.tar.bz2
 	bzip2 $(call release_file,$*)

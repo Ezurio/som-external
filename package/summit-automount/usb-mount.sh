@@ -1,16 +1,7 @@
 #!/bin/sh
-# Copyright (c) 2018-2024, Ezurio
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-# PERFORMANCE OF THIS SOFTWARE.
-#                               
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2018 Ezurio
+
 # This script is called from our systemd unit file to mount or unmount
 # a USB drive.
 
@@ -39,27 +30,32 @@ ACTION=${1}
 DEVICE=${2}
 
 DEVBASE=${DEVICE#/dev/*}
+DEVBASE=${DEVBASE%%p*}
 MOUNT_ROOT="$(readlink -f /media)"
 
 case ${DEVBASE} in
-	mmc*) MOUNT_USER=${3:-${MOUNT_USER_MMC}} ;;
-	*) MOUNT_USER=${3:-${MOUNT_USER_USB}} ;;
+    mmc*) MOUNT_USER=${3:-${MOUNT_USER_MMC}} ;;
+    *) MOUNT_USER=${3:-${MOUNT_USER_USB}} ;;
 esac
 
 # See if this drive is already mounted, and if so where
-MOUNT_POINT="$(awk -v DEV="${DEVICE}" '($1 == DEV) { print $2 }' /proc/mounts)"
+MOUNT_POINT="$(awk "\$1 == \"${DEVICE}\" { print \$2 }" /proc/mounts)"
 
 MOUNT="/usr/bin/mount"
 UMOUNT="/usr/bin/umount"
 
 do_mount()
 {
-    if [ -z "${DEVBASE%mmc*}" ]; then
-       read -r mmctype < "/sys/block/${DEVBASE%p*}/device/type"
-       [ "${mmctype}" = "SD" ] || exit 0
+    case "${DEVBASE}" in
+        mmcblk*)
+           # Do not mount if not SD card
+           read -r mmctype < "/sys/block/${DEVBASE}/device/type"
+           [ "${mmctype}" = "SD" ] || exit 0
 
-       grep -qF "${DEVICE%p*}" /proc/cmdline && exit 0
-    fi
+           # Do not mount if root device
+           grep -qF "/dev/${DEVBASE}p" /proc/cmdline && exit 0
+           ;;
+    esac
 
     if [ -n "${MOUNT_POINT}" ]; then
         echo "Warning: ${DEVICE} is already mounted at ${MOUNT_POINT}" >&2
@@ -81,7 +77,7 @@ do_mount()
     # Figure out a mount point to use
     if [ -z "${ID_FS_LABEL}" ]; then
         ID_FS_LABEL=${DEVBASE}
-    elif grep -q " ${MOUNT_ROOT}/${ID_FS_LABEL} " /proc/mounts; then
+    elif grep -qF " ${MOUNT_ROOT}/${ID_FS_LABEL} " /proc/mounts; then
         # Already in use, make a unique one
         ID_FS_LABEL="${ID_FS_LABEL}-${DEVBASE}"
     fi
@@ -139,7 +135,7 @@ do_unmount()
 {
     for f in ${MOUNT_POINT} ; do
         case "${f}" in
-		"${MOUNT_ROOT}"*)
+        "${MOUNT_ROOT}"*)
             ${UMOUNT} -l "${f}" && echo "**** Unmounted ${f} ${DEVICE}" >&2 ;;
         "") echo "Warning: ${DEVICE} is not mounted" >&2 ;;
         *) echo "Warning: ${DEVICE} is not managed by usb-mount" >&2 ;;

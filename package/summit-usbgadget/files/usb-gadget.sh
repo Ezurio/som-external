@@ -1,17 +1,6 @@
 #!/bin/sh
-
-# Copyright (c) 2018-2024, Ezurio
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-# PERFORMANCE OF THIS SOFTWARE.
-#
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2018 Ezurio
 
 UDC_DIR=/sys/class/udc
 GADGET_DIR=/sys/kernel/config/usb_gadget
@@ -19,7 +8,7 @@ UDC_NAME=${2}
 
 counter=0
 
-error() {
+die() {
 	echo "${1}" >&2
 	exit 1
 }
@@ -75,7 +64,7 @@ create_acm() {
 
 create_gadget() {
 		mkdir -p ${GADGET_DIR}/g0
-		cd ${GADGET_DIR}/g0 || error "Unable start gadget"
+		cd ${GADGET_DIR}/g0 || die "Unable start gadget"
 
 		echo "${USB_GADGET_VENDOR_ID}"  > idVendor
 		echo "${USB_GADGET_PRODUCT_ID}" > idProduct
@@ -119,7 +108,7 @@ create_gadgets() {
 
 	[ "${USB_GADGET_ETHER_PORTS:-0}"  -gt 0 ] || \
 	[ "${USB_GADGET_SERIAL_PORTS:-0}" -gt 0 ] || \
-		error "No usb-gadget specified"
+		die "No usb-gadget specified"
 
 	read -r soc_id < /sys/devices/soc0/soc_id
 	case "${soc_id}" in
@@ -135,7 +124,7 @@ create_gadgets() {
 
 	if [ ! -d "${GADGET_DIR}" ]; then
 		mount -t configfs none /sys/kernel/config
-		[ -d "${GADGET_DIR}" ] || error "ConfigFS not found"
+		[ -d "${GADGET_DIR}" ] || die "ConfigFS not found"
 	fi
 
 	if [ -n "${UDC_NAME}" ]; then
@@ -177,5 +166,5 @@ case "${1}" in
 		;;
 
 	*)
-		error "Usage: ${0} <start|stop> [port name]"
+		die "Usage: ${0} <start|stop> [port name]"
 esac

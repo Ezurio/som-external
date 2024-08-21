@@ -1,41 +1,51 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2018 Ezurio
 
-MOUNT_POINT=/tmp/ubi_mount_point
-DATA_SECRET_SRC=/data/secret
+MOUNT_POINT=/tmp/transfer_mount_point
 DATA_SECRET_TARGET=${MOUNT_POINT}/secret
 DATA_SRC=/data
-DATA_TARGET=${MOUNT_POINT}
+DATA_SECRET_SRC=${DATA_SRC}/secret
 
-exit_on_error() {
-	[ "${1}" = 1 ] && /bin/umount "${MOUNT_POINT}"
-	rmdir "${MOUNT_POINT}"
-	echo "${2}"
+die() {
+	echo "${1}" >&2
 	exit 1
 }
 
+warning() {
+	if [ -x /usr/bin/systemd-cat ]; then
+		echo "${1}" | systemd-cat -t "${0}" -p warning
+	else
+		echo "${1}" >&2
+	fi
+}
+
+cleanup() {
+	if [ -d "${MOUNT_POINT}" ]; then
+		/bin/umount ${MOUNT_POINT} || true
+		rmdir ${MOUNT_POINT}
+	fi
+}
+
 find_ubi_device() {
-	ubi_dev=""
-	for f in /sys/class/ubi/*; do
-		if [ -f "${f}/name" ] &&
-			read -r ubi_name < "${f}/name" &&
-			[ "${1}" = "${ubi_name}" ]; then
-			ubi_dev="/dev/${f#/sys/class/ubi/}"
-			break
-		fi
-	done
-	[ -n "${ubi_dev}" ] || exit_on_error 0 "UBI Volume ${1} Does not Exist"
+	f=$(grep -lxF "${1}" /sys/class/ubi/ubi*/name) ||
+		die "UBI volume for ${1} not found"
+
+	f=${f#/sys/class/ubi/}
+	f=${f%%/name}
+	echo "/dev/${f}"
 }
 
 migrate_data() {
-	ubiupdatevol -t "${1}" ||
-		exit_on_error 0 "Erasing UBI Volume ${1} Failed"
+	# Wipe ubi partition
+	/usr/sbin/ubiupdatevol "${1}" -t ||
+		die "Erasing UBI Volume ${1} Failed"
 
-	# Create mount point and mount the data device
+	# Mount the data device, this ensures that wipe have completed
 	/bin/mount -o noatime,noexec,nosuid,nodev -t ubifs "${1}" "${MOUNT_POINT}" ||
-		exit_on_error 0 "Mounting ${DATA_DEVICE} to ${MOUNT_POINT} Failed"
+		die "Mounting ${DATA_DEVICE} to ${MOUNT_POINT} Failed"
 
-	if [ "${do_data_migration}" -ne 0 ]; then
-
+	if ${do_data_migration}; then
 		# Prepare /data/secret
 		if [ -d "${DATA_SECRET_SRC}" ]; then
 			mkdir -p "${DATA_SECRET_TARGET}"
@@ -45,11 +55,11 @@ migrate_data() {
 			# Target dir is not encrypted anymore after nand erase. Encrypt it before migrating data.
 			FSCRYPT_KEY=ffffffffffffffff
 			/bin/fscryptctl set_policy ${FSCRYPT_KEY} ${DATA_SECRET_TARGET} ||
-				exit_on_error 1 "Directory Encryption.. Failed"
+				die "Directory Encryption.. Failed"
 		fi
 
-		cp -fa "${DATA_SRC}"/* "${DATA_TARGET}"/ ||
-			exit_on_error 1 "Data Copying.. Failed"
+		cp -fa -t ${MOUNT_POINT} ${DATA_SRC}/* ||
+			die "Data Copying.. Failed"
 
 		rm -f ${DATA_SECRET_TARGET}/NetworkManager/system-connections/shared-usb0.nmconnection
 	fi
@@ -57,36 +67,36 @@ migrate_data() {
 	sync
 
 	# Unmount the data device
-	/bin/umount "${MOUNT_POINT}" || exit_on_error 0 "Unmounting ${MOUNT_POINT} Failed"
+	/bin/umount "${MOUNT_POINT}" ||
+		die "Unmounting ${MOUNT_POINT} Failed"
 }
-
-mkdir -p "${MOUNT_POINT}" || exit_on_error 0 "Directory Creation for ${MOUNT_POINT} Failed"
 
 # Don't migrate data from SD
 read -r cmdline < /proc/cmdline
 case "${cmdline}" in
 */dev/mmc*)
-	do_data_migration=0
+	do_data_migration=false
 	;;
 
 *)
 	# Don't migrate if /data not mounted
-	if ! grep -qs "${DATA_SRC} " /proc/mounts; then
-		if [ -x /usr/bin/systemd-cat ]; then
-			echo "Data from ${DATA_SRC} not migrated, because it was not mounted." | systemd-cat -t "${0}" -p warning
-		else
-			echo "Data from ${DATA_SRC} not migrated, because it was not mounted." > /dev/stderr
-		fi
-		do_data_migration=0
+	if grep -qsF "${DATA_SRC} " /proc/mounts; then
+		do_data_migration=true
 	else
-		do_data_migration=1
+		warning "Data from ${DATA_SRC} not migrated, because it was not mounted."
+		do_data_migration=false
 	fi
 	;;
 esac
 
+trap cleanup EXIT
+
+mkdir -p "${MOUNT_POINT}" ||
+	die "Directory Creation for ${MOUNT_POINT} Failed"
+
 for name in ${1}; do
-	find_ubi_device "${name}"
-	migrate_data "${ubi_dev}"
+	# Clean partition and migrate data if neeeded
+	migrate_data "$(find_ubi_device "${name}")"
 done
 
 rmdir "${MOUNT_POINT}"

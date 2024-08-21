@@ -1,16 +1,19 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 set -e
 
 DATA_MOUNT=/data
 
-case $1 in
+case "${1}" in
 start)
+	# shellcheck source=/dev/null
 	. /usr/sbin/boot-rootfs.sh
 
-	DATA_DEVICE=/dev/${rootDevPrefix}$((rootBlock + 1))
+	DATA_DEVICE=/dev/${rootDevPrefix:?}$((${rootBlock:?} + 1))
 
-	/usr/bin/mount -o noatime,nodev,noexec -t "${rootFsType}" "${DATA_DEVICE}" "${DATA_MOUNT}"
+	/usr/bin/mount -o noatime,nodev,noexec -t "${rootFsType:?}" "${DATA_DEVICE}" "${DATA_MOUNT}"
 
 	# Create encrypted data directory
 	DATA_SECRET=${DATA_MOUNT}/secret
@@ -32,5 +35,10 @@ start)
 stop)
 	/usr/bin/umount ${DATA_MOUNT}
 	echo 3 >/proc/sys/vm/drop_caches
+	;;
+
+*)
+	echo "Usage: ${0} <start/stop>"
+	exit 1
 	;;
 esac
