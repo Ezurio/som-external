@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 # Read-write rootfs for Summit SOM using overlayfs
 
 OVERLAY_ROOT=/mnt
@@ -12,6 +14,7 @@ fail() {
     echo "${1}" ; /bin/sh
 }
 
+# shellcheck source=/dev/null
 . /usr/sbin/boot-rootfs.sh || fail
 
 # create a writable fs to then create our mountpoints
@@ -19,10 +22,10 @@ mount -t tmpfs inittemp /mnt ||
     fail "ERROR: could not create a temporary filesystem"
 
 mkdir ${ROOT_RO_MOUNT} ${ROOT_RW_MOUNT}
-mount -o noatime -t "${rootFsType}" "/dev/${rootDevPrefix}$((rootBlock + 1))" ${ROOT_RW_MOUNT} ||
+mount -o noatime -t "${rootFsType:?}" "/dev/${rootDevPrefix:?}$((${rootBlock:?} + 1))" ${ROOT_RW_MOUNT} ||
     fail "ERROR: could not create parition for upper filesystem"
 
-mount -t "${rootFsType}" -o ro "/dev/${rootDev}" ${ROOT_RO_MOUNT} ||
+mount -t "${rootFsType}" -o ro "/dev/${rootDev:?}" ${ROOT_RO_MOUNT} ||
     fail "ERROR: could not ro mount original root partition"
 
 mkdir -p ${ROOT_RW_MOUNT}/upper ${ROOT_RW_MOUNT}/work ${ROOT_NEW_MOUNT}

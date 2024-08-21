@@ -1,6 +1,6 @@
 initlrd="initlrd=/usr/sbin/overlayRoot.sh"
 
 setenv bootargs "root=/dev/mmcblk0p5 rootwait rootfstype=squashfs ro
-resume=/dev/mmcblk0p2 resumewait
+resume=/dev/mmcblk0p2 resumewait ubi.fm_autoconvert=1
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
-loglevel=4 ${bootargs}"
+bootside=${bootside} loglevel=4 ${bootargs}"

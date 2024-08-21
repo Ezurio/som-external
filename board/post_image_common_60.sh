@@ -33,7 +33,6 @@ UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version)
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
-fipshmac=${HOST_DIR}/bin/fipshmac
 
 die() { echo "$@" >&2; exit 1; }
 
@@ -61,13 +60,9 @@ elif grep -qF '"Image.zstd"' "${BINARIES_DIR}/kernel.its"; then
 fi
 
 hash_check() {
-	${fipshmac} "${1}/${2}"
-	if [ "$(cat "${1}/.${2}.hmac")" = "$(cat "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac")" ]; then
-		rm "${1}/.${2}.hmac"
-	else
-		rm "${1}/.${2}.hmac"
+	openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${1}/${2}" hmac | \
+		diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac" || \
 		die "FIPS Hash mismatch to the certified for ${2}"
-	fi
 }
 
 if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS=y" "${BR2_CONFIG}"
@@ -85,13 +80,14 @@ then
 fi
 
 # Generate U-Boot environment
+ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 if ${SD} ; then
-	${mkenvimage} -p 0 -s 131072 -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
+	${mkenvimage} -p 0 -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
 else
-	${mkenvimage} -r -s 131072 -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
+	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
 	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
 		echo "keyrev=1" | cat - "${BINARIES_DIR}/u-boot-initial-env" | sort > "${BINARIES_DIR}/u-boot1-initial-env"
-		${mkenvimage} -r -s 131072 -o "${BINARIES_DIR}/uboot1.env" "${BINARIES_DIR}/u-boot1-initial-env"
+		${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot1.env" "${BINARIES_DIR}/u-boot1-initial-env"
 	fi
 fi
 
@@ -134,21 +130,31 @@ fi
 
 if ! ${SD} ; then
 	size_check () {
-		[ "$(stat -Lc "%s" "${BINARIES_DIR}/${1}")" -le $((${2}*128*1024)) ] || \
+		[ "$(stat -Lc "%s" "${BINARIES_DIR}/${1}")" -le "${2}" ] || \
 			{ echo "${1} size exceeded ${2} block limit, failed"; exit 1; }
 	}
 
-	size_check u-boot.itb 7
+	case ${BUILD_TYPE} in
+	som60*|wb50*)
+		size_check boot.bin $((64*1024))
+		size_check u-boot.itb $((7*128*1024))
+		;;
+
+	ig60*)
+		size_check boot.bin $((64*1024))
+		size_check u-boot.itb $((3*128*1024))
+		;;
+	esac
 fi
 
 RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
-tar -C "${BINARIES_DIR}" -chf "${RELEASE_FILE}" \
+tar -C "${BINARIES_DIR}" -chSf "${RELEASE_FILE}" \
 	--owner=root --group=root \
 	boot.bin u-boot.itb kernel.itb rootfs.bin
 
 if ${SECURE_BOOT} ; then
-	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		u-boot-spl.dtb u-boot-spl-nodtb.bin u-boot.dtb \
 		u-boot-nodtb.bin u-boot.its boot.scr \
@@ -160,7 +166,7 @@ fi
 
 if ${ENCRYPTED_TOOLKIT} ; then
 	DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
-	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity \
 		-C "${HOST_DIR}/usr/bin" \
@@ -168,16 +174,16 @@ if ${ENCRYPTED_TOOLKIT} ; then
 fi
 
 if ${SD} ; then
-	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		uboot.env mksdcard.sh mksdimg.sh
 else
-	tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		"${BR2_SUMMIT_PRODUCT}.swu"
 
 	if ${SECURE_BOOT} ; then
-		tar -rhf "${RELEASE_FILE}" --owner=root --group=root \
+		tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
 			pmecc.bin uboot.env erase_data.sh sw-description
 	fi
@@ -197,7 +203,7 @@ then
 
 	# Add the dependency tarball to the release archive
 	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-openjdk.tar.gz
-	tar -C "${BINARIES_DIR}" -rhf "${RELEASE_FILE}" \
+	tar -C "${BINARIES_DIR}" -rhSf "${RELEASE_FILE}" \
 		--owner=root --group=root \
 		"${OPENJDK_TARBALL_FILE}"
 fi

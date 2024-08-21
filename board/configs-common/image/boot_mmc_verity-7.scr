@@ -5,4 +5,4 @@ initlrd="initlrd=/usr/sbin/pre-systemd-init.sh"
 setenv bootargs "root=/dev/dm-0 rootwait rootfstype=squashfs ro
 rootdelay=1 dm=\"${dm_table}\"
 init=/usr/sbin/fipsInit.sh ${initlrd} fips=${fips:=0} fips_wifi=${fips_wifi:=0}
-loglevel=3 systemd.show_status=0"
+bootside=${bootside} loglevel=3 systemd.show_status=0"

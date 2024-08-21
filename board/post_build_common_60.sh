@@ -14,8 +14,6 @@ ENCRYPTED_TOOLKIT_DIR="$(realpath "${3}")"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: starting..."
 
-fipshmac=${HOST_DIR}/bin/fipshmac
-
 case "${BUILD_TYPE}" in
 *sd) SD=true  ;;
   *) SD=false ;;
@@ -54,8 +52,7 @@ rsync -rlptDWK --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${T
 
 # Split out OpenJDK dependencies to a separate tarball to support
 # running AWS IoT Greengrass V2
-if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y "${BR2_CONFIG}"
-then
+if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y "${BR2_CONFIG}"; then
 	# Create temporary directory and move 'modules' file to it
 	rm -rf "${BINARIES_DIR}/jdk/lib/"
 	mkdir -p "${BINARIES_DIR}/jdk/lib"
@@ -122,26 +119,24 @@ if [ -f "${TARGET_DIR}/usr/lib/sysctl.d/50-default.conf" ]; then
 fi
 
 if [ -x "${TARGET_DIR}/usr/sbin/NetworkManager" ]; then
+	mkdir -p "${TARGET_DIR}/etc/NetworkManager/system-connections"
 
-mkdir -p "${TARGET_DIR}/etc/NetworkManager/system-connections"
+	# Make sure connection files have proper attributes
+	for f in "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/"* "${TARGET_DIR}/etc/NetworkManager/system-connections/"* ; do
+		if [ -f "${f}" ] ; then
+			chmod 600 "${f}"
+		fi
+	done
 
-# Make sure connection files have proper attributes
-for f in "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/"* "${TARGET_DIR}/etc/NetworkManager/system-connections/"* ; do
-	if [ -f "${f}" ] ; then
-		chmod 600 "${f}"
+	# Make sure dispatcher files have proper attributes
+	[ -d "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" ] && \
+		find "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" -type f -exec chmod 700 {} \;
+
+	if [ -x "${TARGET_DIR}/usr/sbin/firewalld" ]; then
+		sed -i "s/firewall-backend=.*/firewall-backend=none/g" "${TARGET_DIR}/etc/NetworkManager/NetworkManager.conf"
 	fi
-done
 
-# Make sure dispatcher files have proper attributes
-[ -d "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" ] && \
-	find "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" -type f -exec chmod 700 {} \;
-
-if [ -x "${TARGET_DIR}/usr/sbin/firewalld" ]; then
-	sed -i "s/firewall-backend=.*/firewall-backend=none/g" "${TARGET_DIR}/etc/NetworkManager/NetworkManager.conf"
-fi
-
-ln -sf /run/NetworkManager/resolv.conf "${TARGET_DIR}/etc/resolv.conf"
-
+	ln -sf /run/NetworkManager/resolv.conf "${TARGET_DIR}/etc/resolv.conf"
 fi
 
 # Remove not needed systemd generators
@@ -297,7 +292,7 @@ sed -i "s/at91-dvk_som60/${DTB}/g" "${BINARIES_DIR}/kernel.its"
 
 case "${BUILD_TYPE}" in
 	wb50n*) SOM=wb50n ;;
-	     *) SOM=som60 ;;
+	som60*|ig60*) SOM=som60 ;;
 esac
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
@@ -317,27 +312,36 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
 		IMAGE_NAME+=.zstd
 	fi
 
+	calc_hash() {
+		for i in "$@"; do
+			openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in "${i}" hmac | \
+				tr "[:upper:]" "[:lower:]" > "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac"
+		done
+	}
+
 	mkdir -p "${TARGET_DIR}/usr/lib/fipscheck"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck" "${BINARIES_DIR}/${IMAGE_NAME}"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck" "${TARGET_DIR}/usr/bin/fipscheck"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck" "${TARGET_DIR}/usr/lib/libfipscheck.so.1"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck" "${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
+	calc_hash \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
 	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${SOM}/"*
 elif grep -qF "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" "${BR2_CONFIG}"; then
-	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/"*
+	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
+		"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/"*
 fi
 
 if grep -qF 'BR2_TARGET_GENERIC_ROOT_PASSWD=""' "${BR2_CONFIG}" && \
    grep -qF BR2_TARGET_ENABLE_ROOT_LOGIN=y "${BR2_CONFIG}"
 then
-
-if [ -f "${TARGET_DIR}/etc/inittab" ]; then
-	sed -i -e 's,^.*/getty.*,::respawn:-/bin/sh,' "${TARGET_DIR}/etc/inittab"
-else
-	sed -i -e 's,/agetty -o,/agetty -a root -o,g' "${TARGET_DIR}/usr/lib/systemd/system/serial-getty@.service"
-fi
-
+	if [ -f "${TARGET_DIR}/etc/inittab" ]; then
+		sed -i 's,^.*/getty.*,::respawn:-/bin/sh,' \
+			"${TARGET_DIR}/etc/inittab"
+	else
+		sed -i 's,/agetty -o,/agetty -a root -o,g' \
+			"${TARGET_DIR}/usr/lib/systemd/system/serial-getty@.service"
+	fi
 fi
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: done."

@@ -1,0 +1,25 @@
+#! /bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
+
+usage()
+{
+	echo "usage: ${0} [-f] [-h]"
+	echo "  -f  - erase everything including bad and reserved blocks (scrub)"
+	echo "  -h  - help message"
+	exit 1
+}
+
+o_scrub=false
+
+while getopts fh name; do
+	case ${name} in
+	f)  o_scrub=true ;;
+	?)  usage ;;
+	esac
+done
+
+# shellcheck source=/dev/null
+. /usr/bin/ubi_update_support.sh
+
+flash_scrub ${o_scrub}

@@ -108,7 +108,7 @@ size_check 'kernel.bin' ${limit}
 size_check 'u-boot.bin' 3
 
 # shellcheck disable=SC2086
-tar -cjhf "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar.bz2" \
+tar -cjhSf "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar.bz2" \
 	--owner=root --group=root -C "${BINARIES_DIR}" \
 	at91bs.bin u-boot.bin kernel.bin rootfs.bin \
 	fw_update fw_select fw_usi fw.txt ${SWU_BOOT}

@@ -1,2 +1,0 @@
-DRIVERS=="lrdmwl*", ACTION=="change", ENV{FIRMWARE}=="on",  DEVPATH=="*mmc*", PROGRAM="/usr/bin/systemctl start btattach.service"
-DRIVERS=="lrdmwl*", ACTION=="change", ENV{FIRMWARE}=="off", DEVPATH=="*mmc*", PROGRAM="/usr/bin/systemctl stop  btattach.service"

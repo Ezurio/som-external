@@ -2,14 +2,16 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
+set -e
+
 notify() {
-    [ -x /usr/sbin/device_update.sh ] && /usr/sbin/device_update.sh "${1}"
+    [ ! -x /usr/sbin/device_update.sh ] || /usr/sbin/device_update.sh "${1}"
 }
 
 die() {
     case "${o_method}" in
     complete*)
-        [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
+        flash_cleanup
         ;;
     esac
 
@@ -22,7 +24,7 @@ die() {
 usage() {
     cat << --EOF--
 "Usage: $0: [-m <method>] [-s <side>] [-x value] [-f] [-v] <url>"
-    -m - Updated method (full, main, complete, etc) (default: full - NAND, complete - SD)
+    -m - Updated method (full, main, complete, etc) (default: full - NAND/eMMCC, complete - SD)
     -s - Update side (a, b) (default: automatic)
     -x - Extended options (r - no reboot)
     -f - Factory provision mode (default: off)
@@ -40,23 +42,24 @@ o_restart=true
 o_factory=false
 
 # determine update side
+# shellcheck source=/dev/null
 . /usr/sbin/boot-rootfs.sh || die
 
-case "${rootDevActual}" in
-    mmcblk*)
-        run_on_sd=true
-        o_side=a
-        ;;
-    ubi*)
-        run_on_sd=false
-        [ "${rootBlock}" = 1 ] && o_side=b || o_side=a
-        ;;
-    *)
-        die "ERROR: unsupported root device: ${rootDevActual}"
-        ;;
-esac
+[ "$(getSide)" = "a" ] && o_side=b || o_side=a
+
+# shellcheck disable=SC2154
+[ "$(rootDevType)" = "SD" ] && run_on_sd=true || run_on_sd=false
 
 ${run_on_sd} && o_method=complete || o_method=full
+
+if grep -qF '"ubi"' /proc/mtd; then
+    # shellcheck source=/dev/null
+    . /usr/bin/ubi_update_support.sh
+else
+    flash_cleanup() { : ; }
+    flash_factory_test() { : ; }
+    flash_format() { : ; }
+fi
 
 while getopts m:s:x:fv name; do
     case ${name} in
@@ -75,16 +78,16 @@ shift $((OPTIND - 1))
 url="${1}"
 
 if [ "${o_method}" = complete ]; then
-    ${run_on_sd} || die "only 'full' or 'main' update methods supported when booting from NAND flash"
+    ${run_on_sd} || die "only 'full' or 'main' update methods supported when booting from NAND/eMMC"
     p_method=${o_method}
 else
-    ${run_on_sd} && die "only 'complete' update method supported when booting from SD card"
+    ! ${run_on_sd} || die "only 'complete' update method supported when booting from SD card"
     p_method=${o_method}-${o_side}
 fi
 
 notify updating
 
-${o_quiet} && exec >/dev/null
+! ${o_quiet} || exec >/dev/null
 
 case "${url}" in
 file://*)
@@ -104,10 +107,10 @@ file://*)
     esac
 
     if [ -x /usr/bin/curl ]; then
-        ${o_quiet} && o_dlsilent="-s"
+        ! ${o_quiet} || o_dlsilent="-s"
         download_cmd="/usr/bin/curl -Lf ${o_dlsilent} ${url}"
     elif [ -x /usr/bin/wget ]; then
-        ${o_quiet} && o_dlsilent="-q"
+        ! ${o_quiet} || o_dlsilent="-q"
         download_cmd="/usr/bin/wget -T4 -t1 ${o_dlsilent} -O - ${url}"
     else
         die "Download utility not found (need curl or wget)"
@@ -121,46 +124,9 @@ esac
 
 case "${o_method}" in
 complete*)
-    [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
-
-    if ${o_factory}; then
-        # Mark bad blocks if found
-        while read -r line; do
-            case "${line}" in
-            *u-boot*)
-                mtd=${line%%:*}
-                nandtest -m "/dev/${mtd}" || die "NAND test failed"
-                ;;
-            esac
-        done < /proc/mtd
-
-        # Fail if bad blocks found in both u-boot-env and u-boot-spl areas
-        while read -r line; do
-            case "${line}" in
-            *u-boot-spl*)
-                mtd=${line%%:*}
-                [ "$(cat "/sys/class/mtd/${mtd}/bad_blocks")" -eq 0 ] || \
-                    die "Bad blocks found in ${mtd} \"u-boot-spl\" area"
-                ;;
-            *u-boot-env-a*)
-                mtd=${line%%:*}
-                bad_a=$(cat "/sys/class/mtd/${mtd}/bad_blocks")
-                ;;
-            *u-boot-env-b*)
-                mtd=${line%%:*}
-                bad_b=$(cat "/sys/class/mtd/${mtd}/bad_blocks")
-                ;;
-            esac
-        done < /proc/mtd
-
-        [ "${bad_a}" -gt 0 ] && [ "${bad_b}" -gt 0 ] && \
-            die "Bad blocks found in both u-boot-env areas"
-
-        . erase_som_nand
-    fi
-
-    ubimtd=$(sed -n 's/^\(.*\):.*"ubi"$/\1/p' /proc/mtd)
-    [ -z "${ubimtd}" ] || ubiformat "/dev/${ubimtd}" -y
+    flash_cleanup
+    ! ${o_factory} || flash_factory_test
+    flash_format
     ;;
 esac
 
@@ -176,7 +142,7 @@ esac
 
 case "${o_method}" in
 complete*)
-    [ -d /sys/class/ubi/ubi0 ] && ubidetach -d 0
+    flash_cleanup 
     ;;
 *)
     if [ -x /usr/sbin/migrate_data.sh ]; then

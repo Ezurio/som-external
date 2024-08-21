@@ -25,7 +25,6 @@ config BR2_SUMMIT_FIPS_7
 	select BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES
 	select BR2_PACKAGE_SUMMIT_FIPS_UTILS
 	select BR2_PACKAGE_FIPSCHECK
-	select BR2_PACKAGE_HOST_FIPSCHECK
 	select BR2_SUMMIT_FIPS_RADIO
 	select BR2_PACKAGE_UBOOT_TOOLS
 	select BR2_PACKAGE_UBOOT_TOOLS_DUMPIMAGE
@@ -38,7 +37,6 @@ config BR2_SUMMIT_FIPS_11
 	select BR2_PACKAGE_LIBOPENSSL_3_0
 	select BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER
 	select BR2_PACKAGE_SUMMIT_FIPS_UTILS
-	select BR2_PACKAGE_HOST_FIPSCHECK
 	select BR2_SUMMIT_FIPS_RADIO
 	select BR2_PACKAGE_UBOOT_TOOLS
 	select BR2_PACKAGE_UBOOT_TOOLS_DUMPIMAGE
@@ -82,6 +80,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-radio-siso-mode-plugin/
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-stunnel-plugin/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-unauthenticated-plugin/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-swupdate-client/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-update/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-usbgadget/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-userspace-examples/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-wifi-bridge/Config.in"
