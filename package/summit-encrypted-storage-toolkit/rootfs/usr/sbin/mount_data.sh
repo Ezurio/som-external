@@ -11,9 +11,8 @@ start)
 	# shellcheck source=/dev/null
 	. /usr/sbin/boot-rootfs.sh
 
-	DATA_DEVICE=/dev/${rootDevPrefix:?}$((${rootBlock:?} + 1))
-
-	/usr/bin/mount -o noatime,nodev,noexec -t "${rootFsType:?}" "${DATA_DEVICE}" "${DATA_MOUNT}"
+	/usr/bin/mount -o noatime,nodev,noexec -t "${mountFsType:?}" \
+		"/dev/$(getPart rootfs_data)" "${DATA_MOUNT}"
 
 	# Create encrypted data directory
 	DATA_SECRET=${DATA_MOUNT}/secret

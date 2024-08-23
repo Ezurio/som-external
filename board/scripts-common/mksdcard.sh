@@ -84,16 +84,16 @@ if ! ${boot_only}; then
 	fi
 fi
 
-which udisksctl > /dev/null && udisk=1 || udisk=0
+which /usr/bin/udisksctl > /dev/null && udisk=1 || udisk=0
 
 unmount_all() {
 	drives=$(grep -o "^${1}p\?[0-9]\+" /proc/mounts) || return 0
 
 	for f in ${drives} ; do
 		if [ "${udisk}" -ne 0 ]; then
-			udisksctl unmount -f -b "${f}" >/dev/null
+			/usr/bin/udisksctl unmount -f -b "${f}" >/dev/null
 		else
-			umount -f "${f}" >/dev/null
+			/usr/bin/umount -f "${f}" >/dev/null
 		fi
 	done
 
@@ -102,7 +102,7 @@ unmount_all() {
 
 check_format() {
 	temp=$(mktemp -t mksdcard.XXXXXX)
-	sfdisk -qlo device,id,size "${TARGET}" > "${temp}"
+	/usr/sbin/sfdisk -qlo device,id,size "${TARGET}" > "${temp}" 2> /dev/null || return 1
 
 	num=0
 	while read -r DEVICE TYPE SIZE; do
@@ -132,7 +132,7 @@ check_format() {
 create_ext4_partition() {
 	echo "[Creating \"${2}\" partition...]"
 
-	mkfs.ext4 -q -F -m 1 -L "${2}" \
+	/usr/sbin/mkfs.ext4 -q -F -m 1 -L "${2}" \
 		-E root_owner=0:0,lazy_itable_init=0,lazy_journal_init=0 \
 		-O encrypt,ext_attr "${1}" > /dev/null
 }
@@ -142,12 +142,12 @@ create_boot_partition() {
 	echo "[Creating \"boot\" partition...]"
 
 	# Format boot partition
-	mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
+	/usr/sbin/mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
 
 	${SECURE} && EXT="cip" || EXT="bin"
 
 	BOOT_PART=$(mktemp -d -t mksdcard.XXXXXX)
-	mount "${1}" "${BOOT_PART}"
+	/usr/bin/mount "${1}" "${BOOT_PART}"
 
 	# Copy files to boot partition
 	cp -t "${BOOT_PART}" \
@@ -160,14 +160,14 @@ create_boot_partition() {
 
 	sync
 
-	umount -f "${BOOT_PART}" && rmdir "${BOOT_PART}"
+	/usr/bin/umount -f "${BOOT_PART}" && rmdir "${BOOT_PART}"
 }
 
 # Create swap partition
 create_swap_partition() {
 	echo "[Creating \"swap\" partition...]"
 
-	mkswap -f -L swap "${1}" > /dev/null 2> /dev/null
+	/usr/sbin/mkswap -f -L swap "${1}" > /dev/null 2> /dev/null
 }
 
 # Create rootfs partition
@@ -175,7 +175,7 @@ create_rootfs_partition() {
 	echo "[Creating \"rootfs_a\" partition...]"
 
 	# Copy files to rootfs partition
-	dd if="${SRCDIR}/rootfs.bin" of="${1}" bs=1M conv=fsync status=none
+	/usr/bin/dd if="${SRCDIR}/rootfs.bin" of="${1}" bs=1M conv=fsync status=none
 }
 
 # Un-mount all mounted partitions
@@ -186,15 +186,19 @@ echo "[Creating SD card image...]"
 if ! check_format ; then
 	echo "[Partitioning ${TARGET}...]"
 
-# Create device partition table
+	# Wipe partition table if gpt
+	[ "$(/usr/bin/lsblk -nldo pttype "${TARGET}")" = "mbr" ] || \
+		/usr/sbin/sgdisk -Z "${TARGET}" > /dev/null
+
+	# Create device partition table
 	if ${boot_only}; then
 		printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
-			sfdisk -q "${IMGTMPFILE}"
+			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	else
 		printf ',%sM,0xc,*\n,%sM,S\n,%sM,L\n,-,Ex\n,%sM,L\n,%s,L\n' \
 			${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} "${ROOTFS_SIZE}" \
 			"${ROOTFS_DATA_SIZE}" | \
-			sfdisk -q -W always "${TARGET}" 2> /dev/null
+			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	fi
 
 	sync
@@ -204,7 +208,7 @@ fi
 
 # Read partition table and create partitions
 temp=$(mktemp -t mksdcard.XXXXXX)
-sfdisk -qlo device "${TARGET}" > "${temp}"
+/usr/sbin/sfdisk -qlo device "${TARGET}" > "${temp}"
 while read -r DEVICE; do
 	num=${DEVICE#"${TARGET}"}
 	num=${num#p}

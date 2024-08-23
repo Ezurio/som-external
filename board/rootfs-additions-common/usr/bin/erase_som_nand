@@ -7,7 +7,7 @@ if [ "${1}" = '-h' ]; then
     exit 0
 fi
 
-mtd="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd"
+main_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd"
 
 if [ -f /sys/class/ubi/ubi0 ]; then
     ubidetach -d 0 || exit 1
@@ -24,13 +24,7 @@ if [ "${1}" = '-f' ]; then
     echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
 fi
 
-for i in "${mtd}/"*; do
-    case ${i##*/} in
-    mtd?)
-        echo "Erasing ${i}"
-        read -r ubi_name < "${mtd}/${i}/name" && [ "${ubi_name}" =  ubi ] && \
-            { ubidetach -p "/dev/${i}" 2>/dev/null || true; }
-        flash_erase "/dev/${i}" 0 0
-        ;;
-    esac
+for i in "${main_flash}"/mtd[0-9]; do
+    echo "Erasing ${i##*/}"
+    flash_erase "/dev/${i##*/}" 0 0
 done

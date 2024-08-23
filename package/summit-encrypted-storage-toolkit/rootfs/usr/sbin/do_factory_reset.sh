@@ -29,15 +29,17 @@ do_check_and_reset() {
 
 		# Run factory reset hooks for external components
 		for hook_sh in /usr/sbin/factory_reset_*.sh; do
+			# shellcheck source=/dev/null
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
 	# Check if secret directory has been populated, do not blow away settings
 	elif [ -d "${USER_SETTINGS_SECRET_TARGET}/NetworkManager" ]; then
 		# Create directories needed during software upgrade
-		[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
-		[ -x /usr/sbin/dropbear ]   && mkdir -p ${DROPBEAR_DIR}
+		[ -x /usr/libexec/bluetooth/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
+		[ -x /usr/sbin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
 
 		for hook_sh in /usr/sbin/factory_powerup_*.sh; do
+			# shellcheck source=/dev/null
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
 
@@ -45,14 +47,15 @@ do_check_and_reset() {
 		return
 	fi
 
-	[ -x /usr/sbin/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
+	[ -x /usr/libexec/bluetooth/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
+	[ -x /usr/sbin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
 
-	cp -r ${FACTORY_SETTING_SECRET_SOURCE}/* ${USER_SETTINGS_SECRET_TARGET} || \
+	cp -ar ${FACTORY_SETTING_SECRET_SOURCE}/* ${USER_SETTINGS_SECRET_TARGET} || \
 		exit_on_error "Copying factory default files failed"
 
 	mkdir -p ${USER_SETTINGS_MISC_TARGET}
 
-	cp -r ${FACTORY_SETTING_MISC_SOURCE}/* ${USER_SETTINGS_MISC_TARGET} || \
+	cp -ar ${FACTORY_SETTING_MISC_SOURCE}/* ${USER_SETTINGS_MISC_TARGET} || \
 		exit_on_error "Copying factory default files failed"
 
 	# timezone file should be included in backup but we create a default if it
@@ -75,6 +78,7 @@ case "${1}" in
 
 	reset)
 		touch ${RESET_INIDICATOR}
+		echo "Reboot required to complete the reset"
 		;;
 
 	*)

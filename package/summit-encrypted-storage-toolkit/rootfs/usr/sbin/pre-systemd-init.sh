@@ -21,7 +21,7 @@ PERM_DEVICE=/dev/$(getPart perm)
 [ ! -r /etc/default/perm-mount-opts ] || . /etc/default/perm-mount-opts
 [ -n "${PERM_MOUNT_OPTS}" ] || PERM_MOUNT_OPTS="noatime,nosuid,noexec"
 
-/usr/bin/mount -t "${rootFsType:?}" -o "${PERM_MOUNT_OPTS}" "${PERM_DEVICE}" ${PERM_MOUNT} || {
+/usr/bin/mount -t "${mountFsType:?}" -o "${PERM_MOUNT_OPTS}" "${PERM_DEVICE}" ${PERM_MOUNT} || {
 	echo "Failed to mount ${PERM_DEVICE} on ${PERM_MOUNT}"
 	exit 1
 }

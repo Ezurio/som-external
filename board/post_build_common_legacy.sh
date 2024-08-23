@@ -190,7 +190,6 @@ sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${BR2_SUMMIT_BUILD
 fi
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
-	fipshmac=${HOST_DIR}/bin/fipshmac
 	IMAGE_NAME=Image
 
 	if grep -qF '"Image.gz"' "${BINARIES_DIR}/kernel.its"; then
@@ -207,12 +206,21 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
 		IMAGE_NAME+=.zstd
 	fi
 
-	mkdir -p "${TARGET_DIR}/usr/lib/fipscheck/"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck/" "${BINARIES_DIR}/${IMAGE_NAME}"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck/" "${TARGET_DIR}/usr/bin/fipscheck"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck/" "${TARGET_DIR}/usr/lib/libfipscheck.so.1"
-	${fipshmac} -d "${TARGET_DIR}/usr/lib/fipscheck/" "${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
-	rm -f "${TARGET_DIR}/usr/lib/fipscheck/libcrypto.so.1.0.0.hmac"
+	calc_hash() {
+		local hash_path=${1}
+		shift
+		mkdir -p "${hash_path}"
+		for i in "$@"; do
+			openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in "${i}" hmac | \
+				tr "[:upper:]" "[:lower:]" > "${hash_path}/${i##*/}.hmac"
+		done
+	}
+
+	calc_hash "${TARGET_DIR}/usr/lib/fipscheck" \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
 
 	sed "s/^auto usb0/#auto usb0/g" -i "${TARGET_DIR}/etc/network/interfaces"
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then

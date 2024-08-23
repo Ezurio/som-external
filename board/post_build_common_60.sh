@@ -313,18 +313,21 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
 	fi
 
 	calc_hash() {
+		local hash_path=${1}
+		shift
+		mkdir -p "${hash_path}"
 		for i in "$@"; do
 			openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in "${i}" hmac | \
-				tr "[:upper:]" "[:lower:]" > "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac"
+				tr "[:upper:]" "[:lower:]" > "${hash_path}/${i##*/}.hmac"
 		done
 	}
 
-	mkdir -p "${TARGET_DIR}/usr/lib/fipscheck"
-	calc_hash \
+	calc_hash "${TARGET_DIR}/usr/lib/fipscheck" \
 		"${BINARIES_DIR}/${IMAGE_NAME}" \
 		"${TARGET_DIR}/usr/bin/fipscheck" \
 		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
 		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
+
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
 	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${SOM}/"*
 elif grep -qF "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" "${BR2_CONFIG}"; then

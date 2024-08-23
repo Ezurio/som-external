@@ -24,11 +24,11 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 			KERNEL=/boot/kernel.itb
 			BOOT_MOUNT=true
 			mkdir -p /boot
-			mount -t "${rootFsType:?}" -o ro "/dev/${rootDevPrefix:?}1" /boot 2>/dev/null || \
+			mount -t "${mountFsType:?}" -o ro "/dev/$(getPart kernel)" /boot 2>/dev/null || \
 				die "Cannot mount /boot: $?"
 			;;
 		ubi*)
-			KERNEL="/dev/${rootDevPrefix}$((${rootBlock:?} - 1))"
+			KERNEL="/dev/$(getPart kernel)"
 			BOOT_MOUNT=false
 			;;
 		*)
@@ -36,8 +36,7 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 			;;
 	esac
 
-	mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp 2>/dev/null && \
-		TMP_MOUNT=true || TMP_MOUNT=false
+	mount -o mode=1777,nosuid,nodev,noexec -t tmpfs tmpfs /tmp 2>/dev/null
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
@@ -57,7 +56,6 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 	rm -f "/tmp/Image.${IMGTYP}"
 
 	${BOOT_MOUNT} && umount /boot
-	${TMP_MOUNT} && umount /tmp
 
 	# trigger kernel crypto gcm self-test
 	modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"

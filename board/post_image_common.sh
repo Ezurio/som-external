@@ -14,7 +14,6 @@ if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 
 # Tooling checks
 mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
-fipshmac=${HOST_DIR}/bin/fipshmac
 
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
@@ -36,28 +35,27 @@ elif grep -qF '"Image.zstd"' "${BINARIES_DIR}/kernel.its"; then
 fi
 
 hash_check() {
-	${fipshmac} "${1}/${2}"
-	if [ "$(cat "${1}/.${2}".hmac)" = "$(cat "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac")" ]; then
-		rm "${1}/.${2}".hmac
-	else
-		rm "${1}/.${2}".hmac
-		echo "FIPS Hash mismatch to the certified for ${2}"
-		exit 1
-	fi
+	for i in "$@"; do
+		openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${i}" hmac | \
+			diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac" || \
+			die "FIPS Hash mismatch to the certified for ${i##*/}"
+	done
 }
 
 if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS=y" "${BR2_CONFIG}"
 then
-	hash_check "${BINARIES_DIR}" "${IMAGE_NAME}"
-	hash_check "${TARGET_DIR}/usr/bin" fipscheck
-	hash_check "${TARGET_DIR}/usr/lib" libfipscheck.so.1
-	hash_check "${TARGET_DIR}/usr/lib" libcrypto.so.1.0.0
+	hash_check \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/libcrypto.so.1.0.0"
 elif grep -qF -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" -e "BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS=y" "${BR2_CONFIG}"
 then
-	hash_check "${BINARIES_DIR}" "${IMAGE_NAME}"
-	hash_check "${TARGET_DIR}/usr/bin" fipscheck
-	hash_check "${TARGET_DIR}/usr/lib" libfipscheck.so.1
-	hash_check "${TARGET_DIR}/usr/lib/ossl-modules" fips.so
+	hash_check \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
 fi
 
 ln -rsf "${BINARIES_DIR}/kernel.itb" "${BINARIES_DIR}/kernel.bin"
