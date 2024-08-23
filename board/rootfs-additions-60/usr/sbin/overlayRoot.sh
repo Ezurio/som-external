@@ -10,28 +10,28 @@ ROOT_NEW_MOUNT=${OVERLAY_ROOT}/newroot
 ROOT_NEW_RO_MOUNT=${ROOT_NEW_MOUNT}/ro
 ROOT_NEW_RW_MOUNT=${ROOT_NEW_MOUNT}/rw
 
-fail() {
+die() {
     echo "${1}" ; /bin/sh
 }
 
 # shellcheck source=/dev/null
-. /usr/sbin/boot-rootfs.sh || fail
+. /usr/sbin/boot-rootfs.sh || die
 
 # create a writable fs to then create our mountpoints
 mount -t tmpfs inittemp /mnt ||
     fail "ERROR: could not create a temporary filesystem"
 
 mkdir ${ROOT_RO_MOUNT} ${ROOT_RW_MOUNT}
-mount -o noatime -t "${rootFsType:?}" "/dev/${rootDevPrefix:?}$((${rootBlock:?} + 1))" ${ROOT_RW_MOUNT} ||
-    fail "ERROR: could not create parition for upper filesystem"
+mount -o noatime -t "${mountFsType:?}" "/dev/$(getPart rootfs_data)" ${ROOT_RW_MOUNT} ||
+    die "ERROR: could not create parition for upper filesystem"
 
-mount -t "${rootFsType}" -o ro "/dev/${rootDev:?}" ${ROOT_RO_MOUNT} ||
-    fail "ERROR: could not ro mount original root partition"
+mount -t "${mountFsType:?}" -o ro "/dev/${rootDev:?}" ${ROOT_RO_MOUNT} ||
+    die "ERROR: could not ro mount original root partition"
 
 mkdir -p ${ROOT_RW_MOUNT}/upper ${ROOT_RW_MOUNT}/work ${ROOT_NEW_MOUNT}
 mount -t overlay -o noatime,lowerdir=${ROOT_RO_MOUNT},upperdir=${ROOT_RW_MOUNT}/upper,workdir=${ROOT_RW_MOUNT}/work \
     overlay-rootfs ${ROOT_NEW_MOUNT} ||
-    fail "ERROR: could not mount overlayFS"
+    die "ERROR: could not mount overlayFS"
 
 # remove root mount from fstab
 sed -e '\,/dev/root, s,^,# ,' ${ROOT_RO_MOUNT}/etc/fstab > ${ROOT_NEW_MOUNT}/etc/fstab
@@ -52,8 +52,8 @@ mount --move ${OVERLAY_ROOT}/sys /sys
 mount --move ${OVERLAY_ROOT}/dev /dev
 
 # unmount old read-only root
-umount /mnt/mnt
-umount /mnt
+umount ${OVERLAY_ROOT}${OVERLAY_ROOT}
+umount ${OVERLAY_ROOT}
 
 # continue with regular init
 exec /sbin/init

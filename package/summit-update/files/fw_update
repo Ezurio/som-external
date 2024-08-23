@@ -45,10 +45,10 @@ o_factory=false
 # shellcheck source=/dev/null
 . /usr/sbin/boot-rootfs.sh || die
 
-[ "$(getSide)" = "a" ] && o_side=b || o_side=a
+getSide
+[ "${bootside:?}" = "a" ] && o_side=b || o_side=a
 
-# shellcheck disable=SC2154
-[ "$(rootDevType)" = "SD" ] && run_on_sd=true || run_on_sd=false
+[ "${rootDevType:?}" = "SD" ] && run_on_sd=true || run_on_sd=false
 
 ${run_on_sd} && o_method=complete || o_method=full
 

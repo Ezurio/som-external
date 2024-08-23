@@ -28,7 +28,7 @@ cleanup() {
 }
 
 find_ubi_device() {
-	f=$(grep -lxF "${1}" /sys/class/ubi/ubi*/name) ||
+	f=$(grep -lxF "${1}" /sys/class/ubi/ubi0_*/name) ||
 		die "UBI volume for ${1} not found"
 
 	f=${f#/sys/class/ubi/}

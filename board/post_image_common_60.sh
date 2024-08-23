@@ -60,23 +60,27 @@ elif grep -qF '"Image.zstd"' "${BINARIES_DIR}/kernel.its"; then
 fi
 
 hash_check() {
-	openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${1}/${2}" hmac | \
-		diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${2}.hmac" || \
-		die "FIPS Hash mismatch to the certified for ${2}"
+	for i in "$@"; do
+		openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${i}" hmac | \
+			diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac" || \
+			die "FIPS Hash mismatch to the certified for ${i##*/}"
+	done
 }
 
 if grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS=y" "${BR2_CONFIG}"
 then
-	hash_check "${BINARIES_DIR}" "${IMAGE_NAME}"
-	hash_check "${TARGET_DIR}/usr/bin" fipscheck
-	hash_check "${TARGET_DIR}/usr/lib" libfipscheck.so.1
-	hash_check "${TARGET_DIR}/usr/lib" libcrypto.so.1.0.0
+	hash_check \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/libcrypto.so.1.0.0"
 elif grep -qF -e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" -e "BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS=y" "${BR2_CONFIG}"
 then
-	hash_check "${BINARIES_DIR}" "${IMAGE_NAME}"
-	hash_check "${TARGET_DIR}/usr/bin" fipscheck
-	hash_check "${TARGET_DIR}/usr/lib" libfipscheck.so.1
-	hash_check "${TARGET_DIR}/usr/lib/ossl-modules" fips.so
+	hash_check \
+		"${BINARIES_DIR}/${IMAGE_NAME}" \
+		"${TARGET_DIR}/usr/bin/fipscheck" \
+		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
 fi
 
 # Generate U-Boot environment

@@ -3,129 +3,129 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-fail() {
-    echo "$@" >&2
-    return 1
+die() {
+	echo "$@" >&2
+	return 1
+}
+
+find_ubi_device() {
+	f=$(grep -lxF "${1}" /sys/class/ubi/ubi0_*/name) ||
+		die "UBI volume for ${1} not found"
+
+	f=${f#/sys/class/ubi/}
+	f=${f%%/name}
+	echo "${f}"
+}
+
+get_emmc_data() {
+	/usr/bin/lsblk -lno NAME,PARTLABEL "/dev/${rootDevActual%%p*}" |\
+		sed -rn "${1}"
 }
 
 grep -qF /proc /proc/mounts 2> /dev/null ||
 mount -t proc -o rw,nosuid,nodev,noexec proc /proc ||
-    fail "ERROR: could not mount /proc"
+	die "ERROR: could not mount /proc"
 
 grep -qF /sys /proc/mounts ||
 mount -t sysfs -o rw,nosuid,nodev,noexec sysfs /sys ||
-    fail "ERROR: could not mount /sys"
+	die "ERROR: could not mount /sys"
 
 rootDev=$(sed -rn 's,.*root=/dev/([^ ]+).*,\1,p' /proc/cmdline)
 case "${rootDev}" in
-    dm-*)
-        rootDevActual=$(ls "/sys/class/block/${rootDev}/slaves")
-        ;;
-    *)
-        rootDevActual="${rootDev}"
-        ;;
+	dm-*)
+		rootDevActual=$(ls "/sys/class/block/${rootDev}/slaves")
+		;;
+	*)
+		rootDevActual="${rootDev}"
+		;;
 esac
 
 case "${rootDevActual}" in
-    mmcblk*)
-        rootBlock=${rootDevActual##*p}
-        rootDevName=${rootDevActual%%p*}
-        rootDevPrefix=${rootDevName}p
-        rootFsType=auto
-        ;;
-    ubi*)
-        rootBlock=${rootDevActual##*_}
-        rootDevName=${rootDevActual%%_*}
-        [ "${rootDevName}" = "${rootDevName#ubiblock}" ] ||
-            rootDevName=ubi${rootDevName#ubiblock}
-        rootDevPrefix=${rootDevName}_
-        rootFsType=ubifs
-        ;;
-    *)
-        fail "ERROR: unsupported root device: ${rootDevActual}"
-        ;;
+	mmcblk*)
+		read -r rootDevType < "/sys/block/${rootDevActual%%p*}/device/type"
+		mountFsType=auto
+		;;
+
+	ubiblock*)
+		read -r rootDevName < "/sys/block/${rootDevActual}/device/name"
+		rootDevActual=$(find_ubi_device "${rootDevName}")
+		rootDevType=ubi
+		mountFsType=ubifs
+		;;
+
+	ubi*)
+		rootDevType=ubi
+		mountFsType=ubifs
+		;;
+	*)
+		die "ERROR: unsupported root device: ${rootDevActual}"
+		;;
 esac
 
-rootDevType() {
-    case "${rootDevActual}" in
-        mmcblk*)
-            read -r rootMMCTypeV < "/sys/block/${rootDevName}/device/type"
-            echo "${rootMMCTypeV}"
-            ;;
-        ubi*)
-            echo "ubi"
-            ;;
-    esac
-}
-
 getPart() {
-    PART="${1}"
+	part="${1}"
 
-    case "${PART}" in
-    rootfs)
-        echo "${rootDevPrefix}${rootBlock}"
-        return
-        ;;
+	case "${part}" in
+	rootfs)
+		echo "${rootDevActual}"
+		return
+		;;
 
-    kernel|rootfs_data)
-        SIDE=$(getSide)
-        [ -z "${SIDE}" ] || PART="${PART}_${SIDE}"
-        ;;
-    esac
+	kernel|rootfs_data)
+		# If side is not specified, get it from partition name
+		getSide
+		[ -z "${bootside}" ] || part="${part}_${bootside}"
+		;;
+	esac
 
-    case "${rootDevActual}" in
-        mmcblk*)
-            if [ "$(/usr/bin/lsblk -ndlo PTTYPE "/dev/${rootDevName}" 2>/dev/null)" = gpt ]; then
-                /usr/bin/lsblk -nlo PARTLABEL,NAME "/dev/${rootDevName}" | awk "\$1 == \"${PART}\" { print \$2 }"
-            else
-                case "${PART}" in
-                    boot)           echo "${rootDevPrefix}1" ;;
-                    swap)           echo "${rootDevPrefix}2" ;;
-                    perm)           echo "${rootDevPrefix}3" ;;
-                    rootfs_a)       echo "${rootDevPrefix}5" ;;
-                    rootfs_data_a)  echo "${rootDevPrefix}6" ;;
-                esac
-            fi
-            ;;
+	case "${rootDevActual}" in
+	mmcblk*)
+		read -r soc_id < /sys/devices/soc0/soc_id
+		case "${soc_id}" in
+		sama5d3*)
+			case "${part}" in
+				boot|kernel_a)  echo "${rootDevActual%%p*}p1" ;;
+				swap)           echo "${rootDevActual%%p*}p2" ;;
+				perm)           echo "${rootDevActual%%p*}p3" ;;
+				rootfs_a)       echo "${rootDevActual%%p*}p5" ;;
+				rootfs_data_a)  echo "${rootDevActual%%p*}p6" ;;
+			esac
+			;;
+		*)
+			get_emmc_data "s,^([^ ]+) +${part}\$,\1,p"
+			;;
+		esac
+		;;
 
-        ubi*)
-            for f in /sys/class/ubi/"${rootDevPrefix}"*; do
-                read -r ubi_name < "${f}/name"
-                if [ "${ubi_name}" = "${PART}" ]; then
-                    echo "${f#/sys/class/ubi/}"
-                    break
-                fi
-            done
-            ;;
-    esac
+	ubi*)
+		find_ubi_device "${part}"
+		;;
+	esac
 }
 
 getSide() {
-    bootSide=$(sed -rn 's,.*bootside=([ab]).*,\1,p' /proc/cmdline)
-    if [ -n "${bootSide}" ]; then
-        echo "${bootSide}"
-        return
-    fi
+	bootside=$(sed -rn 's,.*bootside=([ab]).*,\1,p' /proc/cmdline)
+	[ -z "${bootside}" ] || return 0
 
-    case "${rootDevActual}" in
-        mmcblk*)
-            if [ "$(/usr/bin/lsblk -ndlo PTTYPE "/dev/${rootDevPrefix}${rootBlock}" 2>/dev/null)" = gpt ]; then
-                bootside=$(/usr/bin/lsblk -ndlo PARTLABEL "/dev/${rootDevPrefix}${rootBlock}")
-                bootside=${bootside##*_}
-            else
-                bootside=a
-            fi
-            ;;
+	case "${rootDevActual}" in
+	mmcblk*)
+		read -r soc_id < /sys/devices/soc0/soc_id
+		case "${soc_id}" in
+		sama5d3*)
+			bootside=a
+			;;
+		*)
+			bootside=$(get_emmc_data "s,^${rootDevActual%%p*} +(.+),\1,p")
+			bootside="${bootside##*_}"
+			;;
+		esac
+		;;
 
-        ubi*)
-            if [ -f "/sys/class/ubi/${rootDevPrefix}${rootBlock}/name" ]; then
-                read -r bootside < "/sys/class/ubi/${rootDevPrefix}${rootBlock}/name"
-                bootside=${bootside##*_}
-            fi
-            ;;
-    esac
+	ubi*)
+		read -r bootside < "/sys/class/ubi/${rootDevActual}/name"
+		bootsize="${bootside##*_}"
+		;;
+	esac
 
-    case ${bootside} in
-        a|b) echo "${bootside}" ;;
-    esac
+	[ -n "${bootside}" ] || bootside=a
 }
