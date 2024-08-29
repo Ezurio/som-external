@@ -1,23 +1,39 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2022 Ezurio
 
 die() {
 	printf "\nFIPS Integrity check Failed: %s\n" "${1}" >&2
 	/usr/sbin/reboot -f
 }
 
-[ ! -f /dev/hwrng ] || chmod 644 /dev/hwrng
+# shellcheck source=/dev/null
+. /usr/sbin/boot-rootfs.sh
 
-mount -t proc -o rw,nosuid,nodev,noexec proc /proc ||
-	die "ERROR: could not mount /proc"
+if [ "${1}" != "restart" ]; then
+	INIT=$(sed -nr 's/.*initlrd=([^ ]+).*/\1/p' /proc/cmdline)
+
+	if [ -n "${INIT}" ]; then
+		echo "Launching: ${INIT}"
+
+		if [ "${INIT#*.}" = "sh" ]; then
+			# shellcheck source=/dev/null
+			. "${INIT}"
+		else
+			${INIT}
+		fi
+	fi
+fi
+
+echo "Launching: ${0}"
+
+[ ! -f /dev/hwrng ] || chmod 644 /dev/hwrng
 
 [ -f /proc/sys/crypto/fips_enabled ] &&
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ]; then
 	echo "FIPS Integrity check Started"
-
-	# shellcheck source=/dev/null
-	. /usr/sbin/boot-rootfs.sh || fail
 
 	case "${rootDevActual:?}" in
 		mmcblk*)
@@ -64,15 +80,4 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 	echo "FIPS Integrity check Success"
 fi
 
-INIT=$(sed -nr 's/.*initlrd=([^ ]+).*/\1/p' /proc/cmdline)
-
-[ -n "${INIT}" ] || INIT=/usr/sbin/init
-
-echo "Launching: ${INIT}"
-
-if [ "${INIT#*.}" = "sh" ]; then
-	# shellcheck source=/dev/null
-	. "${INIT}"
-else
-	exec ${INIT}
-fi
+exec /usr/sbin/init

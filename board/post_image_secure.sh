@@ -36,7 +36,7 @@ die() { echo "$@" >&2; exit 1; }
 grep -qF "SALT" "${BINARIES_DIR}/boot.scr" && SECURE_ROOTFS=true || SECURE_ROOTFS=false
 
 [ -n "${UBOOT_VER}" ] ||
-	UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version)
+	UBOOT_VER=$(make -s -C "${BASE_DIR}" uboot-show-version)
 
 # Secure tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage

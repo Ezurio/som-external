@@ -3,11 +3,6 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-die() {
-	echo "$@" >&2
-	return 1
-}
-
 find_ubi_device() {
 	f=$(grep -lxF "${1}" /sys/class/ubi/ubi0_*/name) ||
 		die "UBI volume for ${1} not found"
@@ -123,7 +118,7 @@ getSide() {
 
 	ubi*)
 		read -r bootside < "/sys/class/ubi/${rootDevActual}/name"
-		bootsize="${bootside##*_}"
+		bootside="${bootside##*_}"
 		;;
 	esac
 

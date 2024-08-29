@@ -5,20 +5,21 @@
 set -e
 
 DATA_MOUNT=/data
+DATA_SECRET=${DATA_MOUNT}/secret
+FSCRYPT_KEY=ffffffffffffffff
 
 case "${1}" in
 start)
 	# shellcheck source=/dev/null
 	. /usr/sbin/boot-rootfs.sh
 
-	/usr/bin/mount -o noatime,nodev,noexec -t "${mountFsType:?}" \
-		"/dev/$(getPart rootfs_data)" "${DATA_MOUNT}"
+	DATA_DEVICE=/dev/$(getPart rootfs_data)
+
+	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
+		"${DATA_DEVICE}" "${DATA_MOUNT}"
 
 	# Create encrypted data directory
-	DATA_SECRET=${DATA_MOUNT}/secret
 	mkdir -p ${DATA_SECRET}
-
-	FSCRYPT_KEY=ffffffffffffffff
 
 	/usr/bin/keyctl search %:_builtin_fs_keys logon fscrypt:${FSCRYPT_KEY} @us || \
 		{ /usr/bin/umount ${DATA_MOUNT}; exit 1; }
@@ -37,7 +38,7 @@ stop)
 	;;
 
 *)
-	echo "Usage: ${0} <start/stop>"
+	echo "Usage: ${0} <start|stop>"
 	exit 1
 	;;
 esac

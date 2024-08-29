@@ -63,7 +63,10 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/aut
 		${openssl} req -batch -new -x509 -key "${BINARIES_DIR}"/keys/dev.key -out "${BINARIES_DIR}"/keys/dev.crt
 	fi
 
-	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+	SWUPDATE_VER=$(make -s -C "${BASE_DIR}" swupdate-show-version)
+	SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
+
+	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
 		${openssl} cms -sign -in "${BINARIES_DIR}"/sw-description -out "${BINARIES_DIR}"/sw-description.sig \
 			-signer "${BINARIES_DIR}"/keys/dev.crt -inkey "${BINARIES_DIR}"/keys/dev.key \
 			-outform DER -nosmimecap -binary
