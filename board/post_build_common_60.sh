@@ -12,7 +12,7 @@ ENCRYPTED_TOOLKIT_DIR="$(realpath "${3}")"
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
 
-echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: starting..."
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON 60 script: starting..."
 
 case "${BUILD_TYPE}" in
 *sd) SD=true  ;;
@@ -61,7 +61,7 @@ if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y "${BR2_CONFIG}"; then
 	# Create tarball
 	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
 	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_devel-summit-openjdk.tar.gz"
-	elif [ -n "$BR2_LRD_IG60_TARGET" ]; then
+	elif [ -n "${BR2_LRD_IG60_TARGET}" ]; then
 	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
 	else
 	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz"
@@ -209,9 +209,12 @@ case "${BUILD_TYPE}" in
 		;;
 esac
 
-if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+SWUPDATE_VER=$(make -s -C "${BASE_DIR}" swupdate-show-version)
+SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
+
+if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
-	if grep -qF 'CONFIG_SIGALG_CMS=y' "${BUILD_DIR}"/swupdate*/include/config/auto.conf; then
+	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
 		cp "${ENCRYPTED_TOOLKIT_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
 		# Configure dev.crt if swupdate CMS is enabled
 		# shellcheck disable=SC2016
@@ -347,4 +350,4 @@ then
 	fi
 fi
 
-echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: done."
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON 60 script: done."

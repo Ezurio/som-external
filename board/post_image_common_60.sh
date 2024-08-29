@@ -12,7 +12,7 @@ if [ -z "${BR2_SUMMIT_PRODUCT}" ]; then
 	export BR2_SUMMIT_PRODUCT
 fi
 
-echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE script: starting..."
+echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE COMMON 60 script: starting..."
 
 # Determine if we are building SD card image
 case "${BUILD_TYPE}" in
@@ -27,7 +27,7 @@ grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" "${BR2_CONFIG}" \
 grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" \
 	&& SECURE_BOOT=true || SECURE_BOOT=false
 
-UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version)
+UBOOT_VER=$(make -s -C "${BASE_DIR}" uboot-show-version)
 
 # Tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
@@ -214,4 +214,4 @@ fi
 
 bzip2 -f "${RELEASE_FILE}"
 
-echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE script: done."
+echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE COMMON 60 script: done."
