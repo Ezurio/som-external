@@ -27,7 +27,7 @@ grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" "${BR2_CONFIG}" \
 grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" \
 	&& SECURE_BOOT=true || SECURE_BOOT=false
 
-UBOOT_VER=$(make --no-print-directory -C "${BASE_DIR}" uboot-show-version)
+UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
 
 # Tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
