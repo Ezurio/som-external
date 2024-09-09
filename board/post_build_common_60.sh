@@ -209,7 +209,7 @@ case "${BUILD_TYPE}" in
 		;;
 esac
 
-SWUPDATE_VER=$(make -s -C "${BASE_DIR}" swupdate-show-version)
+SWUPDATE_VER=$(make -C "${BASE_DIR}" swupdate-show-version | sed '/^make\[/d')
 SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 
 if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
