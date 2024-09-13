@@ -3,8 +3,13 @@
 # Copyright (C) 2022 Ezurio
 
 die() {
-	printf "\nFIPS Integrity check Failed: %s\n" "${1}" >&2
+	echo "${1}" >&2
 	/usr/sbin/reboot -f
+}
+
+dief() {
+	echo
+	die "FIPS Integrity check Failed: ${1}"
 }
 
 # shellcheck source=/dev/null
@@ -41,14 +46,14 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 			BOOT_MOUNT=true
 			mkdir -p /boot
 			mount -t "${mountFsType:?}" -o ro "/dev/$(getPart kernel)" /boot 2>/dev/null || \
-				die "Cannot mount /boot: $?"
+				dief "Cannot mount /boot: $?"
 			;;
 		ubi*)
 			KERNEL="/dev/$(getPart kernel)"
 			BOOT_MOUNT=false
 			;;
 		*)
-			die "ERROR: unsupported root device: ${rootDevActual}"
+			dief "ERROR: unsupported root device: ${rootDevActual}"
 			;;
 	esac
 
@@ -57,15 +62,15 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
 	/usr/sbin/dumpimage -T flat_dt -p 0 -o "/tmp/Image.${IMGTYP}" "${KERNEL}" >/dev/null || \
-		die "Cannot extract kernel image error: $?"
+		dief "Cannot extract kernel image error: $?"
 
 	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
-			die "fipscheck error: $?"
+			dief "fipscheck error: $?"
 	else
 		ossl-fipsload -B
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
-			die "fipscheck error: $?"
+			dief "fipscheck error: $?"
 	fi
 
 	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
