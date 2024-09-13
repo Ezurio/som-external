@@ -25,6 +25,10 @@ grep -qF /sys /proc/mounts ||
 mount -t sysfs -o rw,nosuid,nodev,noexec sysfs /sys ||
 	die "ERROR: could not mount /sys"
 
+rootMountType() {
+	sed -r 's/.*rootfstype=([^ ]+).*/\1/ ;t;s/.*/auto/' /proc/cmdline
+}
+
 rootDev=$(sed -rn 's,.*root=/dev/([^ ]+).*,\1,p' /proc/cmdline)
 case "${rootDev}" in
 	dm-*)

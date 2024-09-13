@@ -19,7 +19,7 @@ mkdir ${ROOT_RO_MOUNT} ${ROOT_RW_MOUNT}
 mount -o noatime -t "${mountFsType:?}" "/dev/$(getPart rootfs_data)" ${ROOT_RW_MOUNT} ||
 	die "ERROR: could not create parition for upper filesystem"
 
-mount -t "${mountFsType:?}" -o ro "/dev/${rootDev:?}" ${ROOT_RO_MOUNT} ||
+mount -t "$(rootMountType)" -o ro "/dev/${rootDev:?}" ${ROOT_RO_MOUNT} ||
 	die "ERROR: could not ro mount original root partition"
 
 mkdir -p ${ROOT_RW_MOUNT}/upper ${ROOT_RW_MOUNT}/work ${ROOT_NEW_MOUNT}
