@@ -161,30 +161,30 @@ PRETTY_NAME="${LOCRELSTR}"
 EOF
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
+	CCONF_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image")"
 
-CCONF_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image")"
+	# Generate kernel FIT image script
+	# kernel.its references Image and at91-wb50n.dtb, and all three
+	# files must be in current directory for mkimage.
+	DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CONFIG}")"
+	# Look for DTB in custom path
+	[ -n "${DTB}" ] || \
+		DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
 
-# Generate kernel FIT image script
-# kernel.its references Image and at91-wb50n.dtb, and all three
-# files must be in current directory for mkimage.
-DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CONFIG}")"
-# Look for DTB in custom path
-[ -n "${DTB}" ] || \
-	DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
+	case "${BUILD_TYPE}" in
+		"wb50n") EXT=gz   ;;
+		"wb45n") EXT=lzma ;;
+		*)       exit 1   ;;
+	esac
 
-case "${BUILD_TYPE}" in
-	"wb50n") EXT=gz   ;;
-	"wb45n") EXT=lzma ;;
-	*)       exit 1   ;;
-esac
+	sed "s/at91-wb50n/${DTB}/g" "${CCONF_DIR}/kernel_legacy.its" > "${BINARIES_DIR}/kernel.its"
+	if [ ${EXT} != gz ]; then
+		sed "s/Image.gz/Image.${EXT}/g;s/gzip/${EXT}/g" -i "${BINARIES_DIR}/kernel.its"
+	fi
 
-sed "s/at91-wb50n/${DTB}/g" "${CCONF_DIR}/kernel_legacy.its" > "${BINARIES_DIR}/kernel.its"
-if [ ${EXT} != gz ]; then
-	sed "s/Image.gz/Image.${EXT}/g;s/gzip/${EXT}/g" -i "${BINARIES_DIR}/kernel.its"
-fi
-
-kver=$(make -C "${BUILD_DIR}/linux-custom" kernelrelease)
-sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}\"/g" -i "${BINARIES_DIR}/kernel.its"
+	LINUX_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')  
+	kver=$(make -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease | sed '/^make\[/d')
+	sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}\"/g" -i "${BINARIES_DIR}/kernel.its"
 fi
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
