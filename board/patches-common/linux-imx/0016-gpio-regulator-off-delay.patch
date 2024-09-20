@@ -22,7 +22,7 @@ diff --git a/include/linux/regulator/gpio-regulator.h b/include/linux/regulator/
 index fdeb312cdabd..c90d1607d63f 100644
 --- a/include/linux/regulator/gpio-regulator.h
 +++ b/include/linux/regulator/gpio-regulator.h
-@@ -65,6 +65,7 @@ struct gpio_regulator_config {
+@@ -67,6 +67,7 @@ struct gpio_regulator_config {
  
  	unsigned enabled_at_boot:1;
  	unsigned startup_delay;
