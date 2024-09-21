@@ -20,6 +20,12 @@ usage() {
 	exit 1
 }
 
+check_present() {
+	for i in "${@}"; do
+		which "${i}" > /dev/null || die "${i} utility not found"
+	done
+}
+
 while getopts sr:f:h name; do
     case ${name} in
     r)  ROOTFS_DATA_SIZE=${OPTARG} 
@@ -55,6 +61,8 @@ esac
 
 [ "$(id -u)" -eq 0 ] ||
 	die "This script must be run as root."
+
+check_present sfdisk lsblk mkfs.ext4 mkfs.vfat mkswap dd mount umount
 
 set -e
 
@@ -102,7 +110,8 @@ unmount_all() {
 
 check_format() {
 	temp=$(mktemp -t mksdcard.XXXXXX)
-	/usr/sbin/sfdisk -qlo device,id,size "${TARGET}" > "${temp}" 2> /dev/null || return 1
+	/usr/sbin/sfdisk -qlo device,id,size "${TARGET}" > "${temp}" 2> /dev/null \
+		|| return 1
 
 	num=0
 	while read -r DEVICE TYPE SIZE; do

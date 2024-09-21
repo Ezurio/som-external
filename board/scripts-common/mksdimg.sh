@@ -20,6 +20,12 @@ usage() {
 	exit 1
 }
 
+check_present() {
+	for i in "${@}"; do
+		which "${i}" > /dev/null || die "${i} utility not found"
+	done
+}
+
 while getopts sr:f:h name; do
     case ${name} in
     r)  ROOTFS_DATA_SIZE=${OPTARG} 
@@ -38,6 +44,8 @@ shift $((OPTIND - 1))
 TARGET="${1}"
 
 [ -n "${TARGET}" ] || usage
+
+check_present sfdisk mkfs.ext4 mkfs.vfat mkswap mcopy dd
 
 set -e
 
