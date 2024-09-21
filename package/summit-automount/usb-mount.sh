@@ -5,7 +5,9 @@
 # This script is called from our systemd unit file to mount or unmount
 # a USB drive.
 
-set -x
+# debugging redirect to console:
+# exec >/dev/console 2>&1
+#set -x
 
 usage()
 {
