@@ -63,7 +63,7 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.crt \
 		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt
 
-	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin $(SUMMIT_RCM_PKGDIR)factory_powerup_summit-rcm.sh
+	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin $(SUMMIT_RCM_PKGDIR)/factory_powerup_summit-rcm.sh
 
 	$(SED) '/^default_/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a default_password: \"$(SUMMIT_RCM_DEFAULT_PASSWORD)\"' $(TARGET_DIR)/etc/summit-rcm.ini
