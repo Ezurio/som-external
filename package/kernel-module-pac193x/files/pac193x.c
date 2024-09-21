@@ -1471,9 +1471,10 @@ static int pac193x_prep_iio_channels(struct pac193x_chip_info * chip_info,
 	return 0;
 }
 
-static int pac193x_probe(struct i2c_client *client, 
-	const struct i2c_device_id *id)
+static const struct i2c_device_id pac193x_id[];
+static int pac193x_probe(struct i2c_client *client)
 {
+	const struct i2c_device_id *id = i2c_match_id(pac193x_id, client);
 	struct pac193x_chip_info *chip_info;
 	struct iio_dev *indio_dev;
 	const char *name = NULL;
