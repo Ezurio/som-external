@@ -5,7 +5,7 @@
 #############################################################
 
 SUMMIT_UPDATE_VERSION = local
-SUMMIT_UPDATE_SITE = $(SUMMIT_UPDATE_PKGDIR)files
+SUMMIT_UPDATE_SITE = $(SUMMIT_UPDATE_PKGDIR)/files
 SUMMIT_UPDATE_SITE_METHOD = local
 SUMMIT_UPDATE_LICENSE = Ezurio
 SUMMIT_UPDATE_LICENSE_FILES = LICENSE.ezurio
