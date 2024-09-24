@@ -46,8 +46,13 @@ case "${rootDevActual}" in
 		;;
 
 	ubiblock*)
-		read -r rootDevName < "/sys/block/${rootDevActual}/device/name"
-		rootDevActual=$(find_ubi_device "${rootDevName}")
+		if [ -e "/sys/block/${rootDevActual}/device/name" ]; then
+			read -r rootDevName < "/sys/block/${rootDevActual}/device/name"
+			rootDevActual=$(find_ubi_device "${rootDevName}")
+		else
+			rootDevActual=ubi${rootDevActual#ubiblock}
+		fi
+
 		rootDevType=ubi
 		mountFsType=ubifs
 		;;
