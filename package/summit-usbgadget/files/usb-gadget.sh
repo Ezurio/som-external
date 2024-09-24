@@ -104,6 +104,7 @@ create_gadget() {
 }
 
 create_gadgets() {
+	# shellcheck source=/dev/null
 	test -r /etc/default/usb-gadget && . /etc/default/usb-gadget
 
 	[ "${USB_GADGET_ETHER_PORTS:-0}"  -gt 0 ] || \

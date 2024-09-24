@@ -32,9 +32,9 @@ fi
 
 echo "Launching: ${0}"
 
-[ ! -f /dev/hwrng ] || chmod 644 /dev/hwrng
+[ ! -e /dev/hwrng ] || chmod 644 /dev/hwrng
 
-[ -f /proc/sys/crypto/fips_enabled ] &&
+[ ! -e /proc/sys/crypto/fips_enabled ] ||
 	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
 
 if [ "${FIPS_ENABLED}" = "1" ]; then

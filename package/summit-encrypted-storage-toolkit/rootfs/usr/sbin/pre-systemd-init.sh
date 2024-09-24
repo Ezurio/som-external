@@ -8,8 +8,6 @@
 # few systemd requirements (logging, and a machine-id file)
 # require a writeable filesystem.
 
-set -e
-
 PERM_MOUNT=/perm
 PERM_DEVICE=/dev/$(getPart perm)
 
