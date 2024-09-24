@@ -248,24 +248,21 @@ else
 	cp -f "${CCONF_DIR}/kernel.its" "${BINARIES_DIR}/kernel.its"
 fi
 
-if ${ENCRYPTED_TOOLKIT} ; then
-	rm -f "${TARGET_DIR}/usr/sbin/overlayRoot.sh"
-	# Use verity boot script
-	if ! ${SD} ; then
-		ln -rsf "${CCONF_DIR}/boot_verity.scr" "${BINARIES_DIR}/boot.scr"
-	elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
-		ln -rsf "${CCONF_DIR}/boot_mmc_verity-7.scr" "${BINARIES_DIR}/boot.scr"
-	else
-		ln -rsf "${CCONF_DIR}/boot_mmc_verity.scr" "${BINARIES_DIR}/boot.scr"
-	fi
+if ${SD}; then
+	scrname="boot_mmc"
 else
-	# Use standard boot script
-	if ${SD} ; then
-		ln -rsf "${CCONF_DIR}/boot_mmc.scr" "${BINARIES_DIR}/boot.scr"
-	else
-		ln -rsf "${CCONF_DIR}/boot.scr" "${BINARIES_DIR}/boot.scr"
-	fi
+	scrname="boot"
 fi
+
+if ${ENCRYPTED_TOOLKIT} ; then
+	scrname="${scrname}_verity"
+fi
+
+if grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
+	scrname="${scrname}-7"
+fi
+
+ln -rsf "${CCONF_DIR}/${scrname}.scr" "${BINARIES_DIR}/boot.scr"
 
 if ${SD} ; then
 	ln -rsf "${CCONF_DIR}/u-boot_mmc.scr" "${BINARIES_DIR}/u-boot.scr"
