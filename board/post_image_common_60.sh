@@ -147,6 +147,7 @@ if ! ${SD} ; then
 	ig60*)
 		size_check boot.bin $((64*1024))
 		size_check u-boot.itb $((3*128*1024))
+		ENCRYPTED_TOOLKIT=true
 		;;
 	esac
 fi
