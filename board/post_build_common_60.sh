@@ -207,6 +207,9 @@ case "${BUILD_TYPE}" in
 	wb50n*) 
 		rm -f "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/eth1.nmconnection"
 		;;
+	ig60*)
+		ENCRYPTED_TOOLKIT=true
+		;;
 esac
 
 SWUPDATE_VER=$(make -s -C "${BASE_DIR}" swupdate-show-version)
