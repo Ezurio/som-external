@@ -69,7 +69,7 @@ write_macs()
 			set_mac "${mac0_numeric}" "${MACB0_ADDRESS_NODE}"
 			set_mac "${mac1_numeric}" "${MACB1_ADDRESS_NODE}"
 		else
-			store_macs "${mac0_hex}", "${mac1}"
+			store_macs "${mac0_hex}" "${mac1}"
 		fi
 	else
 		printf "simulate write macb0: %s\n" "${mac0_hex}"
