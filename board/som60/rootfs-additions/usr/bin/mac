@@ -35,7 +35,7 @@ store_macs()
 {
 	# shellcheck disable=SC2034
 	for i in ${writes}; do
-		printf "ethaddr=%s\neth1addr=%s\n", "$@" | fw_setenv "${fw_opt}" -s -
+		printf "ethaddr=%s\neth1addr=%s\n" "$@" | fw_setenv "${fw_opt}" -s -
 	done
 }
 
