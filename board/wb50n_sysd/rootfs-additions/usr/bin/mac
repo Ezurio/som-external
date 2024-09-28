@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
+
+set -e
 
 MAC_ADDRESS_PARAM_LEN=17
 fw_opt=
@@ -6,8 +10,7 @@ enable_write=false
 enable_erase=false
 writes="1 2"
 
-usage()
-{
+usage() {
 	echo "usage: write: ${0##*/} [-nand] [-f] [-s] xx:xx:xx:xx:xx:xx|xxxxxxxxxxxx"
 	echo "       read:  ${0##*/} [-nand]"
 	echo "-nand  - uses uboot environment blocks in NAND"
@@ -16,26 +19,30 @@ usage()
 	echo "-s     - writes only once (programs only single block)"
 }
 
-read_mac()
-{
+read_mac() {
 	fw_printenv "${fw_opt}" -n "${1}"
 }
 
-store_macs()
-{
+store_macs() {
+	fw_printenv "${fw_opt}" -n xyz >/dev/null 2>/dev/null || {
+		echo 'u-boot environment is not initialized, to correct this,'
+		echo 'initialize NAND by executing fw_update to load NAND image'
+		echo 'if the image loaded is older and does not contain uboot,'
+		echo 'boot the board from NAND, for u-boot to initialize it'
+		exit 1
+	}
+
 	# shellcheck disable=SC2034
 	for i in ${writes}; do
 		fw_setenv "${fw_opt}" ethaddr "${1}"
 	done
 }
 
-print_macs()
-{
+print_macs() {
 	printf "Eth0: %s\n" "$(read_mac "ethaddr")"
 }
 
-write_macs()
-{
+write_macs() {
 	mac1="${1}"
 
 	if ${enable_write}; then
