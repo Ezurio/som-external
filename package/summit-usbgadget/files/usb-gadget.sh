@@ -70,7 +70,9 @@ create_gadget() {
 		echo "${USB_GADGET_PRODUCT_ID}" > idProduct
 
 		mkdir -p strings/0x409
-		if [ -e /sys/devices/soc0/soc_uid ]; then
+		if [ -f /etc/wifi_mac ]; then
+			cat /etc/wifi_mac > strings/0x409/serialnumber
+		elif [ -e /sys/devices/soc0/soc_uid ]; then
 			cat /sys/devices/soc0/soc_uid > strings/0x409/serialnumber
 		elif [ -f /sys/class/net/eth1/address ]; then
 			sed 's/://g' /sys/class/net/eth1/address > strings/0x409/serialnumber
