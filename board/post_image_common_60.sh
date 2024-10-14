@@ -86,11 +86,11 @@ fi
 # Generate U-Boot environment
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 if ${SD} ; then
-	${mkenvimage} -p 0 -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
+	${mkenvimage} -p 0 -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${TARGET_DIR}/etc/u-boot-initial-env"
 else
-	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
+	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${TARGET_DIR}/etc/u-boot-initial-env"
 	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
-		echo "keyrev=1" | cat - "${BINARIES_DIR}/u-boot-initial-env" | sort > "${BINARIES_DIR}/u-boot1-initial-env"
+		echo "keyrev=1" | cat - "${TARGET_DIR}/etc/u-boot-initial-env" | sort > "${BINARIES_DIR}/u-boot1-initial-env"
 		${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot1.env" "${BINARIES_DIR}/u-boot1-initial-env"
 	fi
 fi
