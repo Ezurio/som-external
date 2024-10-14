@@ -18,7 +18,11 @@ die() { echo "$@" >&2; exit 1; }
 [ -x "${mkenvimage}" ] || \
 	die "No mkenvimage found (uboot has not been built?)"
 
-${mkenvimage} -p 0 -s 131072 -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/u-boot-initial-env"
+UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+
+# Generate U-Boot environment
+ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
+${mkenvimage} -p 0 -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${TARGET_DIR}/etc/u-boot-initial-env"
 
 # Copy mksdcard.sh and mksdimg.sh to images
 ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
