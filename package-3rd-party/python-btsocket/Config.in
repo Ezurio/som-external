@@ -1,0 +1,7 @@
+config BR2_PACKAGE_PYTHON_BTSOCKET
+	bool "python-btsocket"
+	depends on BR2_PACKAGE_PYTHON3
+	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	help
+	  Bluetooth Socket API for Python
+	  https://github.com/ukBaz/python-btsocket
