@@ -1,0 +1,40 @@
+From 99f1909d51c5f3a9540f0a657cd947169839d43f Mon Sep 17 00:00:00 2001
+From: Don Ferencz <Donald.Ferencz@ezurio.com>
+Date: Thu, 24 Oct 2024 14:33:24 -0400
+Subject: [PATCH] Support management calls with no response
+
+The btmgmt_sync.send() call will hang waiting for response data
+on commands that do not return it (e.g., "SetIOCapability").  This
+patch adds a keywaord parameter "noresp" to allow the call to
+return with no data.
+---
+ btsocket/btmgmt_sync.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/btsocket/btmgmt_sync.py b/btsocket/btmgmt_sync.py
+index 2fe0218..0b65ca7 100644
+--- a/btsocket/btmgmt_sync.py
++++ b/btsocket/btmgmt_sync.py
+@@ -13,8 +13,9 @@ def _as_packet(pkt_objs):
+     return full_pkt
+ 
+ 
+-def send(*args):
++def send(*args, **kwargs):
+     response_recvd = False
++    no_response = kwargs.get('noresp', False)
+     pkt_objs = btmgmt_protocol.command(*args)
+     logger.debug('Sending btmgmt frames %s', pkt_objs)
+     cmd_pkt = _as_packet(pkt_objs)
+@@ -27,7 +28,7 @@ def send(*args):
+         logger.debug('Received: %s', raw_data)
+         data = btmgmt_protocol.reader(raw_data)
+         logger.debug('Received btmgmt frames: %s', data)
+-        if data.cmd_response_frame:
++        if data.cmd_response_frame or no_response:
+             response_recvd = True
+ 
+     btmgmt_socket.close(sock)
+-- 
+2.34.1
+
