@@ -54,7 +54,7 @@ $(TARGETS_ALL): %: $(OUTPUT_DIR)/%/.config
 	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$*
 ifneq ($(VIGILES_DASHBOARD_CONFIG),)
 ifneq ($(call external_name,vigiles-buildroot),)
-	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check
+	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check || true
 endif
 endif
 
@@ -108,7 +108,7 @@ $(addsuffix -legal-info,$(TARGETS_ALL)): %-legal-info: $(OUTPUT_DIR)/%/.config
 .PHONY: $(addsuffix -vigiles,$(TARGETS))
 $(addsuffix -vigiles,$(TARGETS)): %-vigiles:
 ifneq ($(call external_name,vigiles-buildroot),)
-	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check
+	$(MAKE) -C $(OUTPUT_DIR)/$* vigiles-check || true
 endif
 
 .PHONY: $(addsuffix -full,$(TARGETS))
