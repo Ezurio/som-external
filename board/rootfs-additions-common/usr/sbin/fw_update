@@ -38,7 +38,6 @@ FWUL=/tmp/fw.txt
 NS_PORT=2012
 NS_FORMAT=xml
 
-
 show_usage_info() {
   [ -z "$1" ] && cat << --Usage-Info--
 This utility performs flash memory updates of WB firmware using:
@@ -774,13 +773,9 @@ test_image() {
       await $! $et _ && wait
       test -n "`sed -n '/^State:.*OK/,${/^0x......../p}' /tmp/fwu.ubifs`"
     else
-      head -c $sz /tmp/fwu.fifo |md5sum >/tmp/fwu.md5 &
-      await $! $et _
-      nanddump -qf /tmp/fwu.fifo --omitoob --bb=skipbad /dev/$tp 2>>/tmp/fwu.err
-      # legitimate exit is zero or sigpipe
-      [ 0 -eq $? -o $? -eq 141 ]; error=$?; wait
-      read md5 in_flash < /tmp/fwu.md5 && rm /tmp/fwu.md5
-      test "$md5" == "$1"
+      md5=$(nanddump -ql $sz --omitoob --bb=skipbad /dev/$tp 2>>/tmp/fwu.err \
+        | md5sum | sed -r 's/(\w+).*/\1/') || error=$?
+      [ "$md5" = "$1" ]
     fi
   fi
   if ! let error+=$?
