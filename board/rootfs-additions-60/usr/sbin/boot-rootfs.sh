@@ -154,3 +154,68 @@ nextSide() {
 		;;
 	esac
 }
+
+getBaseHwPartNumber() {
+	WB50_BASE_HW_PART_NUMBER="453-00107"
+	SOM60x1_BASE_HW_PART_NUMBER="453-00003"
+	SOM60x2_BASE_HW_PART_NUMBER="453-00004"
+	SOM60v2x1_BASE_HW_PART_NUMBER="453-00137"
+	SOM60v2x2_BASE_HW_PART_NUMBER="453-00138"
+	SOM8MP_512MB_BASE_HW_PART_NUMBER="453-00070"
+	SOM8MP_1GB_BASE_HW_PART_NUMBER="453-00071"
+	SOM8MP_2GB_BASE_HW_PART_NUMBER="453-00072"
+	SOM8MP_4GB_BASE_HW_PART_NUMBER="453-00135"
+
+	MEM_128MB_IN_KB=131072
+	MEM_256MB_IN_KB=262144
+	MEM_512MB_IN_KB=524288
+	MEM_1GB_IN_KB=1048576
+	MEM_2GB_IN_KB=2097152
+	MEM_4GB_IN_KB=4194304
+
+	read -r soc_id < /sys/devices/soc0/soc_id
+	case "${soc_id}" in
+	sama5d31*)
+		# WB50
+		echo "$WB50_BASE_HW_PART_NUMBER"
+		;;
+
+	sama5d36*)
+		# SOM60
+		ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
+
+		if [ "${ram_size}" -le $MEM_128MB_IN_KB ]; then
+			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
+			echo "$SOM60v2x1_BASE_HW_PART_NUMBER" ||
+			echo "$SOM60x1_BASE_HW_PART_NUMBER"
+		elif [ "${ram_size}" -le $MEM_256MB_IN_KB ]; then
+			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
+			echo "$SOM60v2x2_BASE_HW_PART_NUMBER" ||
+			echo "$SOM60x2_BASE_HW_PART_NUMBER"
+		else
+			echo "unknown"
+		fi
+		;;
+
+	i.MX8MP*)
+		# SOM 8M Plus
+		ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
+
+		if [ "${ram_size}" -le $MEM_512MB_IN_KB ]; then
+			echo "$SOM8MP_512MB_BASE_HW_PART_NUMBER"
+		elif [ "${ram_size}" -le $MEM_1GB_IN_KB ]; then
+			echo "$SOM8MP_1GB_BASE_HW_PART_NUMBER"
+		elif [ "${ram_size}" -le $MEM_2GB_IN_KB ]; then
+			echo "$SOM8MP_2GB_BASE_HW_PART_NUMBER"
+		elif [ "${ram_size}" -le $MEM_4GB_IN_KB ]; then
+			echo "$SOM8MP_4GB_BASE_HW_PART_NUMBER"
+		else
+			echo "unknown"
+		fi
+		;;
+
+	*)
+		echo "unknown"
+		;;
+	esac
+}
