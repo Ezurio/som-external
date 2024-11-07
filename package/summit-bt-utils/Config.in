@@ -1,5 +1,6 @@
 config BR2_PACKAGE_SUMMIT_BT_UTILS
 	bool "summit-bt-utils"
 	select BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_PYTHON_SERIAL
 	help
 	  Utilities to support bluetooth device programming and operations
