@@ -23,6 +23,8 @@ rm -f "${TARGET_DIR}/etc/init.d/S40network"
 rm -f "${TARGET_DIR}/etc/init.d/S41dhcpcd"
 rm -f "${TARGET_DIR}/etc/init.d/S40bluetoothd"
 rm -f "${TARGET_DIR}/etc/init.d/S35iptables"
+rm -f "${TARGET_DIR}/etc/init.d/S50crond"
+rm -f "${TARGET_DIR}/etc/init.d/S41ifplugd"
 
 # remove perl cruft
 rm -f "${TARGET_DIR}/etc/ssl/misc/tsget"

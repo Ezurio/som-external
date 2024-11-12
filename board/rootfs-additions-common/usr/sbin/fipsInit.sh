@@ -8,7 +8,8 @@ fail() {
 }
 
 # Mount all filesystems
-mount -a 2> /dev/null || true
+mount /proc
+mount /sys
 
 read -r cmdline </proc/cmdline
 for x in ${cmdline}; do
@@ -60,6 +61,8 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 
 	echo "FIPS Integrity check Success"
 fi
+
+umount /proc
 
 echo "Launching: ${INIT}"
 
