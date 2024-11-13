@@ -261,7 +261,10 @@ if ${ENCRYPTED_TOOLKIT} ; then
 	scrname="${scrname}_verity"
 fi
 
-if grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
+if grep -qF \
+	-e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" \
+	-e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" \
+	"${BR2_CONFIG}"; then
 	scrname="${scrname}-7"
 fi
 
