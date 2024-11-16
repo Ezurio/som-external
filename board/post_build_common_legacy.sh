@@ -163,48 +163,44 @@ PRETTY_NAME="${LOCRELSTR}"
 EOF
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
-	CCONF_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image")"
-
-	# Generate kernel FIT image script
-	# kernel.its references Image and at91-wb50n.dtb, and all three
-	# files must be in current directory for mkimage.
-	DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CONFIG}")"
-	# Look for DTB in custom path
-	[ -n "${DTB}" ] || \
-		DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
-
 	case "${BUILD_TYPE}" in
-		"wb50n") EXT=gz   ;;
-		"wb45n") EXT=lzma ;;
-		*)       exit 1   ;;
+		"wb50n") 
+			export KERNEL_IMAGE="Image.gz"
+			export linux_comp="gzip"
+			;;
+		"wb45n") 
+			export KERNEL_IMAGE="Image.lzma"
+			export linux_comp="lzma"
+			;;
+		*)
+			exit 1
+			;;
 	esac
 
-	sed "s/at91-wb50n/${DTB}/g" "${CCONF_DIR}/kernel_legacy.its" > "${BINARIES_DIR}/kernel.its"
-	if [ ${EXT} != gz ]; then
-		sed "s/Image.gz/Image.${EXT}/g;s/gzip/${EXT}/g" -i "${BINARIES_DIR}/kernel.its"
-	fi
+	KERNEL_DEVICETREE=$(make -C "${BASE_DIR}" linux-show-dtb | sed '/^make\[/d')
+	export KERNEL_DEVICETREE
+	export UBOOT_LOADADDRESS=0x20008000
+	export UBOOT_ENTRYPOINT=0x20008000
+	export FDT_LOADADDRESS=0x22000000
+	export UBOOT_ARCH="arm"
 
-	LINUX_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')  
+	LINUX_VER=$(make -C "${BASE_DIR}" linux-show-version | sed '/^make\[/d')  
 	kver=$(make -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease | sed '/^make\[/d')
-	sed "s/summit-version = \"\"/summit-version = \"Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}\"/g" -i "${BINARIES_DIR}/kernel.its"
+	FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
+	export FIT_SUMMIT_VERSION
+
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/kernel-fitimage.sh" "${BINARIES_DIR}/kernel.its"
 fi
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
-	IMAGE_NAME=Image
+	IMAGE_NAME=$(sed -rn 's/.*"(Image.*)".*/\1/p' "${BINARIES_DIR}/kernel.its")
 
-	if grep -qF '"Image.gz"' "${BINARIES_DIR}/kernel.its"; then
-		gzip -9kfn "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.gz
-	elif grep -qF '"Image.lzo"' "${BINARIES_DIR}/kernel.its"; then
-		lzop -9on "${BINARIES_DIR}/Image.lzo" "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.lzo
-	elif grep -qF '"Image.lzma"' "${BINARIES_DIR}/kernel.its"; then
-		lzma -9kf "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.lzma
-	elif grep -qF '"Image.zstd"' "${BINARIES_DIR}/kernel.its"; then
-		zstd -19 -kf "${BINARIES_DIR}/Image" -o "${BINARIES_DIR}/Image.zstd"
-		IMAGE_NAME+=.zstd
-	fi
+	case "${IMAGE_NAME}" in
+		Image.gz) gzip -9kfn "${BINARIES_DIR}/Image" ;;
+		Image.lzo) lzop -9on "${BINARIES_DIR}/Image".lzo "${BINARIES_DIR}/Image" ;;
+		Image.lzma) lzma -9kf "${BINARIES_DIR}/Image" ;;
+		Image.zst) zstd -9 -kf "${BINARIES_DIR}/Image" -o "${BINARIES_DIR}/Image.zst" ;;
+	esac
 
 	calc_hash() {
 		local hash_path=${1}

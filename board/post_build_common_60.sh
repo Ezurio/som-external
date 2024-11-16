@@ -230,8 +230,8 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 fi
 
 # Path to common image files
-CCONF_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image")"
-CSCRIPT_DIR="$(realpath "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common")"
+CCONF_DIR=${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image
+CSCRIPT_DIR=${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common
 
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
 if ${SECURE_BOOT} ; then
@@ -240,16 +240,57 @@ if ${SECURE_BOOT} ; then
 		ln -rsf "${ENCRYPTED_TOOLKIT_DIR}" "${BINARIES_DIR}"
 	fi
 
-	# Copy the u-boot.its
-	ln -rsf "${CCONF_DIR}/u-boot-enc.its" "${BINARIES_DIR}/u-boot.its"
-
-	cp -f "${CCONF_DIR}/kernel-enc.its" "${BINARIES_DIR}/kernel.its"
-else
-	# Copy the u-boot.its
-	ln -rsf "${CCONF_DIR}/u-boot.its" "${BINARIES_DIR}/u-boot.its"
-
-	cp -f "${CCONF_DIR}/kernel.its" "${BINARIES_DIR}/kernel.its"
+	export UBOOT_SIGN_ENABLE='1'
+	export UBOOT_SIGN_KEYNAME='dev'
 fi
+
+KERNEL_DEVICETREE=$(make -C "${BASE_DIR}" linux-show-dtb | sed '/^make\[/d')
+export KERNEL_DEVICETREE
+export UBOOT_SCRIPT='boot.scr'
+
+LINUX_VER=$(make -C "${BASE_DIR}" linux-show-version | sed '/^make\[/d')  
+kver=$(make -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease | sed '/^make\[/d')
+FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
+export FIT_SUMMIT_VERSION
+
+case "${BUILD_TYPE}" in
+	wb50n*|som60*|ig60*) 
+		# Copy the u-boot.its
+		if ${SECURE_BOOT} ; then
+			ln -rsf "${CCONF_DIR}/u-boot-enc.its" "${BINARIES_DIR}/u-boot.its"
+		else
+			ln -rsf "${CCONF_DIR}/u-boot.its" "${BINARIES_DIR}/u-boot.its"
+		fi
+		export linux_comp='gzip'
+		export UBOOT_LOADADDRESS=0x20008000
+		export UBOOT_ENTRYPOINT=0x20008000
+		export FDT_LOADADDRESS=0x22000000
+		export UBOOT_ARCH='arm'
+		export KERNEL_IMAGE='Image.gz'
+		;;
+
+	*imx8*) 
+		export linux_comp='zstd'
+		export UBOOT_LOADADDRESS=0x40400000
+		export UBOOT_ENTRYPOINT=0x40400000
+		export FDT_LOADADDRESS=0x43000000
+		export UBOOT_ARCH='arm64'
+		export KERNEL_IMAGE='Image.zst'
+		export FIT_PAD_ALG='pss'
+		;;
+
+	*am62*) 
+		export linux_comp='zstd'
+		export UBOOT_LOADADDRESS=0x81000000
+		export UBOOT_ENTRYPOINT=0x81000000
+		export FDT_LOADADDRESS=0x83000000
+		export UBOOT_ARCH='arm64'
+		export KERNEL_IMAGE='Image.zst'
+		export FIT_PAD_ALG='pss'
+		;;
+esac
+
+"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/kernel-fitimage.sh" "${BINARIES_DIR}/kernel.its"
 
 if ${SD}; then
 	scrname="boot_mmc"
@@ -284,37 +325,20 @@ fi
 
 ln -rsf "${CCONF_DIR}/u-boot.scr.its" "${BINARIES_DIR}/u-boot.scr.its"
 
-# Generate kernel FIT image script
-# kernel.its references zImage and at91-dvk_som60.dtb, and all three
-# files must be in current directory for mkimage.
-DTB="$(sed -nr 's,^BR2_LINUX_KERNEL_INTREE_DTS_NAME="(.*/)?(.*)",\2,p' "${BR2_CONFIG}")"
-# Look for DTB in custom path
-[ -n "${DTB}" ] || \
-	DTB="$(sed -nr 's,BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="(.*/)?(.*)\.dts",\2,p' "${BR2_CONFIG}")"
-
-sed -i "s/at91-dvk_som60/${DTB}/g" "${BINARIES_DIR}/kernel.its"
-
 case "${BUILD_TYPE}" in
 	wb50n*) SOM=wb50n ;;
 	som60*|ig60*) SOM=som60 ;;
 esac
 
 if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
-	IMAGE_NAME=Image
+	IMAGE_NAME=$(sed -rn 's/.*"(Image.*)".*/\1/p' "${BINARIES_DIR}/kernel.its")
 
-	if grep -qF '"Image.gz"' "${BINARIES_DIR}/kernel.its"; then
-		gzip -9kfn "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.gz
-	elif grep -qF '"Image.lzo"' "${BINARIES_DIR}/kernel.its"; then
-		lzop -9on "${BINARIES_DIR}/Image".lzo "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.lzo
-	elif grep -qF '"Image.lzma"' "${BINARIES_DIR}/kernel.its"; then
-		lzma -9kf "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.lzma
-	elif grep -qF '"Image.zstd"' "${BINARIES_DIR}/kernel.its"; then
-		zstd -19 -kf "${BINARIES_DIR}/Image"
-		IMAGE_NAME+=.zstd
-	fi
+	case "${IMAGE_NAME}" in
+		Image.gz) gzip -9kfn "${BINARIES_DIR}/Image" ;;
+		Image.lzo) lzop -9on "${BINARIES_DIR}/Image".lzo "${BINARIES_DIR}/Image" ;;
+		Image.lzma) lzma -9kf "${BINARIES_DIR}/Image" ;;
+		Image.zst) zstd -9 -kf "${BINARIES_DIR}/Image" -o "${BINARIES_DIR}/Image.zst" ;;
+	esac
 
 	calc_hash() {
 		local hash_path=${1}
