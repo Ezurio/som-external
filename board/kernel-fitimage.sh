@@ -1,6 +1,8 @@
+#! /bin/sh
+
 fitimage_set_vars() {
 	# Description string
-	FIT_DESC="Kernel fitImage for ${BR2_SUMMIT_PRODUCT}"
+	FIT_DESC="Summit Linux fitImage for ${BR2_SUMMIT_PRODUCT}"
 
 	UBOOT_MKIMAGE_KERNEL_TYPE=${UBOOT_MKIMAGE_KERNEL_TYPE:-"kernel"}
 	UBOOT_ARCH=${UBOOT_ARCH:-"arm64"}
@@ -62,12 +64,12 @@ fitimage_set_vars() {
 #
 # $1 ... .its filename
 fitimage_emit_fit_header() {
-	cat << EOF >> "$1"
+	cat << EOF >> "${1}"
 /dts-v1/;
 
 / {
 	description = "${FIT_DESC}";
-	#address-cells = <1>;
+
 EOF
 }
 
@@ -81,27 +83,33 @@ EOF
 #                          fitend     - fitimage end
 #
 fitimage_emit_section_maint() {
-	case $2 in
+	case ${2} in
 	imagestart)
-	cat << EOF >> "$1"
+	cat << EOF >> "${1}"
 
 	images {
 EOF
 	;;
 	confstart)
-	cat << EOF >> "$1"
+	cat << EOF >> "${1}"
 
 	configurations {
 EOF
 	;;
 	sectend)
-	cat << EOF >> "$1"
+	cat << EOF >> "${1}"
 	};
 EOF
 	;;
 	fitend)
-	cat << EOF >> "$1"
+	cat << EOF >> "${1}"
 };
+EOF
+	;;
+
+	compend)
+	cat << EOF >> "${1}"
+		};
 EOF
 	;;
 	esac
@@ -123,45 +131,47 @@ fitimage_emit_section_kernel() {
 
 	ENTRYPOINT="${UBOOT_ENTRYPOINT}"
 	if [ -n "${UBOOT_ENTRYSYMBOL}" ]; then
-		ENTRYPOINT=`${HOST_PREFIX}nm vmlinux | \
-			awk '$3=="${UBOOT_ENTRYSYMBOL}" {print "0x"$1;exit}'`
+		ENTRYPOINT=$("${HOST_PREFIX}nm" vmlinux | \
+			awk '$3=="${UBOOT_ENTRYSYMBOL}" {print "0x"${1};exit}')
 	fi
 
-	cat << EOF >> $1
-		kernel-$2 {
+	cat << EOF >> "${1}"
+		kernel-${2} {
 			description = "Linux kernel";
-			data = /incbin/("$3");
+			data = /incbin/("${3}");
 			type = "${UBOOT_MKIMAGE_KERNEL_TYPE}";
 			arch = "${UBOOT_ARCH}";
 			os = "linux";
-			compression = "$4";
+			compression = "${4}";
+			summit-version = "${FIT_SUMMIT_VERSION}";
 			load = <${UBOOT_LOADADDRESS}>;
-			entry = <$ENTRYPOINT>;
+			entry = <${ENTRYPOINT}>;
+
 			hash-1 {
-				algo = "$kernel_csum";
+				algo = "${kernel_csum}";
 			};
-		};
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
-		cat << EOF >> $1
-	cipher {
-		algo = "${FIT_ENCRYPT_ALGO}";
-		key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
-		iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
-	};
+		cat << EOF >> "${1}"
+			cipher {
+				algo = "${FIT_ENCRYPT_ALGO}";
+				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
+				iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
+			};
 EOF
 	fi
-	if [ "${UBOOT_SIGN_ENABLE}" = "1" -a "${FIT_SIGN_INDIVIDUAL}" = "1" -a -n "$kernel_sign_keyname" ] ; then
-		sed -i '$ d' $1
-		cat << EOF >> $1
-				signature-1 {
-						algo = "$kernel_csum,$kernel_sign_algo";
-						key-name-hint = "$kernel_sign_keyname";
-						padding = "$kernel_padding_algo";
-				};
-		};
+	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${kernel_sign_keyname}" ] ; then
+		sed -i '$ d' "${1}"
+		cat << EOF >> "${1}"
+			signature-1 {
+				algo = "${kernel_csum},${kernel_sign_algo}";
+				key-name-hint = "${kernel_sign_keyname}";
+				padding = "${kernel_padding_algo}";
+			};
 EOF
 	fi
+
+	fitimage_emit_section_maint "${1}" compend
 }
 
 #
@@ -185,41 +195,43 @@ fitimage_emit_section_dtb() {
 		fi
 	elif [ -n "${UBOOT_DTB_LOADADDRESS}" ]; then
 		dtb_loadline="load = <${UBOOT_DTB_LOADADDRESS}>;"
+	else
+		dtb_loadline="load = <${FDT_LOADADDRESS}>;"
 	fi
-	cat << EOF >> $1
+	cat << EOF >> "${1}"
 		fdt-$2 {
 			description = "Flattened Device Tree blob";
-			data = /incbin/("$3.dtb");
+			data = /incbin/("$3");
 			type = "flat_dt";
 			arch = "${UBOOT_ARCH}";
 			compression = "none";
-			load = <${FDT_LOADADDRESS}>;
-			$dtb_loadline
+			${dtb_loadline}
+
 			hash-1 {
-				algo = "$dtb_csum";
+				algo = "${dtb_csum}";
 			};
-		};
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
-		cat << EOF >> $1
-	cipher {
-		algo = "${FIT_ENCRYPT_ALGO}";
-		key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
-		iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
-	};
-EOF
-	fi
-	if [ "${UBOOT_SIGN_ENABLE}" = "1" -a "${FIT_SIGN_INDIVIDUAL}" = "1" -a -n "$dtb_sign_keyname" ] ; then
-		sed -i '$ d' $1
-		cat << EOF >> $1
-			signature-1 {
-				algo = "$dtb_csum,$dtb_sign_algo";
-				key-name-hint = "$dtb_sign_keyname";
-				padding = "$dtb_padding_algo";
+		cat << EOF >> "${1}"
+			cipher {
+				algo = "${FIT_ENCRYPT_ALGO}";
+				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
+				iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
 			};
-		};
 EOF
 	fi
+	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${dtb_sign_keyname}" ] ; then
+		sed -i '$ d' "${1}"
+		cat << EOF >> "${1}"
+			signature-1 {
+				algo = "${dtb_csum},${dtb_sign_algo}";
+				key-name-hint = "${dtb_sign_keyname}";
+				padding = "${dtb_padding_algo}";
+			};
+EOF
+	fi
+
+	fitimage_emit_section_maint "${1}" compend
 }
 
 #
@@ -235,38 +247,39 @@ fitimage_emit_section_boot_script() {
 	bootscr_sign_keyname="${UBOOT_SIGN_IMG_KEYNAME}"
 	bootscr_padding_algo="${FIT_PAD_ALG}"
 
-	cat << EOF >> $1
-	bootscr-$2 {
-		description = "U-boot script";
-		data = /incbin/("$3");
-		type = "script";
-		arch = "${UBOOT_ARCH}";
-		compression = "none";
-		hash-1 {
-			algo = "$bootscr_csum";
-		};
-	};
+	cat << EOF >> "${1}"
+		script {
+			description = "Boot Script";
+			data = /incbin/("$3");
+			type = "script";
+			arch = "${UBOOT_ARCH}";
+			compression = "none";
+
+			hash-1 {
+				algo = "${bootscr_csum}";
+			};
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
-		cat << EOF >> $1
-	cipher {
-		algo = "${FIT_ENCRYPT_ALGO}";
-		key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
-		iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
-	};
-EOF
-	fi
-	if [ "${UBOOT_SIGN_ENABLE}" = "1" -a "${FIT_SIGN_INDIVIDUAL}" = "1" -a -n "$bootscr_sign_keyname" ] ; then
-		sed -i '$ d' $1
-		cat << EOF >> $1
-			signature-1 {
-				algo = "$bootscr_csum,$bootscr_sign_algo";
-				key-name-hint = "$bootscr_sign_keyname";
-				padding = "$bootscr_padding_algo";
+		cat << EOF >> "${1}"
+			cipher {
+				algo = "${FIT_ENCRYPT_ALGO}";
+				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
+				iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
 			};
-		};
 EOF
 	fi
+	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${bootscr_sign_keyname}" ] ; then
+		sed -i '$ d' "${1}"
+		cat << EOF >> "${1}"
+			signature-1 {
+				algo = "${bootscr_csum},${bootscr_sign_algo}";
+				key-name-hint = "${bootscr_sign_keyname}";
+				padding = "${bootscr_padding_algo}";
+			};
+EOF
+	fi
+
+	fitimage_emit_section_maint "${1}" compend
 }
 
 #
@@ -291,62 +304,42 @@ fitimage_emit_section_ramdisk() {
 		ramdisk_entryline="entry = <${UBOOT_RD_ENTRYPOINT}>;"
 	fi
 
-	cat << EOF >> $1
-		ramdisk-$2 {
+	cat << EOF >> "${1}"
+		ramdisk-${2} {
 			description = "${INITRAMFS_IMAGE}";
-			data = /incbin/("$3");
+			data = /incbin/("${3}");
 			type = "ramdisk";
 			arch = "${UBOOT_ARCH}";
 			os = "linux";
 			compression = "none";
-			$ramdisk_loadline
-			$ramdisk_entryline
+			${ramdisk_loadline}
+			${ramdisk_entryline}
+
 			hash-1 {
-				algo = "$ramdisk_csum";
+				algo = "${ramdisk_csum}";
 			};
-		};
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
-		cat << EOF >> $1
-	cipher {
-		algo = "${FIT_ENCRYPT_ALGO}";
-		key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
-		iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
-	};
-EOF
-	fi
-	if [ "${UBOOT_SIGN_ENABLE}" = "1" -a "${FIT_SIGN_INDIVIDUAL}" = "1" -a -n "$ramdisk_sign_keyname" ] ; then
-		sed -i '$ d' $1
-		cat << EOF >> $1
-			signature-1 {
-				algo = "$ramdisk_csum,$ramdisk_sign_algo";
-				key-name-hint = "$ramdisk_sign_keyname";
-				padding = "$ramdisk_padding_algo";
+		cat << EOF >> "${1}"
+			cipher {
+				algo = "${FIT_ENCRYPT_ALGO}";
+				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
+				iv-name-hint = "${UBOOT_ENCRYPT_IVNAME}";
 			};
-		};
 EOF
 	fi
-}
-
-#
-# echoes symlink destination if it points below directory
-#
-# $1 ... file that's a potential symlink
-# $2 ... expected parent directory
-symlink_points_below() {
-	file="$2/$1"
-	dir=$2
-
-	if ! [ -L "$file" ]; then
-		return
+	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${ramdisk_sign_keyname}" ] ; then
+		sed -i '$ d' "${1}"
+		cat << EOF >> "${1}"
+			signature-1 {
+				algo = "${ramdisk_csum},${ramdisk_sign_algo}";
+				key-name-hint = "${ramdisk_sign_keyname}";
+				padding = "${ramdisk_padding_algo}";
+			};
+EOF
 	fi
 
-	realpath="$(realpath --relative-to=$dir $file)"
-	if [ -z "${realpath%%../*}" ]; then
-		return
-	fi
-
-	echo "$realpath"
+	fitimage_emit_section_maint "${1}" compend
 }
 
 #
@@ -368,13 +361,13 @@ fitimage_emit_section_config() {
 		conf_sign_keyname="${UBOOT_SIGN_KEYNAME}"
 	fi
 
-	its_file="$1"
-	kernel_id="$2"
-	dtb_image="$3"
-	ramdisk_id="$4"
-	bootscr_id="$5"
-	config_id="$6"
-	default_flag="$7"
+	its_file="${1}"
+	kernel_id="${2}"
+	dtb_image="${3}"
+	ramdisk_id="${4}"
+	bootscr_id="${5}"
+	config_id="${6}"
+	default_flag="${7}"
 
 	# Test if we have any DTBs at all
 	sep=""
@@ -388,129 +381,119 @@ fitimage_emit_section_config() {
 	default_line=""
 	default_dtb_image="${FIT_CONF_DEFAULT_DTB}"
 
-	dtb_image_sect=$(symlink_points_below $dtb_image "${EXTERNAL_KERNEL_DEVICETREE}")
-	if [ -z "$dtb_image_sect" ]; then
-		dtb_image_sect=$dtb_image
-	fi
-
-	dtb_image=$(echo $dtb_image | tr '/' '_')
-	dtb_image_sect=$(echo "${dtb_image_sect}" | tr '/' '_')
-
 	# conf node name is selected based on dtb ID if it is present,
 	# otherwise its selected based on kernel ID
-	if [ -n "$dtb_image" ]; then
-		conf_node=$conf_node$dtb_image
+	if [ -n "${dtb_image}" ]; then
+		conf_node=${conf_node}${dtb_image}
 	else
-		conf_node=$conf_node$kernel_id
+		conf_node=${conf_node}${kernel_id}
 	fi
 
-	if [ -n "$kernel_id" ]; then
-		conf_desc="Linux kernel"
+	if [ -n "${kernel_id}" ]; then
+		conf_desc="Summit Linux Kernel"
 		sep=", "
-		kernel_line="kernel = \"kernel-$kernel_id\";"
+		kernel_line="kernel = \"kernel-${kernel_id}\";"
 	fi
 
-	if [ -n "$dtb_image" ]; then
-		conf_desc="$conf_desc${sep}FDT blob"
+	if [ -n "${dtb_image}" ]; then
+		conf_desc="${conf_desc}${sep}FDT blob"
 		sep=", "
-		fdt_line="fdt = \"fdt-$dtb_image_sect\";"
+		fdt_line="fdt = \"fdt-${dtb_image}\";"
 	fi
 
-	if [ -n "$ramdisk_id" ]; then
-		conf_desc="$conf_desc${sep}ramdisk"
+	if [ -n "${ramdisk_id}" ]; then
+		conf_desc="${conf_desc}${sep}ramdisk"
 		sep=", "
 		ramdisk_line="ramdisk = \"ramdisk-$ramdisk_id\";"
 	fi
 
-	if [ -n "$bootscr_id" ]; then
-		conf_desc="$conf_desc${sep}u-boot script"
+	if [ -n "${bootscr_id}" ]; then
+		conf_desc="${conf_desc}${sep}u-boot script"
 		sep=", "
-		bootscr_line="bootscr = \"bootscr-$bootscr_id\";"
+		bootscr_line="loadables = \"script\";"
 	fi
 
-	if [ -n "$config_id" ]; then
-		conf_desc="$conf_desc${sep}setup"
-		setup_line="setup = \"setup-$config_id\";"
+	if [ -n "${config_id}" ]; then
+		conf_desc="${conf_desc}${sep}setup"
+		setup_line="setup = \"setup-${config_id}\";"
 	fi
 
-	if [ "$default_flag" = "1" ]; then
+	if [ "${default_flag}" = "1" ]; then
 		# default node is selected based on dtb ID if it is present,
 		# otherwise its selected based on kernel ID
 		if [ -n "$dtb_image" ]; then
 				# Select default node as user specified dtb when
 				# multiple dtb exists.
-				if [ -n "$default_dtb_image" ]; then
-					if [ -s "${EXTERNAL_KERNEL_DEVICETREE}/$default_dtb_image" ]; then
-							default_line="default = \"${FIT_CONF_PREFIX}$default_dtb_image\";"
+				if [ -n "${default_dtb_image}" ]; then
+					if [ -s "${default_dtb_image}" ]; then
+							default_line="default = \"${FIT_CONF_PREFIX}${default_dtb_image}\";"
 					else
-							bbwarn "Couldn't find a valid user specified dtb in ${EXTERNAL_KERNEL_DEVICETREE}/$default_dtb_image"
+							echo "Couldn't find a valid user specified dtb in ${default_dtb_image}"
 					fi
 				else
-					default_line="default = \"${FIT_CONF_PREFIX}$dtb_image\";"
+					default_line="default = \"${FIT_CONF_PREFIX}${dtb_image}\";"
 				fi
 		else
-			default_line="default = \"${FIT_CONF_PREFIX}$kernel_id\";"
+			default_line="default = \"${FIT_CONF_PREFIX}${kernel_id}\";"
 		fi
 	fi
 
-	cat << EOF >> $its_file
-		$default_line
-		$conf_node {
-			description = "$default_flag $conf_desc";
-			$kernel_line
-			$fdt_line
-			$ramdisk_line
-			$bootscr_line
-			$setup_line
+	cat << EOF >> "${its_file}"
+		${default_line}
+		${conf_node} {
+			description = "${default_flag} ${conf_desc}";
+			${kernel_line}
+			${fdt_line}
+			${bootscr_line}
+			${ramdisk_line}
+			${setup_line}
 			hash-1 {
-				algo = "$conf_csum";
+				algo = "${conf_csum}";
 			};
 EOF
 
-	if [ -n "$conf_sign_keyname" ] ; then
+	if [ -n "${conf_sign_keyname}" ] ; then
 
 		sign_line="sign-images = "
 		sep=""
 
-		if [ -n "$kernel_id" ]; then
-			sign_line="$sign_line${sep}\"kernel\""
+		if [ -n "${kernel_id}" ]; then
+			sign_line="${sign_line}${sep}\"kernel\""
 			sep=", "
 		fi
 
-		if [ -n "$dtb_image" ]; then
-			sign_line="$sign_line${sep}\"fdt\""
+		if [ -n "${dtb_image}" ]; then
+			sign_line="${sign_line}${sep}\"fdt\""
 			sep=", "
 		fi
 
-		if [ -n "$ramdisk_id" ]; then
-			sign_line="$sign_line${sep}\"ramdisk\""
+		if [ -n "${ramdisk_id}" ]; then
+			sign_line="${sign_line}${sep}\"ramdisk\""
 			sep=", "
 		fi
 
-		if [ -n "$bootscr_id" ]; then
-			sign_line="$sign_line${sep}\"bootscr\""
+		if [ -n "${bootscr_id}" ]; then
+			sign_line="${sign_line}${sep}\"loadables\""
 			sep=", "
 		fi
 
-		if [ -n "$config_id" ]; then
-			sign_line="$sign_line${sep}\"setup\""
+		if [ -n "${config_id}" ]; then
+			sign_line="${sign_line}${sep}\"setup\""
 		fi
 
-		sign_line="$sign_line;"
+		sign_line="${sign_line};"
 
-		cat << EOF >> $its_file
-				signature-1 {
-						algo = "$conf_csum,$conf_sign_algo";
-						key-name-hint = "$conf_sign_keyname";
-						padding = "$conf_padding_algo";
-						$sign_line
-				};
+		cat << EOF >> "${its_file}"
+			signature-1 {
+				algo = "${conf_csum},${conf_sign_algo}";
+				key-name-hint = "${conf_sign_keyname}";
+				padding = "${conf_padding_algo}";
+				${sign_line}
+			};
 EOF
 	fi
 
-	cat << EOF >> $its_file
-		};
-EOF
+	fitimage_emit_section_maint "${1}" compend
 }
 
 #
@@ -523,127 +506,72 @@ fitimage_assemble() {
 	fitimage_set_vars
 
 	kernelcount=1
-	dtbcount=""
+	dtbcount=1
 	DTBS=""
-	ramdiskcount=$3
+	ramdiskcount=${3}
 	setupcount=""
-	bootscr_id=""
-	rm -f "$1" "${KERNEL_OUTPUT_DIR}/$2"
 
-	if [ -n "${UBOOT_SIGN_IMG_KEYNAME}" -a "${UBOOT_SIGN_KEYNAME}" = "${UBOOT_SIGN_IMG_KEYNAME}" ]; then
-		bbfatal "Keys used to sign images and configuration nodes must be different."
+	rm -f "${1}"
+
+	if [ -n "${UBOOT_SIGN_IMG_KEYNAME}" ] && [ "${UBOOT_SIGN_KEYNAME}" = "${UBOOT_SIGN_IMG_KEYNAME}" ]; then
+		die "Keys used to sign images and configuration nodes must be different."
 	fi
 
-	fitimage_emit_fit_header "$1"
+	fitimage_emit_fit_header "${1}"
 
 	#
 	# Step 1: Prepare a kernel image section.
 	#
-	fitimage_emit_section_maint "$1" imagestart
+	fitimage_emit_section_maint "${1}" imagestart
 
-	fitimage_emit_section_kernel "$1" $kernelcount ${KERNEL_IMAGE} "$linux_comp"
+	fitimage_emit_section_kernel "${1}" ${kernelcount} "${KERNEL_IMAGE}" "${linux_comp:-}"
 
 	#
 	# Step 2: Prepare a DTB image section
 	#
-
-	if [ -n "${KERNEL_DEVICETREE}" ]; then
-		dtbcount=1
-		for DTB in ${KERNEL_DEVICETREE}; do
-			if echo $DTB | grep -q '/dts/'; then
-				bbwarn "$DTB contains the full path to the the dts file, but only the dtb name should be used."
-				DTB=`basename $DTB | sed 's,\.dts$,.dtb,g'`
-			fi
-
-			# Skip ${DTB} if it's also provided in ${EXTERNAL_KERNEL_DEVICETREE}
-			if [ -n "${EXTERNAL_KERNEL_DEVICETREE}" ] && [ -s ${EXTERNAL_KERNEL_DEVICETREE}/${DTB} ]; then
-				continue
-			fi
-
-			if [ -d "${KERNEL_OUTPUT_DIR}" ]; then
-				DTB_PATH="${KERNEL_OUTPUT_DIR}/dts/$DTB"
-				if [ ! -e "$DTB_PATH" ]; then
-					DTB_PATH="${KERNEL_OUTPUT_DIR}/$DTB"
-				fi
-			else
-				DTB_PATH="$DTB"
-			fi
-
-			# Skip DTB if we've picked it up previously
-			echo "$DTBS" | tr ' ' '\n' | grep -xq "$DTB" && continue
-
-			DTBS="$DTBS $DTB"
-			DTB=$(echo $DTB | tr '/' '_')
-			fitimage_emit_section_dtb "$1" $DTB $DTB_PATH
-		done
-	fi
-
-	if [ -n "${EXTERNAL_KERNEL_DEVICETREE}" ]; then
-		dtbcount=1
-		for DTB in $(find "${EXTERNAL_KERNEL_DEVICETREE}" -name '*.dtb' -printf '%P\n' | sort) \
-		$(find "${EXTERNAL_KERNEL_DEVICETREE}" -name '*.dtbo' -printf '%P\n' | sort); do
-			# Skip DTB/DTBO if we've picked it up previously
-			echo "$DTBS" | tr ' ' '\n' | grep -xq "$DTB" && continue
-
-			DTBS="$DTBS $DTB"
-
-			# Also skip if a symlink. We'll later have each config section point at it
-			[ $(symlink_points_below $DTB "${EXTERNAL_KERNEL_DEVICETREE}") ] && continue
-
-			DTB=$(echo $DTB | tr '/' '_')
-			fitimage_emit_section_dtb "$1" $DTB "${EXTERNAL_KERNEL_DEVICETREE}/$DTB"
-		done
-	fi
+	for DTB in ${KERNEL_DEVICETREE}; do
+		DTB=${DTB##*/}
+		DTBS="${DTBS} ${DTB}"
+		fitimage_emit_section_dtb "${1}" "${DTB%%.*}" "${DTB}"
+	done
 
 	#
 	# Step 3: Prepare a u-boot script section
 	#
-
-	if [ -n "${UBOOT_ENV}" ] && [ -d "${STAGING_DIR_HOST}/boot" ]; then
-		if [ -e "${STAGING_DIR_HOST}/boot/${UBOOT_ENV_BINARY}" ]; then
-			cp ${STAGING_DIR_HOST}/boot/${UBOOT_ENV_BINARY} ${B}
-			bootscr_id="${UBOOT_ENV_BINARY}"
-			fitimage_emit_section_boot_script "$1" "$bootscr_id" ${UBOOT_ENV_BINARY}
-		else
-			bbwarn "${STAGING_DIR_HOST}/boot/${UBOOT_ENV_BINARY} not found."
-		fi
+	if [ -n "${UBOOT_SCRIPT}" ]; then
+		bootscr_id="1"
+		fitimage_emit_section_boot_script "${1}" "${bootscr_id}" "${UBOOT_SCRIPT}"
 	fi
 
 	#
 	# Step 5: Prepare a ramdisk section.
 	#
-	if [ "x${ramdiskcount}" = "x1" ] && [ "${INITRAMFS_IMAGE_BUNDLE}" != "1" ]; then
+	if [ "${ramdiskcount}" = "1" ] && [ "${INITRAMFS_IMAGE_BUNDLE}" != "1" ]; then
 		# Find and use the first initramfs image archive type we find
 		found=
 		for img in ${FIT_SUPPORTED_INITRAMFS_FSTYPES}; do
 			initramfs_path="${DEPLOY_DIR_IMAGE}/${INITRAMFS_IMAGE_NAME}.$img"
-			if [ -e "$initramfs_path" ]; then
-				bbnote "Found initramfs image: $initramfs_path"
+			if [ -e "${initramfs_path}" ]; then
+				echo "Found initramfs image: ${initramfs_path}"
 				found=true
-				fitimage_emit_section_ramdisk "$1" "$ramdiskcount" "$initramfs_path"
+				fitimage_emit_section_ramdisk "${1}" "${ramdiskcount}" "${initramfs_path}"
 				break
 			else
-				bbnote "Did not find initramfs image: $initramfs_path"
+				echo "Did not find initramfs image: ${initramfs_path}"
 			fi
 		done
 
 		if [ -z "$found" ]; then
-			bbfatal "Could not find a valid initramfs type for ${INITRAMFS_IMAGE_NAME}, the supported types are: ${FIT_SUPPORTED_INITRAMFS_FSTYPES}"
+			die "Could not find a valid initramfs type for ${INITRAMFS_IMAGE_NAME}, the supported types are: ${FIT_SUPPORTED_INITRAMFS_FSTYPES}"
 		fi
 	fi
 
-	fitimage_emit_section_maint "$1" sectend
-
-	# Force the first Kernel and DTB in the default config
-	kernelcount=1
-	if [ -n "$dtbcount" ]; then
-		dtbcount=1
-	fi
+	fitimage_emit_section_maint "${1}" sectend
 
 	#
 	# Step 6: Prepare a configurations section
 	#
-	fitimage_emit_section_maint "$1" confstart
+	fitimage_emit_section_maint "${1}" confstart
 
 	# kernel-fitimage.bbclass currently only supports a single kernel (no less or
 	# more) to be added to the FIT image along with 0 or more device trees and
@@ -654,24 +582,25 @@ fitimage_assemble() {
 	# the default configuration to be used is based on the dtbcount. If there is
 	# no dtb present than select the default configuation to be based on
 	# the kernelcount.
-	if [ -n "$DTBS" ]; then
+	if [ -n "${DTBS}" ]; then
 		i=1
 		for DTB in ${DTBS}; do
 			dtb_ext=${DTB##*.}
-			if [ "$dtb_ext" = "dtbo" ]; then
-				fitimage_emit_section_config "$1" "" "$DTB" "" "$bootscr_id" "" "`expr $i = $dtbcount`"
+			if [ "${dtb_ext}" = "dtbo" ]; then
+				fitimage_emit_section_config "${1}" "" "${DTB%%.*}" "" "${bootscr_id}" "" $((i == dtbcount))
 			else
-				fitimage_emit_section_config "$1" $kernelcount "$DTB" "$ramdiskcount" "$bootscr_id" "$setupcount" "`expr $i = $dtbcount`"
+				fitimage_emit_section_config "${1}" ${kernelcount} "${DTB%%.*}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}" $((i == dtbcount))
 			fi
-			i=`expr $i + 1`
+			i=$((i + 1))
 		done
 	else
 		defaultconfigcount=1
-		fitimage_emit_section_config "$1" $kernelcount "" "$ramdiskcount" "$bootscr_id"  "$setupcount" $defaultconfigcount
+		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}" ${defaultconfigcount}
 	fi
 
-	fitimage_emit_section_maint "$1" sectend
+	fitimage_emit_section_maint "${1}" sectend
 
-	fitimage_emit_section_maint "$1" fitend
+	fitimage_emit_section_maint "${1}" fitend
 }
-export fitimage_assemble
+
+fitimage_assemble "${1}"
