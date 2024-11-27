@@ -41,8 +41,6 @@ die() { echo "$@" >&2; exit 1; }
 [ -x "${mkenvimage}" ] || \
 	die "No mkenvimage found (uboot has not been built?)"
 
-(cd "${BINARIES_DIR}" && "${mkimage}" -f u-boot.scr.its u-boot.scr.itb) || exit 1
-
 IMAGE_NAME=$(sed -rn 's/.*"(Image.*)".*/\1/p' "${BINARIES_DIR}/kernel.its")
 
 case "${IMAGE_NAME}" in
@@ -166,7 +164,7 @@ if ${ENCRYPTED_TOOLKIT} ; then
 	DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
 	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
-		u-boot.scr.itb Image.gz "${DTB}" kernel.its rootfs.verity \
+		Image.gz "${DTB}" kernel.its rootfs.verity \
 		-C "${HOST_DIR}/usr/bin" \
 		fscryptctl
 fi
