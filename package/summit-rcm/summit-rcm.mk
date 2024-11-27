@@ -132,6 +132,7 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS),y)
 		host-python-spectree \
 		host-python-pydantic \
 		host-python-pydantic-core \
+		host-python-uvicorn \
 		host-python-typing-extensions
 	HOST_SUMMIT_RCM_ENV = \
 		DOCS_GENERATION='True' \
