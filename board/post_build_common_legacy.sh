@@ -181,7 +181,7 @@ if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 	export KERNEL_DEVICETREE
 	export UBOOT_LOADADDRESS=0x20008000
 	export UBOOT_ENTRYPOINT=0x20008000
-	export FDT_LOADADDRESS=0x22000000
+	export FDT_LOADADDRESS=
 	export UBOOT_ARCH="arm"
 
 	LINUX_VER=$(make -C "${BASE_DIR}" linux-show-version | sed '/^make\[/d')  

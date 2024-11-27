@@ -9,7 +9,6 @@ fitimage_set_vars() {
 	# load address for kernel
 	UBOOT_LOADADDRESS=${UBOOT_LOADADDRESS:-"0x40400000"}
 	UBOOT_ENTRYPOINT=${UBOOT_ENTRYPOINT:-"0x40400000"}
-	FDT_LOADADDRESS=${FDT_LOADADDRESS:-"0x43000000"}
 
 	# Kernel fitImage Hash Algo
 	FIT_HASH_ALG=${FIT_HASH_ALG:-"sha256"}
@@ -188,14 +187,13 @@ fitimage_emit_section_dtb() {
 	dtb_padding_algo="${FIT_PAD_ALG}"
 
 	dtb_loadline=""
-	dtb_ext=${DTB##*.}
-	if [ "${dtb_ext}" = "dtbo" ]; then
+	if [ "${3##*.}" = "dtbo" ]; then
 		if [ -n "${UBOOT_DTBO_LOADADDRESS}" ]; then
 			dtb_loadline="load = <${UBOOT_DTBO_LOADADDRESS}>;"
 		fi
 	elif [ -n "${UBOOT_DTB_LOADADDRESS}" ]; then
 		dtb_loadline="load = <${UBOOT_DTB_LOADADDRESS}>;"
-	else
+	elif [ -n "${FDT_LOADADDRESS}" ]; then
 		dtb_loadline="load = <${FDT_LOADADDRESS}>;"
 	fi
 	cat << EOF >> "${1}"
@@ -410,7 +408,7 @@ fitimage_emit_section_config() {
 	if [ -n "${bootscr_id}" ]; then
 		conf_desc="${conf_desc}${sep}u-boot script"
 		sep=", "
-		bootscr_line="loadables = \"script\";"
+		bootscr_line="script = \"script\";"
 	fi
 
 	if [ -n "${config_id}" ]; then
@@ -447,9 +445,6 @@ fitimage_emit_section_config() {
 			${bootscr_line}
 			${ramdisk_line}
 			${setup_line}
-			hash-1 {
-				algo = "${conf_csum}";
-			};
 EOF
 
 	if [ -n "${conf_sign_keyname}" ] ; then
@@ -506,7 +501,7 @@ fitimage_assemble() {
 	fitimage_set_vars
 
 	kernelcount=1
-	dtbcount=1
+	dtbcount=0
 	DTBS=""
 	ramdiskcount=${3}
 	setupcount=""
@@ -529,10 +524,28 @@ fitimage_assemble() {
 	#
 	# Step 2: Prepare a DTB image section
 	#
+	# Split .dtb and .dtbo files
 	for DTB in ${KERNEL_DEVICETREE}; do
 		DTB=${DTB##*/}
-		DTBS="${DTBS} ${DTB}"
-		fitimage_emit_section_dtb "${1}" "${DTB%%.*}" "${DTB}"
+		case ${DTB} in
+			*.dtbo)
+				DTBOS="${DTBOS} ${DTB%%.*}"
+				;;
+			*.dtb)
+				DTBS="${DTBS} ${DTB%%.*}"
+				dtbcount=$((dtbcount + 1))
+				;;
+		esac
+	done
+
+	# Add .dtb files to image section
+	for DTB in ${DTBS}; do
+		fitimage_emit_section_dtb "${1}" "${DTB}" "${DTB}.dtb"
+	done
+
+	# Add .dtbo files to image section
+	for DTBO in ${DTBOS}; do
+		fitimage_emit_section_dtb "${1}" "${DTBO}" "${DTBO}.dtbo"
 	done
 
 	#
@@ -585,17 +598,17 @@ fitimage_assemble() {
 	if [ -n "${DTBS}" ]; then
 		i=1
 		for DTB in ${DTBS}; do
-			dtb_ext=${DTB##*.}
-			if [ "${dtb_ext}" = "dtbo" ]; then
-				fitimage_emit_section_config "${1}" "" "${DTB%%.*}" "" "${bootscr_id}" "" $((i == dtbcount))
-			else
-				fitimage_emit_section_config "${1}" ${kernelcount} "${DTB%%.*}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}" $((i == dtbcount))
-			fi
+			fitimage_emit_section_config "${1}" ${kernelcount} "${DTB}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}" $((i == dtbcount))
 			i=$((i + 1))
 		done
+
+#		for DTB in ${DTBS}; do
+#			for DTBO in ${DTBOS}; do
+#				fitimage_emit_section_config "${1}" "" "${DTB}-${DTBO}" "" "${bootscr_id}" "" 0
+#			done
+#		done
 	else
-		defaultconfigcount=1
-		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}" ${defaultconfigcount}
+		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}" 1
 	fi
 
 	fitimage_emit_section_maint "${1}" sectend
