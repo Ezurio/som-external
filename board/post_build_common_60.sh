@@ -264,7 +264,7 @@ case "${BUILD_TYPE}" in
 		export linux_comp='gzip'
 		export UBOOT_LOADADDRESS=0x20008000
 		export UBOOT_ENTRYPOINT=0x20008000
-		export FDT_LOADADDRESS=0x22000000
+		export FDT_LOADADDRESS=
 		export UBOOT_ARCH='arm'
 		export KERNEL_IMAGE='Image.gz'
 		;;
