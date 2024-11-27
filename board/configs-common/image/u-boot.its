@@ -1,9 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 /*
  * Copyright (C) 2018-2024 Ezurio
  *
  * Minimal dts for a SPL FIT image payload.
- *
  */
 
 /dts-v1/;
@@ -37,18 +36,6 @@
 				algo = "sha256";
 			};
 		};
-
-		script {
-			description = "Boot script";
-			data = /incbin/("u-boot.scr.itb");
-			type = "script";
-			load = <0x20100000>;
-			compression = "none";
-
-			hash {
-				algo = "sha256";
-			};
-		};
 	};
 
 	configurations {
@@ -56,7 +43,7 @@
 
 		config {
 			description = "Summit U-Boot with FDT blob";
-			loadables = "uboot", "script";
+			loadables = "uboot";
 			fdt = "fdt";
 		};
 	};

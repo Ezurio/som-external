@@ -12,8 +12,11 @@ set -x -e
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 
+UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+
 # Tooling checks
-mkimage=${BUILD_DIR}/uboot-custom/tools/mkimage
+mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
+mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
@@ -49,6 +52,12 @@ then
 		"${TARGET_DIR}/usr/bin/fipscheck" \
 		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
 		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
+fi
+
+# Generate U-Boot environment
+if [ -f "${BINARIES_DIR}/uboot.env" ] ; then
+	ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
+	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/uboot.env"
 fi
 
 ln -rsf "${BINARIES_DIR}/kernel.itb" "${BINARIES_DIR}/kernel.bin"

@@ -292,38 +292,22 @@ esac
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/kernel-fitimage.sh" "${BINARIES_DIR}/kernel.its"
 
-if ${SD}; then
-	scrname="boot_mmc"
-else
-	scrname="boot"
-fi
-
-if ${ENCRYPTED_TOOLKIT} ; then
-	scrname="${scrname}_verity"
-fi
-
-if grep -qF \
-	-e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" \
+grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" \
 	-e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" \
-	"${BR2_CONFIG}"; then
-	scrname="${scrname}-7"
-fi
+	"${BR2_CONFIG}" && FIPS_BUILD=true || FIPS_BUILD=false
 
-ln -rsf "${CCONF_DIR}/${scrname}.scr" "${BINARIES_DIR}/boot.scr"
+"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_boot_script.sh" \
+	"${BUILD_TYPE}" "${FIPS_BUILD}" "${ENCRYPTED_TOOLKIT}" \
+	> "${BINARIES_DIR}/boot.scr"
 
 if ${SD} ; then
-	ln -rsf "${CCONF_DIR}/u-boot_mmc.scr" "${BINARIES_DIR}/u-boot.scr"
-
 	# Copy mksdcard.sh and mksdimg.sh to images
 	ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 	ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 else
 	ln -rsf "${BOARD_DIR}/configs/sw-description" "${BINARIES_DIR}/sw-description"
 	ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
-	ln -rsf "${CCONF_DIR}/u-boot.scr" "${BINARIES_DIR}/u-boot.scr"
 fi
-
-ln -rsf "${CCONF_DIR}/u-boot.scr.its" "${BINARIES_DIR}/u-boot.scr.its"
 
 case "${BUILD_TYPE}" in
 	wb50n*) SOM=wb50n ;;
