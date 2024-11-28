@@ -365,7 +365,6 @@ fitimage_emit_section_config() {
 	ramdisk_id="${4}"
 	bootscr_id="${5}"
 	config_id="${6}"
-	default_flag="${7}"
 
 	# Test if we have any DTBs at all
 	sep=""
@@ -376,8 +375,6 @@ fitimage_emit_section_config() {
 	ramdisk_line=""
 	bootscr_line=""
 	setup_line=""
-	default_line=""
-	default_dtb_image="${FIT_CONF_DEFAULT_DTB}"
 
 	# conf node name is selected based on dtb ID if it is present,
 	# otherwise its selected based on kernel ID
@@ -416,30 +413,9 @@ fitimage_emit_section_config() {
 		setup_line="setup = \"setup-${config_id}\";"
 	fi
 
-	if [ "${default_flag}" = "1" ]; then
-		# default node is selected based on dtb ID if it is present,
-		# otherwise its selected based on kernel ID
-		if [ -n "$dtb_image" ]; then
-				# Select default node as user specified dtb when
-				# multiple dtb exists.
-				if [ -n "${default_dtb_image}" ]; then
-					if [ -s "${default_dtb_image}" ]; then
-							default_line="default = \"${FIT_CONF_PREFIX}${default_dtb_image}\";"
-					else
-							echo "Couldn't find a valid user specified dtb in ${default_dtb_image}"
-					fi
-				else
-					default_line="default = \"${FIT_CONF_PREFIX}${dtb_image}\";"
-				fi
-		else
-			default_line="default = \"${FIT_CONF_PREFIX}${kernel_id}\";"
-		fi
-	fi
-
 	cat << EOF >> "${its_file}"
-		${default_line}
 		${conf_node} {
-			description = "${default_flag} ${conf_desc}";
+			description = "${conf_desc}";
 			${kernel_line}
 			${fdt_line}
 			${bootscr_line}
@@ -501,7 +477,6 @@ fitimage_assemble() {
 	fitimage_set_vars
 
 	kernelcount=1
-	dtbcount=0
 	DTBS=""
 	ramdiskcount=${3}
 	setupcount=""
@@ -533,7 +508,6 @@ fitimage_assemble() {
 				;;
 			*.dtb)
 				DTBS="${DTBS} ${DTB%%.*}"
-				dtbcount=$((dtbcount + 1))
 				;;
 		esac
 	done
@@ -586,20 +560,10 @@ fitimage_assemble() {
 	#
 	fitimage_emit_section_maint "${1}" confstart
 
-	# kernel-fitimage.bbclass currently only supports a single kernel (no less or
-	# more) to be added to the FIT image along with 0 or more device trees and
-	# 0 or 1 ramdisk.
-		# It is also possible to include an initramfs bundle (kernel and rootfs in one binary)
-		# When the initramfs bundle is used ramdisk is disabled.
-	# If a device tree is to be part of the FIT image, then select
-	# the default configuration to be used is based on the dtbcount. If there is
-	# no dtb present than select the default configuation to be based on
-	# the kernelcount.
 	if [ -n "${DTBS}" ]; then
-		i=1
+		echo "		default = \"${FIT_CONF_PREFIX}${FIT_CONF_DEFAULT_DTB:-${DTBS##* }}\";" >> "${1}"
 		for DTB in ${DTBS}; do
-			fitimage_emit_section_config "${1}" ${kernelcount} "${DTB}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}" $((i == dtbcount))
-			i=$((i + 1))
+			fitimage_emit_section_config "${1}" ${kernelcount} "${DTB}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}"
 		done
 
 #		for DTB in ${DTBS}; do
@@ -608,7 +572,8 @@ fitimage_assemble() {
 #			done
 #		done
 	else
-		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}" 1
+		echo "		default = \"${FIT_CONF_PREFIX}${kernelcount}\";" >> "${1}"
+		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}"
 	fi
 
 	fitimage_emit_section_maint "${1}" sectend
