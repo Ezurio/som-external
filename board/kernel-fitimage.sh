@@ -28,10 +28,6 @@ fitimage_set_vars() {
 	# args to openssl genrsa (Default is just the public exponent)
 	FIT_KEY_GENRSA_ARGS=${FIT_KEY_GENRSA_ARGS:-"-F4"}
 
-	# args to openssl req (Default is -batch for non interactive mode and
-	# -new for new certificate)
-	FIT_KEY_REQ_ARGS=${FIT_KEY_REQ_ARGS:-"-batch -new"}
-
 	# Standard format for public key certificate
 	FIT_KEY_SIGN_PKCS=${FIT_KEY_SIGN_PKCS:-"-x509"}
 
@@ -444,7 +440,7 @@ EOF
 		fi
 
 		if [ -n "${bootscr_id}" ]; then
-			sign_line="${sign_line}${sep}\"loadables\""
+			sign_line="${sign_line}${sep}\"script\""
 			sep=", "
 		fi
 
