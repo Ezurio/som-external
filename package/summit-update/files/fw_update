@@ -130,6 +130,8 @@ complete*)
     ;;
 esac
 
+swupdate-progress -q >/dev/null &
+
 case "${url}" in
 *://*)
     ${download_cmd} | swupdate-client -e "stable,${p_method}" ${o_verbose} - || die ""
@@ -139,6 +141,8 @@ case "${url}" in
     swupdate-client -e "stable,${p_method}" ${o_verbose} "${url}" || die ""
     ;;
 esac
+
+wait
 
 case "${o_method}" in
 complete*)
