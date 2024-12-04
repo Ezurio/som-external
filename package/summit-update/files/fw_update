@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-set -e
+set -e -o pipefail
 
 notify() {
     [ ! -x /usr/sbin/device_update.sh ] || /usr/sbin/device_update.sh "${1}"
