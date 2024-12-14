@@ -1,8 +1,11 @@
 #! /bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 BUILD_TYPE=${1}
 OLD_KERNEL=${2}
 SECURE_BOOT=${3}
+ENCRIPTED_TOOLKIT=${4}
 
 if ${OLD_KERNEL}; then 
     MTD_SUFFIX=""
@@ -16,6 +19,8 @@ else
     DM='dm-mod.create=\"${dm_table}\" dm-mod.waitfor=${boot_dev}'
 fi
 
+${ENCRIPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
+
 print_verity() {
     cat << EOF
 dm_table="vroot,,${DM_SUFFIX}ro,0 SIZE verity 1
@@ -24,21 +29,26 @@ dm_table="vroot,,${DM_SUFFIX}ro,0 SIZE verity 1
 EOF
 }
 
-print_common_60() {
+print_common() {
     cat << EOF
-setenv bootargs "root=${1} rootwait rootfstype=squashfs ro ubi.fm_autoconvert=1
-init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${2}
-${3}
-fips=\${fips:=0} fips_wifi=\${fips_wifi:=0} bootside=\${bootside}"
+setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
 EOF
 }
 
-print_emmc() {
-    print_verity
-
+print_common_60() {
+    print_common "${1}"
     cat << EOF
-setenv bootargs "\${bootargs} dm-mod.create=\"\${dm_table}\"
-dm-mod.waitfor=\${boot_dev} root=/dev/dm-0 rootwait rootfstype=squashfs ro"
+ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT}
+${2}
+fips=\${fips:=0} fips_wifi=\${fips_wifi:=0}"
+EOF
+}
+
+print_common_emmc() {
+    print_common "${1}"
+    cat << EOF
+init=/usr/sbin/${INIT}
+${2}"
 EOF
 }
 
@@ -47,10 +57,10 @@ case ${BUILD_TYPE} in
         echo "boot_dev=/dev/ubiblock0_\${bootvol}"
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_60 "/dev/dm-0" "pre-systemd-init.sh" \
+            print_common_60 "/dev/dm-0" \
             "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} quiet ${DM}"
         else
-            print_common_60 "\${boot_dev}" "overlayRoot.sh" \
+            print_common_60 "\${boot_dev}" \
             "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} \${bootargs}"
         fi
         ;;
@@ -59,16 +69,20 @@ case ${BUILD_TYPE} in
         echo 'boot_dev=/dev/mmcblk0p5'
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_60 "/dev/dm-0" "pre-systemd-init.sh" \
-            "resume=/dev/mmcblk0p2 resumewait=5 \${bootargs} quiet ${DM}"
+            print_common_60 "/dev/dm-0" "quiet ${DM}"
         else
-            print_common_60 "\${boot_dev}" "overlayRoot.sh" \
+            print_common_60 "\${boot_dev}" \
             "resume=/dev/mmcblk0p2 resumewait=5 \${bootargs}"
         fi
         ;;
 
     *am62*|imx8*)
-        print_emmc
+        echo "boot_dev=/dev/mmcblk\${mmcdev}p\${rootvol}"
+        if ${SECURE_BOOT}; then
+            print_verity
+            print_common_emmc "/dev/dm-0" "quiet ${DM}"
+        else
+            print_common_emmc "\${boot_dev}" "\${bootargs}"
+        fi
         ;;
-
 esac

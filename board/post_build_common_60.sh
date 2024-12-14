@@ -292,12 +292,12 @@ esac
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/kernel-fitimage.sh" "${BINARIES_DIR}/kernel.its"
 
-grep -qF -e "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" \
-	-e "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" \
-	"${BR2_CONFIG}" && FIPS_BUILD=true || FIPS_BUILD=false
+
+printf '%s\n%s\n' "${kver}" '6.6.0' | sort --sort=version | tail -n1 | \
+	grep -qF '6.6.0' && OLD_KERNEL=true || OLD_KERNEL=false
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_boot_script.sh" \
-	"${BUILD_TYPE}" "${FIPS_BUILD}" "${ENCRYPTED_TOOLKIT}" \
+	"${BUILD_TYPE}" "${OLD_KERNEL}" "${SECURE_BOOT}" "${ENCRYPTED_TOOLKIT}" \
 	> "${BINARIES_DIR}/boot.scr"
 
 if ${SD} ; then
