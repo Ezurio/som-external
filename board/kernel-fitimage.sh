@@ -19,9 +19,6 @@ fitimage_set_vars() {
 	# Kernel / U-Boot fitImage Padding Algo
 	FIT_PAD_ALG=${FIT_PAD_ALG:-"pkcs-1.5"}
 
-	# Generate keys for signing Kernel fitImage
-	FIT_GENERATE_KEYS=${FIT_GENERATE_KEYS:-"0"}
-
 	# Size of private keys in number of bits
 	FIT_SIGN_NUMBITS=${FIT_SIGN_NUMBITS:-"2048"}
 
@@ -64,7 +61,6 @@ fitimage_emit_fit_header() {
 
 / {
 	description = "${FIT_DESC}";
-
 EOF
 }
 
@@ -148,6 +144,7 @@ fitimage_emit_section_kernel() {
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
 		cat << EOF >> "${1}"
+
 			cipher {
 				algo = "${FIT_ENCRYPT_ALGO}";
 				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
@@ -156,8 +153,8 @@ EOF
 EOF
 	fi
 	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${kernel_sign_keyname}" ] ; then
-		sed -i '$ d' "${1}"
 		cat << EOF >> "${1}"
+
 			signature-1 {
 				algo = "${kernel_csum},${kernel_sign_algo}";
 				key-name-hint = "${kernel_sign_keyname}";
@@ -207,6 +204,7 @@ fitimage_emit_section_dtb() {
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
 		cat << EOF >> "${1}"
+
 			cipher {
 				algo = "${FIT_ENCRYPT_ALGO}";
 				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
@@ -215,8 +213,8 @@ EOF
 EOF
 	fi
 	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${dtb_sign_keyname}" ] ; then
-		sed -i '$ d' "${1}"
 		cat << EOF >> "${1}"
+
 			signature-1 {
 				algo = "${dtb_csum},${dtb_sign_algo}";
 				key-name-hint = "${dtb_sign_keyname}";
@@ -263,8 +261,8 @@ EOF
 EOF
 	fi
 	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${bootscr_sign_keyname}" ] ; then
-		sed -i '$ d' "${1}"
 		cat << EOF >> "${1}"
+
 			signature-1 {
 				algo = "${bootscr_csum},${bootscr_sign_algo}";
 				key-name-hint = "${bootscr_sign_keyname}";
@@ -315,6 +313,7 @@ fitimage_emit_section_ramdisk() {
 EOF
 	if [ "${UBOOT_ENCRYPT_ENABLE}" = "1" ]; then
 		cat << EOF >> "${1}"
+
 			cipher {
 				algo = "${FIT_ENCRYPT_ALGO}";
 				key-name-hint = "${UBOOT_ENCRYPT_KEYNAME}";
@@ -323,8 +322,8 @@ EOF
 EOF
 	fi
 	if [ "${UBOOT_SIGN_ENABLE}" = "1" ] && [ "${FIT_SIGN_INDIVIDUAL}" = "1" ] && [ -n "${ramdisk_sign_keyname}" ] ; then
-		sed -i '$ d' "${1}"
 		cat << EOF >> "${1}"
+
 			signature-1 {
 				algo = "${ramdisk_csum},${ramdisk_sign_algo}";
 				key-name-hint = "${ramdisk_sign_keyname}";
@@ -451,6 +450,7 @@ EOF
 		sign_line="${sign_line};"
 
 		cat << EOF >> "${its_file}"
+
 			signature-1 {
 				algo = "${conf_csum},${conf_sign_algo}";
 				key-name-hint = "${conf_sign_keyname}";
@@ -500,22 +500,22 @@ fitimage_assemble() {
 		DTB=${DTB##*/}
 		case ${DTB} in
 			*.dtbo)
-				DTBOS="${DTBOS} ${DTB%%.*}"
+				DTBOS="${DTBOS} ${DTB}"
 				;;
 			*.dtb)
-				DTBS="${DTBS} ${DTB%%.*}"
+				DTBS="${DTBS} ${DTB}"
 				;;
 		esac
 	done
 
 	# Add .dtb files to image section
 	for DTB in ${DTBS}; do
-		fitimage_emit_section_dtb "${1}" "${DTB}" "${DTB}.dtb"
+		fitimage_emit_section_dtb "${1}" "${DTB}" "${DTB}"
 	done
 
 	# Add .dtbo files to image section
 	for DTBO in ${DTBOS}; do
-		fitimage_emit_section_dtb "${1}" "${DTBO}" "${DTBO}.dtbo"
+		fitimage_emit_section_dtb "${1}" "${DTBO}" "${DTBO}"
 	done
 
 	#
@@ -562,11 +562,9 @@ fitimage_assemble() {
 			fitimage_emit_section_config "${1}" ${kernelcount} "${DTB}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}"
 		done
 
-#		for DTB in ${DTBS}; do
-#			for DTBO in ${DTBOS}; do
-#				fitimage_emit_section_config "${1}" "" "${DTB}-${DTBO}" "" "${bootscr_id}" "" 0
-#			done
-#		done
+		for DTBO in ${DTBOS}; do
+			fitimage_emit_section_config "${1}" "" "${DTBO}" "" "" ""
+		done
 	else
 		echo "		default = \"${FIT_CONF_PREFIX}${kernelcount}\";" >> "${1}"
 		fitimage_emit_section_config "${1}" ${kernelcount} "" "${ramdiskcount}" "${bootscr_id}"  "${setupcount}"
@@ -575,6 +573,8 @@ fitimage_assemble() {
 	fitimage_emit_section_maint "${1}" sectend
 
 	fitimage_emit_section_maint "${1}" fitend
+
+	sed -r -i '/^\s+$/d' "${1}"
 }
 
 fitimage_assemble "${1}"
