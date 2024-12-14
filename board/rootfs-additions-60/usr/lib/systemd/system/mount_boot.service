@@ -1,0 +1,17 @@
+[Unit]
+Description=Mount Boot Partition
+DefaultDependencies=no
+Conflicts=umount.target
+Before=umount.target local-fs.target
+After=local-fs-pre.target system.slice boot.mount
+PartOf=boot.mount
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mount_boot.sh start
+ExecStop=/usr/sbin/mount_boot.sh stop
+CapabilityBoundingSet=CAP_SYS_ADMIN
+
+[Install]
+WantedBy=local-fs-pre.target

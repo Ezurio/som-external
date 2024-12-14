@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
+set -o pipefail
+
 find_ubi_device() {
 	f=$(grep -lxF "${1}" /sys/class/ubi/ubi0_*/name) ||
 		die "UBI volume for ${1} not found"
@@ -12,9 +14,13 @@ find_ubi_device() {
 	echo "${f}"
 }
 
-get_emmc_data() {
-	/usr/bin/lsblk -lno NAME,PARTLABEL "/dev/${rootDevActual%%p*}" |\
-		sed -rn "${1}"
+find_emmc_device() {
+	blkid -l -t PARTLABEL="${1}" -o device -c /dev/null \
+	 "/dev/${rootDevActual%%p*}" | sed 's,.*/,,g'
+}
+
+find_emmc_part() {
+	blkid -s PARTLABEL -o value -c /dev/null "/dev/${rootDevActual}"
 }
 
 grep -qF /proc /proc/mounts 2> /dev/null ||
@@ -66,6 +72,18 @@ case "${rootDevActual}" in
 		;;
 esac
 
+getSocId() {
+	if [ -f /sys/devices/soc0/soc_id ]; then
+		# Get the SoC ID
+		read -r soc_id < /sys/devices/soc0/soc_id
+	elif [ -f /sys/devices/soc0/family ]; then
+		# Get the SoC family
+		read -r soc_id < /sys/devices/soc0/family
+	else
+		soc_id="unknown"
+	fi
+}
+
 getPart() {
 	part="${1}"
 
@@ -76,32 +94,26 @@ getPart() {
 		;;
 
 	kernel|rootfs_data)
-		# If side is not specified, get it from partition name
 		getSide
 		[ -z "${bootside}" ] || part="${part}_${bootside}"
 		;;
 	esac
 
-	case "${rootDevActual}" in
-	mmcblk*)
-		read -r soc_id < /sys/devices/soc0/soc_id
-		case "${soc_id}" in
-		sama5d3*)
-			case "${part}" in
-				boot|kernel_a)  echo "${rootDevActual%%p*}p1" ;;
-				swap)           echo "${rootDevActual%%p*}p2" ;;
-				perm)           echo "${rootDevActual%%p*}p3" ;;
-				rootfs_a)       echo "${rootDevActual%%p*}p5" ;;
-				rootfs_data_a)  echo "${rootDevActual%%p*}p6" ;;
-			esac
-			;;
-		*)
-			get_emmc_data "s,^([^ ]+) +${part}\$,\1,p"
-			;;
+	case "${rootDevType}" in
+	SD)
+		case "${part}" in
+			boot|kernel_a)  echo "${rootDevActual%%p*}p1" ;;
+			swap)           echo "${rootDevActual%%p*}p2" ;;
+			perm)           echo "${rootDevActual%%p*}p3" ;;
+			rootfs_a)       echo "${rootDevActual%%p*}p5" ;;
+			rootfs_data_a)  echo "${rootDevActual%%p*}p6" ;;
 		esac
 		;;
+	MMC)
+		find_emmc_device "${part}"
+		;;
 
-	ubi*)
+	ubi)
 		find_ubi_device "${part}"
 		;;
 	esac
@@ -111,21 +123,15 @@ getSide() {
 	bootside=$(sed -rn 's,.*bootside=([ab]).*,\1,p' /proc/cmdline)
 	[ -z "${bootside}" ] || return 0
 
-	case "${rootDevActual}" in
-	mmcblk*)
-		read -r soc_id < /sys/devices/soc0/soc_id
-		case "${soc_id}" in
-		sama5d3*)
-			bootside=a
-			;;
-		*)
-			bootside=$(get_emmc_data "s,^${rootDevActual%%p*} +(.+),\1,p")
-			bootside="${bootside##*_}"
-			;;
-		esac
+	case "${rootDevType}" in
+	SD)
+		bootside=a
 		;;
-
-	ubi*)
+	MMC)
+		bootside=$(find_emmc_part)
+		bootside="${bootside##*_}"
+		;;
+	ubi)
 		read -r bootside < "/sys/class/ubi/${rootDevActual}/name"
 		bootside="${bootside##*_}"
 		;;
@@ -135,21 +141,15 @@ getSide() {
 }
 
 nextSide() {
-	case "${rootDevActual}" in
-	mmcblk*)
-		read -r soc_id < /sys/devices/soc0/soc_id
-		case "${soc_id}" in
-		sama5d3*)
-			echo a
-			;;
-		*)
-			mmc extcsd read "${rootDevActual%%p*}" | \
-				grep -qm 1 'Boot Partition 2 enabled' && echo b || echo a
-			;;
-		esac
+	case "${rootDevType}" in
+	SD)
+		echo a
 		;;
-
-	ubi*)
+	MMC)
+		mmc extcsd read "${rootDevActual%%p*}" | \
+			grep -qm 1 'Boot Partition 2 enabled' && echo b || echo a
+		;;
+	ubi)
 		fw_printenv -n bootside
 		;;
 	esac
@@ -173,7 +173,7 @@ getBaseHwPartNumber() {
 	MEM_2GB_IN_KB=2097152
 	MEM_4GB_IN_KB=4194304
 
-	read -r soc_id < /sys/devices/soc0/soc_id
+	getSocId
 	case "${soc_id}" in
 	sama5d31*)
 		# WB50
@@ -212,6 +212,10 @@ getBaseHwPartNumber() {
 		else
 			echo "unknown"
 		fi
+		;;
+
+	AM62X)
+		echo "Carbon AM62"
 		;;
 
 	*)

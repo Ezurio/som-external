@@ -132,7 +132,9 @@ esac
 
 case "${url}" in
 *://*)
-    ${download_cmd} | swupdate-client -e "stable,${p_method}" ${o_verbose} - || die ""
+    { 
+        ${download_cmd} | swupdate-client -e "stable,${p_method}" ${o_verbose} -
+    } || die ""
     ;;
 
 *)
@@ -151,9 +153,12 @@ complete*)
     ;;
 esac
 
+sync
+
 notify complete
 echo "Firmware update succeeded" >&2
 
 if ${o_restart} && ! ${run_on_sd}; then
+    sleep 1
     reboot
 fi

@@ -1,0 +1,16 @@
+[Unit]
+Description=Mount fw_env.config
+DefaultDependencies=no
+Conflicts=umount.target
+Before=umount.target local-fs.target
+After=local-fs-pre.target system.slice mount_boot.service boot.mount
+PartOf=etc-fw_env.config.mount
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/gen_fw_env.sh start
+ExecStop=/usr/sbin/gen_fw_env.sh stop
+
+[Install]
+WantedBy=local-fs-pre.target

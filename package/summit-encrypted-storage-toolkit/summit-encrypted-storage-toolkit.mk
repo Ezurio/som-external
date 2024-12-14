@@ -23,8 +23,6 @@ BACKUP_MISC_DIR = $(TARGET_DIR)/usr/share/factory/etc/misc
 define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	set -x
 
-	ln -sf /perm/etc/machine-id $(TARGET_DIR)/etc/machine-id
-
 	rm -rf $(TARGET_DIR)/media
 	ln -sf /run/media $(TARGET_DIR)/media
 

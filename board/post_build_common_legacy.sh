@@ -4,13 +4,13 @@
 
 BUILD_TYPE="${1}"
 
-echo "COMMON POST BUILD legacy script: starting..."
+[ -z "${BR2_SUMMIT_PRODUCT}" ] && \
+	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
+
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON LEGACY script: starting..."
 
 # enable tracing and exit on errors
 set -x -e
-
-[ -z "${BR2_SUMMIT_PRODUCT}" ] && \
-	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
 
 # remove default ssh init file
 # real version is in init.d/opt and works w/ inetd or standalone
@@ -192,37 +192,15 @@ if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/kernel-fitimage.sh" "${BINARIES_DIR}/kernel.its"
 fi
 
-if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
-	IMAGE_NAME=$(sed -rn 's/.*"(Image.*)".*/\1/p' "${BINARIES_DIR}/kernel.its")
+case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
+	7)
+		install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
+			"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/"*
+		;;
+	11)
+		install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
+			"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/"*
+		;;
+esac
 
-	case "${IMAGE_NAME}" in
-		Image.gz) gzip -9kfn "${BINARIES_DIR}/Image" ;;
-		Image.lzo) lzop -9on "${BINARIES_DIR}/Image".lzo "${BINARIES_DIR}/Image" ;;
-		Image.lzma) lzma -9kf "${BINARIES_DIR}/Image" ;;
-		Image.zst) zstd -9 -kf "${BINARIES_DIR}/Image" -o "${BINARIES_DIR}/Image.zst" ;;
-	esac
-
-	calc_hash() {
-		local hash_path=${1}
-		shift
-		mkdir -p "${hash_path}"
-		for i in "$@"; do
-			openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in "${i}" hmac | \
-				tr "[:upper:]" "[:lower:]" > "${hash_path}/${i##*/}.hmac"
-		done
-	}
-
-	calc_hash "${TARGET_DIR}/usr/lib/fipscheck" \
-		"${BINARIES_DIR}/${IMAGE_NAME}" \
-		"${TARGET_DIR}/usr/bin/fipscheck" \
-		"${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
-		"${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
-
-	sed "s/^auto usb0/#auto usb0/g" -i "${TARGET_DIR}/etc/network/interfaces"
-elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
-	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/"*
-elif grep -qF "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" "${BR2_CONFIG}"; then
-	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/"*
-fi
-
-echo "COMMON POST BUILD script: done."
+echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON LEGACY script: done."

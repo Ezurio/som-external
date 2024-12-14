@@ -1,121 +1,216 @@
 #!/bin/bash
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
-#
-# Generate all secure image artificats
-#
-# Inputs - must be located in BINARIES_DIR:
-#
-#	keys/key.bin			U-Boot symmetric encryption key
-#	keys/key-iv.bin			U-Boot symmetric encryption iv
-#	boot.scr			Kernel boot script template
-#	u-boot-spl.dtb			U-Boot SPL FDT
-#	u-boot.its			U-Boot FIT image script
-#	u-boot.dtb			U-Boot FDT
-#	kernel.its			Kernel FIT image descriptor
-#	zImage				Kernel
-#	at91-??.dtb			Kernel FDT
-#	rootfs.squashfs			rootFS
-#
-# Secured artifacts generated in BINARIES_DIR:
-#
-#	boot.bin			U-Boot SPL
-#	u-boot.itb			U-Boot FIT (encrypted)
-#	kernel.itb			Kernel FIT (signed)
-#
-
-echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
-
-SD=${1:-false}
 
 # enable tracing and exit on errors
 set -x -e
 
-die() { echo "$@" >&2; exit 1; }
+: "${SECURE_BOOT:=false}"
 
-grep -qF "SALT" "${BINARIES_DIR}/boot.scr" &&
-	SECURE_ROOTFS=true || SECURE_ROOTFS=false
+echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 
 [ -n "${UBOOT_VER}" ] ||
 	UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
 
+ROOTFS_TYPE=$(sed -rn 's/BR2_TARGET_ROOTFS_([A-Z]+)=y/\L\1/p' "${BR2_CONFIG}" | head -n1)
+[ "${ROOTFS_TYPE}" != ext2 ] || ROOTFS_TYPE=ext4
+
 # Secure tooling checks
-mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
-openssl=$(command -v openssl)
+mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
+mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 veritysetup=${HOST_DIR}/sbin/veritysetup
+
+die() { echo "$@" >&2; exit 1; }
+
+size_check () {
+    [ "$(stat -Lc "%s" "${BINARIES_DIR}/${1}")" -le "${2}" ] || \
+        die "${1} size exceeded ${2} block limit, failed"
+}
 
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
-[ -x "${openssl}" ] || \
-	die "no openssl found"
-[ -x "${atmel_pmecc_params}" ] || ${SD} || \
-	die "no atmel_pmecc_params found (uboot has not been built?)"
-[ -x "${veritysetup}" ] || ! ${SECURE_ROOTFS} || \
-	die "No veritysetup found (host-cryptsetup has not been built?)"
 
-echo "# entering ${BINARIES_DIR} for this script"
+# Get U-Boot environment size
+ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
+
+# Check if U-Boot environment is redundant
+if grep -qF "CONFIG_SYS_REDUNDAND_ENVIRONMENT=y" "${BUILD_DIR}/uboot-${UBOOT_VER}/.config"; then
+MKENVIMGOPT=-r
+else
+MKENVIMGOPT=
+fi
+
 cd "${BINARIES_DIR}"
 
-# Create keys if not present
-if [ ! -f keys/key.bin ]; then
-	mkdir -p keys
-	# Create random key, for AES128, key is 16 bytes long
-	dd if=/dev/random of=keys/key.bin bs=16 count=1
-	# Create random IV, AES block is 16 bytes, regardless of key size
-	dd if=/dev/random of=keys/key-iv.bin bs=16 count=1
+if [ -f "${TARGET_DIR}/etc/u-boot-initial-env" ]; then
+    [ -x "${mkenvimage}" ] || \
+        die "No mkenvimage found (uboot has not been built?)"
+
+    # Generate U-Boot environment image
+    ${mkenvimage} -p 0 ${MKENVIMGOPT} -s "${ENV_SIZE}" -o uboot.env \
+        "${TARGET_DIR}/etc/u-boot-initial-env"
 fi
 
 # Create unsecured_images dir and copy off unsigned images
-mkdir -p unsecured_images
-cp -ft unsecured_images u-boot.dtb u-boot-spl.dtb
+mkdir -p "unsecured_images"
+for f in u-boot.dtb u-boot-spl.dtb boot.scr
+do
+	[ ! -f "${f}" ] ||
+        cp -aft "unsecured_images" "${f}"
+done
 
-# Backup kernel boot script (with no verity hash) for release artifacts
-cp -f boot.scr boot.scr.nohash
+# Generate dm-verty rootfs
+if ${SECURE_BOOT} ; then
+    [ -x "${veritysetup}" ] || \
+        die "No veritysetup found (host-cryptsetup has not been built?)"
 
-# Check if we are creating secure rootfs
-if ${SECURE_ROOTFS} ; then
-	# Generate the hash table for squashfs
-	rm -f rootfs.verity
-	${veritysetup} format rootfs.squashfs rootfs.verity > rootfs.verity.header
-	# Get the root hash
-	HASH=$(awk '/Root hash:/ {print $3}' rootfs.verity.header)
-	SALT=$(awk '/Salt:/ {print $2}' rootfs.verity.header)
-	BLOCKS=$(awk '/Data blocks:/ {print $3}' rootfs.verity.header)
-	SIZE=$((BLOCKS * 8))
-	OFFSET=$((BLOCKS + 1))
+    rm -f rootfs.bin
+    cp -f "rootfs.${ROOTFS_TYPE}" rootfs.bin
 
-	# Generate a combined rootfs
-	rm -f rootfs.bin
-	cat rootfs.squashfs rootfs.verity > rootfs.bin
+    size=$(stat --printf="%s" rootfs.bin)
+    eval "$(veritysetup --hash-offset="${size}" format rootfs.bin rootfs.bin | \
+        sed -r '1d; s/^([^:]+):\s+(.+)/\U\1=\E\2/; s/ /_/g')"
 
-	# Generate the kernel boot script
-	sed -i -e "s/SALT/${SALT}/g" -e "s/HASH/${HASH}/g" -e "s/BLOCKS/${BLOCKS}/g" -e "s/SIZE/${SIZE}/g" -e "s/OFFSET/${OFFSET}/g" boot.scr
+    # Preserve verity header for WASP
+    dd if=rootfs.bin of=rootfs.verity seek="${size}"
+
+    # Fill boot script with verity parameters
+    sed -i \
+        -e "s/SALT/${SALT}/g" \
+        -e "s/HASH/${ROOT_HASH}/g" \
+        -e "s/BLOCKS/${DATA_BLOCKS}/g" \
+        -e "s/SIZE/$((DATA_BLOCKS * 8))/g" \
+        -e "s/OFFSET/$((DATA_BLOCKS + 1))/g" \
+        boot.scr
+else
+    ln -sf "rootfs.${ROOTFS_TYPE}" "${BINARIES_DIR}/rootfs.bin"
 fi
+
+# Compress images for the kernel FIT
+while read -r file; do
+    case "${file}" in
+        *.gz) gzip -9kfn "${file%.*}" ;;
+        *.lzo) lzop -9kf "${file%.*}" ;;
+        *.lzma) lzma -9kf "${file%.*}" ;;
+        *.zst) zstd -9 -kf "${file%.*}" ;;
+    esac
+    [ "${file%.*}" != Image ] || KERNEL_IMAGE="${file}"
+done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its)
 
 # Create Kernel FIT image, and store signature in u-boot
-${mkimage} -f kernel.its kernel-nosig.itb
-${mkimage} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
-
-# Create U-Boot FIT image (encrypted), and store key, IV and signature in SPL
-${mkimage} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
-
-# Create final SPL FIT with appended keyed DTB
-cat u-boot-spl-nodtb.bin u-boot-spl.dtb > u-boot-spl.bin
-
-if ${SD} ; then
-	${mkimage} -T atmelimage -d "${BINARIES_DIR}/u-boot-spl.bin" "${BINARIES_DIR}/boot.bin"
+if ${SECURE_BOOT} ; then
+    ${mkimage} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
 else
-	# Generate Atmel PMECC boot.bin from SPL
-	${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d u-boot-spl.bin boot.bin
-	# Save off the raw PMECC header
-	dd if=boot.bin of=pmecc.bin bs=208 count=1
+    ${mkimage} -f kernel.its kernel.itb
 fi
 
+hash_check() {
+	for i in "$@"; do
+		openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${i}" hmac | \
+			diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac" || \
+			die "FIPS Hash mismatch to the certified for ${i##*/}"
+	done
+}
+
+case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
+    7)
+        hash_check \
+            "${BINARIES_DIR}/${KERNEL_IMAGE}" \
+            "${TARGET_DIR}/usr/bin/fipscheck" \
+            "${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+            "${TARGET_DIR}/usr/lib/libcrypto.so.1.0.0"
+        ;;
+    11)
+        hash_check \
+            "${BINARIES_DIR}/${KERNEL_IMAGE}" \
+            "${TARGET_DIR}/usr/bin/fipscheck" \
+            "${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
+            "${TARGET_DIR}/usr/lib/ossl-modules/fips.so"
+        ;;
+esac
+
+case ${BUILD_TYPE} in
+som60*|ig60*|wb50n*)
+    if ${SECURE_BOOT} ; then
+        # Create keys if not present
+        if [ ! -f keys/key.bin ]; then
+            mkdir -p keys
+            # Create random key, for AES128, key is 16 bytes long
+            dd if=/dev/random of=keys/key.bin bs=16 count=1
+            # Create random IV, AES block is 16 bytes, regardless of key size
+            dd if=/dev/random of=keys/key-iv.bin bs=16 count=1
+        fi
+
+        # Create U-Boot FIT image (encrypted), and store key, IV and signature in SPL
+        ${mkimage} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
+    else
+        # Create U-Boot FIT image (unencrypted)
+        ${mkimage} -f u-boot.its u-boot.itb
+    fi
+
+    ln -sf u-boot.itb u-boot.bin
+
+    # Create final SPL FIT with appended keyed DTB
+    cat u-boot-spl-nodtb.bin u-boot-spl.dtb > u-boot-spl.bin
+
+    case ${BUILD_TYPE} in
+    *sd)
+        ${mkimage} -T atmelimage -d u-boot-spl.bin boot.bin
+        ;;
+    *)
+        [ -x "${atmel_pmecc_params}" ] || \
+            die "no atmel_pmecc_params found (uboot has not been built?)"
+
+        # Generate Atmel PMECC boot.bin from SPL
+        ${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d u-boot-spl.bin boot.bin
+
+        if ${SECURE_BOOT} ; then
+            # Save off the raw PMECC header
+            dd if=boot.bin of=pmecc.bin bs=208 count=1
+
+            # Generate key transition support
+            if grep -qF boot1.bin sw-description ; then
+                cp -f boot.bin boot1.bin
+                echo "keyrev=1" >> "${TARGET_DIR}/etc/u-boot-initial-env"
+                ${mkenvimage} ${MKENVIMGOPT} -s "${ENV_SIZE}" -o uboot1.env u-boot1-initial-env
+            fi
+        fi
+        ;;
+    esac
+
+    # Check u-boot sizes against flash partitions
+    case ${BUILD_TYPE} in
+    wb45n)
+        size_check u-boot.bin $((3*128*1024))
+        size_check kernel.bin $((18*128*1024))
+        ;;
+
+    som60*|wb50*|ig60ll*)
+        size_check boot.bin $((64*1024))
+        size_check u-boot.bin $((7*128*1024))
+        ;;
+
+    ig60*)
+        size_check boot.bin $((64*1024))
+        size_check u-boot.bin $((3*128*1024))
+        ;;
+    esac
+    ;;
+
+*am62*)
+    if ${SECURE_BOOT} ; then
+        make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
+    fi
+    ;;
+
+imx8*)
+    ;;
+esac
+
 # Restore unsecured components
-mv -ft ./ unsecured_images/*
+find unsecured_images -type f -exec mv -vft . {} +;
 rm -rf unsecured_images/
-mv -f boot.scr.nohash boot.scr
 
 cd -
 

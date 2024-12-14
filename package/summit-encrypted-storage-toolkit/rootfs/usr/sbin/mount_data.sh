@@ -6,14 +6,9 @@ set -e
 
 DATA_MOUNT=/data
 DATA_SECRET=${DATA_MOUNT}/secret
-FSCRYPT_KEY=ffffffffffffffff
 
-case "${1}" in
-start)
-	# shellcheck source=/dev/null
-	. /usr/sbin/boot-rootfs.sh
-
-	DATA_DEVICE=/dev/$(getPart rootfs_data)
+mount_sama5() {
+	FSCRYPT_KEY=ffffffffffffffff
 
 	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
 		"${DATA_DEVICE}" "${DATA_MOUNT}"
@@ -26,6 +21,74 @@ start)
 
 	/usr/bin/fscryptctl set_policy ${FSCRYPT_KEY} ${DATA_SECRET} >/dev/null || \
 		{ /usr/bin/umount ${DATA_MOUNT}; exit 1; }
+}
+
+umount_sama5() {
+	/usr/bin/umount ${DATA_MOUNT}
+	echo 3 >/proc/sys/vm/drop_caches
+}
+
+mount_emmc() {
+	if [ -x /usr/sbin/blockdev ]; then 
+		DATA_SIZE=$(blockdev --getsz "${DATA_DEVICE}")
+	else
+		DATA_SIZE=$(/usr/bin/lsblk -ndbo SIZE "${DATA_DEVICE}")
+		DATA_SIZE=$((DATA_SIZE / 512))
+	fi
+
+	if [ -x /usr/sbin/caam-keygen ]; then
+		if [ ! -f /perm/caam/datakey ] ||
+			! /usr/sbin/caam-keygen import /perm/caam/datakey.bb datakey
+		then
+			/usr/sbin/caam-keygen create datakey ecb -s 16
+		fi
+		/usr/bin/keyctl padd logon datakey: @s < /perm/caam/datakey
+		CRYPTO_STR="capi:tk(cbc(aes))-plain :36:logon:datakey:"
+	else
+		if [ ! -f /perm/caam/datakey ]; then
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey "load $(cat /perm/caam/datakey)" @s) \
+				|| KEY_ID=
+		fi
+		
+		[ -n "${KEY_ID}" ] || 
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 32" @s)
+
+		/usr/bin/keyctl pipe "${KEY_ID}" > /perm/caam/datakey
+		CRYPTO_STR="crypt aes-cbc-plain :32:trusted:datakey"
+	fi
+
+	/usr/sbin/dmsetup -v create data_enc --table "0 ${DATA_SIZE} \
+		crypt ${CRYPTO_STR} 0 ${DATA_DEVICE} 0 1 sector_size:512"
+
+	[ "$(/usr/bin/lsblk -ndo FSTYPE /dev/mapper/data_enc)" = "ext4" ] || \
+		/usr/sbin/mkfs.ext4 /dev/mapper/data_enc
+
+	/usr/bin/mount -o noatime,noexec,nosuid,nodev -t auto \
+		/dev/mapper/data_enc ${DATA_MOUNT} || {
+		/usr/sbin/dmsetup remove data_enc
+		die "Mounting ${DATA_DEVICE} to ${DATA_MOUNT} Failed"
+	}
+}
+
+umount_emmc() {
+	/usr/bin/umount ${DATA_MOUNT}
+	/usr/sbin/dmsetup remove data_enc
+	echo 3 >/proc/sys/vm/drop_caches
+}
+
+# shellcheck source=/dev/null
+. /usr/sbin/boot-rootfs.sh
+
+getSocId
+
+case "${1}" in
+start)
+	DATA_DEVICE=/dev/$(getPart rootfs_data)
+
+	case "${soc_id:?}" in
+		sama5d3*) mount_sama5 ;;
+		*) mount_emmc ;;
+	esac
 
 	/usr/sbin/do_factory_reset.sh check
 
@@ -33,8 +96,10 @@ start)
 	;;
 
 stop)
-	/usr/bin/umount ${DATA_MOUNT}
-	echo 3 >/proc/sys/vm/drop_caches
+	case "${soc_id:?}" in
+		sama5d3*) umount_sama5 ;;
+		*) umount_emmc ;;
+	esac
 	;;
 
 *)

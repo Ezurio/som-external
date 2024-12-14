@@ -34,30 +34,26 @@ echo "Launching: ${0}"
 
 [ ! -e /dev/hwrng ] || chmod 644 /dev/hwrng
 
-[ ! -e /proc/sys/crypto/fips_enabled ] ||
-	read -r FIPS_ENABLED </proc/sys/crypto/fips_enabled
+FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled)
 
-if [ "${FIPS_ENABLED}" = "1" ]; then
+if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
 	echo "FIPS Integrity check Started"
 
-	case "${rootDevActual:?}" in
-		mmcblk*)
+	case "${rootDevType:?}" in
+		SD|MMC)
 			KERNEL=/boot/kernel.itb
 			BOOT_MOUNT=true
 			mkdir -p /boot
-			mount -t "${mountFsType:?}" -o ro "/dev/$(getPart kernel)" /boot 2>/dev/null || \
+			/usr/bin/mount -t "${mountFsType:?}" -o ro "/dev/$(getPart kernel)" /boot 2>/dev/null || \
 				dief "Cannot mount /boot: $?"
 			;;
-		ubi*)
+		ubi)
 			KERNEL="/dev/$(getPart kernel)"
 			BOOT_MOUNT=false
 			;;
-		*)
-			dief "ERROR: unsupported root device: ${rootDevActual}"
-			;;
 	esac
 
-	mount -o mode=1777,nosuid,nodev,noexec -t tmpfs tmpfs /tmp 2>/dev/null
+	/usr/bin/mount -o mode=1777,nosuid,nodev,noexec -t tmpfs tmpfs /tmp 2>/dev/null
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
@@ -68,7 +64,7 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
 			dief "fipscheck error: $?"
 	else
-		ossl-fipsload -B
+		/usr/bin/ossl-fipsload -B
 		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
 			dief "fipscheck error: $?"
 	fi
@@ -76,11 +72,11 @@ if [ "${FIPS_ENABLED}" = "1" ]; then
 	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
 	rm -f "/tmp/Image.${IMGTYP}"
 
-	${BOOT_MOUNT} && umount /boot
+	${BOOT_MOUNT} && /usr/bin/umount /boot
 
 	# trigger kernel crypto gcm self-test
-	modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"
-	modprobe -r tcrypt
+	/usr/sbin/modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"
+	/usr/sbin/modprobe -r tcrypt
 
 	echo "FIPS Integrity check Success"
 fi

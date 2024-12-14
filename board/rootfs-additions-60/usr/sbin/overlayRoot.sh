@@ -11,6 +11,13 @@ ROOT_NEW_MOUNT=${OVERLAY_ROOT}/newroot
 ROOT_NEW_RO_MOUNT=${ROOT_NEW_MOUNT}/ro
 ROOT_NEW_RW_MOUNT=${ROOT_NEW_MOUNT}/rw
 
+[ -z "${rootDevActual}" ] && STANDALONE=true || STANDALONE=false
+
+if ${STANDALONE}; then
+	# shellcheck source=/dev/null
+	. /usr/sbin/boot-rootfs.sh || die
+fi
+
 # create a writable fs to then create our mountpoints
 mount -t tmpfs inittemp /mnt ||
 	die "ERROR: could not create a temporary filesystem"
@@ -49,5 +56,10 @@ mount --move ${OVERLAY_ROOT}/dev /dev
 umount ${OVERLAY_ROOT}${OVERLAY_ROOT}
 umount ${OVERLAY_ROOT}
 
-exec /sbin/fipsInit.sh restart
+if ${STANDALONE}; then
+	# continue with regular init
+	exec /sbin/init
+else
+	exec /sbin/fipsInit.sh restart
+fi
 "

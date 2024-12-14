@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-BUILD_TYPE=${1}
-OLD_KERNEL=${2}
-SECURE_BOOT=${3}
-ENCRIPTED_TOOLKIT=${4}
+set -x -e
 
 if ${OLD_KERNEL}; then 
     MTD_SUFFIX=""
@@ -19,7 +16,7 @@ else
     DM='dm-mod.create=\"${dm_table}\" dm-mod.waitfor=${boot_dev}'
 fi
 
-${ENCRIPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
+${ENCRYPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
 
 print_verity() {
     cat << EOF

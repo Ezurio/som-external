@@ -25,8 +25,7 @@ do_check_and_reset() {
 	if [ -f "${RESET_INIDICATOR}" ]; then
 		# Delete all user data, but not the /data/secret dir as it is encrypted.
 		find /data -maxdepth 1 -mindepth 1 ! -name secret -exec rm -fr {} \;
-		rm -fr "${USER_SETTINGS_SECRET_TARGET:?}/"*
-
+		find ${USER_SETTINGS_SECRET_TARGET} -maxdepth 1 -mindepth 1 ! -name permanent -exec rm -fr {} \;
 		# Run factory reset hooks for external components
 		for hook_sh in /usr/sbin/factory_reset_*.sh; do
 			# shellcheck source=/dev/null
