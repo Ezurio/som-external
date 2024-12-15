@@ -28,6 +28,7 @@ grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" \
 	&& SECURE_BOOT=true || SECURE_BOOT=false
 
 UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+export UBOOT_VER
 
 # Tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
@@ -161,7 +162,7 @@ if ${SECURE_BOOT} ; then
 fi
 
 if ${ENCRYPTED_TOOLKIT} ; then
-	DTB=$(sed -n 's,.*\"\(.*\.dtb\).*,\1,p' "${BINARIES_DIR}/kernel.its")
+	DTB=$(sed -rn 's,.*\("(.*\.dtb).*,\1,p' "${BINARIES_DIR}/kernel.its")
 	tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		Image.gz "${DTB}" kernel.its rootfs.verity \
