@@ -1,6 +1,7 @@
 config BR2_SUMMIT_SECURE_BOOT
 	bool "Summit Secure Boot"
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	select BR2_PACKAGE_HOST_CRYPTSETUP
 	help
 		This enables "traditional" (down to kernel) secure boot
 		rootfs security provided by Summit Encrypted Storage Toolkit
