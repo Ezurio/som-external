@@ -508,6 +508,9 @@ fitimage_assemble() {
 		esac
 	done
 
+	[ -n "${FIT_CONF_DEFAULT_DTB}" ] || FIT_CONF_DEFAULT_DTB=${DTBS##* }
+	DTBS=$(echo "${DTBS}" | xargs -n1 | sort -u)
+
 	# Add .dtb files to image section
 	for DTB in ${DTBS}; do
 		fitimage_emit_section_dtb "${1}" "${DTB}" "${DTB}"
@@ -557,7 +560,7 @@ fitimage_assemble() {
 	fitimage_emit_section_maint "${1}" confstart
 
 	if [ -n "${DTBS}" ]; then
-		echo "		default = \"${FIT_CONF_PREFIX}${FIT_CONF_DEFAULT_DTB:-${DTBS##* }}\";" >> "${1}"
+		echo "		default = \"${FIT_CONF_PREFIX}${FIT_CONF_DEFAULT_DTB}\";" >> "${1}"
 		for DTB in ${DTBS}; do
 			fitimage_emit_section_config "${1}" ${kernelcount} "${DTB}" "${ramdiskcount}" "${bootscr_id}" "${setupcount}"
 		done
