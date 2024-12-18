@@ -55,9 +55,9 @@ then
 fi
 
 # Generate U-Boot environment
-if [ -f "${BINARIES_DIR}/uboot.env" ] ; then
+if [ -f "${TARGET_DIR}/etc/u-boot-initial-env" ] ; then
 	ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
-	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${BINARIES_DIR}/uboot.env"
+	${mkenvimage} -r -s "${ENV_SIZE}" -o "${BINARIES_DIR}/uboot.env" "${TARGET_DIR}/etc/u-boot-initial-env"
 fi
 
 ln -rsf "${BINARIES_DIR}/kernel.itb" "${BINARIES_DIR}/kernel.bin"
