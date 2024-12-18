@@ -1,8 +1,0 @@
-comment "kernel-module-pac193x.mk needs a Linux kernel to be built"
-	depends on !BR2_LINUX_KERNEL
-
-config BR2_PACKAGE_KERNEL_MODULE_PAC193X
-	bool "kernel-module-pac193x"
-	depends on BR2_LINUX_KERNEL
-	help
-	  Microchip PAC193x Driver for Microchip pac1934/2/1 chip family of energy monitors (ADC)

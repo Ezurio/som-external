@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO module
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	wifi_pwrseq_m2: wifi-pwrseq-m2 {
+		compatible = "mmc-pwrseq-simple";
+		reset-gpios = 
+			<&exp1 4 GPIO_ACTIVE_LOW>,   /* M2_WDISABLE1 */
+			<&exp1 12 GPIO_ACTIVE_HIGH>; /* M2_Power_EN U35 P14 */
+		power-off-delay-us = <100000>;
+		post-power-on-delay-ms = <150>;
+		status = "okay";
+	};
+};
+
+/* Force SDIO_A_SEL output-low for SDCARD, high for M.2 */
+&sdio_a_sel_hog {
+	line-name = "SDIO_A_SEL_M2";
+	/*
+	 * We cannot do /delete-property/ output-low;
+	 * in an overlay. So we change the GPIO to
+	 * ACTIVE_LOW, to set it high, instead.
+	*/
+	gpios = <8 GPIO_ACTIVE_LOW>;
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	status = "okay";
+	vmmc-supply = <&vcc_3v3_sys>;
+	vqmmc-supply = <&vcc_1v8_sys>;
+	mmc-pwrseq = <&wifi_pwrseq_m2>;
+
+	non-removable;
+	ti,fails-without-test-cd;
+	keep-power-in-suspend;
+
+	/* 32 KHz SUSCLK is on carrier */
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		interrupt-names = "host-wake";
+		interrupts-extended = <&exp1 6 IRQ_TYPE_EDGE_FALLING>;
+		laird,regdomain = "US";
+	};
+};

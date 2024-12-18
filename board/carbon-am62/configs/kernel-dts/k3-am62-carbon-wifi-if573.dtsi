@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2024 Ezurio
+ */
+
+&main_uart1 {
+	bluetooth {
+		compatible = "infineon,cyw55572-bt";
+		brcm,requires-autobaud-mode;
+		max-speed = <921600>;
+		shutdown-gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>; /* W_DISABLE2# */
+		//interrupts-extended = <&main_gpio0 32 IRQ_TYPE_EDGE_FALLING>; /* BT_HOST_WAKE */
+		//interrupt-names = "host-wakeup";
+	};
+};
+
+&sdhci2 {
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		interrupts-extended = <&main_gpio0 16 IRQ_TYPE_EDGE_FALLING>; /* SDIO_WAKE# */
+		interrupt-names = "host-wake";
+		laird,regdomain = "US";
+	};
+};

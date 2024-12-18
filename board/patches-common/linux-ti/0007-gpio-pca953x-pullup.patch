@@ -1,0 +1,20 @@
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -112,6 +112,8 @@
+ 	{ "tca9539", 16 | PCA953X_TYPE | PCA_INT, },
+ 	{ "tca9554", 8  | PCA953X_TYPE | PCA_INT, },
+ 	{ "xra1202", 8  | PCA953X_TYPE },
++
++	{ "tcal9539", 16 | PCA953X_TYPE | PCA_LATCH_INT, },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca953x_id);
+@@ -1346,6 +1346,8 @@
+ 	{ .compatible = "ti,tca9538", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "ti,tca9539", .data = OF_953X(16, PCA_INT), },
+ 
++	{ .compatible = "ti,tcal9539", .data = OF_953X(16, PCA_LATCH_INT), },
++
+ 	{ .compatible = "onnn,cat9554", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "onnn,pca9654", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "onnn,pca9655", .data = OF_953X(16, PCA_INT), },

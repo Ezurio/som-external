@@ -1,0 +1,115 @@
+From ac774cfea9139061c20e8952626046dd525e474c Mon Sep 17 00:00:00 2001
+From: Simon Gaynor <simon.gaynor@ezurio.com>
+Date: Fri, 20 Sep 2024 09:37:23 -0700
+Subject: [PATCH 1/2] hwmon: (ina2xx) add support for ina232
+
+ina232 is similar to the ina226 except for bus_voltage_lsb
+which is 1600mV
+
+Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
+---
+ Documentation/hwmon/ina2xx.rst | 14 ++++++++++++--
+ drivers/hwmon/ina2xx.c         | 20 +++++++++++++++++++-
+ 2 files changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/hwmon/ina2xx.rst b/Documentation/hwmon/ina2xx.rst
+index 27d2e39bc8ac..acb18727db75 100644
+--- a/Documentation/hwmon/ina2xx.rst
++++ b/Documentation/hwmon/ina2xx.rst
+@@ -53,6 +53,16 @@ Supported chips:
+ 
+ 	       https://www.ti.com/
+ 
++  * Texas Instruments INA232
++
++    Prefix: 'ina232'
++
++    Addresses: I2C 0x40 - 0x4f
++
++    Datasheet: Publicly available at the Texas Instruments website
++
++	       https://www.ti.com/
++
+ Author: Lothar Felten <lothar.felten@gmail.com>
+ 
+ Description
+@@ -68,7 +78,7 @@ interface. The INA220 monitors both shunt drop and supply voltage.
+ The INA226 is a current shunt and power monitor with an I2C interface.
+ The INA226 monitors both a shunt voltage drop and bus supply voltage.
+ 
+-INA230 and INA231 are high or low side current shunt and power monitors
++INA230, IN231 and INA232 are high or low side current shunt and power monitors
+ with an I2C interface. The chips monitor both a shunt voltage drop and
+ bus supply voltage.
+ 
+@@ -77,7 +87,7 @@ compile-time or via the shunt_resistor attribute in sysfs at run-time. Please
+ refer to the Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml for bindings
+ if the device tree is used.
+ 
+-Additionally ina226 supports update_interval attribute as described in
++Additionally ina226 and ina232 supports update_interval attribute as described in
+ Documentation/hwmon/sysfs-interface.rst. Internally the interval is the sum of
+ bus and shunt voltage conversion times multiplied by the averaging rate. We
+ don't touch the conversion times and only modify the number of averages. The
+diff --git a/drivers/hwmon/ina2xx.c b/drivers/hwmon/ina2xx.c
+index d8415d1f21fc..7b8a41f710f8 100644
+--- a/drivers/hwmon/ina2xx.c
++++ b/drivers/hwmon/ina2xx.c
+@@ -18,6 +18,10 @@
+  * Bi-directional Current/Power Monitor with I2C Interface
+  * Datasheet: https://www.ti.com/product/ina230
+  *
++ * INA232:
++ * Bi-directional Current/Power Monitor with I2C Interface
++ * Datasheet: https://www.ti.com/product/ina232
++ *
+  * Copyright (C) 2012 Lothar Felten <lothar.felten@gmail.com>
+  * Thanks to Jan Volkering
+  */
+@@ -98,7 +102,7 @@ static struct regmap_config ina2xx_regmap_config = {
+ 	.val_bits = 16,
+ };
+ 
+-enum ina2xx_ids { ina219, ina226 };
++enum ina2xx_ids { ina219, ina226, ina232 };
+ 
+ struct ina2xx_config {
+ 	u16 config_default;
+@@ -141,6 +145,15 @@ static const struct ina2xx_config ina2xx_config[] = {
+ 		.bus_voltage_lsb = 1250,
+ 		.power_lsb_factor = 25,
+ 	},
++	[ina232] = {
++		.config_default = INA226_CONFIG_DEFAULT,
++		.calibration_value = 2048,
++		.registers = INA226_REGISTERS,
++		.shunt_div = 400,
++		.bus_voltage_shift = 0,
++		.bus_voltage_lsb = 1600,
++		.power_lsb_factor = 25,
++	},
+ };
+ 
+ /*
+@@ -686,6 +699,7 @@ static const struct i2c_device_id ina2xx_id[] = {
+ 	{ "ina226", ina226 },
+ 	{ "ina230", ina226 },
+ 	{ "ina231", ina226 },
++	{ "ina232", ina232 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ina2xx_id);
+@@ -711,6 +725,10 @@ static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
+ 		.compatible = "ti,ina231",
+ 		.data = (void *)ina226
+ 	},
++	{
++		.compatible = "ti,ina232",
++		.data = (void *)ina232
++	},
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, ina2xx_of_match);
+-- 
+2.47.1
+

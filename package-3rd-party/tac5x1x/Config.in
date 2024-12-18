@@ -1,0 +1,5 @@
+config BR2_PACKAGE_TAC5X1X
+	bool "tac5x1x"
+	depends on BR2_LINUX_KERNEL
+	help
+	  Texas Instruments TAC5x1x Sound Codec Driver

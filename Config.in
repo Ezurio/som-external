@@ -87,13 +87,13 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-userspace-examples/Config.i
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-wifi-bridge/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-legacy/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-python/Config.in"
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/kernel-module-pac193x/Config.in"
 endmenu
 
 menu "Packages (3rd party)"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/minehunt/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/pac193x/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awscrt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awsiotsdk/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-btsocket/Config.in"
@@ -101,6 +101,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-gatt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-httptools/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spectree/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-transitions/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/tac5x1x/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"
 endmenu
 
