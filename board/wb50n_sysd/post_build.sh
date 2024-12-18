@@ -12,7 +12,7 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD WB50n_sysd script: starting..."
 BOARD_DIR=$(realpath "$(dirname "${0}")")
 BUILD_TYPE="${2}"
 
-"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_build_common_60.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
+"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_build_common.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
 
 [ ! -f "${TARGET_DIR}/lib/firmware/regulatory_50.db" ] || \
     ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_50.db" "${TARGET_DIR}/lib/firmware/regulatory.db"

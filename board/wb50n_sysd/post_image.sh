@@ -12,6 +12,6 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE WB50n_sysd script: starting..."
 BOARD_DIR="$(realpath "$(dirname "${0}")")"
 BUILD_TYPE="${2}"
 
-"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_common_60.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
+"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_common.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE WB50n_sysd script: done."
