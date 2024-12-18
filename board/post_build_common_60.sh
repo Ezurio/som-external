@@ -7,7 +7,8 @@ set -x -e -o pipefail
 
 BOARD_DIR="${1}"
 BUILD_TYPE="${2}"
-ENCRYPTED_TOOLKIT_DIR="$(realpath "${3}")"
+
+KEYS_DIR=${KEYS_DIR:-${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys}
 
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
@@ -220,7 +221,7 @@ SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
-		cp "${ENCRYPTED_TOOLKIT_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
+		cp "${KEYS_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
 		# Configure dev.crt if swupdate CMS is enabled
 		# shellcheck disable=SC2016
 		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
@@ -238,8 +239,9 @@ CSCRIPT_DIR=${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
 if ${SECURE_BOOT} ; then
 	# Copy keys if present
-	if [ -f "${ENCRYPTED_TOOLKIT_DIR}/dev.key" ]; then
-		ln -rsf "${ENCRYPTED_TOOLKIT_DIR}" "${BINARIES_DIR}"
+	if [ -f "${KEYS_DIR}/dev.key" ]; then
+		rm -rf "${BINARIES_DIR}/keys"
+		ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
 	fi
 
 	export UBOOT_SIGN_ENABLE='1'
