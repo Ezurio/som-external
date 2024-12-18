@@ -111,17 +111,13 @@ else
 fi
 
 if ! ${SD} ; then
-	SWU_FILES="sw-description boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin erase_data.sh"
-
 	# Support Secure boot key transition
 	if grep -qF boot1.bin "${BINARIES_DIR}/sw-description" ; then
-		SWU_FILES="${SWU_FILES/boot.bin/boot.bin boot1.bin}"
-		SWU_FILES="${SWU_FILES/uboot.env/uboot.env uboot1.env}"
 		cp -af "${BINARIES_DIR}/boot.bin" "${BINARIES_DIR}/boot1.bin"
 	fi
 
 	# Call script to generate secure SWU
-	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh" "${SWU_FILES}"
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
 fi
 
 if ! ${SD} ; then

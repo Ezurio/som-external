@@ -77,10 +77,10 @@ ln -rsf "${BINARIES_DIR}/rootfs.ubi" "${BINARIES_DIR}/rootfs.bin"
 
 if [ "${BUILD_TYPE}" = wb50n ]; then
 	ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/wb50n/configs/sw-description" "${BINARIES_DIR}/sw-description"
-	ALL_SWU_FILES="sw-description boot.bin u-boot.bin"
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
+	mv "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}.swu" "${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-boot.swu"
+
 	SWU_BOOT=${BR2_SUMMIT_PRODUCT}-boot.swu
-	( cd "${BINARIES_DIR}" && \
-		echo -e "${ALL_SWU_FILES// /\\n}" | cpio -ovL -H crc > "${BINARIES_DIR}/${SWU_BOOT}")
 else
 	SWU_BOOT=""
 fi

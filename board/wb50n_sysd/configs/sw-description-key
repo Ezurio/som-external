@@ -15,14 +15,14 @@ software =
 						transform = "atmel_pmecc_header";
 						type = "flash";
 						name = "boot";
-						sha256 = "@boot1.bin.sha256";
+						sha256 = "$swupdate_get_sha256(boot1.bin)";
 					},
 					{
 						filename = "u-boot.itb";
 						mtdname = "u-boot";
 						type = "flash";
 						name = "u-boot";
-						sha256 = "@u-boot.itb.sha256";
+						sha256 = "$swupdate_get_sha256(u-boot.itb)";
 					},
 					{
 						filename = "kernel.itb";
@@ -30,7 +30,7 @@ software =
 						type = "ubivol";
 						installed-directly = true;
 						name = "kernel";
-						sha256 = "@kernel.itb.sha256";
+						sha256 = "$swupdate_get_sha256(kernel.itb)";
 					},
 					{
 						filename = "rootfs.bin";
@@ -38,7 +38,7 @@ software =
 						type = "ubivol";
 						installed-directly = true;
 						name = "rootfs";
-						sha256 = "@rootfs.bin.sha256";
+						sha256 = "$swupdate_get_sha256(rootfs.bin)";
 					},
 				);
 			};
@@ -51,14 +51,14 @@ software =
 						transform = "atmel_pmecc_header";
 						type = "flash";
 						name = "boot";
-						sha256 = "@boot1.bin.sha256";
+						sha256 = "$swupdate_get_sha256(boot1.bin)";
 					},
 					{
 						filename = "u-boot.itb";
 						mtdname = "u-boot";
 						type = "flash";
 						name = "u-boot";
-						sha256 = "@u-boot.itb.sha256";
+						sha256 = "$swupdate_get_sha256(u-boot.itb)";
 					},
 					{
 						filename = "kernel.itb";
@@ -66,7 +66,7 @@ software =
 						type = "ubivol";
 						installed-directly = true;
 						name = "kernel";
-						sha256 = "@kernel.itb.sha256";
+						sha256 = "$swupdate_get_sha256(kernel.itb)";
 					},
 					{
 						filename = "rootfs.bin";
@@ -74,7 +74,7 @@ software =
 						type = "ubivol";
 						installed-directly = true;
 						name = "rootfs";
-						sha256 = "@rootfs.bin.sha256";
+						sha256 = "$swupdate_get_sha256(rootfs.bin)";
 					},
 				);
 			};
@@ -90,7 +90,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
@@ -98,7 +98,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
 
@@ -107,7 +107,7 @@ software =
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_a";
-					sha256 = "@erase_data.sh.sha256";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 
@@ -127,7 +127,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
@@ -135,7 +135,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				},
 			);
 
@@ -144,7 +144,7 @@ software =
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_b";
-					sha256 = "@erase_data.sh.sha256";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 
@@ -164,14 +164,14 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
-					sha256 = "@boot.bin.sha256";
+					sha256 = "$swupdate_get_sha256(boot.bin)";
 				},
 				{
 					filename = "u-boot.itb";
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
-					sha256 = "@u-boot.itb.sha256";
+					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
 					filename = "kernel.itb";
@@ -179,7 +179,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
@@ -187,7 +187,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				},
 			);
 
@@ -196,7 +196,7 @@ software =
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_a";
-					sha256 = "@erase_data.sh.sha256";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 
@@ -216,14 +216,14 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
-					sha256 = "@boot.bin.sha256";
+					sha256 = "$swupdate_get_sha256(boot.bin)";
 				},
 				{
 					filename = "u-boot.itb";
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
-					sha256 = "@u-boot.itb.sha256";
+					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
 					filename = "kernel.itb";
@@ -231,7 +231,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
@@ -239,7 +239,7 @@ software =
 					type = "ubivol";
 					installed-directly = true;
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				},
 			);
 
@@ -248,7 +248,7 @@ software =
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_b";
-					sha256 = "@erase_data.sh.sha256";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 
@@ -314,56 +314,56 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
-					sha256 = "@boot1.bin.sha256";
+					sha256 = "$swupdate_get_sha256(boot1.bin)";
 				},
 				{
 					filename = "u-boot.itb";
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
-					sha256 = "@u-boot.itb.sha256";
+					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
 					filename = "uboot1.env";
 					mtdname = "u-boot-env-a";
 					transform = "ignore_bad";
 					type = "flash";
-					sha256 = "@uboot1.env.sha256";
+					sha256 = "$swupdate_get_sha256(uboot1.env)";
 				},
 				{
 					filename = "uboot1.env";
 					mtdname = "u-boot-env-b";
 					transform = "ignore_bad";
 					type = "flash";
-					sha256 = "@uboot1.env.sha256";
+					sha256 = "$swupdate_get_sha256(uboot1.env)";
 				},
 				{
 					filename = "kernel.itb";
 					volume = "kernel_a";
 					type = "ubivol";
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "kernel.itb";
 					volume = "kernel_b";
 					type = "ubivol";
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
 					volume = "rootfs_a";
 					type = "ubivol";
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				},
 				{
 					filename = "rootfs.bin";
 					volume = "rootfs_b";
 					type = "ubivol";
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
 
@@ -372,7 +372,7 @@ software =
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_a rootfs_data_b perm";
-					sha256 = "@erase_data.sh.sha256";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 		};
@@ -385,56 +385,56 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
-					sha256 = "@boot.bin.sha256";
+					sha256 = "$swupdate_get_sha256(boot.bin)";
 				},
 				{
 					filename = "u-boot.itb";
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
-					sha256 = "@u-boot.itb.sha256";
+					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
 					filename = "uboot.env";
 					mtdname = "u-boot-env-a";
 					transform = "ignore_bad";
 					type = "flash";
-					sha256 = "@uboot.env.sha256";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "uboot.env";
 					mtdname = "u-boot-env-b";
 					transform = "ignore_bad";
 					type = "flash";
-					sha256 = "@uboot.env.sha256";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "kernel.itb";
 					volume = "kernel_a";
 					type = "ubivol";
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "kernel.itb";
 					volume = "kernel_b";
 					type = "ubivol";
 					name = "kernel";
-					sha256 = "@kernel.itb.sha256";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "rootfs.bin";
 					volume = "rootfs_a";
 					type = "ubivol";
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				},
 				{
 					filename = "rootfs.bin";
 					volume = "rootfs_b";
 					type = "ubivol";
 					name = "rootfs";
-					sha256 = "@rootfs.bin.sha256";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
 

@@ -13,14 +13,14 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
-					sha256 = "@boot.bin.sha256";
+					sha256 = "$swupdate_get_sha256(boot.bin)";
 				},
 				{
 					filename = "u-boot.bin";
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
-					sha256 = "@u-boot.bin.sha256";
+					sha256 = "$swupdate_get_sha256(u-boot.bin)";
 				}
 			);
 		}
