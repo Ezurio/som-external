@@ -22,7 +22,7 @@ diff --git a/ssl/record/methods/tls_common.c b/ssl/record/methods/tls_common.c
 index 08e519ac7a..f46da0fd5b 100644
 --- a/ssl/record/methods/tls_common.c
 +++ b/ssl/record/methods/tls_common.c
-@@ -2129,7 +2129,10 @@ int tls_free_buffers(OSSL_RECORD_LAYER *rl)
+@@ -2117,7 +2117,10 @@ int tls_free_buffers(OSSL_RECORD_LAYER *rl)
      /* Read direction */
  
      /* If we have pending data to be read then fail */

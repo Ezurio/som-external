@@ -1,6 +1,6 @@
 --- a/ssl/statem/statem_lib.c
 +++ b/ssl/statem/statem_lib.c
-@@ -1324,13 +1324,13 @@
+@@ -1732,13 +1732,13 @@
      {X509_V_ERR_CA_MD_TOO_WEAK, SSL_AD_BAD_CERTIFICATE},
      {X509_V_ERR_CERT_CHAIN_TOO_LONG, SSL_AD_UNKNOWN_CA},
      {X509_V_ERR_CERT_HAS_EXPIRED, SSL_AD_CERTIFICATE_EXPIRED},
