@@ -199,12 +199,10 @@ if [ ! -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
 	rm -rf "${TARGET_DIR}/etc/systemd"
 fi
 
-mapfile < <(make --no-print-directory -C "${BASE_DIR}" linux-show-version \
+mapfile -t < <(make --no-print-directory -C "${BASE_DIR}" linux-show-version \
 	uboot-show-version swupdate-show-version linux-show-dtb | sed '/^make\[/d')
-export LINUX_VER=${MAPFILE[0]}
-export UBOOT_VER=${MAPFILE[1]}
-export SWUPDATE_VER=${MAPFILE[2]}
-export KERNEL_DEVICETREE=${MAPFILE[3]}
+read -r LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE <<< "${MAPFILE[@]}"
+export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE
 
 SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 
@@ -244,8 +242,7 @@ export UBOOT_SCRIPT='boot.scr'
 
 kver=$(make --no-print-directory -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease \
 	| sed '/^make\[/d')
-FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
-export FIT_SUMMIT_VERSION
+export FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
 
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 ENV_OFFSET=$(sed -rn 's,^CONFIG_ENV_OFFSET=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
