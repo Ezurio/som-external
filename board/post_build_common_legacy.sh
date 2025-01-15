@@ -182,10 +182,11 @@ if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 	export FDT_LOADADDRESS=
 	export UBOOT_ARCH="arm"
 
-	read -r LINUX_VER UBOOT_VER KERNEL_DEVICETREE < \
-		<(make -C "${BASE_DIR}" linux-show-version uboot-show-version \
-		linux-show-dtb | sed '/^make\[/d' | tr '\n' ' ')
-	export LINUX_VER UBOOT_VER KERNEL_DEVICETREE
+	mapfile < <(make --no-print-directory -C "${BASE_DIR}" linux-show-version \
+		uboot-show-version linux-show-dtb | sed '/^make\[/d')
+	export LINUX_VER=${MAPFILE[0]}
+	export UBOOT_VER=${MAPFILE[1]}
+	export KERNEL_DEVICETREE=${MAPFILE[2]}
 
 	kver=$(make -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease | sed '/^make\[/d')
 	FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
