@@ -189,7 +189,8 @@ rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -f "${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress"
 
 if ${SD} && ! ${ENCRYPTED_TOOLKIT}; then
-	echo 'export TMPDIR=/opt/swupdate' > "${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf"
+	echo 'export TMPDIR=/opt/swupdate' > \
+		"${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf"
 	mkdir -p "${TARGET_DIR}/opt/swupdate"
 fi
 
@@ -198,7 +199,11 @@ if [ ! -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
 	rm -rf "${TARGET_DIR}/etc/systemd"
 fi
 
-SWUPDATE_VER=$(make -C "${BASE_DIR}" swupdate-show-version | sed '/^make\[/d')
+read -r LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE < \
+	<(make -C "${BASE_DIR}" linux-show-version uboot-show-version \
+	swupdate-show-version linux-show-dtb | sed '/^make\[/d' | tr '\n' ' ')
+export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE
+
 SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 
 if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
@@ -207,11 +212,13 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 		cp "${KEYS_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
 		# Configure dev.crt if swupdate CMS is enabled
 		# shellcheck disable=SC2016
-		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > \
+			"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
 	else
 		# Configure public key if swupdate signature check is enabled
 		# shellcheck disable=SC2016
-		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > "${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > \
+			"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
 	fi
 fi
 
@@ -231,20 +238,15 @@ if ${SECURE_BOOT} ; then
 	export UBOOT_SIGN_KEYNAME='dev'
 fi
 
-KERNEL_DEVICETREE=$(make -C "${BASE_DIR}" linux-show-dtb | sed '/^make\[/d')
-export KERNEL_DEVICETREE
 export UBOOT_SCRIPT='boot.scr'
 
-LINUX_VER=$(make -C "${BASE_DIR}" linux-show-version | sed '/^make\[/d')
 kver=$(make -C "${BUILD_DIR}/linux-${LINUX_VER}" kernelrelease | sed '/^make\[/d')
 FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
 export FIT_SUMMIT_VERSION
 
-UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 ENV_OFFSET=$(sed -rn 's,^CONFIG_ENV_OFFSET=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 TEXT_BASE=$(sed -rn 's,^CONFIG_TEXT_BASE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
-
 
 create_fw_env_emmc_sd() {
 	echo "/dev/mmcblk0boot0 ${ENV_OFFSET} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-a.config"
@@ -365,7 +367,7 @@ case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
 esac
 
 if grep -qF 'BR2_TARGET_GENERIC_ROOT_PASSWD=""' "${BR2_CONFIG}" && \
-   grep -qF BR2_TARGET_ENABLE_ROOT_LOGIN=y "${BR2_CONFIG}"
+   grep -qF 'BR2_TARGET_ENABLE_ROOT_LOGIN=y' "${BR2_CONFIG}"
 then
 	if [ -f "${TARGET_DIR}/etc/inittab" ]; then
 		sed -i 's,^.*/getty.*,::respawn:-/bin/sh,' \
