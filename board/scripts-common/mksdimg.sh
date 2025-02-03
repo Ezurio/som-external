@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-SRCDIR=${0%/*}
+SRCDIR=$(dirname "${0}")
 ROOTFS_DATA_SIZE=
 SECURE=false
 
@@ -55,8 +55,24 @@ BOOT_SIZE=48
 SWAP_SIZE=256
 PERM_SIZE=48
 
-{ [ -f "${SRCDIR}/rootfs.bin" ] || [ -f "${SRCDIR}/kernel.itb" ]; } && \
-	boot_only=false || boot_only=true
+if [ ! -f "${SRCDIR}/rootfs.bin" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then 
+	for f in "${SRCDIR}"/*.swu ; do
+		[ -f "${f}" ] || continue
+
+		TEMP_SRC=$(mktemp -d -t mksdcard.XXXXXX)
+		cpio -idmv < "${f}" -D "${TEMP_SRC}"
+		SRCDIR=${TEMP_SRC}
+		break
+	done
+fi
+
+if [ -f "${SRCDIR}/rootfs.bin" ]; then
+	boot_only=false 
+	maxpart=6
+else
+	boot_only=true
+	maxpart=1
+fi
 
 if ${boot_only}; then
 	# Calculate total image size
@@ -120,11 +136,20 @@ create_boot_partition() {
 	${SECURE} && EXT="cip" || EXT="bin"
 
 	# Copy files to boot partition
-	mcopy -i "${BOOT_PART}" \
-		"${SRCDIR}/boot.${EXT}" \
-		"${SRCDIR}/u-boot.itb" \
-		"${SRCDIR}/uboot.env" \
-		::/
+	if [ -f "${SRCDIR}/tispl.bin" ]; then
+		mcopy -i "${BOOT_PART}" \
+			"${SRCDIR}/tispl.bin" \
+			"${SRCDIR}/tiboot3.bin" \
+			"${SRCDIR}/u-boot.img" \
+			"${SRCDIR}/uboot.env" \
+			::/
+	else
+		mcopy -i "${BOOT_PART}" \
+			"${SRCDIR}/boot.${EXT}" \
+			"${SRCDIR}/u-boot.itb" \
+			"${SRCDIR}/uboot.env" \
+			::/
+	fi
 
 	${boot_only} ||
 		mcopy -i "${BOOT_PART}" "${SRCDIR}/kernel.itb" ::\

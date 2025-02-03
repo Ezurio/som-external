@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-SRCDIR=${0%/*}
+SRCDIR=$(dirname "${0}")
 ROOTFS_DATA_SIZE=
 SECURE=false
 
