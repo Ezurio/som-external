@@ -109,7 +109,9 @@ fi
 # Clean up
 #
 sync
-umount "${RODATA_MNT_DIR}"
+[ -f rodata_manifest.txt ] && rm -f rodata_manifest.txt
+find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> rodata_manifest.txt
+umount ${RODATA_MNT_DIR}
 keyctl unlink "$(keyctl search @s logon fscrypt:ffffffffffffffff)"
 
 echo "Successfully created factory data in ${RODATA_IMG}"
