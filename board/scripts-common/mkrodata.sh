@@ -102,7 +102,7 @@ cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST} || ex
 # Create and populate update public certificate
 #
 mkdir -p ${UPDATE_CERT_DIR} || exit_on_error "Failed to create ${UPDATE_CERT_DIR}"
-cp "${UPDATE_PUB_CERT}" ${UPDATE_CERT_DEST} || exit_on_error "Failed to populate update certificate"
+openssl x509 -in "${UPDATE_PUB_CERT}" -pubkey -noout -outform pem -out ${UPDATE_CERT_DEST} || exit_on_error "Failed to generate update certificate"
 
 #
 # Copy in optional customer data
