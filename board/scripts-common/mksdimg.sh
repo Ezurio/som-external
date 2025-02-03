@@ -241,7 +241,7 @@ echo "[Image file: ${TARGET}.xz]"
 echo "SD Card Programming, example using dd or bmaptool:"
 echo "  umount /dev/sdX? ; xz -dc ${TARGET}.xz | sudo dd of=/dev/sdX bs=4M conv=fsync"
 if [ -f "${TARGET}.bmap" ]; then
-	echo "  umount /dev/sdX? ; bmaptool copy ${TARGET}.xz /dev/sdX"
+	echo "  umount /dev/sdX? ; sudo bmaptool copy ${TARGET}.xz /dev/sdX"
 fi
 
 # Remove temporary directory
