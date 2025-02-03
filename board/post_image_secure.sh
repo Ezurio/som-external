@@ -54,7 +54,7 @@ fi
 
 # Create unsecured_images dir and copy off unsigned images
 mkdir -p "unsecured_images"
-for f in u-boot.dtb u-boot-spl.dtb boot.scr
+for f in u-boot.dtb u-boot-spl.dtb
 do
 	[ ! -f "${f}" ] ||
         cp -aft "unsecured_images" "${f}"
@@ -71,9 +71,6 @@ if ${SECURE_BOOT} ; then
     size=$(stat --printf="%s" rootfs.bin)
     eval "$(veritysetup --hash-offset="${size}" format rootfs.bin rootfs.bin | \
         sed -r '1d; s/^([^:]+):\s+(.+)/\U\1=\E\2/; s/ /_/g')"
-
-    # Preserve verity header for WASP
-    dd if=rootfs.bin of=rootfs.verity seek="${size}"
 
     # Fill boot script with verity parameters
     sed -i \
@@ -111,6 +108,34 @@ hash_check() {
 			diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac" || \
 			die "FIPS Hash mismatch to the certified for ${i##*/}"
 	done
+}
+
+create_secure_boot_encrypted_uboot_spl() {
+	# Check if the Secure SAM-BA Cipher Tool is available        
+	[ -d "${KEYS_DIR}/secure-sam-ba-cipher-3.5" ] || \
+		die "No Secure SAM-BA Cipher Tool directory found"
+
+	samba_cipher_tool="${KEYS_DIR}/secure-sam-ba-cipher-3.5/secure-sam-ba-cipher.py"
+	[ -f "${samba_cipher_tool}" ] || \
+		die "No Secure SAM-BA Cipher Tool found"
+
+	license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
+	[ -f "${license_path}" ] || \
+		die "No license file found in the keys directory"
+
+	secure_boot_encryption_key="${KEYS_DIR}/secure_boot_encryption_key.txt"
+	[ -f "${secure_boot_encryption_key}" ] || \
+		die "No secure boot encryption key found in the keys directory"
+
+	set +x
+	"${HOST_DIR}/bin/python3" "${samba_cipher_tool}" bootstrap -d sama5d3x -l "${license_path}" \
+		-k "$(cat "${secure_boot_encryption_key}")" -i u-boot-spl.bin \
+        -o bootstrap.cip
+	set -x
+
+	# Verify the encrypted U-Boot SPL file was created successfully
+	[ -f bootstrap_sama5d3x.cip ] || \
+		die "Failed to generate encrypted U-Boot SPL"
 }
 
 case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
@@ -157,6 +182,15 @@ som60*|ig60*|wb50n*)
     case ${BUILD_TYPE} in
     *sd)
         ${mkimage} -T atmelimage -d u-boot-spl.bin boot.bin
+
+        if [ -n "${KEYS_DIR}" ]; then
+            create_secure_boot_encrypted_uboot_spl
+
+            # Rename the encrypted, bootstrap binary to 'boot.cip' for use with an SD card image (no
+            # PMECC header)
+            mv -f bootstrap_sama5d3x.cip boot.cip || \
+                die "Failed to rename the encrypted, bootstrap binary"
+        fi
         ;;
     *)
         [ -x "${atmel_pmecc_params}" ] || \
@@ -174,6 +208,16 @@ som60*|ig60*|wb50n*)
                 cp -f boot.bin boot1.bin
                 echo "keyrev=1" >> "${TARGET_DIR}/etc/u-boot-initial-env"
                 ${mkenvimage} ${MKENVIMGOPT} -s "${ENV_SIZE}" -o uboot1.env u-boot1-initial-env
+            fi
+
+            if [ -n "${KEYS_DIR}" ]; then
+                create_secure_boot_encrypted_uboot_spl
+
+                # Concatenate a PMECC header to the encrypted, bootstrap binary
+                cat pmecc.bin bootstrap_sama5d3x.cip > boot.cip
+
+                # Cleanup
+                rm -f pmecc.bin bootstrap_sama5d3x.cip
             fi
         fi
         ;;

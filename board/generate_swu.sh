@@ -65,18 +65,18 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 		die "no openssl found"
 
 	# Create keys if not present
-	if [ ! -f keys/dev.key ]; then
+	if [ ! -f keys/update_signing.key ]; then
 		mkdir -p keys
-		${openssl} genrsa -out keys/dev.key 2048
-		${openssl} req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
+		${openssl} genrsa -out keys/update_signing.key 2048
+		${openssl} req -batch -new -x509 -key keys/update_signing.key -out keys/update_signing.crt
 	fi
 
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
 		${openssl} cms -sign -in sw-description -out sw-description.sig \
-			-signer keys/dev.crt -inkey keys/dev.key \
+			-signer keys/update_signing.crt -inkey keys/update_signing.key \
 			-outform DER -nosmimecap -binary
 	else
-		${openssl} dgst -sha256 -sign keys/dev.key -out sw-description.sig \
+		${openssl} dgst -sha256 -sign keys/update_signing.key -out sw-description.sig \
 			sw-description
 	fi
 

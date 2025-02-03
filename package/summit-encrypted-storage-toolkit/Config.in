@@ -15,4 +15,8 @@ if BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT
 config BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_EXEC_PERM
 	bool "Allow exec on perm mount"
 
+config BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA
+	bool "Create encrypted read-only data partition"
+	default y
+
 endif

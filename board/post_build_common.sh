@@ -8,7 +8,13 @@ set -x -e -o pipefail
 BOARD_DIR="${1}"
 export BUILD_TYPE="${2}"
 
-KEYS_DIR=${KEYS_DIR:-${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys}
+if [ -n "${KEYS_DIR}" ]; then
+	# Keys directory is set, use custom keys for secure provisioning
+	[ -d "${KEYS_DIR}" ] || \
+		{ echo "Keys directory not found: ${KEYS_DIR}"; exit 1; }
+else
+	KEYS_DIR="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys"
+fi
 
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"

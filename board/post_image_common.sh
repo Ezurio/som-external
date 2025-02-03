@@ -33,7 +33,9 @@ if [ -f "${BINARIES_DIR}/sw-description" ]; then
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
 fi
 
-RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
+BOOTLOADER_BINARY=${BOOTLOADER_BINARY:-boot.bin}
+RELEASE_FILE_SUFFIX=${RELEASE_FILE_SUFFIX:-""}
+RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}${RELEASE_FILE_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
 # Determine if we are building SD card image
 case "${BUILD_TYPE}" in
@@ -42,41 +44,27 @@ som60*|wb50n*|ig60*)
 	*sd)
 		tar -chSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
-			boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin \
+			"${BOOTLOADER_BINARY}" u-boot.itb uboot.env kernel.itb rootfs.bin \
 			mksdcard.sh mksdimg.sh
 		;;
 	*)
 		tar -chSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
 			"${BR2_SUMMIT_PRODUCT}.swu"
-
-		if ${SECURE_BOOT} ; then
-			tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
-				-C "${BINARIES_DIR}" \
-				boot.bin u-boot.itb uboot.env kernel.itb rootfs.bin \
-				pmecc.bin erase_data.sh sw-description
-		fi
 		;;
 	esac
 
-	if ${SECURE_BOOT} ; then
+	if [ -n "${KEYS_DIR}" ]; then
+		# Secure boot build
 		tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
-			u-boot-spl.dtb u-boot-spl-nodtb.bin u-boot.dtb \
-			u-boot-nodtb.bin u-boot.its boot.scr \
-			-C "${HOST_DIR}/usr/bin" \
-			fdtget fdtput \
-			-C "${BUILD_DIR}/uboot-custom/tools" \
-			mkimage
-	fi
+			customer_key_sama5d3x.cip customer_key_sama5d3x_nk.cip \
+			secure_mode_sama5d3x.cip secure_mode_sama5d3x_nk.cip
 
-	if ${ENCRYPTED_TOOLKIT} || [ "${BUILD_TYPE}" = ig60 ]; then
-		DTB=$(sed -rn 's,.*\("(.*\.dtb).*,\1,p' "${BINARIES_DIR}/kernel.its")
-		tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
-			-C "${BINARIES_DIR}" \
-			Image.gz "${DTB}" kernel.its rootfs.verity \
-			-C "${HOST_DIR}/usr/bin" \
-			fscryptctl
+		[ -f "${BINARIES_DIR}/rodata_manifest.txt" ] && \
+			tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
+				-C "${BINARIES_DIR}" \
+				rodata_manifest.txt
 	fi
 	;;
 
