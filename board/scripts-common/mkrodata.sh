@@ -49,7 +49,9 @@ exit_on_error() {
   exit 1
 }
 
-[ -f "${KEY_BIN}" ] || exit_on_error "Missing encryption key"
+if [ ! -f "${KEY_BIN}" ] && [ -z "${KEY_BIN}" ] ; then
+  exit_on_error "Missing encryption key"
+fi
 [ -f "${UPDATE_PUB_CERT}" ] || exit_on_error "Missing update public key"
 [ -f "${REST_SERVER_CERT}" ] || exit_on_error "Missing REST server certificate"
 [ -f "${REST_SERVER_PRIV_KEY}" ] || exit_on_error "Missing REST server private key"
@@ -59,8 +61,8 @@ exit_on_error() {
 #
 # Prepare mount point
 #
-rm -rf ${RODATA_MNT_DIR} || exit_on_error "Directory removal for ${RODATA_DIR} failed"
-mkdir -p ${RODATA_MNT_DIR} || exit_on_error "Directory Creation for ${RODATA_DIR} failed"
+rm -rf ${RODATA_MNT_DIR} || exit_on_error "Directory removal for ${RODATA_MNT_DIR} failed"
+mkdir -p ${RODATA_MNT_DIR} || exit_on_error "Directory Creation for ${RODATA_MNT_DIR} failed"
 
 #
 # Create filesystem on loop image
@@ -73,7 +75,11 @@ mount -o loop="${LOOP_DEVICE}" ${RODATA_IMG} ${RODATA_MNT_DIR} || exit_on_error 
 #
 # Create encrypted directory and apply policy (must be done on empty directory)
 #
-${FSCRYPTCTL} insert_key --desc=${KEY_DESC} < "${KEY_BIN}"
+if [ -f "${KEY_BIN}" ] ; then
+  ${FSCRYPTCTL} insert_key --desc=${KEY_DESC} < "${KEY_BIN}"
+else
+  echo "${KEY_BIN}" | xxd -r -p | ${FSCRYPTCTL} insert_key --desc=${KEY_DESC}
+fi
 mkdir -p ${SECRET_DIR} || exit_on_error "Failed to create ${SECRET_DIR}"
 ${FSCRYPTCTL} set_policy ${KEY_DESC} ${SECRET_DIR} || exit_on_error "Failed to apply encryption policy"
 
