@@ -81,7 +81,7 @@ This section will walk a developer through following:
 * [Creating a custom SDK](#create-a-custom-sdk)
 
 ### Downloading a developer's SD card image
-Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Summit Linux release on a Ezurio SOM. For the 60 SOM, these prebuilt images are found on at [60 SOM release page](https://github.com/LairdCP/SOM60-Release-Packages/releases). These releases are named som60sd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a SOM running the latest software.
+Summit Linux releases include a prebuilt SD card image as a starting point for evaluating and integrating a Summit Linux release on a Ezurio SOM. For the 60 SOM, these prebuilt images are found on at [60 SOM release page](https://github.com/Ezurio/SOM60-Release-Packages/releases). These releases are named som60sd-summit-A.B.C.D.tar.bz2. These prebuilt SD card images are good for quickly testing a SOM running the latest software.
 
 ### Flashing a developer's SD card image
 Once the image is downloaded. Extract the image:
@@ -153,7 +153,7 @@ If you are not able to access USB flash drives on a virtual machine, here is a w
 
 ### Using a prebuilt SDK
 
-Summit Linux releases include a prebuilt SDK to start doing application development for a Ezurio SOM. For the 60 SOM, this prebuilt SDK is called som60sd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [60 SOM release page](https://github.com/LairdCP/SOM60-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Ezurio's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
+Summit Linux releases include a prebuilt SDK to start doing application development for a Ezurio SOM. For the 60 SOM, this prebuilt SDK is called som60sd-sdk-A.B.C.D.tar.bz2 and can be found with each release at the [60 SOM release page](https://github.com/Ezurio/SOM60-Release-Packages/releases). The prebuilt SDK includes the toolchain and all development files of the software packages used to generate the prebuilt SD card image from that release. The SDK can be set up for use with an IDE to allow application developers to not need a full BSP on their system. To use the SDK, extract the SDK tarball then run the script relocate-sdk.sh (located at the top directory of the SDK), to make sure all paths are updated with the new location. For more information on using SDKs generated from Ezurio's Buildroot fork, see the [Buildroot manual's section on the SDK](https://buildroot.org/downloads/manual/manual.html#_advanced_usage).
 
 ### Manifest file
 
@@ -176,7 +176,7 @@ Next, use repo to initalize and fetch your release. This is a two-step process: 
 
     mkdir lrd-12.x.y.z
     cd lrd-12.x.y.z
-    repo init -u git@github.com:LairdCP/SOM60-Release-Packages.git -m som60_12.x.y.z.xml
+    repo init -u git@github.com:Ezurio/SOM60-Release-Packages.git -m som60_12.x.y.z.xml
     repo sync
 
 _Note: Repo will initialize a .repo directory and then place all files directly in the directory that you are in when you run the `repo` command. So we recommend making a subdirectory and working in there._
@@ -308,7 +308,7 @@ If you'd like to create a custom SDK from your customized source build, while in
 ~/git/lrd-12.x.y.z/output/som60sd$ make sdk
 ```
 ## NetworkManager
-Ezurio uses its own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/LairdCP/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
+Ezurio uses its own customized fork of NetworkManager for networking configuration, including WiFi profile management. For more information on using NetworkManager please see our [Summit NetworkManager User Guide](https://github.com/Ezurio/SOM60-Release-Packages/releases/download/LRD-REL-6.0.0.138/user_guide_laird_networkmanager_0.1.pdf).
 
 ## Buildroot br2-external
 The br2-external mechanism provides a convenient way to customize project specific configure files, packages etc. outside of the Buildroot source tree. Following is an example layout of Ezurio Buildroot br2-external tree:
