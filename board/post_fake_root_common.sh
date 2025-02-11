@@ -50,6 +50,7 @@ generate_custom_encrypted_filesystem() {
     mkdir -p "${TARGET_DIR}/etc/rodata"
     mv -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata.img" \
         "${TARGET_DIR}/etc/rodata/rodata.img"
+    sudo chown "${USER}:${GROUP}" "${TARGET_DIR}/etc/rodata/rodata.img"
 
     [ -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata_manifest.txt" ] || \
         die "Failed to generate encrypted filesystem manifest"
