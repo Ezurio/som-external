@@ -34,8 +34,6 @@
 };
 
 &wifi_pwrseq {
-	status = "okay";
-
 	pinctrl-0 = <&main_wifi_en2_default>;
 	reset-gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>; /* SDIO_RESET# */
 };
