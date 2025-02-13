@@ -13,7 +13,7 @@ def exit_with_error(context, message, error_code=1):
 
 context = ftdi.new()
 
-# try to open an ftdi 0x6010 or 0x6001
+# try to open an ftdi 0x6015 device
 ret = ftdi.usb_open_desc(context, 0x0403, 0x6015, 'FT240X USB FIFO', None)
 if ret < 0:
     exit_with_error(None, f"ftdi.usb_open_desc(): {ret}")

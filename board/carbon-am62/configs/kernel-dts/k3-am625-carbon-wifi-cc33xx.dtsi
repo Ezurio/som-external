@@ -6,6 +6,7 @@
 #include "k3-am625-carbon-wifi.dtsi"
 
 / {
+	/* Regulator needed to sync Wi-Fi and Bluetooth on power transitions */
 	vcc_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_wifi_en";

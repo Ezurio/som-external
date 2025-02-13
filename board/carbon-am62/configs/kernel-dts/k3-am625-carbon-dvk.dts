@@ -167,6 +167,16 @@
 //	status = "okay"; /* Remove test_cam_mck before enabling this */
 };
 
+&cpsw_port1 {
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&cpsw3g_phy0>;
+};
+
+&cpsw_port2 {
+	phy-mode = "rgmii-rxid";
+	phy-handle = <&cpsw3g_phy1>;
+};
+
 &cpsw3g_mdio {
 	status = "okay";
 
