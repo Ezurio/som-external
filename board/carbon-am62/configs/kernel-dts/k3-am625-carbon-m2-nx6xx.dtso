@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO NX6xx module
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-m2.dtsi"
+
+&{/} {
+	vcc_wifi2_m2: regulator-wifi2-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_wifi2_m2";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		vin-supply = <&vcc_wifi_m2>;
+
+		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;  /* M2_WDISABLE1# */
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	vcc_bt_m2: regulator-bt-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_bt_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vcc_3v3_sys>;
+
+		gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;  /* M2_WDISABLE2# */
+		enable-active-high;
+		regulator-always-on;
+	};
+};
+
+&wifi_pwrseq_m2 {
+	reset-gpios = <&exp1 10 GPIO_ACTIVE_LOW>;   /* M2_SDIO_RESET# */
+	status = "okay";
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	vmmc-supply = <&vcc_wifi2_m2>;
+};
+
+&mcu_uart0 {
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+	};
+};

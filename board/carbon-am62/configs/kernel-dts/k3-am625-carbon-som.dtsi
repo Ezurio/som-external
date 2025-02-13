@@ -31,6 +31,11 @@
 		ethernet1 = &cpsw_port2;
 		usb0 = &usb0;
 		usb1 = &usb1;
+		gpio0 = &main_gpio0;
+		gpio1 = &main_gpio1;
+		gpio2 = &mcu_gpio0;
+		rtc0 = &rv3028;
+		rtc1 = &wkup_rtc0;
 	};
 
 	chosen {
@@ -147,47 +152,31 @@
 		regulator-boot-on;
 	};
 
-	vcc_1v8_sys: regulator-u3-b2 {
-		/* output of U3 Buck 2 */
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_1v8_sys";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
-		regulator-boot-on;
-	};
-
-	wifi_pwrseq: wifi-pwrseq {
-		compatible = "mmc-pwrseq-simple";
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_en_default>;
-		reset-gpios = <&main_gpio0 20 GPIO_ACTIVE_LOW>; /* W_DISABLE# */
-		power-off-delay-us = <100000>;
-		post-power-on-delay-ms = <150>;
-		clocks = <&rv3028>;
-		clock-names = "ext_clock";
-		status = "okay";
-	};
-
 	vdd_sd: regulator-u3-ldo1 {
 		/* Output of U3 TPS6521920WRHBRQ1 VLDO1 */
 		compatible = "regulator-gpio";
+		vin-supply = <&ldo1_reg>;
 		regulator-name = "vdd_sd_u3_vldo1";
 		pinctrl-names = "default";
 		pinctrl-0 = <&vdd_sd_pins_default>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
-		regulator-boot-on;
 		gpios = <&main_gpio0 31 GPIO_ACTIVE_HIGH>;
-		states = <1800000 0x0>,
-			 <3300000 0x1>;
+		states = <1800000 0x0>, <3300000 0x1>;
+	};
+
+	mmc0_pwrseq: pwrseq {
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_mmc0_reset_pins_default>;
+
+		compatible = "mmc-pwrseq-emmc";
+		reset-gpios = <&main_gpio0 15 GPIO_ACTIVE_LOW>;
 	};
 };
 
 &cpsw3g {
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_rgmii1_pins_default
-			 &main_rgmii2_pins_default>;
+	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;
 
 	cpts@3d000 {
 		/* MAP HW3_TS_PUSH to GENF1 */
@@ -196,7 +185,6 @@
 };
 
 &cpsw3g_mdio {
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mdio1_pins_default>;
 };
@@ -214,7 +202,6 @@
 &epwm1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm1_pins_default>;
-	status = "disabled";
 };
 
 &ecap2 {
@@ -239,13 +226,13 @@
 &main_gpio0 {
 	gpio-line-names = "","GPIO_A_2","GPIO_A_1","","", 	/* 0 - 4 */
 		"","","","","",
-		"","","","","",					/* 10 - 14 */
-		"","","GPIO_B_7","SDIO_A_PWR_EN","GPIO_C_2",
-		"W_DISABLE#","","W_DISABLE2#","","",		/* 20 - 24 */
-		"GPIO_C_3","","","","GPIO_C_7",
-		"GPIO_B_6","SDIO_A_IOPWR","","","",	/* 30 - 34 */
+		"","","","","GPIO_C_2",				/* 10 - 14 */
+		"","WIFI_WAKE","GPIO_B_7","SDIO_A_PWR_EN","",
+		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
+		"RGB_CS","RGB_DISP","","","GPIO_C_7",
+		"GPIO_B_6","SDIO_A_IOPWR","","","",		/* 30 - 34 */
 		"","GPIO_B_3","GPIO_A_0","GPIO_B_2","GPIO_C_0",
-		"","GPIO_C_1","","","",				/* 40 - 44 */
+		"","","BT_HOST_WAKE","GPIO_C_1","",		/* 40 - 44 */
 		"","","","","",
 		"","","","","",					/* 50 - 54 */
 		"","","","","",
@@ -380,28 +367,24 @@
 };
 
 &main_i2c1 { /* I2C_A */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c1_pins_default>;
 	clock-frequency = <100000>;
 };
 
 &main_i2c2 { /* I2C_B */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c2_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &main_i2c3 { /* I2C_CAM */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c3_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &main_mcan0 { /* CAN_A */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mcan0_pins_default>;
 };
@@ -411,13 +394,6 @@
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x00a4, PIN_INPUT, 1) /* PWM_0 (M22) GPMC0_DIR.PR0_ECAP0_IN_APWM_OUT */
 		>;
-	};
-
-	main_bt_gpio_pins_default: main-bt-gpio-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x058, PIN_INPUT, 7) /* W_DISABLE2# (R23) GPMC0_AD7.GPIO0_22 */
-		>;
-			//AM62X_IOPAD(0x084, PIN_INPUT, 7) /* BT_HOST_WAKE (L23) GPMC0_ADVn_ALE.GPIO0_32 */
 	};
 
 	main_ecap2_pins_default: main-ecap2-default-pins {
@@ -458,6 +434,12 @@
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x01d0, PIN_INPUT_PULLUP, 2) /* (A15) UART0_CTSn.I2C3_SCL */
 			AM62X_IOPAD(0x01d4, PIN_INPUT_PULLUP, 2) /* (B15) UART0_RTSn.I2C3_SDA */
+		>;
+	};
+
+	main_mmc0_reset_pins_default: main-mmc0-reset-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x003c, PIN_INPUT, 7) /* (M25) GPMC0_AD0.GPIO0_15 */
 		>;
 	};
 
@@ -638,15 +620,33 @@
 		>;
 	};
 
+	main_bt_en_pins_default: main-bt-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x058, PIN_INPUT, 7) /* W_DISABLE2# (R23) GPMC0_AD7.GPIO0_22 */
+		>;
+	};
+
+	main_bt_wake_pins_default: main-bt-wake-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0ac, PIN_INPUT_PULLUP, 7) /* BT_HOST_WAKE (L21) GPMC0_CSn1.GPIO0_42 */
+		>;
+	};
+
 	main_wifi_en_default: main-wifi-en-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x050, PIN_INPUT, 7) /* W_DISABLE# (P22) GPMC0_AD5.GPIO0_20 */
+			AM62X_IOPAD(0x050, PIN_INPUT, 7) /* W_DISABLE1# (P22) GPMC0_AD5.GPIO0_20 */
+		>;
+	};
+
+	main_wifi_en2_default: main-wifi-en2-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x054, PIN_INPUT, 7) /* SDIO_RESET# (P21) GPMC0_AD6.GPIO0_21 */
 		>;
 	};
 
 	main_wifi_wake_default: main-wifi-wake-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x040, PIN_INPUT, 7) /* SDIO_WAKE# (N23) GPMC0_AD1.GPIO0_16 */
+			AM62X_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* SDIO_WAKE# (N23) GPMC0_AD1.GPIO0_16 */
 		>;
 	};
 
@@ -676,9 +676,8 @@
 };
 
 &main_spi0 { /* SPI_B */
-	status = "disabled";
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_spi0_pins_default>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_spi0_pins_default>;
 };
 
 &main_uart0 {
@@ -687,35 +686,31 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart0_pins_default>;
 	interrupts-extended = <&gic500 GIC_SPI 178 IRQ_TYPE_LEVEL_HIGH>,
-				   <&main_pmx0 0x1c8>; /* (D14) UART0_RXD PADCONFIG114 */
+			      <&main_pmx0 0x1c8>; /* (D14) UART0_RXD PADCONFIG114 */
 	interrupt-names = "irq", "wakeup";
 };
 
 /* On-module Bluetooth */
 &main_uart1 {
-	/* ttyS3 BT (Also used by TIFS firmware) */
+	/* BT (Also used by TIFS firmware) */
+	status = "reserved";
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart1_pins_default>, <&main_bt_gpio_pins_default>;
-	uart-has-rtscts;
-	status = "okay";
+	pinctrl-0 = <&main_uart1_pins_default>;
 };
 
 &main_uart4 {
-	/* ttyS6 UART_D */
-	status = "disabled";
+	/* UART_D */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart4_pins_default>;
 };
 
 &main_uart6 {
-	/* ttyS4 UART_A */
-	status = "disabled";
+	/* UART_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart6_pins_default>;
 };
 
 &mcasp1 {
-	status = "disabled";
 	#sound-dai-cells = <0>;
 
 	pinctrl-names = "default";
@@ -790,7 +785,7 @@
 		>;
 	};
 
-	pinctrl_mcu_uart0: muc-uart0-default-pins {
+	pinctrl_mcu_uart0: mcu-uart0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x01c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
 			AM62X_MCU_IOPAD(0x020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
@@ -801,44 +796,34 @@
 };
 
 &mcu_uart0 {
-	/* ttyS5 UART_B */
+	/* UART_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_mcu_uart0>;
-	status = "disabled";
 };
 
 &ospi0 { /* SPI_A Only 4 bits are routed out */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&ospi0_pins_default>;
 };
 
 &sdhci0 { /* eMMC */
 	status = "okay";
+
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc0_pins_default>;
+
+	mmc-pwrseq = <&mmc0_pwrseq>;
 	disable-wp;
+	non-removable;
+	bus-width = <8>;
+
+ 	ti,fails-without-test-cd;
+	ti,driver-strength-ohm = <50>;
 };
 
 &sdhci1 { /* SDIO_A */
-	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
-};
-
-&sdhci2 { /* SDIO_B  WIFI */
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_wake_default>;
-	mmc-pwrseq = <&wifi_pwrseq>; /* W_DISABLE# */
-
-	non-removable;
-	ti,fails-without-test-cd;
-	keep-power-in-suspend;
-	ti,driver-strength-ohm = <50>;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
 };
 
 #define K3_TS_OFFSET(pa, val)	(0x4+(pa)*4) (0x10000 | val)

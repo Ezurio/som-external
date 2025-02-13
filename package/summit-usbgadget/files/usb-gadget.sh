@@ -107,13 +107,22 @@ create_gadget() {
 
 create_gadgets() {
 	# shellcheck source=/dev/null
-	test -r /etc/default/usb-gadget && . /etc/default/usb-gadget
+	[ -r /etc/default/usb-gadget ] && . /etc/default/usb-gadget
 
 	[ "${USB_GADGET_ETHER_PORTS:-0}"  -gt 0 ] || \
 	[ "${USB_GADGET_SERIAL_PORTS:-0}" -gt 0 ] || \
 		die "No usb-gadget specified"
 
-	read -r soc_id < /sys/devices/soc0/soc_id
+	if [ -f /sys/devices/soc0/soc_id ]; then
+		# Get the SoC ID
+		read -r soc_id < /sys/devices/soc0/soc_id
+	elif [ -f /sys/devices/soc0/family ]; then
+		# Get the SoC family
+		read -r soc_id < /sys/devices/soc0/family
+	else
+		soc_id="unknown"
+	fi
+
 	case "${soc_id}" in
 		at91sam9g20)
 			modprobe at91_udc

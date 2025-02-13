@@ -108,6 +108,12 @@ if ! grep -qF BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=y "${BR2_CONFIG}" ; then
 	sed -i -r '\,/dev/root, s,rw,ro,' "${TARGET_DIR}/etc/fstab"
 fi
 
+if ! grep -qF BR2_INIT_SYSTEMD=y "${BR2_CONFIG}" && \
+	! grep -qF /sys/kernel/debug "${TARGET_DIR}/etc/fstab" ; 
+then
+	echo 'debugfs    /sys/kernel/debug      debugfs  defaults  0 0' >> "${TARGET_DIR}/etc/fstab"
+fi
+
 # No need to detect SmartMedia cards, thus remove errors and speedup boot
 rm -f "${TARGET_DIR}/usr/lib/udev/rules.d/75-probe_mtd.rules"
 
@@ -143,7 +149,8 @@ rm -f "${TARGET_DIR}/usr/lib/systemd/system/sysinit.target.wants/sys-fs-fuse-con
 
 if [ -f "${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service" ] && \
    ! grep -qF "BR2_PACKAGE_LIBDRM=y" "${BR2_CONFIG}"; then
-	sed -i 's/modprobe@drm.service//g' "${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service"
+	sed -i 's/modprobe@drm.service//g' \
+		"${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service"
 fi
 
 # Remove bluetooth support when BlueZ 5 not present
@@ -156,9 +163,13 @@ if [ ! -x "${TARGET_DIR}/usr/bin/btattach" ]; then
 else
 	# Customize BlueZ Bluetooth advertised name
 	if [ -e "${TARGET_DIR}/etc/bluetooth/main.conf" ]; then
-		sed -i "s/.*Name *=.*/Name = Summit-${BR2_SUMMIT_PRODUCT^^}/" "${TARGET_DIR}/etc/bluetooth/main.conf"
+		sed -i "s/.*Name *=.*/Name = Summit-${BR2_SUMMIT_PRODUCT^^}/" \
+			"${TARGET_DIR}/etc/bluetooth/main.conf"
 	fi
-	sed -i 's/ConfigurationDirectoryMode=0555/ConfigurationDirectoryMode=0755/g' "${TARGET_DIR}/usr/lib/systemd/system/bluetooth.service"
+	if [ -f "${TARGET_DIR}/usr/lib/systemd/system/bluetooth.service" ]; then
+		sed -i 's/ConfigurationDirectoryMode=0555/ConfigurationDirectoryMode=0755/g' \
+			"${TARGET_DIR}/usr/lib/systemd/system/bluetooth.service"
+	fi
 fi
 
 # Remove autoloading cryptodev module when not present

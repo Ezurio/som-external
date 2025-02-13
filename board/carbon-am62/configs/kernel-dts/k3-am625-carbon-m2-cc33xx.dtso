@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO IF5xx module
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-m2.dtsi"
+
+&{/} {
+	vcc_wifi2_m2: regulator-wifi2-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_wifi_en_m2";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		vin-supply = <&vcc_wifi_m2>;
+	};
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	vmmc-supply = <&vcc_wifi2_m2>;
+
+	cap-power-off-card;
+
+	bt@1 {
+		reg = <1>;
+		compatible = "ti,cc33xxbt";
+	};
+
+	wifi@2 {
+		reg = <2>;
+		compatible = "ti,cc33xx";
+	};
+};
+
+&mcu_uart0 {
+	bluetooth {
+		compatible = "ti,cc33xx-bt";
+		cc33xx-supply = <&vcc_wifi2_m2>;
+		max-speed = <115200>;
+	};
+};

@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO IF5xx module
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-m2.dtsi"
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		laird,regdomain = "US";
+	};
+};
+
+&mcu_uart0 {
+	bluetooth {
+		compatible = "infineon,cyw55572-bt";
+		brcm,requires-autobaud-mode;
+		max-speed = <921600>;
+		shutdown-gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;
+	};
+};
