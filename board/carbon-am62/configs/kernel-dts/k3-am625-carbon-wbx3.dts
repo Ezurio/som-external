@@ -37,7 +37,7 @@
 		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&main_gpio0 2 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <10>;
-		reset-deassert-us = <200>;
+		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
@@ -52,7 +52,7 @@
 		interrupts = <41 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&main_gpio0 39 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <10>;
-		reset-deassert-us = <200>;
+		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
