@@ -79,11 +79,8 @@ write_encrypted_filesystem_key() {
 }
 
 create_secure_boot_encryption_key() {
-	# Check if the Secure SAM-BA Cipher Tool is available        
-	[ -d "${KEYS_DIR}/secure-sam-ba-cipher-3.5" ] || \
-		die "No Secure SAM-BA Cipher Tool directory found"
-
-	samba_cipher_tool="${KEYS_DIR}/secure-sam-ba-cipher-3.5/secure-sam-ba-cipher.py"
+	# Check if the Secure SAM-BA Cipher Tool is available
+	samba_cipher_tool="${HOST_DIR}/opt/secure-sam-ba-cipher/secure-sam-ba-cipher.py"
 	[ -f "${samba_cipher_tool}" ] || \
 		die "No Secure SAM-BA Cipher Tool found"
 
