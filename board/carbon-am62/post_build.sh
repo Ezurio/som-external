@@ -16,4 +16,7 @@ BUILD_TYPE="${2}"
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_build_common.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
 
+cp "${BUILD_DIR}"/ti-k3-boot-firmware-*/ti-ipc/am62xx/am62-mcu-m4f0_0-fw \
+	"${TARGET_DIR}/lib/firmware/"
+
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD CARBON_AM62 script: done."

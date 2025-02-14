@@ -161,33 +161,65 @@
 		max-bitrate = <5000000>;
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
+
+	vcc_usb0_vbus: regulator-usb0-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb0_en_pins_default>;
+		enable-active-high;
+		gpio = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "vcc_usb0_vbus";
+	};
+
+	connector {
+		compatible = "gpio-usb-b-connector", "usb-b-connector";
+		pinctrl-names = "default";
+		pinctrl-0 = <&mcu_usb_a_id_pins_default>;
+		id-gpios = <&mcu_gpio0 16 GPIO_ACTIVE_HIGH>;
+		label = "USB_0";
+		self-powered;
+		vbus-supply = <&vcc_usb0_vbus>;
+
+		port {
+			usb_dr_connector: endpoint {
+				remote-endpoint = <&usb0_ep>;
+			};
+		};
+	};
 };
 
 &cam_mck {
 //	status = "okay"; /* Remove test_cam_mck before enabling this */
 };
 
+&cpsw3g {
+	status = "okay";
+};
+
 &cpsw_port1 {
-	phy-mode = "rgmii-rxid";
+	status = "okay";
 	phy-handle = <&cpsw3g_phy0>;
 };
 
 &cpsw_port2 {
-	phy-mode = "rgmii-rxid";
+	status = "okay";
 	phy-handle = <&cpsw3g_phy1>;
 };
 
 &cpsw3g_mdio {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_mdio1_pins_default>, <&main_rgmii_phy0_gpio>,
+		<&main_rgmii_phy1_gpio>;
+
 	status = "okay";
 
 	cpsw3g_phy0: ethernet-phy@3 {
 		reg = <3>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgmii_phy0_gpio>;
-		interrupt-parent = <&main_gpio0>;
-		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&main_gpio0 1 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&main_gpio0 2 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <10>;
+		reset-assert-us = <150>;
 		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
@@ -197,12 +229,9 @@
 
 	cpsw3g_phy1: ethernet-phy@1 {
 		reg = <1>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgmii_phy1_gpio>;
-		interrupt-parent = <&main_gpio0>;
-		interrupts = <41 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&main_gpio0 41 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&main_gpio0 39 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <10>;
+		reset-assert-us = <150>;
 		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
@@ -397,6 +426,12 @@
 			AM62X_IOPAD(0x098, PIN_OUTPUT, 2) /* (U23) GPMC0_WAIT0.MCASP1_AFSX - Frame Transmit */
 		>;
 	};
+
+	main_usb0_en_pins_default: main-usb0-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x254, PIN_INPUT, 7) /* (C20) USB0_DRVVBUS.GPIO1_50 */
+		>;
+	};
 };
 
 &main_spi0 { /* SPI_B */
@@ -529,4 +564,32 @@
 			#size-cells = <0>;
 		};
 	};
+};
+
+&usbss0 {
+	status = "okay";
+	ti,vbus-divider;
+};
+
+&usbss1 {
+	status = "okay";
+	ti,vbus-divider;
+};
+
+&usb0 {
+	adp-disable;
+	usb-role-switch;
+
+	port {
+		usb0_ep: endpoint {
+			remote-endpoint = <&usb_dr_connector>;
+		};
+	};
+};
+
+&usb1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usb1_pins_default>;
+
+	dr_mode = "host";
 };

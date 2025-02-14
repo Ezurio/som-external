@@ -7,6 +7,9 @@
 #include "k3-am625-carbon-m2.dtsi"
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";

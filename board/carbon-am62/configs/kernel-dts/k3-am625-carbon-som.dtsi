@@ -178,10 +178,22 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;
 
+	status = "disabled";
+
 	cpts@3d000 {
 		/* MAP HW3_TS_PUSH to GENF1 */
 		ti,pps = <2 1>;
 	};
+};
+
+&cpsw_port1 {
+	status = "disabled";
+	phy-mode = "rgmii-rxid";
+};
+
+&cpsw_port2 {
+	status = "disabled";
+	phy-mode = "rgmii-rxid";
 };
 
 &cpsw3g_mdio {
@@ -266,8 +278,8 @@
 		pinctrl-0 = <&mcu_rtc_pins_default>;
 		compatible = "microcrystal,rv3028";
 		reg = <0x52>;
-		// interrupts-extended = <&mcu_gpio0 23 GPIO_ACTIVE_LOW>;
-		// wakeup-source;
+		interrupts-extended = <&mcu_gpio0 23 GPIO_ACTIVE_LOW>;
+		wakeup-source;
 	};
 
 	tps65219: pmic@30 {
@@ -515,13 +527,13 @@
 
 	main_usb0_pins_default: main-usb0-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */
+			AM62X_IOPAD(0x254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */
 		>;
 	};
 
 	main_usb1_pins_default: main-usb1-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0258, PIN_OUTPUT, 0) /* (F18) USB1_DRVVBUS */
+			AM62X_IOPAD(0x258, PIN_OUTPUT, 0) /* (F18) USB1_DRVVBUS */
 		>;
 	};
 
@@ -721,16 +733,16 @@
 
 /* mcu_gpio0 and mcu_gpio_intr are reserved for mcu firmware usage */
 &mcu_gpio0 {
-	status = "reserved";
-	gpio-line-names = "","","","","",			/* 0 - 4 */
+	status = "okay";
+	gpio-line-names = "","","","","",					/* 0 - 4 */
 		"","","","","",
-		"","GPIO_B_1","GPIO_B_0","","",			/* 10 - 14 */
-		"","","GPIO_A_4","GPIO_A_5","GPIO_B_4",
-		"GPIO_B_5","","","rv3028_int";			/* 20 - 23 */
+		"","GPIO_B_1","GPIO_B_0","","",					/* 10 - 14 */
+		"","USB_A_ID","GPIO_A_4","GPIO_A_5","GPIO_B_4",
+		"GPIO_B_5","","","rv3028_int";					/* 20 - 23 */
 };
 
 &mcu_gpio_intr {
-	status = "reserved";
+	status = "okay";
 };
 
 &mcu_m4fss {
@@ -753,7 +765,6 @@
 
 &mcu_pmx0 {
 	wkup_uart0_pins_default: wkup-uart0-default-pins {
-		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x02c, PIN_INPUT, 0) /* (C6/A7) WKUP_UART0_CTSn */
 			AM62X_MCU_IOPAD(0x030, PIN_OUTPUT, 0) /* (A4/B4) WKUP_UART0_RTSn */
@@ -762,7 +773,7 @@
 		>;
 	};
 
-	mcu_mcan0_pins_default: mcu-mcan0-pins-default {
+	mcu_mcan0_pins_default: mcu-mcan0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x034, PIN_OUTPUT, 0) /* CAN_B_TX (D6) MCU_MCAN0_TX */
 			AM62X_MCU_IOPAD(0x038, PIN_INPUT, 0) /* CAN_B_RX (B3) MCU_MCAN0_RX */
@@ -775,7 +786,7 @@
 		>;
 	};
 
-	pinctrl_mcu_uart0: mcu-uart0-default-pins {
+	mcu_uart0_pins_default: mcu-uart0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x01c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
 			AM62X_MCU_IOPAD(0x020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
@@ -783,12 +794,18 @@
 			AM62X_MCU_IOPAD(0x018, PIN_OUTPUT, 0) /* (A5) MCU_UART0_TXD */
 		>;
 	};
+
+	mcu_usb_a_id_pins_default: mcu-usb-a-id-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x040, PIN_INPUT, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+		>;
+	};
 };
 
 &mcu_uart0 {
 	/* UART_B */
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_mcu_uart0>;
+	pinctrl-0 = <&mcu_uart0_pins_default>;
 };
 
 &ospi0 { /* SPI_A Only 4 bits are routed out */
@@ -830,30 +847,6 @@
 			K3_TS_OFFSET(12, 17)
 		>;
 	};
-};
-
-&usbss0 {
-	status = "okay";
-	ti,vbus-divider;
-};
-
-&usbss1 {
-	status = "okay";
-	ti,vbus-divider;
-};
-
-&usb0 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	dr_mode = "device";
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb0_pins_default>;
-};
-
-&usb1 {
-	dr_mode = "host";
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_pins_default>;
 };
 
 &wkup_uart0 {
