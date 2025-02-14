@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER
+    bool "host secure sam-ba cipher tool"
+    help
+        Secure SAM-BA Cipher Tool
