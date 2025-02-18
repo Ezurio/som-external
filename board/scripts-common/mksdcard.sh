@@ -220,8 +220,10 @@ if ! check_format ; then
 	echo "[Partitioning ${TARGET}...]"
 
 	# Wipe partition table if gpt
-	[ "$(/usr/bin/lsblk -nldo pttype "${TARGET}")" = "mbr" ] || \
-		/usr/sbin/sgdisk -Z "${TARGET}" > /dev/null
+	if [ "$(/usr/bin/lsblk -nldo pttype "${TARGET}")" = 'gpt' ]; then
+		/usr/sbin/sgdisk -Z "${TARGET}" > /dev/null || \
+			die "Failed to wipe 'gpt' partition table"
+	fi
 
 	# Create device partition table
 	if ${boot_only}; then
