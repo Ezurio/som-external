@@ -1,4 +1,6 @@
 config BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER
     bool "host secure sam-ba cipher tool"
+    select BR2_PACKAGE_HOST_PYTHON_CRYPTOGRAPHY
+    select BR2_PACKAGE_HOST_PYTHON_PYYAML
     help
         Secure SAM-BA Cipher Tool

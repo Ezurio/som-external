@@ -10,6 +10,8 @@ set -x -e -o pipefail
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST FAKE ROOT COMMON script: starting..."
 
+BUILD_TYPE="${2}"
+
 die() { echo "$@" >&2; exit 1; }
 
 generate_custom_encrypted_filesystem() {
@@ -80,8 +82,8 @@ write_encrypted_filesystem_key() {
 
 create_secure_boot_encryption_key() {
 	# Check if the Secure SAM-BA Cipher Tool is available
-	samba_cipher_tool="${HOST_DIR}/opt/secure-sam-ba-cipher/secure-sam-ba-cipher.py"
-	[ -f "${samba_cipher_tool}" ] || \
+	samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
+	[ -f "${samba_cipher_tool_dir}/sam_gen_keypayload.py" ] || \
 		die "No Secure SAM-BA Cipher Tool found"
 
 	license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
@@ -101,16 +103,32 @@ create_secure_boot_encryption_key() {
 		die "No secure boot encryption key found in the keys directory"
 
     set +x
-    "${HOST_DIR}/bin/python3" "${samba_cipher_tool}" customer-key -d sama5d3x -l "${license_path}" \
-        -k "$(cat "${secure_boot_encryption_key}")" -o "${BINARIES_DIR}/customer_key.cip" \
-        -pk "${license_key}" -pp "$(cat "${license_passcode}")"
+    # Generate the customer key config file
+    customer_key_config="${KEYS_DIR}/customer_key_config.yaml"
+    cat > "${customer_key_config}" << EOF
+chip_type: sama5d3x
+image_type: secure
+security:
+    key_cust: hfil:${KEYS_DIR}/secure_boot_encryption_key.txt
+EOF
+
+    "${HOST_DIR}/bin/python3" "${samba_cipher_tool_dir}/sam_gen_keypayload.py" \
+        -l "${license_path}" -k "${customer_key_config}" \
+        -o "${BINARIES_DIR}/customer_key.cip" -pk "${license_key}" \
+        -pp "$(sed -e s/pass://g < "${license_passcode}")"
     set -x
 
 	# Verify the customer key files were created successfully
-	[ -f "${BINARIES_DIR}/customer_key_sama5d3x.cip" ] || \
+	if [ -f "${BINARIES_DIR}/customer_key_aes_sama5d3x.cip" ]; then
+        mv "${BINARIES_DIR}/customer_key_aes_sama5d3x.cip" "${BINARIES_DIR}/customer_key_sama5d3x.cip"
+    else
 		die "Failed to generate customer key"
-	[ -f "${BINARIES_DIR}/customer_key_sama5d3x_nk.cip" ] || \
+    fi
+    if [ -f "${BINARIES_DIR}/customer_key_aes_sama5d3x_nk.cip" ]; then
+        mv "${BINARIES_DIR}/customer_key_aes_sama5d3x_nk.cip" "${BINARIES_DIR}/customer_key_sama5d3x_nk.cip"
+    else
 		die "Failed to generate customer key"
+    fi
 }
 
 get_secure_mode_command() {
@@ -139,8 +157,14 @@ if [ -n "${KEYS_DIR}" ]; then
     create_secure_boot_encryption_key
     get_secure_mode_command
 
-    # Replace boot.bin with boot.cip in sw-description to support encrypted u-boot-spl
-    sed -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
+    case "${BUILD_TYPE}" in
+        *sd)
+            ;;
+        *)
+            # Replace boot.bin with boot.cip in sw-description to support encrypted u-boot-spl
+            sed -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
+            ;;
+    esac
 fi
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST FAKE ROOT COMMON script: done."

@@ -112,27 +112,25 @@ hash_check() {
 
 create_secure_boot_encrypted_uboot_spl() {
 	# Check if the Secure SAM-BA Cipher Tool is available
-	samba_cipher_tool="${HOST_DIR}/opt/secure-sam-ba-cipher/secure-sam-ba-cipher.py"
-	[ -f "${samba_cipher_tool}" ] || \
+	samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
+	[ -f "${samba_cipher_tool_dir}/sam_genimage.py" ] || \
 		die "No Secure SAM-BA Cipher Tool found"
 
-	license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
-	[ -f "${license_path}" ] || \
-		die "No license file found in the keys directory"
+    customer_key_config="${KEYS_DIR}/customer_key_config.yaml"
+	[ -f "${customer_key_config}" ] || \
+		die "No customer key config file found in the keys directory"
 
-	secure_boot_encryption_key="${KEYS_DIR}/secure_boot_encryption_key.txt"
-	[ -f "${secure_boot_encryption_key}" ] || \
-		die "No secure boot encryption key found in the keys directory"
-
-	set +x
-	"${HOST_DIR}/bin/python3" "${samba_cipher_tool}" bootstrap -d sama5d3x -l "${license_path}" \
-		-k "$(cat "${secure_boot_encryption_key}")" -i u-boot-spl.bin \
-        -o bootstrap.cip
-	set -x
+    # Generate the encrypted U-Boot SPL file
+	"${HOST_DIR}/bin/python3" "${samba_cipher_tool_dir}/sam_genimage.py" \
+        -c "${customer_key_config}" \
+        u-boot-spl.bin \
+        bootstrap_sama5d3x.cip
 
 	# Verify the encrypted U-Boot SPL file was created successfully
 	[ -f bootstrap_sama5d3x.cip ] || \
 		die "Failed to generate encrypted U-Boot SPL"
+    
+    rm -f "${customer_key_config}"
 }
 
 case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
