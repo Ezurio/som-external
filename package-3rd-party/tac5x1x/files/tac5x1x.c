@@ -871,8 +871,8 @@ static const struct reg_default tac5x1x_reg_defaults[] = {
 	{TAC5X1X_INT, 0x10},
 	{TAC5X1X_ADCCH1C0, 0x04},
 	{TAC5X1X_ADCCH2C0, 0x04},
-	{TAC5X1X_OUT1CFG0, 0x24},
-	{TAC5X1X_OUT2CFG0, 0x20},
+	{TAC5X1X_OUT1CFG0, 0x28},
+	{TAC5X1X_OUT2CFG0, 0x28},
 	{TAC5X1X_CH_EN, 0x00},
 	{TAC5X1X_PASITXCH1, 0x20},
 	{TAC5X1X_PASITXCH2, 0x01},
@@ -987,9 +987,7 @@ static int tac5x1x_set_dai_fmt(struct snd_soc_dai *codec_dai, u32 fmt)
 	snd_soc_component_update_bits(component, TAC5X1X_PASIRX0,
 				TAC5X1X_PASIRX_OFFSET_MASK, iface_reg_3);
 	snd_soc_component_update_bits(component, TAC5X1X_PASIRXCH2,
-				TAC5X1X_PASIRX_SLOT_MASK, 1);
-	snd_soc_component_write(component, TAC5X1X_PASIRXCH3, 0x21);
-	snd_soc_component_write(component, TAC5X1X_PASIRXCH4, 0x21);
+				TAC5X1X_PASIRX_SLOT_MASK, iface_reg_4);
 
 	return 0;
 }
