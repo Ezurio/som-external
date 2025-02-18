@@ -34,8 +34,7 @@ if [ -f "${BINARIES_DIR}/sw-description" ]; then
 fi
 
 BOOTLOADER_BINARY=${BOOTLOADER_BINARY:-boot.bin}
-RELEASE_FILE_SUFFIX=${RELEASE_FILE_SUFFIX:-""}
-RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}${RELEASE_FILE_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
+RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
 # Determine if we are building SD card image
 case "${BUILD_TYPE}" in
@@ -88,7 +87,13 @@ then
 	rm -rf "${BINARIES_DIR}/jdk"
 
 	# Add the dependency tarball to the release archive
-	OPENJDK_TARBALL_FILE=${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-openjdk.tar.gz
+	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
+	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}_devel-summit-openjdk.tar.gz"
+	elif [ -n "${BR2_LRD_IG60_TARGET}" ]; then
+	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
+	else
+	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz"
+	fi
 	tar -C "${BINARIES_DIR}" -rhSf "${RELEASE_FILE}" \
 		--owner=root --group=root \
 		"${OPENJDK_TARBALL_FILE}"

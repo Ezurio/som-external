@@ -15,9 +15,6 @@ BUILD_TYPE="${2}"
 if [ -n "${KEYS_DIR}" ]; then
 	BOOTLOADER_BINARY="boot.cip"
 	export BOOTLOADER_BINARY
-
-	RELEASE_FILE_SUFFIX="-secureboot"
-	export RELEASE_FILE_SUFFIX
 fi
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_common.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
