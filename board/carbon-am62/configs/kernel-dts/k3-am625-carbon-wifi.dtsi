@@ -58,7 +58,7 @@
 
 	non-removable;
 	ti,fails-without-test-cd;
-	ti,driver-strength-ohm = <40>;
+	ti,driver-strength-ohm = <50>;
 	keep-power-in-suspend;
 
 	#address-cells = <1>;
