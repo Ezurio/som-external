@@ -974,7 +974,7 @@ static int tac5x1x_set_dai_fmt(struct snd_soc_dai *codec_dai, u32 fmt)
 		break;
 	default:
 		dev_err(component->dev,
-		"%s: invalid DAI interface format\n", __func__);
+			"%s: invalid DAI interface format\n", __func__);
 		return -EINVAL;
 	}
 
