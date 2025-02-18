@@ -99,7 +99,6 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awsiotsdk/Config.
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-btsocket/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-gatt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-httptools/Config.in"
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-pycryptodome/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spectree/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-transitions/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"

@@ -118,16 +118,16 @@ EOF
         -pp "$(sed -e s/pass://g < "${license_passcode}")"
     set -x
 
-	# Verify the customer key files were created successfully
-	if [ -f "${BINARIES_DIR}/customer_key_aes_sama5d3x.cip" ]; then
+    # Verify the customer key files were created successfully
+    if [ -f "${BINARIES_DIR}/customer_key_aes_sama5d3x.cip" ]; then
         mv "${BINARIES_DIR}/customer_key_aes_sama5d3x.cip" "${BINARIES_DIR}/customer_key_sama5d3x.cip"
     else
-		die "Failed to generate customer key"
+        die "Failed to generate customer key"
     fi
     if [ -f "${BINARIES_DIR}/customer_key_aes_sama5d3x_nk.cip" ]; then
         mv "${BINARIES_DIR}/customer_key_aes_sama5d3x_nk.cip" "${BINARIES_DIR}/customer_key_sama5d3x_nk.cip"
     else
-		die "Failed to generate customer key"
+        die "Failed to generate customer key"
     fi
 }
 
