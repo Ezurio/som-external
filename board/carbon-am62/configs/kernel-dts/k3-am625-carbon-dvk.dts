@@ -278,10 +278,10 @@
 
 		gpio-line-names = "USB_C_OEn_P00", "USB_D_OEn_P01",
 			"CAN_A_STB", "CAN_B_STB",
-			"M2_WDISABLE1_EXP", "M2_WDISABLE2_EXP", 
-			"M2_WL_DEVICE_WAKEUP", "M2_BT_DEVICE_WAKEUP",
-			"AUD_PWR_EN", "M2_Vendor_DF38", "M2_SD_nRST",
-			"CHGR_CEn", "M2_Power_EN", 
+			"M2_WDISABLE1#", "M2_WDISABLE2#",
+			"M2_WL_DEVICE_WAKE", "M2_BT_DEVICE_WAKE",
+			"AUD_PWR_EN", "M2_Vendor_DF38", "M2_SD_RST#",
+			"CHGR_CE#", "M2_POWER_EN",
 			"SDIO_A_SWITCH_EN", "SDIO_A_SEL", "";
 	};
 

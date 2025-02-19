@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * M.2 SDIO TI CC33xx module
+ *
  * Copyright (C) 2024 Ezurio LLC
  */
 
@@ -16,6 +17,11 @@
 
 		vin-supply = <&vcc_wifi_m2>;
 	};
+};
+
+&wifi_pwrseq_m2 {
+	post-power-on-delay-ms = <10>;
+	power-off-delay-us = <80>;
 };
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */

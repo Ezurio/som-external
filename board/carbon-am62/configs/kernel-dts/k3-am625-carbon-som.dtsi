@@ -228,7 +228,7 @@
 	gpio-line-names = "","GPIO_A_2","GPIO_A_1","","", 	/* 0 - 4 */
 		"","","","","",
 		"","","","","GPIO_C_2",				/* 10 - 14 */
-		"","WIFI_WAKE","GPIO_B_7","SDIO_A_PWR_EN","",
+		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","SDIO_A_PWR_EN","",
 		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
 		"RGB_CS","RGB_DISP","","","GPIO_C_7",
 		"GPIO_B_6","SDIO_A_IOPWR","","","",		/* 30 - 34 */
@@ -765,9 +765,9 @@
 &mcu_pmx0 {
 	wkup_uart0_pins_default: wkup-uart0-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x02c, PIN_INPUT, 0) /* (C6/A7) WKUP_UART0_CTSn */
+			AM62X_MCU_IOPAD(0x02c, PIN_INPUT_PULLUP, 0) /* (C6/A7) WKUP_UART0_CTSn */
 			AM62X_MCU_IOPAD(0x030, PIN_OUTPUT, 0) /* (A4/B4) WKUP_UART0_RTSn */
-			AM62X_MCU_IOPAD(0x024, PIN_INPUT, 0) /* (B4/B5) WKUP_UART0_RXD */
+			AM62X_MCU_IOPAD(0x024, PIN_INPUT_PULLUP, 0) /* (B4/B5) WKUP_UART0_RXD */
 			AM62X_MCU_IOPAD(0x028, PIN_OUTPUT, 0) /* (C5/C6) WKUP_UART0_TXD */
 		>;
 	};
@@ -787,9 +787,9 @@
 
 	mcu_uart0_pins_default: mcu-uart0-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x01c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
+			AM62X_MCU_IOPAD(0x01c, PIN_INPUT_PULLUP, 0) /* (A6) MCU_UART0_CTSn */
 			AM62X_MCU_IOPAD(0x020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
-			AM62X_MCU_IOPAD(0x014, PIN_INPUT, 0) /* (B5) MCU_UART0_RXD */
+			AM62X_MCU_IOPAD(0x014, PIN_INPUT_PULLUP, 0) /* (B5) MCU_UART0_RXD */
 			AM62X_MCU_IOPAD(0x018, PIN_OUTPUT, 0) /* (A5) MCU_UART0_TXD */
 		>;
 	};

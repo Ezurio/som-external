@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * M.2 SDIO IF5xx module
+ * M.2 SDIO Wi-Fi common functions
+ *
  * Copyright (C) 2024 Ezurio LLC
  */
 
@@ -20,8 +21,12 @@
 
 		vin-supply = <&vcc_3v3_sys>;
 
-		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>; 
+		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
+		startup-delay-us = <200000>;
+		off-on-delay-us = <100000>;
 		enable-active-high;
+
+		regulator-always-on;
 	};
 
 	wifi_pwrseq_m2: wifi-pwrseq-m2 {
@@ -53,12 +58,6 @@
 };
 
 &exp1 {
-	sdio_a_switch_en_hog {
-		gpio-hog;
-		output-high;
-		gpios = <13 GPIO_ACTIVE_HIGH>;
-	};
-
 	sdio_a_sel_hog {
 		gpio-hog;
 		output-high;
