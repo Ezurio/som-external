@@ -87,16 +87,8 @@ then
 	rm -rf "${BINARIES_DIR}/jdk"
 
 	# Add the dependency tarball to the release archive
-	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
-	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}_devel-summit-openjdk.tar.gz"
-	elif [ -n "${BR2_LRD_IG60_TARGET}" ]; then
-	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
-	else
-	    OPENJDK_TARBALL_FILE="${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz"
-	fi
 	tar -C "${BINARIES_DIR}" -rhSf "${RELEASE_FILE}" \
-		--owner=root --group=root \
-		"${OPENJDK_TARBALL_FILE}"
+		--owner=root --group=root openjdk.tar.gz
 fi
 
 bzip2 -f "${RELEASE_FILE}"

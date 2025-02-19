@@ -71,14 +71,7 @@ if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y "${BR2_CONFIG}"; then
 	mv "${TARGET_DIR}/usr/lib/jvm/lib/modules" "${BINARIES_DIR}/jdk/lib/"
 
 	# Create tarball
-	if [ -n "${BR2_LRD_IG60_DEVEL}" ] && [ -z "${BR2_LRD_IG60_TARGET}" ]; then
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_devel-summit-openjdk.tar.gz"
-	elif [ -n "${BR2_LRD_IG60_TARGET}" ]; then
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}_${BR2_LRD_IG60_TARGET}-summit-openjdk.tar.gz"
-	else
-	    OPENJDK_TARBALL_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}-summit-openjdk.tar.gz"
-	fi
-	tar -C "${BINARIES_DIR}" -czvf "${OPENJDK_TARBALL_FILE}" jdk
+	tar -C "${BINARIES_DIR}" -czvf "${BINARIES_DIR}/openjdk.tar.gz" jdk
 
 	# Create symlink the place of the 'modules' file
 	ln -sf /run/media/mmcblk0p1/jdk/lib/modules "${TARGET_DIR}/usr/lib/jvm/lib/modules"
