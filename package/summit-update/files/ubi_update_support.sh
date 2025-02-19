@@ -50,7 +50,7 @@ flash_factory_test() {
             /usr/sbin/nandtest -m "/dev/${mtd_dev}" || \
                 die "NAND test failed for ${mtd_dev} \"${mtd_name}\""
 
-            read -r bad_blocks "/sys/class/mtd/${mtd_dev}/bad_blocks"
+            read -r bad_blocks < "/sys/class/mtd/${mtd_dev}/bad_blocks"
 
             case ${mtd_name} in
             *spl)
