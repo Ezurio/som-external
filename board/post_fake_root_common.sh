@@ -6,7 +6,7 @@
 set -x -e -o pipefail
 
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
-	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
+    BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST FAKE ROOT COMMON script: starting..."
 
@@ -63,11 +63,11 @@ generate_custom_encrypted_filesystem() {
 write_encrypted_filesystem_key() {
     fdtput=${HOST_DIR}/bin/fdtput
     [ -x "${fdtput}" ] || \
-    	die "No fdtput found (uboot has not been built?)"
+        die "No fdtput found (uboot has not been built?)"
 
     encrypted_filesystem_key="${KEYS_DIR}/encrypted_filesystem_key.txt"
     [ -f "${encrypted_filesystem_key}" ] || \
-    	die "No encrypted filesystem key found in the keys directory"
+        die "No encrypted filesystem key found in the keys directory"
 
     set +x
     encrypted_filesystem_key=$(sed -r 's/(.{8})/\1 /g' -i "${encrypted_filesystem_key}" | sed 's/[[:space:]]*$//')
@@ -76,31 +76,31 @@ write_encrypted_filesystem_key() {
         "${BINARIES_DIR}/u-boot.dtb" \
         "summit,fs-key" \
         "${encrypted_filesystem_key}" || \
-    	    die "Failed to write encrypted filesystem key to U-Boot device tree"
+            die "Failed to write encrypted filesystem key to U-Boot device tree"
     set -x
 }
 
 create_secure_boot_encryption_key() {
-	# Check if the Secure SAM-BA Cipher Tool is available
-	samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
-	[ -f "${samba_cipher_tool_dir}/sam_gen_keypayload.py" ] || \
-		die "No Secure SAM-BA Cipher Tool found"
+    # Check if the Secure SAM-BA Cipher Tool is available
+    samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
+    [ -f "${samba_cipher_tool_dir}/sam_gen_keypayload.py" ] || \
+        die "No Secure SAM-BA Cipher Tool found"
 
-	license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
-	[ -f "${license_path}" ] || \
-		die "No license file found in the keys directory"
+    license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
+    [ -f "${license_path}" ] || \
+        die "No license file found in the keys directory"
 
-	license_key="${KEYS_DIR}/license_private_Prod.pem"
-	[ -f "${license_key}" ] || \
-		die "No license key found in the keys directory"
+    license_key="${KEYS_DIR}/license_private_Prod.pem"
+    [ -f "${license_key}" ] || \
+        die "No license key found in the keys directory"
 
-	license_passcode="${KEYS_DIR}/license_passcode.txt"
-	[ -f "${license_passcode}" ] || \
-		die "No license passcode found in the keys directory"
+    license_passcode="${KEYS_DIR}/license_passcode.txt"
+    [ -f "${license_passcode}" ] || \
+        die "No license passcode found in the keys directory"
 
-	secure_boot_encryption_key="${KEYS_DIR}/secure_boot_encryption_key.txt"
-	[ -f "${secure_boot_encryption_key}" ] || \
-		die "No secure boot encryption key found in the keys directory"
+    secure_boot_encryption_key="${KEYS_DIR}/secure_boot_encryption_key.txt"
+    [ -f "${secure_boot_encryption_key}" ] || \
+        die "No secure boot encryption key found in the keys directory"
 
     set +x
     # Generate the customer key config file
@@ -132,19 +132,19 @@ EOF
 }
 
 get_secure_mode_command() {
-	# Transfer the necessary secure mode command files to the output directory
-	set_secure_mode_file_1="secure_mode_sama5d3x.cip"
-	[ -f "${KEYS_DIR}/${set_secure_mode_file_1}" ] || \
-		die "No set secure mode file found in the keys directory"
+    # Transfer the necessary secure mode command files to the output directory
+    set_secure_mode_file_1="secure_mode_sama5d3x.cip"
+    [ -f "${KEYS_DIR}/${set_secure_mode_file_1}" ] || \
+        die "No set secure mode file found in the keys directory"
     
-	set_secure_mode_file_2="secure_mode_sama5d3x_nk.cip"
-	[ -f "${KEYS_DIR}/${set_secure_mode_file_2}" ] || \
-		die "No set secure mode nk file found in the keys directory"
+    set_secure_mode_file_2="secure_mode_sama5d3x_nk.cip"
+    [ -f "${KEYS_DIR}/${set_secure_mode_file_2}" ] || \
+        die "No set secure mode nk file found in the keys directory"
     
-	cp "${KEYS_DIR}/${set_secure_mode_file_1}" "${BINARIES_DIR}/${set_secure_mode_file_1}" || \
-		die "Failed to copy set secure mode file"
-	cp "${KEYS_DIR}/${set_secure_mode_file_2}" "${BINARIES_DIR}/${set_secure_mode_file_2}" || \
-		die "Failed to copy set secure mode nk file"
+    cp "${KEYS_DIR}/${set_secure_mode_file_1}" "${BINARIES_DIR}/${set_secure_mode_file_1}" || \
+        die "Failed to copy set secure mode file"
+    cp "${KEYS_DIR}/${set_secure_mode_file_2}" "${BINARIES_DIR}/${set_secure_mode_file_2}" || \
+        die "Failed to copy set secure mode nk file"
 }
 
 if grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA=y" "${BR2_CONFIG}"; then
