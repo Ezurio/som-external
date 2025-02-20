@@ -115,37 +115,16 @@
 	};
 
 	leds {
-		compatible = "pwm-leds";
+		compatible = "gpio-leds";
 
-		/* For H/W test */
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_led_pins_default>;
 
-#if 0
-		pwm_1: led-1 {
-			function = LED_FUNCTION_STATUS;
-			label = "PWM_1";
-			color = <LED_COLOR_ID_RED>;
-			max-brightness = <248>;
-			pwms = <&epwm1 0 30000 0>; /* 3.3 KHz */
+		led0 {
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&main_gpio0 37 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
 		};
-
-#endif
-		pwm_2: led-2 {
-			function = LED_FUNCTION_STATUS;
-			label = "PWM_2";
-			color = <LED_COLOR_ID_RED>;
-			max-brightness = <248>;
-			pwms = <&epwm1 1 30000 0>; /* 3.3 KHz */
-		};
-
-#if 0
-		test_cam_mck: cam-mck {
-			function = LED_FUNCTION_STATUS;
-			label = "CAM_MCK";
-			color = <LED_COLOR_ID_RED>;
-			max-brightness = <248>;
-			pwms = <&ecap2 0 50 0>; /* 1 / 50 ns = 20 MHz */
-		};
-#endif
 	};
 
 	transceiver1: can-phy0 {
@@ -430,6 +409,12 @@
 	main_usb0_en_pins_default: main-usb0-en-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x254, PIN_INPUT, 7) /* (C20) USB0_DRVVBUS.GPIO1_50 */
+		>;
+	};
+
+	main_led_pins_default: main-led-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0098, PIN_OUTPUT, 7)	/* (W19) GPMC0_WAIT0.GPIO0_37 */
 		>;
 	};
 };

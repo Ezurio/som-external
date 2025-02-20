@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2024 Ezurio
+ * SDIO LWBxx & IFxxx module
+ *
+ * Copyright (C) 2024 Ezurio LLC
  */
 
 #include "k3-am625-carbon-wifi.dtsi"
@@ -16,7 +18,7 @@
 	pinctrl-0 = <&main_uart1_pins_default>, <&main_bt_en_pins_default>;
 
 	bluetooth {
-		compatible = "infineon,cyw55572-bt";
+		compatible = "brcm,bcm4329-bt";
 		vbat-supply = <&vcc_3v3_sys>;
 		vddio-supply = <&vdd_1v8>;
 		brcm,requires-autobaud-mode;
