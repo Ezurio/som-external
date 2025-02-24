@@ -9,9 +9,6 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/interrupt-controller/irq.h>
-
-#include "ti/k3-pinctrl.h"
 
 &{/} {
 	hdmi-connector {
