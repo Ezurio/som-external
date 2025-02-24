@@ -1,0 +1,28 @@
+comment "ti-rogue-km needs a Linux kernel to be built"
+	depends on BR2_aarch64
+	depends on !BR2_LINUX_KERNEL
+
+config BR2_PACKAGE_TI_ROGUE_KM
+	bool "ti-rogue-km"
+	depends on BR2_LINUX_KERNEL && BR2_aarch64
+	select BR2_LINUX_NEEDS_MODULES
+	help
+	  Kernel modules for TI SoCs with Rogue GPU.
+	  This package supports AM62, J721E, J721S2, and J784S4
+	  SoCs only.
+
+	  Note: it needs a TI specific kernel to build properly.
+
+	  https://git.ti.com/cgit/graphics/ti-img-rogue-driver
+
+if BR2_PACKAGE_TI_ROGUE_KM
+
+config BR2_TARGET_TI_ROGUE_KM_TARGET_PRODUCT
+	string "KM driver target product"
+	default "am62_linux"
+	help
+	  Select target product to be used for KM driver. This needs to
+	  match one of the SoC-specific folders within the build/linux
+	  folder of the ti-img-rogue-driver Git repository.
+
+endif
