@@ -71,18 +71,27 @@ BOOT_SIZE=48
 SWAP_SIZE=256
 PERM_SIZE=48
 
-if [ ! -f "${SRCDIR}/rootfs.bin" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then 
-	for f in "${SRCDIR}"/*.swu ; do
-		[ -f "${f}" ] || continue
-
-		TEMP_SRC=$(mktemp -d -t mksdcard.XXXXXX)
-		cpio -idmv < "${f}" -D "${TEMP_SRC}"
-		SRCDIR=${TEMP_SRC}
-		break
+find_file() {
+	for f in $(ls -1 -t "${SRCDIR}"/${1})
+	do
+		[ -L "${f}" ] || { echo "${f}"; break; }
 	done
+}
+
+ROOTFS_PATH=${SRCDIR}/rootfs.bin
+
+if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then 
+	SWU_PATH=$(find_file '*.swu')
+	if [ -n "${SWU_PATH}" ]; then
+		TEMP_SRC=$(mktemp -d -t mksdcard.XXXXXX)
+		cpio -idm --quiet < "${SWU_PATH}" -D "${TEMP_SRC}"
+		SRCDIR=${TEMP_SRC}
+	else
+		die 'Nothing to load'
+	fi
 fi
 
-if [ -f "${SRCDIR}/rootfs.bin" ]; then
+if [ -f "${ROOTFS_PATH}" ]; then
 	boot_only=false 
 	maxpart=6
 else
@@ -92,7 +101,7 @@ fi
 
 if ! ${boot_only}; then
 	# Calculate rootfs size
-	ROOTFS_SIZE=$(stat -c %s "$(realpath "${SRCDIR}/rootfs.bin")")
+	ROOTFS_SIZE=$(stat -c %s "${ROOTFS_PATH}")
 	# Align rootfs size to 1MiB
 	ROOTFS_SIZE=$(( ROOTFS_SIZE / (1024 * 1024) + 1 ))
 
@@ -188,8 +197,9 @@ create_boot_partition() {
 			"${SRCDIR}/uboot.env"
 	fi
 
-	${boot_only} ||
+	if ! ${boot_only}; then
 		cp -t "${BOOT_PART}" "${SRCDIR}/kernel.itb"
+	fi
 
 	sync
 
@@ -208,7 +218,7 @@ create_rootfs_partition() {
 	echo "[Creating \"rootfs_a\" partition...]"
 
 	# Copy files to rootfs partition
-	/usr/bin/dd if="${SRCDIR}/rootfs.bin" of="${1}" bs=1M conv=fsync status=none
+	/usr/bin/dd if="${ROOTFS_PATH}" of="${1}" bs=1M conv=fsync status=none
 }
 
 # Un-mount all mounted partitions
