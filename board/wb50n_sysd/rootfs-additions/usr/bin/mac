@@ -20,11 +20,13 @@ usage() {
 }
 
 read_mac() {
-	fw_printenv "${fw_opt}" -n "${1}"
+	# shellcheck disable=SC2086
+	fw_printenv ${fw_opt} -n "${1}"
 }
 
 store_macs() {
-	fw_printenv "${fw_opt}" -n xyz >/dev/null 2>/dev/null || {
+	# shellcheck disable=SC2086
+	fw_printenv ${fw_opt} -n xyz >/dev/null 2>/dev/null || {
 		echo 'u-boot environment is not initialized, to correct this,'
 		echo 'initialize NAND by executing fw_update to load NAND image'
 		echo 'if the image loaded is older and does not contain uboot,'
@@ -34,7 +36,8 @@ store_macs() {
 
 	# shellcheck disable=SC2034
 	for i in ${writes}; do
-		fw_setenv "${fw_opt}" ethaddr "${1}"
+		# shellcheck disable=SC2086
+		fw_setenv ${fw_opt} ethaddr "${1}"
 	done
 }
 
@@ -54,7 +57,7 @@ write_macs() {
 }
 
 erase_macs() {
-	${enable_erase} || return
+	${enable_erase} || return 0
 
 	store_macs ''
 }
