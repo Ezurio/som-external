@@ -11,5 +11,5 @@ diff -ur openssl-3.2.0-orig/ssl/statem/statem_srvr.c openssl-3.2.0-new/ssl/state
 +            s->s3.tmp.valid_flags = OPENSSL_zalloc(s->ssl_pkey_num * sizeof(uint32_t));
 +
          master_key_length = sizeof(s->session->master_key);
-         if (s->ext.session_secret_cb(ssl, s->session->master_key,
+         if (s->ext.session_secret_cb(ussl, s->session->master_key,
                                       &master_key_length, ciphers,
