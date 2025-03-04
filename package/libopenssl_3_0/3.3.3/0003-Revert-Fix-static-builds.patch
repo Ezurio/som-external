@@ -16,7 +16,7 @@ diff --git a/Configure b/Configure
 index 2c17f4186b..94cab4c3c4 100755
 --- a/Configure
 +++ b/Configure
-@@ -1452,10 +1452,6 @@ foreach (keys %useradd) {
+@@ -1451,10 +1451,6 @@ foreach (keys %useradd) {
          unless file_name_is_absolute($config{prefix});
  }
  
@@ -27,7 +27,7 @@ index 2c17f4186b..94cab4c3c4 100755
  # Allow overriding the build file name
  $config{build_file} = env('BUILDFILE') || $target{build_file} || "Makefile";
  
-@@ -1750,6 +1746,10 @@ if ($strict_warnings)
+@@ -1749,6 +1745,10 @@ if ($strict_warnings)
                  }
          }
  

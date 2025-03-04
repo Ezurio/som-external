@@ -11,7 +11,7 @@ diff --git a/util/mkbuildinf.pl b/util/mkbuildinf.pl
 index 1c27387..7af0edc 100755
 --- a/util/mkbuildinf.pl
 +++ b/util/mkbuildinf.pl
-@@ -28,7 +28,7 @@ print <<"END_OUTPUT";
+@@ -32,7 +32,7 @@ print <<"END_OUTPUT";
   */
  
  #define PLATFORM "platform: $platform"

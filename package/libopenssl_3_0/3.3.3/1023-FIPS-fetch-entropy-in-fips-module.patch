@@ -47,8 +47,8 @@ index 14999540ab..f3c359bc71 100644
 +#endif
  
          ctx = ossl_lib_ctx_get_concrete(ctx);
-         /*
-@@ -795,9 +803,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
+ 
+@@ -798,9 +806,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->private);
      if (rand == NULL) {
@@ -66,7 +66,7 @@ index 14999540ab..f3c359bc71 100644
 +#endif
  
          ctx = ossl_lib_ctx_get_concrete(ctx);
-         /*
+ 
 -- 
 2.34.1
 
