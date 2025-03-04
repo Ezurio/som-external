@@ -1,30 +1,9 @@
 #! /usr/bin/env python3
 
-# WBx3 board switch control script
+# Carbon AM62x WBx3 board switch control script
 
 import sys
 import usb
-
-if len(sys.argv) > 1:
-    try:
-        data = bytes.fromhex(sys.argv[1])
-    except ValueError:
-        print("Invalid hex string provided.")
-        sys.exit(1)
-else:
-    data = b'\xcc'
-
-if len(sys.argv) > 2:
-    try:
-        data1 = int(sys.argv[2], 16)
-    except ValueError:
-        print("Invalid hex string provided.")
-        sys.exit(1)
-else:
-    data1 = 0
-
-# Set the direction of the CBUS GPIOs (0 - input, 1 - output)
-data1 = (data1 & 0x0f) | 0x70
 
 BITMODE_BITBANG = 0x01
 BITMODE_CBUS = 0x20
@@ -73,7 +52,31 @@ def set_ft230x_gpio(data):
         sys.exit(1)
 
     # Write CBUS gpios
-    ftdi_set_bitmode(dev, data1, BITMODE_CBUS)
+    ftdi_set_bitmode(dev, data, BITMODE_CBUS)
 
-set_ft240x_gpio(data)
-set_ft230x_gpio(data1)
+def main():
+    if len(sys.argv) > 1:
+        try:
+            data = bytes.fromhex(sys.argv[1])
+        except ValueError:
+            print("Invalid hex string provided.")
+            sys.exit(1)
+    else:
+        data = b'\xcc'
+
+    if len(sys.argv) > 2:
+        try:
+            data1 = int(sys.argv[2], 16)
+        except ValueError:
+            print("Invalid hex string provided.")
+            sys.exit(1)
+    else:
+        data1 = 0
+
+    # Set the direction of the CBUS GPIOs (0 - input, 1 - output)
+    data1 = (data1 & 0x0f) | 0x70
+
+    set_ft240x_gpio(data)
+    set_ft230x_gpio(data1)
+
+main()
