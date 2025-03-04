@@ -7,7 +7,7 @@ set -e
 DATA_MOUNT=/data
 DATA_SECRET=${DATA_MOUNT}/secret
 
-mount_sama5() {
+mount_ubi() {
 	FSCRYPT_KEY=ffffffffffffffff
 
 	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
@@ -23,37 +23,34 @@ mount_sama5() {
 		{ /usr/bin/umount ${DATA_MOUNT}; exit 1; }
 }
 
-umount_sama5() {
+umount_ubi() {
 	/usr/bin/umount ${DATA_MOUNT}
 	echo 3 >/proc/sys/vm/drop_caches
 }
 
 mount_emmc() {
-	if [ -x /usr/sbin/blockdev ]; then 
+	if [ -x /usr/sbin/blockdev ]; then
 		DATA_SIZE=$(blockdev --getsz "${DATA_DEVICE}")
 	else
 		DATA_SIZE=$(/usr/bin/lsblk -ndbo SIZE "${DATA_DEVICE}")
 		DATA_SIZE=$((DATA_SIZE / 512))
 	fi
 
-	if [ -x /usr/sbin/caam-keygen ]; then
+	if [ -x /usr/bin/caam-keygen ]; then
 		if [ ! -f /perm/caam/datakey ] ||
-			! /usr/sbin/caam-keygen import /perm/caam/datakey.bb datakey
+			! /usr/bin/caam-keygen import /perm/caam/datakey.bb datakey
 		then
-			/usr/sbin/caam-keygen create datakey ecb -s 16
+			/usr/bin/caam-keygen create datakey ecb -s 16
 		fi
 		/usr/bin/keyctl padd logon datakey: @s < /perm/caam/datakey
 		CRYPTO_STR="capi:tk(cbc(aes))-plain :36:logon:datakey:"
 	else
-		if [ ! -f /perm/caam/datakey ]; then
-			KEY_ID=$(/usr/bin/keyctl add trusted datakey "load $(cat /perm/caam/datakey)" @s) \
-				|| KEY_ID=
-		fi
-		
-		[ -n "${KEY_ID}" ] || 
+		[ -f /perm/caam/datakey ] &&
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey "load $(cat /perm/caam/datakey)" @s) ||
+		{
 			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 32" @s)
-
-		/usr/bin/keyctl pipe "${KEY_ID}" > /perm/caam/datakey
+			/usr/bin/keyctl pipe "${KEY_ID}" > /perm/caam/datakey
+		}
 		CRYPTO_STR="crypt aes-cbc-plain :32:trusted:datakey"
 	fi
 
@@ -68,6 +65,9 @@ mount_emmc() {
 		/usr/sbin/dmsetup remove data_enc
 		die "Mounting ${DATA_DEVICE} to ${DATA_MOUNT} Failed"
 	}
+
+	# Create encrypted data directory
+	mkdir -p ${DATA_SECRET}
 }
 
 umount_emmc() {
@@ -79,25 +79,29 @@ umount_emmc() {
 # shellcheck source=/dev/null
 . /usr/sbin/boot-rootfs.sh
 
-getSocId
-
 case "${1}" in
 start)
 	DATA_DEVICE=/dev/$(getPart rootfs_data)
 
-	case "${soc_id:?}" in
-		sama5d3*) mount_sama5 ;;
+	case "${rootDevType:?}" in
+		ubi) mount_ubi ;;
 		*) mount_emmc ;;
 	esac
 
-	/usr/sbin/do_factory_reset.sh check
+	/usr/sbin/do_factory_reset.sh check || {
+		case "${rootDevType}" in
+			ubi) umount_ubi ;;
+			*) umount_emmc ;;
+		esac
+		exit 1
+	}
 
 	echo "Secure Boot Cycle Complete" >/dev/console
 	;;
 
 stop)
-	case "${soc_id:?}" in
-		sama5d3*) umount_sama5 ;;
+	case "${rootDevType}" in
+		ubi) umount_ubi ;;
 		*) umount_emmc ;;
 	esac
 	;;
