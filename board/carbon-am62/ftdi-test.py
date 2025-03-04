@@ -2,38 +2,74 @@
 
 # WBx3 board switch control script
 
-import ftdi1 as ftdi
 import sys
-
-def exit_with_error(context, message, error_code=1):
-    print(message)
-    if context:
-        ftdi.free(context)
-    sys.exit(error_code)
-
-context = ftdi.new()
-
-# try to open an ftdi 0x6015 device
-ret = ftdi.usb_open_desc(context, 0x0403, 0x6015, 'FT240X USB FIFO', None)
-if ret < 0:
-    exit_with_error(None, f"ftdi.usb_open_desc(): {ret}")
-
-ret = ftdi.set_bitmode(context, 0xff, ftdi.BITMODE_BITBANG)
-if ret < 0:
-    exit_with_error(context, f"ftdi.set_bitmode(): {ret}")
+import usb
 
 if len(sys.argv) > 1:
     try:
         data = bytes.fromhex(sys.argv[1])
     except ValueError:
-        exit_with_error(context, "Invalid hex string provided.")
+        print("Invalid hex string provided.")
+        sys.exit(1)
 else:
-    data = b'\x00'
+    data = b'\xcc'
 
-print("Data to be written (hex):", ' '.join([f'{x:02x}' for x in data]))
+if len(sys.argv) > 2:
+    try:
+        data1 = int(sys.argv[2], 16)
+    except ValueError:
+        print("Invalid hex string provided.")
+        sys.exit(1)
+else:
+    data1 = 0
 
-ret = ftdi.write_data(context, data)
-if ret < 0:
-    exit_with_error(context, f"ftdi.write_data(): {ret}")
+data1 = (data1 & 0x0f) | 0x70
 
-ftdi.free(context)
+BITMODE_BITBANG = 0x01
+BITMODE_CBUS = 0x20
+SIO_SET_BITMODE_REQUEST = 0x0b
+
+def ftdi_set_bitmode(dev, bitmask, bitmode):
+    bmRequestType = usb.util.build_request_type(usb.util.CTRL_OUT,
+                                                usb.util.CTRL_TYPE_VENDOR,
+                                                usb.util.CTRL_RECIPIENT_DEVICE)
+
+    wValue = bitmask | (bitmode << 8)
+    dev.ctrl_transfer(bmRequestType, SIO_SET_BITMODE_REQUEST, wValue)
+
+dev = usb.core.find(custom_match = \
+        lambda d: \
+            d.idVendor==0x0403 and
+            d.idProduct==0x6015 and
+            d.product=='FT240X USB FIFO')
+
+if not dev:
+    print("FT240X USB FIFO not found.")
+    sys.exit(1)
+
+# Remove ttyUSB for this device
+dev.detach_kernel_driver(0)
+
+#for config in dev:
+#    for i in range(config.bNumInterfaces):
+#        if dev.is_kernel_driver_active(i):
+#            dev.detach_kernel_driver(i)
+
+dev.set_configuration()
+
+ftdi_set_bitmode(dev, 0xff, BITMODE_BITBANG)
+
+dev.write(0x02, data)
+
+dev1 = usb.core.find(custom_match = \
+        lambda d: \
+            d.idVendor==0x0403 and
+            d.idProduct==0x6015 and
+            d.product=='FT230X Basic UART')
+
+if not dev1:
+    print("FT230X Basic UART not found.")
+    sys.exit(1)
+
+
+ftdi_set_bitmode(dev1, data1, BITMODE_CBUS)
