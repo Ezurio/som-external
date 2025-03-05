@@ -15,37 +15,37 @@ BUILD_TYPE="${2}"
 die() { echo "$@" >&2; exit 1; }
 
 generate_custom_encrypted_filesystem() {
+    customer_data_dir=""
+    update_signing_cert="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/update_signing.crt"
     if [ -n "${KEYS_DIR}" ]; then
         # Keys directory is set, use the custom key
-        encrypted_filesystem_key="${KEYS_DIR}/encrypted_filesystem_key.txt"
+        encrypted_filesystem_key="${KEYS_DIR}/encrypted_filesystem_key.bin"
         [ -f "${encrypted_filesystem_key}" ] || \
             die "Encrypted filesystem key not found"
 
-        # Generate the encrypted filesystem
-        set +x
-        (cd "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common" && sudo ./mkrodata.sh \
-            "$(cat "$encrypted_filesystem_key")" \
-            "${KEYS_DIR}/update_signing.crt" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.crt" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.key" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/ca.crt")
-        set -x
+        update_signing_cert="${KEYS_DIR}/update_signing.crt"
+
+        # Check if a customer data directory is provided
+        if [ -n "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] ; then
+            [ -d "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] || \
+                die "Encrypted filesystem data directory not found"
+            customer_data_dir="${ENCRYPTED_FILESYSTEM_DATA_DIR}/"
+        fi
     else
         # Keys directory is not set, use the default filesystem encryption key
         encrypted_filesystem_key="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/key-fs.bin"
         [ -f "${encrypted_filesystem_key}" ] || \
             die "Encrypted filesystem key not found"
-
-        # Generate the encrypted filesystem
-        set +x
-        (cd "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common" && sudo ./mkrodata.sh \
-            "${encrypted_filesystem_key}" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/update_signing.crt" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.crt" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.key" \
-            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/ca.crt")
-        set -x
     fi
+
+    # Generate the encrypted filesystem
+    (cd "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common" && sudo ./mkrodata.sh \
+        "${encrypted_filesystem_key}" \
+        "${update_signing_cert}" \
+        "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.crt" \
+        "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.key" \
+        "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/ca.crt" \
+        "${customer_data_dir}")
 
     [ -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata.img" ] || \
         die "Failed to generate encrypted filesystem"
