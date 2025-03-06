@@ -8,6 +8,7 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include "ti/k3-pinctrl.h"
 
 &{/} {
 	vdd_cam_a: regulator-cam-a-pwr {
@@ -29,8 +30,20 @@
 	};
 };
 
-#if 0
-&cam_mck { /* CPU CAM_MCK */
+&main_pmx0 {
+	main_cam_a_reset_default: main-cam-a-reset-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x074, PIN_INPUT, 7) /* CAM_A_RST# (U25) GPMC0_AD14.GPIO0_29 */
+		>;
+	};
+};
+
+#if 0 /* CPU CAM_MCK */
+&ecap2 {
+	status = "okay";
+};
+
+&cam_mck {
 	status = "okay";
 };
 #endif
@@ -47,8 +60,9 @@
 		clocks = <&clk_ov5640_fixed>; /* On Camera module */
 		clock-names = "xclk";
 
-		/* Should be GPIO_C_7 / CAM_A_RST# &main_gpio0 29 */
-		reset-gpios = <&exp3 0 GPIO_ACTIVE_LOW>; /* CSI_A_GPIO0 */
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_cam_a_reset_default>;
+		reset-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>;
 
 		port {
 			csi2_cam0: endpoint {

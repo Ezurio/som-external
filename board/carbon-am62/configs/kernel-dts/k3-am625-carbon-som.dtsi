@@ -208,7 +208,6 @@
 	/* ECAP in APWM mode */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_ecap2_pins_default>;
-	status = "okay";
 };
 
 &mailbox0_cluster0 {
@@ -227,7 +226,7 @@
 	gpio-line-names = "","GPIO_A_2","GPIO_A_1","","", 	/* 0 - 4 */
 		"","","","","",
 		"","","","GPIO_A_0","GPIO_C_2",			/* 10 - 14 */
-		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","SDIO_A_PWR_EN","",
+		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","SDIO_A_PWR_EN","RGB_RESET#",
 		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
 		"RGB_CS","RGB_DISP","","","GPIO_C_7",
 		"GPIO_B_6","SDIO_A_IOPWR","","","",		/* 30 - 34 */
@@ -836,4 +835,30 @@
 	status = "reserved";
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
+};
+
+&oldi0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>; 
+	};
+
+	port@1 {
+		reg = <1>;
+	};
+};
+
+&oldi1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>; 
+	};
+
+	port@1 {
+		reg = <1>;
+	};
 };

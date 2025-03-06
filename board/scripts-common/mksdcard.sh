@@ -101,7 +101,7 @@ fi
 
 if ! ${boot_only}; then
 	# Calculate rootfs size
-	ROOTFS_SIZE=$(stat -c %s "${ROOTFS_PATH}")
+	ROOTFS_SIZE=$(stat -L -c %s "${ROOTFS_PATH}")
 	# Align rootfs size to 1MiB
 	ROOTFS_SIZE=$(( ROOTFS_SIZE / (1024 * 1024) + 1 ))
 
@@ -178,8 +178,6 @@ create_boot_partition() {
 	# Format boot partition
 	/usr/sbin/mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
 
-	${SECURE} && EXT="cip" || EXT="bin"
-
 	BOOT_PART=$(mktemp -d -t mksdcard.XXXXXX)
 	/usr/bin/mount "${1}" "${BOOT_PART}"
 
@@ -190,7 +188,11 @@ create_boot_partition() {
 			"${SRCDIR}/tiboot3.bin" \
 			"${SRCDIR}/u-boot.img" \
 			"${SRCDIR}/uboot.env"
+	elif [ -f "${SRCDIR}/imx-boot" ]; then
+		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
+		dd if="${SRCDIR}/imx-boot" of="${TARGET}" bs=1k seek=32 status=none
 	else
+		${SECURE} && EXT="cip" || EXT="bin"
 		cp -t "${BOOT_PART}" \
 			"${SRCDIR}/boot.${EXT}" \
 			"${SRCDIR}/u-boot.itb" \
@@ -240,9 +242,11 @@ if ! check_format ; then
 		printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
 			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	else
-		printf ',%sM,0xc,*\n,%sM,S\n,%sM,L\n,-,Ex\n,%sM,L\n,%s,L\n' \
-			${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} "${ROOTFS_SIZE}" \
-			"${ROOTFS_DATA_SIZE}" | \
+		[ -f "${SRCDIR}/imx-boot" ] && FS_OFFSET=8M || FS_OFFSET=
+
+		printf '%s,%sM,0xc,*\n,%sM,S\n,%sM,L\n%s,-,Ex\n,%sM,L\n,%s,L\n' \
+			"${FS_OFFSET}" ${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} \
+			"${FS_OFFSET}" "${ROOTFS_SIZE}" "${ROOTFS_DATA_SIZE}" | \
 			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	fi
 

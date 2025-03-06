@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * RGB to HDMI Expansion Board for carbon am62
+ * RGB to HDMI Expansion Board for Carbon AM62xx
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -9,15 +9,16 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include "ti/k3-pinctrl.h"
 
 &{/} {
-	hdmi-connector {
+	hdmi-connector-rgb {
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
 		ddc-i2c-bus = <&i2c_port_rgb>;
 		digital;
-		// hpd-gpios = <&exp3 15 GPIO_ACTIVE_HIGH>; /* Not going to 1.8, only 1.1 */
+		hpd-gpios = <&exp2 15 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_in: endpoint {
@@ -26,10 +27,29 @@
 		};
 	};
 
-	dvi-bridge {
+	regulator-reset-rgb {
+		/* output of U4 */
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_3v3_rgb_reset";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_reset_default>;
+		gpios = <&main_gpio0 19 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	dvi-bridge-rgb {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_pwr_default>;
+		powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
 
 		port@0 {
 			reg = <0>;
@@ -37,12 +57,6 @@
 			tfp410_in: endpoint {
 				remote-endpoint = <&dpi_out0>;
 				pclk-sample = <1>;
-				/* We only do RGB666 so colours will be wrong.
-				 * I tried hacking 18 bit RGB666 into
-				 * drivers/gpu/drm/bridge/ti-tfp410.c
-				 * then correct colours, but low
-				 * brightness and contrast.
-				*/
 				bus-width = <24>;
 			};
 		};
@@ -55,6 +69,22 @@
 					<&hdmi_connector_in>;
 			};
 		};
+	};
+};
+
+&main_pmx0 {
+	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN 
+	   as such these functions cannot be used together */
+	main_rgb_pwr_default: main-rgb-pwr-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* RGB_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
+		>;
+	};
+
+	main_rgb_reset_default: main-rgb-reset-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x04c, PIN_INPUT, 7) /* RGB_RESET# (P24) GPMC0_AD4.GPIO0_19 */
+		>;
 	};
 };
 
@@ -74,25 +104,5 @@
 		dpi_out0: endpoint {
 			remote-endpoint = <&tfp410_in>;
 		};
-	};
-};
-
-
-
-&main_gpio0 {
-	rgb-vdd-en-hog {
-		/* RGB_VDD_EN GPIO_C_2 */
-		gpio-hog;
-		gpios = <19 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "RGB_VDD_EN";
-	};
-
-	rgb-reset-hog {
-		/* RGB_RESET#  */
-		gpio-hog;
-		gpios = <33 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "RGB_RESET#";
 	};
 };
