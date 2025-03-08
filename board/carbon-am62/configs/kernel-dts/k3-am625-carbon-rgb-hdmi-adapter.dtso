@@ -16,8 +16,14 @@
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
-		ddc-i2c-bus = <&i2c_port_rgb>;
 		digital;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_pwr_default>;
+		dcc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+
+		ddc-i2c-bus = <&i2c_port_rgb>;
+
 		hpd-gpios = <&exp2 15 GPIO_ACTIVE_HIGH>;
 
 		port {
@@ -46,10 +52,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_pwr_default>;
-		powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
 
 		port@0 {
 			reg = <0>;
@@ -97,7 +99,7 @@
 &dss_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
-	/* Video Port 2 */
+
 	port@1 {
 		reg = <1>;
 

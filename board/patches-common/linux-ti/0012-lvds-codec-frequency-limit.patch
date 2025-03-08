@@ -1,0 +1,61 @@
+--- a/drivers/gpu/drm/bridge/lvds-codec.c
++++ b/drivers/gpu/drm/bridge/lvds-codec.c
+@@ -24,6 +24,8 @@
+ 	struct regulator *vcc;
+ 	struct gpio_desc *powerdown_gpio;
+ 	u32 connector_type;
++	u32 max_frequency;
++	u32 min_frequency;
+ 	unsigned int bus_format;
+ };
+ 
+@@ -71,10 +73,26 @@
+ 			"Failed to disable regulator \"vcc\": %d\n", ret);
+ }
+ 
++static enum drm_mode_status lvds_codec_mode_valid(struct drm_bridge *bridge,
++					const struct drm_display_info *info,
++					const struct drm_display_mode *mode)
++{
++	struct lvds_codec *lvds_codec = to_lvds_codec(bridge);
++
++	if (mode->clock < lvds_codec->min_frequency)
++		return MODE_CLOCK_LOW;
++
++	if (mode->clock > lvds_codec->max_frequency)
++		return MODE_CLOCK_HIGH;
++
++	return MODE_OK;
++}
++
+ static const struct drm_bridge_funcs funcs = {
+ 	.attach = lvds_codec_attach,
+ 	.enable = lvds_codec_enable,
+ 	.disable = lvds_codec_disable,
++	.mode_valid = lvds_codec_mode_valid,
+ };
+ 
+ #define MAX_INPUT_SEL_FORMATS 1
+@@ -106,6 +124,7 @@
+ 	.attach = lvds_codec_attach,
+ 	.enable = lvds_codec_enable,
+ 	.disable = lvds_codec_disable,
++	.mode_valid = lvds_codec_mode_valid,
+ 	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+ 	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+ 	.atomic_reset = drm_atomic_helper_bridge_reset,
+@@ -200,6 +219,14 @@
+ 			DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE;
+ 	}
+ 
++	if (!of_property_read_u32(dev->of_node, "max-frequency", &lvds_codec->max_frequency))
++		lvds_codec->max_frequency /= 1000;
++	 else
++	 	lvds_codec->max_frequency = -1;	 	
++
++	if (!of_property_read_u32(dev->of_node, "min-frequency", &lvds_codec->min_frequency))
++		lvds_codec->min_frequency /= 1000;
++
+ 	/*
+ 	 * The panel_bridge bridge is attached to the panel's of_node,
+ 	 * but we need a bridge attached to our of_node for our user

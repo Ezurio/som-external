@@ -16,13 +16,20 @@
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
-		ddc-i2c-bus = <&i2c_port_d>;
 		digital;
-		hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_pwr_default>;
+		dcc-en-gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
+
+		ddc-i2c-bus = <&i2c_port_d>;
+
+		/* Reenable after U3 VDD_5V miswiring fixed */
+		//hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
 
 		port {
-			hdmi_connector_in: endpoint {
-				remote-endpoint = <&tfp410_out>;
+			hdmi_connector_lvds_d_in: endpoint {
+				remote-endpoint = <&tfp410_d_out>;
 			};
 		};
 	};
@@ -32,15 +39,11 @@
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_pwr_default>;
-		powerdown-gpios = <&main_gpio0 30 GPIO_ACTIVE_LOW>;
-
 		port@0 {
 			reg = <0>;
-
-			tfp410_in: endpoint {
-				remote-endpoint = <&oldi_0_out>;
+			dual-lvds-odd-pixels;
+			tfp410_d_in: endpoint {
+				remote-endpoint = <&lvds_d_out>;
 				pclk-sample = <1>;
 				bus-width = <24>;
 			};
@@ -48,9 +51,44 @@
 
 		port@1 {
 			reg = <1>;
+			tfp410_d_out: endpoint {
+				remote-endpoint = <&hdmi_connector_lvds_d_in>;
+			};
+		};
+	};
 
-			tfp410_out: endpoint {
-				remote-endpoint = <&hdmi_connector_in>;
+	lvds-decoder-d {
+		compatible = "ti,ds90cf386", "lvds-decoder";
+
+		max-frequency = <85000000>;
+		min-frequency = <20000000>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				dual-lvds-odd-pixels;
+				lvds_d_in0: endpoint {
+					data-mapping = "jeida-24";
+					remote-endpoint = <&oldi_0_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				lvds_d_out: endpoint {
+					remote-endpoint = <&tfp410_d_in>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				dual-lvds-even-pixels;
+				lvds_d_in1: endpoint {
+					remote-endpoint = <&oldi_1_out>;
+				};
 			};
 		};
 	};
@@ -69,28 +107,11 @@
 	/* OLDITX ports have no mux on them */
 };
 
-&dss_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	/* Video Port 1 Output to OLDI */
-	port@0 {
-		reg = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		dpi0_out0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&oldi_0_in>;
-		};
-		dpi0_out1: endpoint@1 {
-			reg = <1>;
-			remote-endpoint = <&oldi_1_in>;
-		};
-	};
+&oldi0 {
+	status = "okay";
 };
 
-&oldi0 {
+&oldi1 {
 	status = "okay";
 };
 
@@ -99,7 +120,7 @@
 	#size-cells = <0>;
 
 	port@0 {
-		reg = <0>; 
+		reg = <0>;
 		oldi_0_in: endpoint {
 			remote-endpoint = <&dpi0_out0>;
 		};
@@ -108,13 +129,9 @@
 	port@1 {
 		reg = <1>;
 		oldi_0_out: endpoint {
-			remote-endpoint = <&tfp410_in>;
+			remote-endpoint = <&lvds_d_in0>;
 		};
 	};
-};
-
-&oldi1 {
-	status = "okay";
 };
 
 &oldi1_ports {
@@ -131,7 +148,29 @@
 	port@1 {
 		reg = <1>;
 		oldi_1_out: endpoint {
-			remote-endpoint = <&tfp410_in>;
+			remote-endpoint = <&lvds_d_in1>;
+		};
+	};
+};
+
+&dss_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_0_in>;
+		};
+
+		dpi0_out1: endpoint@1 {
+			reg = <1>;
+			remote-endpoint = <&oldi_1_in>;
 		};
 	};
 };
