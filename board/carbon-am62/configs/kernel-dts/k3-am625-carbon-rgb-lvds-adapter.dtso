@@ -45,7 +45,34 @@
 
 		port {
 			lcd_in0: endpoint {
-				remote-endpoint = <&dpi_out0>;
+				remote-endpoint = <&lvds_out>;
+			};
+		};
+	};
+
+	lvds-encoder {
+		compatible = "ti,sn65lvds93", "lvds-encoder";
+
+		//pclk-sample = <1>;
+		max-frequency = <68000000>;
+		min-frequency = <20000000>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				lvds_in0: endpoint {
+					remote-endpoint = <&dpi_out0>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				lvds_out: endpoint {
+					remote-endpoint = <&lcd_in0>;
+				};
 			};
 		};
 	};
@@ -86,7 +113,7 @@
 		#size-cells = <0>;
 
 		dpi_out0: endpoint {
-			remote-endpoint = <&lcd_in0>;
+			remote-endpoint = <&lvds_in0>;
 		};
 	};
 };
