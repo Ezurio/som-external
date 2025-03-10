@@ -11,6 +11,12 @@
 #include <dt-bindings/gpio/gpio.h>
 #include "ti/k3-pinctrl.h"
 
+/* CAUTION: LVDS E channel on AM62x is the companion channel to the LVDS D 
+   it will work only when LVDS D is active and will function as the mirror
+
+   The device tree provides only additions needed to LVDS D
+ */
+
 &{/} {
 	hdmi-connector-lvds-e {
 		compatible = "hdmi-connector";
@@ -21,11 +27,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_e_pwr_default>;
 		dcc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
-
-		ddc-i2c-bus = <&i2c_port_e>;
-
-		/* Reenable after U3 VDD_5V miswiring fixed */
-		//hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_lvds_e_in: endpoint {
@@ -52,7 +53,7 @@
 		port@1 {
 			reg = <1>;
 			tfp410_e_out: endpoint {
-				remote-endpoint = <&hdmi_connector_lvds_d_in>;
+				remote-endpoint = <&hdmi_connector_lvds_e_in>;
 			};
 		};
 	};
@@ -70,9 +71,9 @@
 			port@0 {
 				reg = <0>;
 				dual-lvds-odd-pixels;
-				lvds_e_in0: endpoint {
+				lvds_e_in: endpoint {
 					data-mapping = "jeida-24";
-					remote-endpoint = <&oldi_0_out>;
+					remote-endpoint = <&oldi_1_out>;
 				};
 			};
 
@@ -80,14 +81,6 @@
 				reg = <1>;
 				lvds_e_out: endpoint {
 					remote-endpoint = <&tfp410_e_in>;
-				};
-			};
-
-			port@2 {
-				reg = <2>;
-				dual-lvds-even-pixels;
-				lvds_d_in1: endpoint {
-					remote-endpoint = <&oldi_1_out>;
 				};
 			};
 		};
@@ -104,36 +97,8 @@
 	};
 };
 
-&dss {
-	status = "okay";
-	/* OLDITX ports have no mux on them */
-};
-
-&oldi0 {
-	status = "okay";
-};
-
 &oldi1 {
 	status = "okay";
-};
-
-&oldi0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>;
-		oldi_0_in: endpoint {
-			remote-endpoint = <&dpi0_out0>;
-		};
-	};
-
-	port@1 {
-		reg = <1>;
-		oldi_0_out: endpoint {
-			remote-endpoint = <&lvds_e_in0>;
-		};
-	};
 };
 
 &oldi1_ports {
@@ -150,25 +115,16 @@
 	port@1 {
 		reg = <1>;
 		oldi_1_out: endpoint {
-			remote-endpoint = <&lvds_e_in1>;
+			remote-endpoint = <&lvds_e_in>;
 		};
 	};
 };
 
 &dss_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
 	/* Video Port 1 Output to OLDI */
 	port@0 {
-		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-
-		dpi0_out0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&oldi_0_in>;
-		};
 
 		dpi0_out1: endpoint@1 {
 			reg = <1>;

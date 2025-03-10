@@ -54,7 +54,7 @@
 		compatible = "ti,sn65lvds93", "lvds-encoder";
 
 		//pclk-sample = <1>;
-		max-frequency = <68000000>;
+		max-frequency = <130000000>;
 		min-frequency = <20000000>;
 
 		ports {
