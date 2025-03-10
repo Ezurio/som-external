@@ -13,6 +13,7 @@
 
 /* CAUTION: LVDS E channel on AM62x is the companion channel to the LVDS D 
    it will work only when LVDS D is active and will function as the mirror
+   or potentially dual-link LVDS which is not suppoted here
 
    The device tree provides only additions needed to LVDS D
  */
@@ -42,7 +43,6 @@
 
 		port@0 {
 			reg = <0>;
-			dual-lvds-odd-pixels;
 			tfp410_e_in: endpoint {
 				remote-endpoint = <&lvds_e_out>;
 				pclk-sample = <1>;
@@ -70,7 +70,6 @@
 
 			port@0 {
 				reg = <0>;
-				dual-lvds-odd-pixels;
 				lvds_e_in: endpoint {
 					data-mapping = "jeida-24";
 					remote-endpoint = <&oldi_1_out>;

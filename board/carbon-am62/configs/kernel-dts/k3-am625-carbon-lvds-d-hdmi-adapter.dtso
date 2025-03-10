@@ -41,7 +41,6 @@
 
 		port@0 {
 			reg = <0>;
-			dual-lvds-odd-pixels;
 			tfp410_d_in: endpoint {
 				remote-endpoint = <&lvds_d_out>;
 				pclk-sample = <1>;
