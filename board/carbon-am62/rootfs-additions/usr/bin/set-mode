@@ -1,0 +1,42 @@
+#!/bin/sh
+
+if [ -z "${1}" ] ; then
+    echo "Usage: $0 <mode> [<mode> ...]"
+    echo "  <mode> is one of:"
+    echo "    default - remove all overlays"
+    echo "    lvds-d-hdmi"
+    echo "    lvds-e-hdmi"
+    echo "    rgb-hdmi"
+    echo "    rgb-lvds"
+    echo "    m2-60"
+    echo "    m2-lwb-if"
+    echo "    m2-cc33xx"
+    echo "    m2-nx611"
+    exit 1
+fi
+
+prefix="#conf-k3-am625-carbon"
+conf=""
+
+for i in "${@}" ; do
+    case ${i} in
+        default)
+            break
+            ;;
+        lvds-d-hdmi|lvds-e-hdmi|rgb-hdmi|rgb-lvds)
+            conf="${conf}${prefix}-${i}-adapter.dtbo"
+            ;;
+        m2-60|m2-lwb-if|m2-cc33xx|m2-nx611)
+            conf="${conf}${prefix}-${i}.dtbo"
+            ;;
+        *)
+            echo "Invalid mode"
+            exit 1
+            ;;
+    esac
+done
+
+[ -z "${conf}" ] || conf="${prefix}-dvk.dtb${conf}"
+
+fw_setenv conf "${conf}"
+reboot

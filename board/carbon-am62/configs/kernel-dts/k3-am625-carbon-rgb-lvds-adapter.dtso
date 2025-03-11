@@ -51,7 +51,7 @@
 	};
 
 	lvds-encoder {
-		compatible = "ti,sn65lvds93", "lvds-encoder";
+		compatible = "ti,sn65lvds93a", "lvds-encoder";
 
 		//pclk-sample = <1>;
 		max-frequency = <130000000>;

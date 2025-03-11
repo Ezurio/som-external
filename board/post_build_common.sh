@@ -345,7 +345,8 @@ case "${BUILD_TYPE}" in
 		export linux_comp='zstd'
 		export UBOOT_LOADADDRESS=0x81000000
 		export UBOOT_ENTRYPOINT=0x81000000
-		export FDT_LOADADDRESS=0x83000000
+		export UBOOT_DTB_LOADADDRESS=0x83800000
+		export UBOOT_DTBO_LOADADDRESS=0x83880000
 		export UBOOT_ARCH='arm64'
 		export KERNEL_IMAGE='Image.zst'
 		export FIT_PAD_ALG='pss'

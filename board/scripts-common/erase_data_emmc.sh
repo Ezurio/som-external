@@ -45,7 +45,7 @@ migrate_data() {
 		die "dm_crypt table creation for ${1} Failed"
 
 	# Wipe data patition
-	mkfs.ext4 /dev/mapper/data_enc_o || {
+	/usr/sbin/mkfs.ext4 /dev/mapper/data_enc_o || {
 		/usr/sbin/dmsetup remove data_enc_o
 		die "Formatting ${1} Failed"
 	}
@@ -77,6 +77,25 @@ migrate_data() {
 	/usr/sbin/dmsetup remove data_enc_o
 	rmdir "${MOUNT_POINT}"
 }
+
+# Migrate conf setting
+fwenv=$(sed -rn 's,.*(/etc/fw_env_[^ ]+).*,\1,p' /proc/self/mountinfo)
+case "${fwenv}" in
+	*-a.config)
+		conf=$(fw_printenv -n conf)
+		if [ -n "${conf}" ]; then
+			fwenvn=$(echo "${fwenv}" | sed 's/-a/-b/')
+			fw_setenv -c "${fwenvn}" conf "${conf}"
+		fi
+		;;
+	*-b.config)
+		conf=$(fw_printenv -n conf)
+		if [ -n "${conf}" ]; then
+			fwenvn=$(echo "${fwenv}" | sed 's/-b/-a/')
+			fw_setenv -c "${fwenvn}" conf "${conf}"
+		fi
+		;;
+esac
 
 # Find location for /data
 DATA_MOUNT=$(awk "\$2 == \"${DATA_SRC}\" { print \$1 }" /proc/mounts)
