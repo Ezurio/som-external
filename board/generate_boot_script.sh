@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
+set -x -e
+
 BUILD_TYPE=${1}
 OLD_KERNEL=${2}
 SECURE_BOOT=${3}
-ENCRIPTED_TOOLKIT=${4}
+ENCRYPTED_TOOLKIT=${4}
 
 if ${OLD_KERNEL}; then 
     MTD_SUFFIX=""
@@ -19,7 +21,11 @@ else
     DM='dm-mod.create=\"${dm_table}\" dm-mod.waitfor=${boot_dev}'
 fi
 
-${ENCRIPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
+${ENCRYPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
+
+if [ -z "${LOG_LEVEL}" ]; then
+    ! ${SECURE_BOOT} || LOG_LEVEL=quiet
+fi
 
 print_verity() {
     cat << EOF
@@ -38,7 +44,7 @@ EOF
 print_common_60() {
     print_common "${1}"
     cat << EOF
-ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT}
+ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT} ${LOG_LEVEL}
 ${2}
 fips=\${fips:=0} fips_wifi=\${fips_wifi:=0}"
 EOF
@@ -47,7 +53,7 @@ EOF
 print_common_emmc() {
     print_common "${1}"
     cat << EOF
-init=/usr/sbin/${INIT}
+init=/usr/sbin/${INIT} ${LOG_LEVEL}
 ${2}"
 EOF
 }
@@ -58,7 +64,7 @@ case ${BUILD_TYPE} in
         if ${SECURE_BOOT}; then
             print_verity
             print_common_60 "/dev/dm-0" \
-            "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} quiet ${DM}"
+            "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} ${DM}"
         else
             print_common_60 "\${boot_dev}" \
             "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} \${bootargs}"
@@ -69,7 +75,7 @@ case ${BUILD_TYPE} in
         echo 'boot_dev=/dev/mmcblk0p5'
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_60 "/dev/dm-0" "quiet ${DM}"
+            print_common_60 "/dev/dm-0" "${DM}"
         else
             print_common_60 "\${boot_dev}" \
             "resume=/dev/mmcblk0p2 resumewait=5 \${bootargs}"
@@ -80,7 +86,7 @@ case ${BUILD_TYPE} in
         echo "boot_dev=/dev/mmcblk\${mmcdev}p\${rootvol}"
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_emmc "/dev/dm-0" "quiet ${DM}"
+            print_common_emmc "/dev/dm-0" "${DM}"
         else
             print_common_emmc "\${boot_dev}" "\${bootargs}"
         fi
