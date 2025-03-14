@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2025 Ezurio
 
 flash_cleanup() { : ; }
 flash_factory_test() { : ; }

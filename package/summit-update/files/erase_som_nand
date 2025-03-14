@@ -1,4 +1,6 @@
 #! /bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 boot_only=false
 full_erase=false
