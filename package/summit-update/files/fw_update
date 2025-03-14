@@ -56,9 +56,8 @@ if grep -qF '"ubi"' /proc/mtd; then
     # shellcheck source=/dev/null
     . /usr/bin/ubi_update_support.sh
 else
-    flash_cleanup() { : ; }
-    flash_factory_test() { : ; }
-    flash_format() { : ; }
+    # shellcheck source=/dev/null
+    . /usr/bin/emmc_update_support.sh
 fi
 
 while getopts m:s:x:fv name; do

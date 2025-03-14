@@ -1,25 +1,91 @@
 #! /bin/sh
-# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
-# Copyright (C) 2024 Ezurio
 
-usage()
-{
-	echo "usage: ${0} [-f] [-h]"
-	echo "  -f  - erase everything including bad and reserved blocks (scrub)"
-	echo "  -h  - help message"
-	exit 1
+boot_only=false
+full_erase=false
+
+erase_emmc() {
+	for i in /sys/block/mmcblk*/device/type ; do
+		read -r type < "${i}"
+		[ "${type}" = "MMC" ] || continue
+
+		echo "Erasing ${i}"
+
+		sysblock=${i%/device/type}
+		dev=${sysblock##*/}
+
+		if ${boot_only}; then
+			size=256
+		else
+			read -r size < "${sysblock}/size"
+		fi
+		echo "Erasing ${dev}"
+		mmc erase secure-erase 0 $((size-1)) "/dev/${dev}"
+
+		for b in 0 1; do
+			[ -e "${sysblock}boot${b}" ] || continue
+			echo "Erasing ${sysblock}boot${b}"
+			read -r size < "${sysblock}boot${b}/size"
+			mmc erase secure-erase 0 $((size-1)) "/dev/${dev}boot${b}"
+		done
+	done
 }
 
-o_scrub=false
+cleanup()
+{
+	echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode
+	echo "Module must be rebooted after complete erase"
+}
 
-while getopts fh name; do
-	case ${name} in
-	f)  o_scrub=true ;;
-	?)  usage ;;
+erase_nand() {
+	atmel_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd"
+
+	[ -d "${atmel_flash}" ] || return
+
+	if ${boot_only}; then
+		echo "Erasing boot partition"
+		for i in "${atmel_flash}"/mtd[0-9]; do
+			flash_erase "/dev/${i##*/}" 0 1
+			break
+		done
+		return
+	fi
+
+	if [ -f /sys/class/ubi/ubi0 ]; then
+		ubidetach -d 0 || exit 1
+	fi
+
+	if ${full_erase}; then
+		trap cleanup EXIT
+		echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
+	fi
+
+	for i in "${atmel_flash}"/mtd[0-9]; do
+		echo "Erasing ${i##*/}"
+		flash_erase "/dev/${i##*/}" 0 0
+	done
+}
+
+while getopts "bfh" opt; do
+	case ${opt} in
+		b)
+			boot_only=true
+			;;
+		f)
+			full_erase=true
+			;;
+		h)
+			echo "usage: ${0} [-b] [-f] [-h]"
+			echo "  -b  - erase boot partitions only"
+			echo "  -f  - erase everything including bad and reserved blocks (scrub)"
+			echo "  -h  - help message"
+			exit 0
+			;;
+		*)
+			echo "Invalid option"
+			exit 1
+			;;
 	esac
 done
 
-# shellcheck source=/dev/null
-. /usr/bin/ubi_update_support.sh
-
-flash_scrub ${o_scrub}
+erase_emmc
+erase_nand
