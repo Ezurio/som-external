@@ -201,7 +201,8 @@
 		reset-assert-us = <150>;
 		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
-		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		ti,clk-output-sel = <DP83867_CLK_O_SEL_OFF>;
 	};
 
@@ -212,7 +213,8 @@
 		reset-assert-us = <150>;
 		reset-deassert-us = <300>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
-		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		ti,clk-output-sel = <DP83867_CLK_O_SEL_OFF>;
 	};
 };
@@ -334,7 +336,6 @@
 	i2c-mux@73 {
 		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
 		reg = <0x73>;
-		/* No reset reset-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>; */
 		vdd-supply = <&vdd_1v8>;
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -458,37 +459,15 @@
 		cdns,read-delay = <4>;
 
 		partitions {
-			bootph-all;
 			compatible = "fixed-partitions";
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			/* TODO Define usage / partitions */
+			/* Sample  partition occupies full size of the device */
 			partition@0 {
 				label = "qspi.part0";
-				reg = <0x0 0x80000>;
+				reg = <0x0 0>;
 			};
-
-			partition@80000 {
-				label = "qspi.part1";
-				reg = <0x80000 0x200000>;
-			};
-
-			partition@280000 {
-				label = "qspi.part2";
-				reg = <0x280000 0x400000>;
-			};
-
-			partition@680000 {
-				label = "qspi.part3";
-				reg = <0x680000 0x40000>;
-			};
-
-			partition@6c0000 {
-				label = "qspi.part4";
-				reg = <0x6c0000 0x40000>;
-			};
-
 		};
 	};
 };
@@ -497,7 +476,7 @@
 	status = "okay";
 	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
 	vqmmc-supply = <&vdd_sd>; /* VSEL_SD */
-	disable-wp; // MMC1_SDWP is just pulled down, so lets not use this.
+	disable-wp;
 
 	ti,driver-strength-ohm = <50>;
 };
@@ -511,7 +490,7 @@
 	i2c-mux@72 {
 		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
 		reg = <0x72>;
-		/* No reset reset-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>; */
+
 		vdd-supply = <&vdd_1v8>;
 		#address-cells = <1>;
 		#size-cells = <0>;

@@ -27,7 +27,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_e_pwr_default>;
-		dcc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+		ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_lvds_e_in: endpoint {
@@ -40,6 +40,10 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
+
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&main_lvds_e_pwr_default>;
+		//powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port@0 {
 			reg = <0>;
