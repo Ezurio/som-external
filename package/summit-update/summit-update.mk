@@ -12,7 +12,7 @@ SUMMIT_UPDATE_LICENSE_FILES = LICENSE.ezurio
 
 define SUMMIT_UPDATE_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 -t $(TARGET_DIR)/usr/bin \
-		$(@D)/erase_som_nand $(@D)/fw_update $(@D)/ubi_update_support.sh
+		$(@D)/erase_som_nand $(@D)/fw_update $(@D)/*.sh
 
 	$(INSTALL) -D -m 0644 -t ${TARGET_DIR}/etc/swupdate/conf.d \
 		${@D}/10-swupdate.conf
