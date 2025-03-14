@@ -2,7 +2,7 @@
 
 # Carbon AM62x WBx3 board switch control script
 
-import sys
+import sys, os, glob
 import usb
 
 BITMODE_BITBANG = 0x01
@@ -18,20 +18,31 @@ def ftdi_set_bitmode(dev, bitmask, bitmode):
     wValue = bitmask | (bitmode << 8)
     dev.ctrl_transfer(bmRequestType, SIO_SET_BITMODE_REQUEST, wValue)
 
-def set_ft240x_gpio(data):
+def findUsbDevice(product):
     dev = usb.core.find(custom_match = \
             lambda d: \
                 d.idVendor == 0x0403 and
                 d.idProduct == 0x6015 and
-                d.product == 'FT240X USB FIFO')
+                d.product == product and
+                d.parent.idVendor == 0x0424 and
+                d.parent.idProduct == 0x2640
+                )
 
     if not dev:
-        print("FT240X USB FIFO not found.")
+        print('%s not found.' % product)
         sys.exit(1)
 
-    # Remove ttyUSB for this device
-    dev.detach_kernel_driver(0)
+    return dev
 
+def set_ft240x_gpio(data):
+    dev = findUsbDevice('FT240X USB FIFO')
+
+    try :
+        # Remove ttyUSB for this device
+        dev.detach_kernel_driver(0)
+    except usb.core.USBError as e:
+        pass
+    
     dev.set_configuration()
 
     # Set bit bang mode
@@ -41,25 +52,20 @@ def set_ft240x_gpio(data):
     dev.write(BULK_OUT_ENDPOINT, data)
 
 def set_ft230x_gpio(data):
-    dev = usb.core.find(custom_match = \
-            lambda d: \
-                d.idVendor == 0x0403 and
-                d.idProduct == 0x6015 and
-                d.product == 'FT230X Basic UART')
-
-    if not dev:
-        print("FT230X Basic UART not found.")
-        sys.exit(1)
+    dev = findUsbDevice('FT230X Basic UART')
 
     # Write CBUS gpios
     ftdi_set_bitmode(dev, data, BITMODE_CBUS)
+
+    devices = glob.glob('/sys/bus/usb/devices/*-%s.%s.%s:1.0/ttyUSB*' % dev.port_numbers)
+    print('Terminal is on: %s' % os.path.basename(devices[0]))
 
 def main():
     if len(sys.argv) > 1:
         try:
             data = bytes.fromhex(sys.argv[1])
         except ValueError:
-            print("Invalid hex string provided.")
+            print('Invalid hex string provided.')
             sys.exit(1)
     else:
         data = b'\xcc'
@@ -68,7 +74,7 @@ def main():
         try:
             data1 = int(sys.argv[2], 16)
         except ValueError:
-            print("Invalid hex string provided.")
+            print('Invalid hex string provided.')
             sys.exit(1)
     else:
         data1 = 0
