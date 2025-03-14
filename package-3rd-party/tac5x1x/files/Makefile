@@ -1,13 +1,16 @@
 ifeq ($(KERNELRELEASE),)
 
-KERNEL_PATH ?= /lib/modules/$(shell uname -r)/build
+$(error KERNEL_PATH=$(KERNEL_PATH))
+$(info KERNEL_SRC=$(KERNEL_SRC))
+
+KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 
 .PHONY: modules modules_install clean
 
 .DEFAULT: modules
 
 modules modules_install clean:
-	$(MAKE) -C $(KERNEL_PATH) M=$(CURDIR) $@
+	$(MAKE) -C $(KERNEL_SRC) M=$(CURDIR) $@
 
 else
 
