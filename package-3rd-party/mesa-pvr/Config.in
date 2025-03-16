@@ -95,15 +95,6 @@ config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SWRAST
 	  This is a software opengl implementation using the Gallium3D
 	  infrastructure.
 
-config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_POWERVR
-	bool "Gallium PowerVR driver"
-	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
-	select BR2_PACKAGE_MESA_PVR_OPENGL_EGL
-	select BR2_PACKAGE_MESA_PVR_OPENGL_ES
-	help
-	  virgl is the 3D acceleration backend for the virtio-gpu
-	  shipping with qemu.
-
 config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ZINK
 	bool "Gallium Zink driver"
 	depends on BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER
@@ -111,6 +102,22 @@ config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ZINK
 	select BR2_PACKAGE_MESA_PVR_OPENGL_EGL
 	help
 	  zink driver provides gallium API emulation from Vulkan driver.
+
+config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ROGUE
+	bool "Gallium PowerVR Rogue driver"
+	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
+	select BR2_PACKAGE_MESA_PVR_OPENGL_EGL
+	select BR2_PACKAGE_MESA_PVR_OPENGL_ES
+	help
+	  Gallium driver for PowerVR Rogue.
+
+config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SGX
+	bool "Gallium PowerVR SGX driver"
+	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
+	select BR2_PACKAGE_MESA_PVR_OPENGL_EGL
+	select BR2_PACKAGE_MESA_PVR_OPENGL_ES
+	help
+	  Gallium driver for PowerVR SGX.
 
 comment "Vulkan drivers"
 
@@ -122,12 +129,11 @@ config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_SWRAST
 	help
 	  Vulkan swrast driver.
 
-config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_POWERVR
-	bool "Vulkan PowerVR driver"
+config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_ROGUE
+	bool "Vulkan PowerVR Rogue driver"
 	depends on BR2_arm || BR2_aarch64
 	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # dri3/libxshmfence
 	select BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER
-	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ZINK
 	help
 	  Vulkan PowerVR driver.
 
