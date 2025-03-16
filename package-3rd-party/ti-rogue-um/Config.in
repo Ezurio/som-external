@@ -11,14 +11,7 @@ config BR2_PACKAGE_TI_ROGUE_UM
 	depends on BR2_TOOLCHAIN_USES_GLIBC
 	depends on BR2_aarch64
 	select BR2_PACKAGE_LIBDRM
-	select BR2_PACKAGE_HAS_LIBEGL
-	select BR2_PACKAGE_HAS_LIBGBM
-	select BR2_PACKAGE_LIBGBM_HAS_FEATURE_DMA_BUF
-	select BR2_PACKAGE_HAS_LIBGLES
 	select BR2_PACKAGE_HAS_POWERVR
-	select BR2_PACKAGE_LIBFFI
-	select BR2_PACKAGE_WAYLAND
-	select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
 	select BR2_PACKAGE_TI_ROGUE_KM if BR2_LINUX_KERNEL
 	help
 	  Graphics libraries for TI SoCs with Rogue GPU.
@@ -28,15 +21,6 @@ config BR2_PACKAGE_TI_ROGUE_UM
 	  https://git.ti.com/cgit/graphics/ti-img-rogue-umlibs
 
 if BR2_PACKAGE_TI_ROGUE_UM
-
-config BR2_PACKAGE_PROVIDES_LIBEGL
-	default "ti-rogue-um"
-
-config BR2_PACKAGE_PROVIDES_LIBGBM
-	default "ti-rogue-um"
-
-config BR2_PACKAGE_PROVIDES_LIBGLES
-	default "ti-rogue-um"
 
 config BR2_PACKAGE_PROVIDES_POWERVR
 	default "ti-rogue-um"
@@ -48,5 +32,12 @@ config BR2_TARGET_TI_ROGUE_UM_TARGET_PRODUCT
 	  Select target product to be used for UM libraries. This needs to
 	  match one of the SoC-specific folders within the root/targetfs
 	  folder of the ti-img-rogue-umlibs Git repository.
+
+config BR2_PACKAGE_TI_ROGUE_UM_TOOLS
+	bool "UM tools"
+	help
+	  Tools for the TI Rogue UM driver.
+	  This package provides utilities related to the TI Rogue UM architecture,
+	  ensuring comprehensive support for various functionalities.
 
 endif
