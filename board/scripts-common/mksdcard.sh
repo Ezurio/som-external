@@ -188,9 +188,9 @@ create_boot_partition() {
 			"${SRCDIR}/tiboot3.bin" \
 			"${SRCDIR}/u-boot.img" \
 			"${SRCDIR}/uboot.env"
-	elif [ -f "${SRCDIR}/imx-boot" ]; then
+	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
-		dd if="${SRCDIR}/imx-boot" of="${TARGET}" bs=1k seek=32 status=none
+		dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none
 	else
 		${SECURE} && EXT="cip" || EXT="bin"
 		cp -t "${BOOT_PART}" \
@@ -242,7 +242,7 @@ if ! check_format ; then
 		printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
 			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	else
-		[ -f "${SRCDIR}/imx-boot" ] && FS_OFFSET=8M || FS_OFFSET=
+		[ -f "${SRCDIR}/flash.bin" ] && FS_OFFSET=8M || FS_OFFSET=
 
 		printf '%s,%sM,0xc,*\n,%sM,S\n,%sM,L\n%s,-,Ex\n,%sM,L\n,%s,L\n' \
 			"${FS_OFFSET}" ${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} \

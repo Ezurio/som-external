@@ -1,0 +1,282 @@
+software =
+{
+	version = "0.1.0";
+	bootloader_transaction_marker = false;
+	bootloader_state_marker = false;
+
+	stable = {
+		full-a: {
+			partitions: (
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
+
+					properties: {
+						fstype = "vfat";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p3";
+
+					properties: {
+						fstype = "ext4";
+						force = "true";
+					};
+				}
+			);
+
+			images: (
+				{
+					filename = "flash.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+					type = "raw";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(flash.bin)";
+				},
+				{
+					filename = "uboot.env";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+					type = "raw";
+					offset = "4032K";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "rootfs.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p2";
+					type = "raw";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				},
+			);
+
+			files: (
+				{
+					filename = "kernel.itb";
+					path = "/kernel.itb";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
+					filesystem = "vfat";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "/dev/mmcblk@@EMMC_DEVICE@@p6 /dev/mmcblk@@EMMC_DEVICE@@p3";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				},
+				{
+					type = "emmc_boot";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+				}
+			);
+		};
+
+		full-b: {
+			partitions: (
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
+
+					properties: {
+						fstype = "vfat";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p6";
+
+					properties: {
+						fstype = "ext4";
+						force = "true";
+					};
+				}
+			);
+
+			images: (
+				{
+					filename = "flash.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+					type = "raw";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(flash.bin)";
+				},
+				{
+					filename = "uboot.env";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+					type = "raw";
+					offset = "4032K";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "rootfs.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+					type = "raw";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				},
+			);
+
+			files: (
+				{
+					filename = "kernel.itb";
+					path = "/kernel.itb";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
+					filesystem = "vfat";
+					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "/dev/mmcblk@@EMMC_DEVICE@@p3 /dev/mmcblk@@EMMC_DEVICE@@p6";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				},
+				{
+					type = "emmc_boot";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+				}
+			);
+		};
+
+		complete: {
+			partitions: (
+				{
+					type = "diskpart";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@";
+
+					properties: {
+						labeltype = "gpt";
+						partition-1 = ["size=32M",  "name=kernel_a",      "type=BC13C2FF-59E6-4262-A352-B275FD6F7172"];
+						partition-2 = ["size=512M", "name=rootfs_a",      "type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE"];
+						partition-3 = ["size=256M", "name=rootfs_data_a", "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
+						partition-4 = ["size=32M",  "name=kernel_b",      "type=BC13C2FF-59E6-4262-A352-B275FD6F7172"];
+						partition-5 = ["size=512M", "name=rootfs_b",      "type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE"];
+						partition-6 = ["size=256M", "name=rootfs_data_b", "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
+						partition-7 = ["size=6G",   "name=perm",          "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
+
+					properties: {
+						fstype = "vfat";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p3";
+
+					properties: {
+						fstype = "ext4";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
+
+					properties: {
+						fstype = "vfat";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p6";
+
+					properties: {
+						fstype = "ext4";
+						force = "true";
+					};
+				},
+				{
+					type = "diskformat";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p7";
+
+					properties: {
+						fstype = "ext4";
+						force = "true";
+					}
+				}
+			);
+
+			images: (
+				{
+					filename = "flash.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+					type = "raw";
+					sha256 = "$swupdate_get_sha256(flash.bin)";
+				},
+				{
+					filename = "flash.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+					type = "raw";
+					sha256 = "$swupdate_get_sha256(flash.bin)";
+				},
+				{
+					filename = "uboot.env";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+					type = "raw";
+					offset = "4032K";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "uboot.env";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+					type = "raw";
+					offset = "4032K";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "rootfs.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p2";
+					type = "raw";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				},
+				{
+					filename = "rootfs.bin";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+					type = "raw";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				},
+			);
+
+			files: (
+				{
+					filename = "kernel.itb";
+					path = "/kernel.itb";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
+					filesystem = "vfat";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "kernel.itb";
+					path = "/kernel.itb";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
+					filesystem = "vfat";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+			);
+
+			scripts: (
+				{
+					type = "emmc_boot";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+				}
+			);
+		}
+	}
+}

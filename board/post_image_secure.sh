@@ -84,6 +84,8 @@ else
     ln -sf "rootfs.${ROOTFS_TYPE}" "${BINARIES_DIR}/rootfs.bin"
 fi
 
+KERNEL_IMAGE=$(sed -rn 's|.*/incbin/\("(Image[^"]+).*|\1|p' kernel.its)
+
 # Compress images for the kernel FIT
 while read -r file; do
     case "${file}" in
@@ -92,8 +94,7 @@ while read -r file; do
         *.lzma) lzma -9kf "${file%.*}" ;;
         *.zst) zstd -9 -kf "${file%.*}" ;;
     esac
-    [ "${file%.*}" != Image ] || KERNEL_IMAGE="${file}"
-done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its)
+done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its | grep '\.\(gz\|lzo\|lzma\|zst\)$')
 
 # Create Kernel FIT image, and store signature in u-boot
 if ${SECURE_BOOT} ; then
@@ -237,13 +238,10 @@ som60*|ig60*|wb50n*)
     esac
     ;;
 
-*am62*)
+*am62*|imx8*)
     if ${SECURE_BOOT} ; then
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
     fi
-    ;;
-
-imx8*)
     ;;
 esac
 
