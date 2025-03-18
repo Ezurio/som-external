@@ -14,6 +14,10 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE IMX8 script: starting..."
 BOARD_DIR=$(realpath "$(dirname "${0}")")
 BUILD_TYPE="${2}"
 
+if [ -z "${EMMC_DEVICE}" ]; then
+	export EMMC_DEVICE=2
+fi
+
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_common.sh" "${BOARD_DIR}" "${BUILD_TYPE}"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE IMX8 script: done."
