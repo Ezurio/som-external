@@ -53,7 +53,7 @@ if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
 			;;
 	esac
 
-	/usr/bin/mount -o mode=1777,nosuid,nodev,noexec -t tmpfs tmpfs /tmp 2>/dev/null
+	/bin/mount -o mode=1777,nosuid,nodev,noexec -t tmpfs tmpfs /tmp 2>/dev/null
 
 	[ -f /lib/fipscheck/Image.lzma.hmac ] && IMGTYP=lzma || IMGTYP=gz
 
@@ -75,10 +75,10 @@ if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
 	${BOOT_MOUNT} && /usr/bin/umount /boot
 
 	# trigger kernel crypto gcm self-test
-	/usr/sbin/modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"
-	/usr/sbin/modprobe -r tcrypt
+	/sbin/modprobe tcrypt mode=35 || die "Boot gcm(aes) test failed: $?"
+	/sbin/modprobe -r tcrypt
 
 	echo "FIPS Integrity check Success"
 fi
 
-exec /usr/sbin/init
+exec /sbin/init

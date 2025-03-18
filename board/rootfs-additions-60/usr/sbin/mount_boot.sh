@@ -20,7 +20,7 @@ start)
 	SD|MMC)
 		BOOT_DEVICE=/dev/$(getPart kernel)
 
-		/usr/bin/mount -o noatime,noexec,nosuid,nodev -t auto \
+		/bin/mount -o noatime,noexec,nosuid,nodev -t auto \
 			"${BOOT_DEVICE}" ${BOOT_MOUNT} || \
 			die "Mounting ${DATA_DEVICE} to ${DATA_MOUNT} Failed"
 		;;
@@ -29,7 +29,7 @@ start)
 
 stop)
 	[ ! -d ${BOOT_MOUNT} ] || \
-		/usr/bin/umount ${BOOT_MOUNT}
+		/bin/umount ${BOOT_MOUNT}
 	;;
 
 *)
