@@ -35,14 +35,14 @@ ifneq ($(PARALLEL_JOBS),1)
 PARALLEL_OPTS += -Orecurse
 endif
 
-.PHONY: all clean
+.PHONY: all clean savedefconfig
 all:
 	$(MAKE) $(PARALLEL_OPTS) $(TARGETS_ALL)
 
 clean:
 	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -clean,$(TARGETS_ALL))
 
-regenconfig:
+savedefconfig:
 	$(MAKE) $(PARALLEL_OPTS) $(addsuffix -savedefconfig,$(TARGETS_ALL))
 	$(MAKE) $(PARALLEL_OPTS) clean
 
