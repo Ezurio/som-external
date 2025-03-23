@@ -8,7 +8,7 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
-#include "ti/k3-pinctrl.h"
+#include "k3-pinctrl.h"
 
 &{/} {
 	vdd_cam_a: regulator-cam-a-pwr {

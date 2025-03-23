@@ -10,7 +10,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include "ti/k3-pinctrl.h"
+#include "k3-pinctrl.h"
 
 &{/} {
 	regulator-rgb-reset {

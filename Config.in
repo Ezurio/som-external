@@ -6,6 +6,20 @@ config BR2_SUMMIT_SECURE_BOOT
 		This enables "traditional" (down to kernel) secure boot
 		rootfs security provided by Summit Encrypted Storage Toolkit
 
+config BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER
+	string "Custom device tree blobs filter"
+	help
+		Set this option to select custom device tree blobs
+		to use in the kernel build. The value should be a
+		space-separated list of device tree blob filenames 
+		or wildcard patterns.
+
+config BR2_SUMMIT_LINUX_DEFAULT_DTB
+	string "Default device tree blob"
+	help
+		Set this option to select the default device tree blob
+		to use in the kernel build.
+
 config BR2_SUMMIT_OPENJDK_GGV2
 	bool "summit-openjdk-ggv2"
 	depends on BR2_PACKAGE_OPENJDK

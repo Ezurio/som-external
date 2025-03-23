@@ -9,7 +9,7 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
-#include "ti/k3-pinctrl.h"
+#include "k3-pinctrl.h"
 
 /* CAUTION: LVDS E channel on AM62x is the companion channel to the LVDS D 
    it will work only when LVDS D is active and will function as the mirror

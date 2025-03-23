@@ -212,7 +212,27 @@ fi
 mapfile -t < <(make --no-print-directory -C "${BASE_DIR}" linux-show-version \
 	uboot-show-version swupdate-show-version linux-show-dtb | sed '/^make\[/d')
 read -r LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE <<< "${MAPFILE[@]}"
-export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE
+
+FIT_CONF_DEFAULT_DTB="$(sed -rn 's,^BR2_SUMMIT_LINUX_DEFAULT_DTB="(.*)"$,\1,p' "${BR2_CONFIG}")"
+CUSTOM_DTB_FILTER="$(sed -rn 's,^BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER="(.*)"$,\1,p' "${BR2_CONFIG}")"
+if [ -n "${CUSTOM_DTB_FILTER}" ]; then
+	filtered_dtbs=
+	for dtb in ${KERNEL_DEVICETREE}; do
+		for filter in ${CUSTOM_DTB_FILTER}; do
+			case "${dtb}" in
+				${filter}) 
+					filtered_dtbs="${filtered_dtbs} ${dtb}"
+					;;
+				"${FIT_CONF_DEFAULT_DTB}")
+					filtered_dtbs="${filtered_dtbs} ${dtb}"
+					;;
+			esac
+		done
+	done
+	KERNEL_DEVICETREE="${filtered_dtbs}"
+fi
+
+export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
 SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 
