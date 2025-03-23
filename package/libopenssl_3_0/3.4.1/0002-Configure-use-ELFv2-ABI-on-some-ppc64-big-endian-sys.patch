@@ -21,7 +21,7 @@ diff --git a/Configure b/Configure
 index 5a699836f3..f9152b1702 100755
 --- a/Configure
 +++ b/Configure
-@@ -1627,6 +1627,10 @@ unless ($disabled{asm}) {
+@@ -1663,6 +1663,10 @@ unless ($disabled{asm}) {
      }
  }
  

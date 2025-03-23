@@ -12,7 +12,7 @@ diff --git a/apps/fipsinstall.c b/apps/fipsinstall.c
 index 6d86bb44e2..47060a3881 100644
 --- a/apps/fipsinstall.c
 +++ b/apps/fipsinstall.c
-@@ -319,12 +319,16 @@ static int verify_config(const char *infile, const char *section,
+@@ -522,12 +522,16 @@ static int verify_config(const char *infile, const char *section,
          BIO_printf(bio_err, "Module integrity MAC not found\n");
          goto end;
      }

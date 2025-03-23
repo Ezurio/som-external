@@ -14,10 +14,10 @@ diff --git a/crypto/rand/rand_lib.c b/crypto/rand/rand_lib.c
 index 14999540ab..f3c359bc71 100644
 --- a/crypto/rand/rand_lib.c
 +++ b/crypto/rand/rand_lib.c
-@@ -724,11 +724,13 @@ EVP_RAND_CTX *RAND_get0_primary(OSSL_LIB_CTX *ctx)
-     }
- 
- #ifndef FIPS_MODULE
+@@ -758,11 +758,13 @@ EVP_RAND_CTX *RAND_get0_primary(OSSL_LIB_CTX *ctx)
+ #ifdef FIPS_MODULE
+     ret = rand_new_crngt(ctx, dgbl->seed);
+ #else
 -    if (dgbl->seed == NULL) {
 +    if (!EVP_default_properties_is_fips_enabled(ctx) &&
 +        dgbl->seed == NULL) {
@@ -26,10 +26,10 @@ index 14999540ab..f3c359bc71 100644
          ERR_pop_to_mark();
      }
 +    // note: FIPS module fetches entropy directly
+     ret = rand_new_drbg(ctx, dgbl->seed, PRIMARY_RESEED_INTERVAL,
+                         PRIMARY_RESEED_TIME_INTERVAL);
  #endif
- 
-     ret = dgbl->primary = rand_new_drbg(ctx, dgbl->seed,
-@@ -762,9 +764,15 @@ EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx)
+@@ -796,9 +798,15 @@ EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->public);
      if (rand == NULL) {
@@ -48,7 +48,7 @@ index 14999540ab..f3c359bc71 100644
  
          ctx = ossl_lib_ctx_get_concrete(ctx);
  
-@@ -798,9 +806,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
+@@ -832,9 +840,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->private);
      if (rand == NULL) {

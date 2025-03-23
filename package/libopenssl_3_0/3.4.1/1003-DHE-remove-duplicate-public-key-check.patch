@@ -16,7 +16,7 @@ diff --git a/ssl/statem/statem_clnt.c b/ssl/statem/statem_clnt.c
 index b59eddae33..21aa738c8a 100644
 --- a/ssl/statem/statem_clnt.c
 +++ b/ssl/statem/statem_clnt.c
-@@ -2317,7 +2317,7 @@ static int tls_process_ske_dhe(SSL *s, PACKET *pkt, EVP_PKEY **pkey)
+@@ -2318,7 +2318,7 @@ static int tls_process_ske_dhe(SSL *s, PACKET *pkt, EVP_PKEY **pkey)
               * EVP_PKEY_param_check_quick() skips the safe prime check.
               */
              || EVP_PKEY_param_check_quick(pctx) != 1
