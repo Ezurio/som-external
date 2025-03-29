@@ -6,7 +6,7 @@ flash_cleanup() { : ; }
 flash_factory_test() { : ; }
 
 flash_format() { 
-    getSocId
+	getSocId
 
 	for i in /sys/block/mmcblk*/device/type ; do
 		read -r type < "${i}"
