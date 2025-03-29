@@ -8,17 +8,15 @@ flash_cleanup() {
 
 flash_scrub()
 {
-    if [ -r /sys/devices/soc0/soc_id ]; then
-        read -r soc_id < /sys/devices/soc0/soc_id
-        case "${soc_id}" in
-            sama5d3*)
-                main_flash=/sys/devices/platform/ahb/10000000.ebi/10000000.ebi:nand-controller/mtd
-                ;;
-            *)
-                return 1
-                ;;
-        esac
-    fi
+    getSocId
+    case ${soc_id:?} in
+        sama5d3*)
+            main_flash=/sys/devices/platform/ahb/10000000.ebi/10000000.ebi:nand-controller/mtd
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 
     flash_cleanup || return 1
 
