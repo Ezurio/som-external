@@ -86,6 +86,7 @@ if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then
 		TEMP_SRC=$(mktemp -d -t mksdcard.XXXXXX)
 		cpio -idm --quiet < "${SWU_PATH}" -D "${TEMP_SRC}"
 		SRCDIR=${TEMP_SRC}
+		ROOTFS_PATH=${SRCDIR}/rootfs.bin
 	else
 		die 'Nothing to load'
 	fi
