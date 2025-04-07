@@ -2,14 +2,3 @@ config BR2_PACKAGE_LIBOPENSSL_3_0
         bool "openssl 3.0"
 
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/libopenssl_3_0/Config.in"
-
-config BR2_PACKAGE_LIBOPENSSL_1_0_2
-        bool "openssl 1.0.2"
-
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/libopenssl_1_0_2/Config.in"
-
-config BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES
-        bool "summitssl-1.0.2 FIPS binaries"
-        select BR2_PACKAGE_ZLIB
-
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summitssl_fips-binaries/Config.in"

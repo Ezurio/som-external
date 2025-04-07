@@ -72,7 +72,7 @@ SWAP_SIZE=256
 PERM_SIZE=48
 
 find_file() {
-	for f in $(ls -1 -t "${SRCDIR}"/${1})
+	for f in $(ls -1 -t "${SRCDIR}"/${1} 2> /dev/null);
 	do
 		[ -L "${f}" ] || { echo "${f}"; break; }
 	done
