@@ -19,11 +19,11 @@ BOARD_DIR=${1}/board/configs-common/keys
 CUSTOMER_DIR=${2}
 
 ./mkrodata.sh \
-    "${BOARD_DIR}"/key-fs.bin \
-    "${BOARD_DIR}"/dev.pem \
-    "${REST_SERVER_CERTS_DIR}"/server.crt \
-    "${REST_SERVER_CERTS_DIR}"/server.key \
-    "${REST_SERVER_CERTS_DIR}"/ca.crt \
-    "${CUSTOMER_DIR}"
+	"${BOARD_DIR}"/key-fs.bin \
+	"${BOARD_DIR}"/dev.pem \
+	"${REST_SERVER_CERTS_DIR}"/server.crt \
+	"${REST_SERVER_CERTS_DIR}"/server.key \
+	"${REST_SERVER_CERTS_DIR}"/ca.crt \
+	"${CUSTOMER_DIR}"
 
-mv -f rodata.img "${1}/package/lrd/lrd-encrypted-storage-toolkit/rootfs/etc/rodata"
+mv -f rodata.img "${1}/package/summit-encrypted-storage-toolkit/rootfs/etc/rodata"
