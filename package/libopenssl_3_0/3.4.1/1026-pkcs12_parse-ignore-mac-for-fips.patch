@@ -1,0 +1,25 @@
+From 86a49c9af3a6ec3dbbdd99838a0ff34eaa0194ef Mon Sep 17 00:00:00 2001
+From: Doug Smith <doug.smith@ezurio.com>
+Date: Tue, 8 Apr 2025 16:37:43 -0400
+Subject: [PATCH] pkcs12_parse: ignore mac for fips
+
+---
+ crypto/pkcs12/p12_kiss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crypto/pkcs12/p12_kiss.c b/crypto/pkcs12/p12_kiss.c
+index 0901dc9..e6827d7 100644
+--- a/crypto/pkcs12/p12_kiss.c
++++ b/crypto/pkcs12/p12_kiss.c
+@@ -51,7 +51,7 @@ int PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert,
+     }
+ 
+     /* Check the mac */
+-    if (PKCS12_mac_present(p12)) {
++    if (PKCS12_mac_present(p12) && !EVP_default_properties_is_fips_enabled(NULL)) {
+         /*
+          * If password is zero length or NULL then try verifying both cases to
+          * determine which password is correct. The reason for this is that under
+-- 
+2.34.1
+
