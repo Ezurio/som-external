@@ -387,10 +387,6 @@ case "${BUILD_TYPE}" in
 esac
 
 case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
-	7)
-		install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
-			"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${SOM}/"*
-		;;
 	11)
 		install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
 			"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/"*
