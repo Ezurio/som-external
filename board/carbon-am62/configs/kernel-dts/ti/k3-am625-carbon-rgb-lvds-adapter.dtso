@@ -13,7 +13,7 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	regulator-rgb-reset {
+	vcc_3v3_rgb_reset: regulator-rgb-reset {
 		/* output of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_3v3_rgb_reset";
