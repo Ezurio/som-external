@@ -27,11 +27,6 @@ done
 fw_printenv -n bootcmd | grep -qFi 0x000e0000 && \
 	KERNEL=/dev/mtd4 || KERNEL=/dev/mtd5
 
-if [ -f /dev/hwrng ]; then
-	chown root:root /dev/hwrng
-	chmod 644 /dev/hwrng
-fi
-
 [ -f /proc/sys/crypto/fips_enabled ] &&
 	read -r FIPS_ENABLED < /proc/sys/crypto/fips_enabled
 
@@ -43,14 +38,9 @@ if [ "${FIPS_ENABLED}" = "1" ] && [ -n "${KERNEL}" ]; then
 	/usr/sbin/dumpimage -T flat_dt -p 0 -o "/tmp/Image.${IMGTYP}" "${KERNEL}" >/dev/null || \
 		fail "Cannot extract kernel image error: $?"
 
-	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
-			fail "fipscheck error: $?"
-	else
-		ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
-			fail "fipscheck error: $?"
-	fi
+	ossl-fipsload -B
+	FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
+		fail "fipscheck error: $?"
 
 	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
 	rm -f "/tmp/Image.${IMGTYP}"

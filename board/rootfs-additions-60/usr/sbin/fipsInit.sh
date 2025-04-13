@@ -32,8 +32,6 @@ fi
 
 echo "Launching: ${0}"
 
-[ ! -e /dev/hwrng ] || chmod 644 /dev/hwrng
-
 FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled)
 
 if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
@@ -60,14 +58,9 @@ if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
 	/usr/sbin/dumpimage -T flat_dt -p 0 -o "/tmp/Image.${IMGTYP}" "${KERNEL}" >/dev/null || \
 		dief "Cannot extract kernel image error: $?"
 
-	if [ -f /usr/lib/libcrypto.so.1.0.0 ]; then
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/libcrypto.so.1.0.0 || \
-			dief "fipscheck error: $?"
-	else
-		/usr/bin/ossl-fipsload -B
-		FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
-			dief "fipscheck error: $?"
-	fi
+	/usr/bin/ossl-fipsload -B
+	FIPSCHECK_DEBUG=stderr /usr/bin/fipscheck "/tmp/Image.${IMGTYP}" /usr/lib/ossl-modules/fips.so || \
+		dief "fipscheck error: $?"
 
 	#shred -zufn 0 "/tmp/Image.${IMGTYP}"
 	rm -f "/tmp/Image.${IMGTYP}"
