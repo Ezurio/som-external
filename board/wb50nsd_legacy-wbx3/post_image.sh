@@ -10,15 +10,29 @@ fi
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE script: starting..."
 
+UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+
 # Tooling checks
-mkenvimage="${BUILD_DIR}/uboot-custom/tools/mkenvimage"
+mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
+mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 
 die() { echo "$@" >&2; exit 1; }
+
+[ -x "${mkimage}" ] || \
+	die "No mkimage found (uboot has not been built?)"
 
 [ -x "${mkenvimage}" ] || \
 	die "No mkenvimage found (uboot has not been built?)"
 
-UBOOT_VER=$(make -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+cp -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image/u-boot.its" "${BINARIES_DIR}/u-boot.its"
+
+TEXT_BASE=$(sed -rn 's,^CONFIG_TEXT_BASE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
+sed -r -i "s/load = <.*>;/load = <${TEXT_BASE}>;/" "${BINARIES_DIR}/u-boot.its"
+
+cd "${BINARIES_DIR}" 
+${mkimage} -f u-boot.its u-boot.itb
+ln -sf u-boot.itb boot.bin
+cd -
 
 # Generate U-Boot environment
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
