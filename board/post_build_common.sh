@@ -35,6 +35,10 @@ grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" \
 	&& SECURE_BOOT=true || SECURE_BOOT=false
 export SECURE_BOOT
 
+grep -qF "BR2_SUMMIT_CONSOLE_LOGGING=y" "${BR2_CONFIG}" \
+	&& CONSOLE_LOGGING=true || CONSOLE_LOGGING=false
+export CONSOLE_LOGGING
+
 # Create default firmware description file.
 # This may be overwritten by a proper release file.
 LOCRELSTR="${SUMMIT_RELEASE_STRING}"

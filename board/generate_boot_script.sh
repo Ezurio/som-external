@@ -18,9 +18,7 @@ fi
 
 ${ENCRYPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
 
-if [ -z "${LOG_LEVEL}" ]; then
-    ! ${SECURE_BOOT} || LOG_LEVEL=quiet
-fi
+${CONSOLE_LOGGING} || LOG_LEVEL=quiet
 
 print_verity() {
     cat << EOF
