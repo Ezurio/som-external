@@ -1,6 +1,6 @@
 --- a/drivers/gpu/drm/bridge/lvds-codec.c
 +++ b/drivers/gpu/drm/bridge/lvds-codec.c
-@@ -24,6 +24,8 @@
+@@ -25,6 +25,8 @@
  	struct regulator *vcc;
  	struct gpio_desc *powerdown_gpio;
  	u32 connector_type;
@@ -9,8 +9,8 @@
  	unsigned int bus_format;
  };
  
-@@ -71,10 +73,26 @@
- 			"Failed to disable regulator \"vcc\": %d\n", ret);
+@@ -97,7 +99,23 @@
+ 	return input_fmts;
  }
  
 +static enum drm_mode_status lvds_codec_mode_valid(struct drm_bridge *bridge,
@@ -29,22 +29,11 @@
 +}
 +
  static const struct drm_bridge_funcs funcs = {
++	.mode_valid = lvds_codec_mode_valid,
  	.attach = lvds_codec_attach,
  	.enable = lvds_codec_enable,
  	.disable = lvds_codec_disable,
-+	.mode_valid = lvds_codec_mode_valid,
- };
- 
- #define MAX_INPUT_SEL_FORMATS 1
-@@ -106,6 +124,7 @@
- 	.attach = lvds_codec_attach,
- 	.enable = lvds_codec_enable,
- 	.disable = lvds_codec_disable,
-+	.mode_valid = lvds_codec_mode_valid,
- 	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
- 	.atomic_reset = drm_atomic_helper_bridge_reset,
-@@ -200,6 +219,14 @@
+@@ -188,6 +206,14 @@
  			DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE;
  	}
  

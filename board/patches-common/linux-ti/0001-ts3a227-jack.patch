@@ -2,7 +2,7 @@ diff --git a/sound/soc/codecs/ts3a227e.c b/sound/soc/codecs/ts3a227e.c
 index 6d9166d9116a..730ac997c883 100644
 --- a/sound/soc/codecs/ts3a227e.c
 +++ b/sound/soc/codecs/ts3a227e.c
-@@ -243,9 +243,21 @@ static irqreturn_t ts3a227e_interrupt(int irq, void *data)
+@@ -242,9 +242,21 @@ static irqreturn_t ts3a227e_interrupt(int irq, void *data)
   */
  int ts3a227e_enable_jack_detect(struct snd_soc_component *component,
  				struct snd_soc_jack *jack)
@@ -24,7 +24,7 @@ index 6d9166d9116a..730ac997c883 100644
  	snd_jack_set_key(jack->jack, SND_JACK_BTN_0, KEY_PLAYPAUSE);
  	snd_jack_set_key(jack->jack, SND_JACK_BTN_1, KEY_VOICECOMMAND);
  	snd_jack_set_key(jack->jack, SND_JACK_BTN_2, KEY_VOLUMEUP);
-@@ -256,16 +268,6 @@ int ts3a227e_enable_jack_detect(struct snd_soc_component *component,
+@@ -255,16 +267,6 @@ int ts3a227e_enable_jack_detect(struct snd_soc_component *component,
  
  	return 0;
  }

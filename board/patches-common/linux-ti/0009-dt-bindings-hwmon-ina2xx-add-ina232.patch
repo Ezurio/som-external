@@ -17,9 +17,9 @@ index 8648877d2d01..c693a653d6ed 100644
        - ti,ina230
        - ti,ina231
 +      - ti,ina232
+       - ti,ina237
        - ti,ina238
- 
-   reg:
+       - ti,ina260
 -- 
 2.47.1
 

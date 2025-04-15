@@ -2,9 +2,9 @@ diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
 index e397e7d642d9..e118e4141b90 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -159,6 +159,15 @@
- #define DP83867_LED_DRV_EN(x)	BIT((x) * 4)
- #define DP83867_LED_DRV_VAL(x)	BIT((x) * 4 + 1)
+@@ -177,6 +177,15 @@
+ #define DP83867_LED_FN_RX_TX		0x1 /* Receive or Transmit activity */
+ #define DP83867_LED_FN_LINK		0x0 /* Link established */
  
 +#define DP83867_IO_IMPEDANCE_OHM_MAX	70
 +#define DP83867_IO_IMPEDANCE_OHM_MIN	35
@@ -18,7 +18,7 @@ index e397e7d642d9..e118e4141b90 100644
  enum {
  	DP83867_PORT_MIRROING_KEEP,
  	DP83867_PORT_MIRROING_EN,
-@@ -552,8 +561,14 @@ static int dp83867_of_init_io_impedance(struct phy_device *phydev)
+@@ -570,8 +579,14 @@ static int dp83867_of_init_io_impedance(struct phy_device *phydev)
  			dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX;
  		else if (of_property_read_bool(of_node, "ti,min-output-impedance"))
  			dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN;
@@ -35,7 +35,7 @@ index e397e7d642d9..e118e4141b90 100644
  
  		return 0;
  	}
-@@ -586,6 +601,8 @@ static int dp83867_of_init(struct phy_device *phydev)
+@@ -604,6 +619,8 @@ static int dp83867_of_init(struct phy_device *phydev)
  	if (!of_node)
  		return -ENODEV;
  
@@ -44,7 +44,7 @@ index e397e7d642d9..e118e4141b90 100644
  	/* Optional configuration */
  	ret = of_property_read_u32(of_node, "ti,clk-output-sel",
  				   &dp83867->clk_output_sel);
-@@ -688,7 +705,7 @@ static int dp83867_of_init(struct phy_device *phydev)
+@@ -706,7 +723,7 @@ static int dp83867_of_init(struct phy_device *phydev)
  	 * same here or else the default '0' means highest IO impedance
  	 * which is wrong.
  	 */
@@ -53,7 +53,7 @@ index e397e7d642d9..e118e4141b90 100644
  
  	/* For non-OF device, the RX and TX FIFO depths are taken from
  	 * default value. So, we init RX & TX FIFO depths here
-@@ -701,6 +718,15 @@ static int dp83867_of_init(struct phy_device *phydev)
+@@ -719,6 +736,15 @@ static int dp83867_of_init(struct phy_device *phydev)
  }
  #endif /* CONFIG_OF_MDIO */
  
@@ -69,7 +69,7 @@ index e397e7d642d9..e118e4141b90 100644
  static int dp83867_suspend(struct phy_device *phydev)
  {
  	/* Disable PHY Interrupts */
-@@ -742,7 +768,7 @@ static int dp83867_probe(struct phy_device *phydev)
+@@ -760,7 +786,7 @@ static int dp83867_probe(struct phy_device *phydev)
  static int dp83867_config_init(struct phy_device *phydev)
  {
  	struct dp83867_private *dp83867 = phydev->priv;
@@ -78,7 +78,7 @@ index e397e7d642d9..e118e4141b90 100644
  	u16 delay;
  
  	/* Force speed optimization for the PHY even if it strapped */
-@@ -848,13 +874,29 @@ static int dp83867_config_init(struct phy_device *phydev)
+@@ -866,13 +892,29 @@ static int dp83867_config_init(struct phy_device *phydev)
  
  		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RGMIIDCTL,
  			      delay);

@@ -5,7 +5,7 @@
 ################################################################################
 
 # 24.2.6643903
-TI_ROGUE_KM_VERSION = 023eb5afde7e069bff1e5e37620b84a66b447936
+TI_ROGUE_KM_VERSION = 8eaff654a8871118c08cfafe53795f57e3b6b396
 TI_ROGUE_KM_SITE = https://git.ti.com/cgit/graphics/ti-img-rogue-driver/snapshot
 TI_ROGUE_KM_SOURCE = ti-img-rogue-driver-$(TI_ROGUE_KM_VERSION).tar.xz
 TI_ROGUE_KM_LICENSE = MIT or GPL-2.0
