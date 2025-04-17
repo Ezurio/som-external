@@ -196,9 +196,6 @@ som60*|ig60*|wb50n*)
         ${mkimage} -T atmelimage -n "$(${atmel_pmecc_params})" -d u-boot-spl.bin boot.bin
 
         if ${SECURE_BOOT} ; then
-            # Save off the raw PMECC header
-            dd if=boot.bin of=pmecc.bin bs=208 count=1
-
             # Generate key transition support
             if grep -qF boot1.bin sw-description ; then
                 cp -f boot.bin boot1.bin
@@ -209,11 +206,14 @@ som60*|ig60*|wb50n*)
             if [ -n "${KEYS_DIR}" ]; then
                 create_secure_boot_encrypted_uboot_spl
 
+                # Save off the raw PMECC header
+                dd if=boot.bin of=boot.cip bs=208 count=1
+
                 # Concatenate a PMECC header to the encrypted, bootstrap binary
-                cat pmecc.bin bootstrap_sama5d3x.cip > boot.cip
+                cat bootstrap_sama5d3x.cip >> boot.cip
 
                 # Cleanup
-                rm -f pmecc.bin bootstrap_sama5d3x.cip
+                rm -f bootstrap_sama5d3x.cip
             fi
         fi
         ;;

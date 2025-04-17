@@ -508,6 +508,8 @@ fitimage_assemble() {
 		esac
 	done
 
+	[ -n "${DTBS}" ] || die "No DTB files found in KERNEL_DEVICETREE variable"
+
 	[ -n "${FIT_CONF_DEFAULT_DTB}" ] || FIT_CONF_DEFAULT_DTB=${DTBS##* }
 	DTBS=$(echo "${DTBS}" | xargs -n1 | sort -u)
 

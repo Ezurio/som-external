@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-BUILD_TYPE="${1}"
+BUILD_TYPE="${2}"
 
 [ -z "${BR2_SUMMIT_PRODUCT}" ] && \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
@@ -11,6 +11,19 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON LEGACY script: starting..."
 
 # enable tracing and exit on errors
 set -x -e
+
+case "${BUILD_TYPE}" in
+	*50*) 
+		REG_SUFFIX=50
+		;;
+	*45*) 
+		REG_SUFFIX=45
+		;;
+esac
+
+[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_${REG_SUFFIX}.db" ] || \
+    ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_${REG_SUFFIX}.db" \
+		"${TARGET_DIR}/lib/firmware/regulatory.db"
 
 # remove default ssh init file
 # real version is in init.d/opt and works w/ inetd or standalone
@@ -34,17 +47,6 @@ rm -f "${TARGET_DIR}/usr/bin/chkdupexe"
 
 # remove debian cruft
 rm -fr "${TARGET_DIR}/etc/network/if-"*
-
-# Copy the rootfs-additions-common in place first.
-# If necessary, these can be overwritten by the product specific rootfs-additions.
-rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-common/" "${TARGET_DIR}"
-
-# Copy the board specific rootfs additions
-case "${BUILD_TYPE}" in
-	"wb50n" | "wb45n")
-		rsync -rlptDWK --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/${BUILD_TYPE}/rootfs-additions/" "${TARGET_DIR}"
-		;;
-esac
 
 # install libnl*.so.3 links
 ln -rsf "${TARGET_DIR}/usr/lib/libnl-3.so" "${TARGET_DIR}/usr/lib/libnl.so.3"

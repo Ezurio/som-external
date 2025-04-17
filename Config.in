@@ -26,6 +26,11 @@ config BR2_SUMMIT_CONSOLE_LOGGING
 	help
 		This enables Summit Console Logging.
 
+config BR2_SUMMIT_SW_DESCRIPTION
+	string "Software Description file for swupdate"
+	help
+		This specifies software description file to use
+
 config BR2_SUMMIT_OPENJDK_GGV2
 	bool "summit-openjdk-ggv2"
 	depends on BR2_PACKAGE_OPENJDK

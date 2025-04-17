@@ -5,16 +5,7 @@
 # enable tracing and exit on errors
 set -x -e -o pipefail
 
-BOARD_DIR="${1}"
 export BUILD_TYPE="${2}"
-
-if [ -n "${KEYS_DIR}" ]; then
-	# Keys directory is set, use custom keys for secure provisioning
-	[ -d "${KEYS_DIR}" ] || \
-		{ echo "Keys directory not found: ${KEYS_DIR}"; exit 1; }
-else
-	KEYS_DIR="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys"
-fi
 
 [ -n "${BR2_SUMMIT_PRODUCT}" ] || \
 	BR2_SUMMIT_PRODUCT="$(sed -n 's,^BR2_DEFCONFIG=".*/\(.*\)_defconfig"$,\1,p' "${BR2_CONFIG}")"
@@ -59,12 +50,6 @@ BUILD_ID=${BR2_SUMMIT_PRODUCT}-${BR2_SUMMIT_BUILD_VERSION}${DATE_SUFFIX}
 PACKAGE_ID=${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}
 PRETTY_NAME="${LOCRELSTR}"
 EOF
-
-# Copy the product specific rootfs additions, strip host user access control
-rsync -aWKE --no-perms --exclude=.empty "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-60/" "${TARGET_DIR}"
-if [ -d "${BOARD_DIR}/rootfs-additions/" ]; then
-	rsync -aWKE --no-perms --exclude=.empty "${BOARD_DIR}/rootfs-additions/" "${TARGET_DIR}"
-fi
 
 # Split out OpenJDK dependencies to a separate tarball to support
 # running AWS IoT Greengrass V2
@@ -124,18 +109,17 @@ if [ -x "${TARGET_DIR}/usr/sbin/NetworkManager" ]; then
 	mkdir -p "${TARGET_DIR}/etc/NetworkManager/system-connections"
 
 	# Make sure connection files have proper attributes
-	for f in "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/"* "${TARGET_DIR}/etc/NetworkManager/system-connections/"* ; do
-		if [ -f "${f}" ] ; then
-			chmod 600 "${f}"
-		fi
-	done
+	find "${TARGET_DIR}/usr/lib/NetworkManager/system-connections" \
+		"${TARGET_DIR}/etc/NetworkManager/system-connections" \
+		-type f -exec chmod 600 {} \; 2>/dev/null || true
 
 	# Make sure dispatcher files have proper attributes
-	[ -d "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" ] && \
-		find "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" -type f -exec chmod 700 {} \;
+	find "${TARGET_DIR}/etc/NetworkManager/dispatcher.d" \
+		-type f -exec chmod 700 {} \; 2>/dev/null || true
 
 	if [ -x "${TARGET_DIR}/usr/sbin/firewalld" ]; then
-		sed -i "s/firewall-backend=.*/firewall-backend=none/g" "${TARGET_DIR}/etc/NetworkManager/NetworkManager.conf"
+		sed -i "s/firewall-backend=.*/firewall-backend=none/g" \
+			"${TARGET_DIR}/etc/NetworkManager/NetworkManager.conf"
 	fi
 
 	ln -sf /run/NetworkManager/resolv.conf "${TARGET_DIR}/etc/resolv.conf"
@@ -208,12 +192,13 @@ if ${SD} && ! ${ENCRYPTED_TOOLKIT}; then
 	mkdir -p "${TARGET_DIR}/opt/swupdate"
 fi
 
-if [ ! -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
-	rm -rf "${TARGET_DIR}/usr/lib/systemd"
-	rm -rf "${TARGET_DIR}/etc/systemd"
+if [ -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
+	rm -rf "${TARGET_DIR}/etc/init.d"
+else
+	rm -rf "${TARGET_DIR}/usr/lib/systemd" "${TARGET_DIR}/etc/systemd"
 fi
 
-mapfile -t < <(make --no-print-directory -C "${BASE_DIR}" linux-show-version \
+mapfile -t < <(make -j1 --no-print-directory -C "${BASE_DIR}" linux-show-version \
 	uboot-show-version swupdate-show-version linux-show-dtb | sed '/^make\[/d')
 read -r LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE <<< "${MAPFILE[@]}"
 
@@ -223,6 +208,7 @@ if [ -n "${CUSTOM_DTB_FILTER}" ]; then
 	filtered_dtbs=
 	for dtb in ${KERNEL_DEVICETREE}; do
 		for filter in ${CUSTOM_DTB_FILTER}; do
+			# shellcheck disable=SC2254
 			case "${dtb}" in
 				${filter}) 
 					filtered_dtbs="${filtered_dtbs} ${dtb}"
@@ -238,39 +224,55 @@ fi
 
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
-SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
+EXT_KEYS=false
+if [ -z "${KEYS_DIR}" ]; then
+	KEYS_DIR="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys"
+elif [ ! -d "${KEYS_DIR}" ]; then
+	echo "Keys directory not found: ${KEYS_DIR}"
+	exit 1
+else
+	EXT_KEYS=true
+fi
 
-if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
-	mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
-	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
-		cp "${KEYS_DIR}"/dev.crt "${TARGET_DIR}"/etc/swupdate/
-		# Configure dev.crt if swupdate CMS is enabled
-		# shellcheck disable=SC2016
-		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > \
-			"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
-	else
-		# Configure public key if swupdate signature check is enabled
-		# shellcheck disable=SC2016
-		echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > \
-			"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+# Copy keys if present
+if [ -f "${KEYS_DIR}/dev.key" ]; then
+	rm -rf "${BINARIES_DIR}/keys"
+	ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
+fi
+
+# Configure keys, boot script, and SWU tools when using encrypted toolkit
+if ${SECURE_BOOT} ; then
+	export UBOOT_SIGN_ENABLE='1'
+	export UBOOT_SIGN_KEYNAME='dev'
+fi
+
+if [ -n "${SUMMIT_SOM_SW_DESCRIPTION}" ]; then
+	cp --remove-destination "${SUMMIT_SOM_SW_DESCRIPTION}" \
+		"${BINARIES_DIR}/sw-description"
+fi
+
+if [ -n "${SWUPDATE_VER}" ]; then
+	SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
+	if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
+		mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
+		if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
+			cp "${BINARIES_DIR}/keys/dev.crt" "${TARGET_DIR}"/etc/swupdate
+			# Configure dev.crt if swupdate CMS is enabled
+			# shellcheck disable=SC2016
+			echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > \
+				"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+		else
+			# Configure public key if swupdate signature check is enabled
+			# shellcheck disable=SC2016
+			echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /rodata/public/ssl/misc/update.pem"' > \
+				"${TARGET_DIR}"/etc/swupdate/conf.d/99-signing.conf
+		fi
 	fi
 fi
 
 # Path to common image files
 CCONF_DIR=${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/image
 CSCRIPT_DIR=${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common
-
-# Configure keys, boot script, and SWU tools when using encrypted toolkit
-if ${SECURE_BOOT} ; then
-	# Copy keys if present
-	if [ -f "${KEYS_DIR}/dev.key" ]; then
-		rm -rf "${BINARIES_DIR}/keys"
-		ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
-	fi
-
-	export UBOOT_SIGN_ENABLE='1'
-	export UBOOT_SIGN_KEYNAME='dev'
-fi
 
 export UBOOT_SCRIPT='boot.scr'
 
@@ -292,7 +294,7 @@ rm -f "${TARGET_DIR}/etc/fw_env.config"
 touch "${TARGET_DIR}/etc/fw_env.config"
 
 case "${BUILD_TYPE}" in
-	wb50n*|som60*|ig60*)
+	*50*|*60*)
 		# Copy the u-boot.its
 		rm -f "${BINARIES_DIR}/u-boot.its"
 		if ${SECURE_BOOT} ; then
@@ -306,12 +308,31 @@ case "${BUILD_TYPE}" in
 			echo "/dev/mtd:u-boot-env-${i} 0x00000 ${ENV_SIZE} 0x20000"
 		done > "${TARGET_DIR}/etc/fw_env_flash.config"
 
+		if ${EXT_KEYS} && [ -f "${BINARIES_DIR}/sw-description" ]; then
+			sed -r -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
+		fi
+
 		case "${BUILD_TYPE}" in
-			wb50n*)
-				rm -f "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/eth1.nmconnection"
+			*60*)
+				[ "${BUILD_TYPE}" != ig60 ] || ENCRYPTED_TOOLKIT=true
+				[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_60.db" ] || \
+					ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_60.db" \
+						"${TARGET_DIR}/lib/firmware/regulatory.db"
+				SOM=som60
 				;;
-			ig60)
-				ENCRYPTED_TOOLKIT=true
+			*50*)
+				rm -f "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/eth1.nmconnection"
+				[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_50.db" ] || \
+					ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_50.db" \
+						"${TARGET_DIR}/lib/firmware/regulatory.db"
+				SOM=wb50n
+				;;
+		esac
+
+		case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
+			11)
+				install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
+					"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/"*
 				;;
 		esac
 
@@ -327,7 +348,6 @@ case "${BUILD_TYPE}" in
 			ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 			ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 		else
-			ln -rsf "${BOARD_DIR}/configs/sw-description" "${BINARIES_DIR}/sw-description"
 			ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
 		fi
 
@@ -346,7 +366,6 @@ case "${BUILD_TYPE}" in
 		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
-		ln -rsf "${BOARD_DIR}/configs/sw-description" "${BINARIES_DIR}/sw-description"
 
 		export linux_comp='zstd'
 		export UBOOT_LOADADDRESS=0x40400000
@@ -364,7 +383,6 @@ case "${BUILD_TYPE}" in
 		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
-		ln -rsf "${BOARD_DIR}/configs/sw-description" "${BINARIES_DIR}/sw-description"
 
 		export linux_comp='zstd'
 		export UBOOT_LOADADDRESS=0x81000000
@@ -384,18 +402,6 @@ printf '%s\n%s\n' "${kver}" '6.6.0' | sort --sort=version | head -n1 | \
 export OLD_KERNEL
 
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_boot_script.sh" > "${BINARIES_DIR}/boot.scr"
-
-case "${BUILD_TYPE}" in
-	wb50n*) SOM=wb50n ;;
-	som60*|ig60*) SOM=som60 ;;
-esac
-
-case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
-	11)
-		install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" \
-			"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${SOM}/"*
-		;;
-esac
 
 if grep -qF 'BR2_TARGET_GENERIC_ROOT_PASSWD=""' "${BR2_CONFIG}" && \
    grep -qF 'BR2_TARGET_ENABLE_ROOT_LOGIN=y' "${BR2_CONFIG}"

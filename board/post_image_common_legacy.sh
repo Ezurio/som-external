@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2024 Ezurio
 
-BUILD_TYPE="${1}"
+BUILD_TYPE="${2}"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE COMMON LEGACY script: starting..."
 
@@ -15,15 +15,11 @@ if [ -z "${BR2_SUMMIT_PRODUCT}" ]; then
 fi
 
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
-# Generate all build artifacts
-"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh"
-
-ln -rsf "${BINARIES_DIR}/kernel.itb" "${BINARIES_DIR}/kernel.bin"
-
+	# Generate all build artifacts
+	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh"
+	ln -rsf "${BINARIES_DIR}/kernel.itb" "${BINARIES_DIR}/kernel.bin"
 else
-
-ln -rsf "${BINARIES_DIR}/uImage"* "${BINARIES_DIR}/kernel.bin"
-
+	ln -rsf "${BINARIES_DIR}/uImage"* "${BINARIES_DIR}/kernel.bin"
 fi
 
 ln -rsf "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/rootfs-additions-common/usr/sbin/fw_select" "${BINARIES_DIR}/fw_select"

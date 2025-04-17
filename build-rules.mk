@@ -8,6 +8,7 @@ BR2_EXTERNAL += \
 	$(call external_name,som-external) \
 	$(call external_name,summit-radio-external) \
 	$(call external_name,summit-radio-devel-external) \
+	$(call external_name,summit-som-mfg-external) \
 	$(call external_name,summit-fips-devel-external) \
 	$(call external_name,vigiles-buildroot)
 

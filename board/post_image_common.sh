@@ -33,17 +33,17 @@ if [ -f "${BINARIES_DIR}/sw-description" ]; then
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
 fi
 
-BOOTLOADER_BINARY=${BOOTLOADER_BINARY:-boot.bin}
 RELEASE_FILE="${BINARIES_DIR}/${BR2_SUMMIT_PRODUCT}${BR2_SUMMIT_BUILD_SUFFIX}-summit-${BR2_SUMMIT_BUILD_VERSION}.tar"
 
 # Determine if we are building SD card image
 case "${BUILD_TYPE}" in
-som60*|wb50n*|ig60*)
+*50*|*60*)
 	case "${BUILD_TYPE}" in
 	*sd)
+		[ -n "${KEYS_DIR}" ] && BOOTEXT=cip || BOOTEXT=bin
 		tar -chSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
-			"${BOOTLOADER_BINARY}" u-boot.itb uboot.env kernel.itb rootfs.bin \
+			"boot.${BOOTEXT}" u-boot.itb uboot.env kernel.itb rootfs.bin \
 			mksdcard.sh mksdimg.sh
 		;;
 	*)

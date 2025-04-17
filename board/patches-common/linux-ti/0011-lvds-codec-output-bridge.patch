@@ -1,13 +1,16 @@
 --- a/drivers/gpu/drm/bridge/lvds-codec.c
 +++ b/drivers/gpu/drm/bridge/lvds-codec.c
-@@ -110,7 +110,6 @@
+@@ -110,9 +110,8 @@
  static int lvds_codec_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
 -	struct device_node *panel_node;
  	struct device_node *bus_node;
- 	struct drm_panel *panel;
+-	struct drm_panel *panel;
++	struct drm_panel *panel = NULL;
  	struct lvds_codec *lvds_codec;
+ 	u32 val;
+ 	int ret;
 @@ -135,25 +134,18 @@
  		return dev_err_probe(dev, PTR_ERR(lvds_codec->powerdown_gpio),
  				     "powerdown GPIO failure\n");
