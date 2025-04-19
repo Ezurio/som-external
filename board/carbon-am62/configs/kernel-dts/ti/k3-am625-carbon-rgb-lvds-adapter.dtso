@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * RGB to LVDS Expansion Board for carbon AM62xx
+ * RGB to LVDS Expansion Board with BD070LIC3 display for carbon AM62xx
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -19,7 +19,7 @@
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&epwm1 0 300000 PWM_POLARITY_INVERTED>; /* 3.3 kHz */
+		pwms = <&epwm1 0 300000 0>; /* 3.3 kHz */
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_backlight_en_default>;
