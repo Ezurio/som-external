@@ -79,7 +79,7 @@
 };
 
 &main_pmx0 {
-	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN 
+	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN
 	   as such these functions cannot be used together */
 	main_rgb_pwr_default: main-rgb-pwr-default-pins {
 		pinctrl-single,pins = <

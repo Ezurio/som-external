@@ -10,10 +10,40 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pwm/pwm.h>
 #include "k3-pinctrl.h"
 
 &{/} {
-	vcc_3v3_rgb_reset: regulator-rgb-reset {
+	backlight: backlight-rgb {
+		compatible = "pwm-backlight";
+
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		default-brightness-level = <8>;
+		pwms = <&epwm1 0 300000 PWM_POLARITY_INVERTED>; /* 3.3 kHz */
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_backlight_en_default>;
+		enable-gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
+	};
+
+	display-rgb {
+		/* BD070LIC3 as 18 bit */
+		compatible = "tianma,tm070jdhg30", "panel-simple";
+		backlight = <&backlight>;
+		power-supply = <&vcc_3v3_rgb_reset>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_pwr_default>;
+		enable-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+
+		port {
+			lcd_in0: endpoint {
+				remote-endpoint = <&lvds_out>;
+			};
+		};
+	};
+
+	vcc_3v3_rgb_reset: regulator-reset-rgb {
 		/* output of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_3v3_rgb_reset";
@@ -25,34 +55,6 @@
 
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-	};
-
-	backlight: backlight-rgb {
-		compatible = "pwm-backlight";
-
-		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
-		default-brightness-level = <8>;
-		pwms = <&epwm1 0 30000 0>; /* 3.3 KHz */
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_backlight_en_default>;
-		enable-gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
-	};
-
-	display-rgb {
-		compatible = "tianma,tm070jdhg30-666", "panel-simple"; /* BD070LIC3 as 18bit */
-		backlight = <&backlight>;
-		power-supply = <&vcc_3v3_rgb_reset>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_pwr_default>;
-		enable-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
-
-		port {
-			lcd_in0: endpoint {
-				remote-endpoint = <&lvds_out>;
-			};
-		};
 	};
 
 	lvds-encoder {
@@ -84,6 +86,8 @@
 };
 
 &main_pmx0 {
+	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN
+	   as such these functions cannot be used together */
 	main_rgb_pwr_default: main-rgb-pwr-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* RGB_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
@@ -117,11 +121,8 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	/* Video Port 2 */
 	port@1 {
 		reg = <1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		dpi_out0: endpoint {
 			remote-endpoint = <&lvds_in0>;
