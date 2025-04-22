@@ -128,10 +128,12 @@ fi
 # Remove not needed systemd generators
 rm -f "${TARGET_DIR}/usr/lib/systemd/system/sysinit.target.wants/sys-fs-fuse-connections.mount"
 
-if [ -f "${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service" ] && \
-   ! grep -qF "BR2_PACKAGE_LIBDRM=y" "${BR2_CONFIG}"; then
-	sed -i 's/modprobe@drm.service//g' \
-		"${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service"
+if ! grep -qF "BR2_PACKAGE_LIBDRM=y" "${BR2_CONFIG}"; then
+	rm -f "${TARGET_DIR}/usr/share/colourbars.jpg"
+	if [ -f "${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service" ]; then
+		sed -i 's/modprobe@drm.service//g' \
+			"${TARGET_DIR}/usr/lib/systemd/system/systemd-logind.service"
+	fi
 fi
 
 # Remove bluetooth support when BlueZ 5 not present
