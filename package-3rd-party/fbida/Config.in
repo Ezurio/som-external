@@ -1,0 +1,47 @@
+menuconfig BR2_PACKAGE_FBIDA
+	bool "fbida"
+	depends on BR2_PACKAGE_HAS_UDEV
+	select BR2_PACKAGE_JPEG
+	select BR2_PACKAGE_LIBDRM
+	select BR2_PACKAGE_LIBINPUT
+	select BR2_PACKAGE_LIBEXIF
+	select BR2_PACKAGE_CAIRO
+	select BR2_PACKAGE_LIBXKBCOMMON
+	help
+	  fbida console image viewer
+	  https://github.com/kraxel/fbida.
+
+if BR2_PACKAGE_FBIDA
+
+# Some Gallium driver needs libelf when built with LLVM support
+config BR2_PACKAGE_FBIDA_GIF
+	bool "GIF support"
+	select BR2_PACKAGE_GIFLIB
+	help
+	  Enable support for GIF images.	
+
+config BR2_PACKAGE_FBIDA_PNG
+	bool "PNG support"
+	select BR2_PACKAGE_LIBPNG
+	help
+	  Enable support for PNG images.
+
+config BR2_PACKAGE_FBIDA_TIFF
+	bool "TIFF support"
+	select BR2_PACKAGE_LIBTIFF
+	help
+	  Enable support for TIFF images.
+
+config BR2_PACKAGE_FBIDA_WEBP
+	bool "WebP support"
+	select BR2_PACKAGE_WEBP
+	help
+	  Enable support for WebP images.
+
+config BR2_PACKAGE_FBIDA_PDF
+	bool "PDF support"
+	select BR2_PACKAGE_POPPLER
+	help
+	  Enable support for PDF files.
+
+endif # BR2_PACKAGE_FBIDA
