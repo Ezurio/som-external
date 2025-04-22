@@ -103,6 +103,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-python/Config.in"
 endmenu
 
 menu "Packages (3rd party)"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fbida/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/mesa-pvr/Config.in"
