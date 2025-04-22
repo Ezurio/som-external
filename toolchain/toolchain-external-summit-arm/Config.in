@@ -14,7 +14,7 @@ if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM
 choice
 	prompt "Toolchain Version"
 	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11 if BR2_SUMMIT_FIPS_11
-	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
+	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_13
 	help
 		Select the version of the toolchain you wish to use.
 
@@ -25,14 +25,6 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_13
 	select BR2_TOOLCHAIN_HAS_OPENMP
 	help
 		GCC 14.2.0, GDB 15.0.0, glibc-2.41+, headers-6.12.0, binutils 2.44
-
-config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
-	bool "Summit 12.x (2024.02)"
-	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_6
-	select BR2_TOOLCHAIN_GCC_AT_LEAST_13
-	select BR2_TOOLCHAIN_HAS_OPENMP
-	help
-		GCC 13.3.0, GDB 14.2.0, glibc-2.38+, headers-6.6.0, binutils 2.41
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
 	bool "Summit 11.x (2023.02)"
@@ -47,16 +39,12 @@ endchoice
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_PREFIX
 	string
-	default "som60" if BR2_ARM_EABIHF
-	default "wb4x" if BR2_ARM_EABI
-	default "imx8" if BR2_aarch64
-
-#	default "som60" if BR2_ARM_EABIHF && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
-#	default "wb4x" if BR2_ARM_EABI && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
-#	default "imx8" if BR2_aarch64 && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
-#	default "arm-eabihf" if BR2_ARM_EABIHF
-#	default "arm-eabi" if BR2_ARM_EABI
-#	default "aarch64" if BR2_aarch64
+	default "som60" if BR2_ARM_EABIHF && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
+	default "wb4x" if BR2_ARM_EABI && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
+	default "imx8" if BR2_aarch64 && BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
+	default "arm-eabihf" if BR2_ARM_EABIHF
+	default "arm-eabi" if BR2_ARM_EABI
+	default "aarch64" if BR2_aarch64
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_ID
 	string
@@ -65,7 +53,7 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_ID
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_VERSION
 	string
-	default 12.0.0.59 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
 	default 11.0.0.264 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
+	default 13.0.0.5
 
 endif
