@@ -134,9 +134,9 @@
 	touchscreen@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
-		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_RISING>;
 		interrupt-names = "irq";
-		irq-gpios = <&exp2 14 GPIO_ACTIVE_LOW>;
+		irq-gpios = <&exp2 14 GPIO_ACTIVE_HIGH>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};
