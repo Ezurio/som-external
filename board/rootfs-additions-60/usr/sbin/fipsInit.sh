@@ -32,7 +32,7 @@ fi
 
 echo "Launching: ${0}"
 
-FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled)
+FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled || true)
 
 if [ "${FIPS_ENABLED:-0}" -eq 1 ]; then
 	echo "FIPS Integrity check Started"
