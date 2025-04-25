@@ -77,10 +77,6 @@ if grep -qF BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN=y "${BR2_CONF
 
     mkdir -p "${TARGET_DIR}/usr/share/factory/etc/secret/permanent/provisioning"
     ln -sf /data/secret/permanent/provisioning "${TARGET_DIR}/etc/summit-rcm/provisioning"
-
-	# Preserve factory-provisioned files
-	# shellcheck disable=SC2016
-	sed -i 's/rm -fr ${USER_SETTINGS_SECRET_TARGET}\/\*/find ${USER_SETTINGS_SECRET_TARGET} -maxdepth 1 -mindepth 1 ! -name permanent -exec rm -fr {} \\;/g' "${TARGET_DIR}/usr/sbin/do_factory_reset.sh"
 fi
 
 [ -f "${BINARIES_DIR}/u-boot-initial-env" ] && \
