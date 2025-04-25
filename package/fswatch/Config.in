@@ -1,5 +1,0 @@
-config BR2_PACKAGE_FSWATCH
-	bool "fswatch"
-	select BR2_PACKAGE_INOTIFY_TOOLS
-	help
-	  File system write monitor
