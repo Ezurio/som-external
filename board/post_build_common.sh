@@ -73,7 +73,7 @@ if grep -qF BR2_SUMMIT_OPENJDK_GGV2=y "${BR2_CONFIG}"; then
 fi
 
 if grep -qF BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN=y "${BR2_CONFIG}" && ${ENCRYPTED_TOOLKIT} ; then
-    ln -sf /data/secret/fallback_timestamp "${TARGET_DIR}/etc/fallback_timestamp"
+    ln -sf /data/secret/permanent/fallback_timestamp "${TARGET_DIR}/etc/fallback_timestamp"
 
     mkdir -p "${TARGET_DIR}/usr/share/factory/etc/secret/permanent/provisioning"
     ln -sf /data/secret/permanent/provisioning "${TARGET_DIR}/etc/summit-rcm/provisioning"
