@@ -25,7 +25,12 @@ do_check_and_reset() {
 	if [ -f "${RESET_INIDICATOR}" ]; then
 		# Delete all user data, but not the /data/secret dir as it is encrypted.
 		find /data -maxdepth 1 -mindepth 1 ! -name secret -exec rm -fr {} \;
-		rm -fr "${USER_SETTINGS_SECRET_TARGET:?}/"*
+		if grep -q 'enable_client_auth:\s*True' /etc/summit-rcm.ini 2>/dev/null; then
+			# Preserve factory provisioned files and timestamp data
+			find "${USER_SETTINGS_SECRET_TARGET:?}" -maxdepth 1 -mindepth 1 ! -name permanent -exec rm -fr {} \;
+		else
+			rm -fr "${USER_SETTINGS_SECRET_TARGET:?}/"*
+		fi
 
 		# Run factory reset hooks for external components
 		for hook_sh in /usr/sbin/factory_reset_*.sh; do
