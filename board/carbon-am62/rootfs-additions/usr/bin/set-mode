@@ -7,7 +7,8 @@ if [ -z "${1}" ] ; then
     echo "    lvds-d-hdmi"
     echo "    lvds-e-hdmi"
     echo "    rgb-hdmi"
-    echo "    rgb-lvds"
+    echo "    rgb-lvds-7"
+    echo "    rgb-lvds-10"
     echo "    m2-60"
     echo "    m2-lwb-if"
     echo "    m2-cc33xx"
@@ -23,7 +24,7 @@ for i in "${@}" ; do
         default)
             break
             ;;
-        lvds-d-hdmi|lvds-e-hdmi|rgb-hdmi|rgb-lvds)
+        lvds-d-hdmi|lvds-e-hdmi|rgb-hdmi|rgb-lvds-7|rgb-lvds-10)
             conf="${conf}${prefix}-${i}-adapter.dtbo"
             ;;
         m2-60|m2-lwb-if|m2-cc33xx|m2-nx611)
