@@ -27,10 +27,14 @@
 	};
 
 	display-lvds {
+		/* BD101LCC3 */
 		compatible = "panel-lvds";
 		width-mm = <217>;
 		height-mm = <136>;
-		data-mapping = "spwg-24";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight>;
+		power-supply = <&vcc_3v3_rgb_reset>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_pwr_default>;
