@@ -39,5 +39,11 @@ done
 
 [ -z "${conf}" ] || conf="${prefix}-dvk.dtb${conf}"
 
+cconf=$(fw_printenv -n conf)
+if [ "${cconf}" = "${conf}" ] ; then
+    echo "Configuration already set"
+    exit 0
+fi
+
 fw_setenv conf "${conf}"
 reboot
