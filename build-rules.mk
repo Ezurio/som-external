@@ -7,6 +7,7 @@ BR2_EXTERNAL += \
 	$(realpath $(MK_DIR)) \
 	$(call external_name,som-external) \
 	$(call external_name,summit-radio-external) \
+	$(call external_name,summit-radio-devel-external) \
 	$(call external_name,vigiles-buildroot)
 
 export BR2_EXTERNAL := $(sort $(BR2_EXTERNAL))
