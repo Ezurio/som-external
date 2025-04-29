@@ -12,7 +12,7 @@ set -e
 
 PERM_MOUNT=/perm
 
-[ -z "${rootDevActual}" ] && STANDALONE=true || STANDALONE=false 
+[ -z "${rootDevActual}" ] && STANDALONE=true || STANDALONE=false
 
 if ${STANDALONE}; then
 	die() {
