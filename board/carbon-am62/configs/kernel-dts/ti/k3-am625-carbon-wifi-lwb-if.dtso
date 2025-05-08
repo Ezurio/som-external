@@ -5,9 +5,17 @@
  * Copyright (C) 2024 Ezurio LLC
  */
 
-#include "k3-am625-carbon-wifi.dtsi"
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
 
 &sdhci2 { /* SDIO_B  WIFI */
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";
@@ -17,6 +25,8 @@
 &main_uart1 {
 	pinctrl-0 = <&main_uart1_pins_default>, <&main_bt_en_pins_default>;
 
+	status = "okay";
+
 	bluetooth {
 		compatible = "brcm,bcm4329-bt";
 		vbat-supply = <&vcc_3v3_sys>;
@@ -25,4 +35,12 @@
 		max-speed = <921600>;
 		shutdown-gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>; /* W_DISABLE2# */
 	};
+};
+
+&wifi_wakeup {
+	status = "okay";
+};
+
+&wifi_pwrseq {
+	status = "okay";
 };

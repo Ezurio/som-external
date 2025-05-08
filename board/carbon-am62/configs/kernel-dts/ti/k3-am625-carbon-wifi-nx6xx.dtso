@@ -3,9 +3,12 @@
  * Copyright 2024 Ezurio
  */
 
-#include "k3-am625-carbon-wifi.dtsi"
+/dts-v1/;
+/plugin/;
 
-/ {
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
 	vcc_wifi: regulator-wifi {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_wifi";
@@ -34,17 +37,25 @@
 };
 
 &wifi_pwrseq {
+	status = "okay";
+
 	pinctrl-0 = <&main_wifi_en2_default>;
 	reset-gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>; /* SDIO_RESET# */
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
+	status = "okay";
 	vmmc-supply = <&vcc_wifi>;
 };
 
 &main_uart1 {
+	status = "okay";
 	bluetooth {
 		compatible = "nxp,88w8987-bt";
 		fw-init-baudrate = <3000000>;
 	};
+};
+
+&wifi_wakeup {
+	status = "okay";
 };

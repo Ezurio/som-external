@@ -147,6 +147,9 @@
 };
 
 &i2c_port_rgb {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	touchscreen@14 {
 		compatible = "goodix,gt9271";
 		reg = <0x5d>;

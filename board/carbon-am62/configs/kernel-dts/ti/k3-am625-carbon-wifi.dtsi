@@ -5,10 +5,13 @@
  */
 
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	wifi_pwrseq: wifi-pwrseq {
 		compatible = "mmc-pwrseq-simple";
+
+		status = "disabled";
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_wifi_en_default>;
@@ -27,6 +30,8 @@
 
 	wifi_wakeup: wifi_wakeup {
 		compatible = "gpio-keys";
+
+		status = "disabled";
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_wifi_wake_default>, <&main_bt_wake_pins_default>;
@@ -48,8 +53,6 @@
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
-	status = "okay";
-
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
@@ -60,13 +63,8 @@
 	ti,fails-without-test-cd;
 	ti,driver-strength-ohm = <50>;
 	keep-power-in-suspend;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
 };
 
 &main_uart1 {
-	status = "okay";
-
 	uart-has-rtscts;
 };
