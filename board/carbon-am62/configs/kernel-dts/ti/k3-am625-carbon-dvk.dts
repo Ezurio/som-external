@@ -9,7 +9,6 @@
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/input/input.h>
 #include "k3-am625-carbon-som.dtsi"
-#include "k3-am625-carbon-wifi-cc33xx.dtsi"
 
 / {
 	model = "Summit Carbon AM625 OSM Carrier Board";

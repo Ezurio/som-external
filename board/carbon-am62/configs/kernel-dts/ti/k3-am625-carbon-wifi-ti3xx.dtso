@@ -3,9 +3,12 @@
  * Copyright 2024 Ezurio
  */
 
-#include "k3-am625-carbon-wifi.dtsi"
+/dts-v1/;
+/plugin/;
 
-/ {
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
 	/* Regulator needed to sync Wi-Fi and Bluetooth on power transitions */
 	vcc_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
@@ -16,14 +19,21 @@
 };
 
 &wifi_pwrseq {
+	status = "okay";
+
 	post-power-on-delay-ms = <10>;
 	power-off-delay-us = <80>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
+	status = "okay";
+
 	vmmc-supply = <&vcc_wifi_en>;
 
 	cap-power-off-card;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	bt@1 {
 		reg = <1>;
@@ -37,6 +47,8 @@
 };
 
 &main_uart1 {
+	status = "okay";
+
 	bluetooth {
 		compatible = "ti,cc33xx-bt";
 		cc33xx-supply = <&vcc_wifi_en>;
@@ -45,6 +57,8 @@
 };
 
 &wifi_wakeup {
+	status = "okay";
+
 	wifi-wake-up {
 		gpios = <&main_gpio0 16 GPIO_ACTIVE_HIGH>;
 	};
