@@ -160,6 +160,7 @@
 		pinctrl-0 = <&vdd_sd_pins_default>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
+		regulator-ramp-delay = <750>;
 		gpios = <&main_gpio0 31 GPIO_ACTIVE_HIGH>;
 		states = <1800000 0x0>, <3300000 0x1>;
 	};
