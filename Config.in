@@ -31,6 +31,13 @@ config BR2_SUMMIT_SW_DESCRIPTION
 	help
 		This specifies software description file to use
 
+config BR2_SUMMIT_EMMC_DEVICE
+	int "eMMC device number"
+	default 0
+	help
+		This specifies the eMMC device number to use.
+		Valid values are 0, 1, 2, 3, 4, 5, 6, 7.
+
 config BR2_SUMMIT_OPENJDK_GGV2
 	bool "summit-openjdk-ggv2"
 	depends on BR2_PACKAGE_OPENJDK
