@@ -29,6 +29,9 @@ die() { echo "$@" >&2; exit 1; }
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh"
 
 if [ -f "${BINARIES_DIR}/sw-description" ]; then
+	EMMC_DEVICE=$(grep -oP 'BR2_SUMMIT_EMMC_DEVICE=\K[^ ]+' "${BR2_CONFIG}")
+	export EMMC_DEVICE
+
 	# Call script to generate secure SWU
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
 fi
