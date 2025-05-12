@@ -21,19 +21,19 @@ die() { echo "$@" >&2; cd -; exit 1; }
 [ -r "sw-description" ] ||
 	die "no sw-description found in ${BINARIES_DIR}"
 
-# Backup incoming sw-description* and restore prior to exit
-# Caller needs unprocessed versions for further use
-cp -af sw-description sw-description-saved
-
 # Set default version if not provided
 [ -n "${VERSION}" ] || VERSION=255.255.255.255
 
 # Replace @@VAR@@ with environment variables
 while read -r tok ; do
 	var=${tok//@@/}
-	[ -n "${!var}" ] || echo "Missing value for ${var}"
+	[ -n "${!var}" ] || die "Missing value for ${var}"
 	sed -i "s/${tok}/${!var}/g" sw-description
 done < <(grep -oP '@@.*?@@' sw-description | sort -u)
+
+# Backup incoming sw-description* and restore prior to exit
+# Caller needs unprocessed versions for further use
+cp -af sw-description sw-description-saved
 
 # Embed component hashes in SWU scripts
 while read -r hash file ; do
