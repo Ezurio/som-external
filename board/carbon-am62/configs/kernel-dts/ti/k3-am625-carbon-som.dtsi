@@ -160,9 +160,10 @@
 		pinctrl-0 = <&vdd_sd_pins_default>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
-		regulator-ramp-delay = <750>;
-		gpios = <&main_gpio0 31 GPIO_ACTIVE_HIGH>;
-		states = <1800000 0x0>, <3300000 0x1>;
+		/* u-boot always set initial gpio state to 0, so 3.3V state must be 0 */
+		gpios-states = <0>;
+		gpios = <&main_gpio0 31 GPIO_ACTIVE_LOW>;
+		states = <3300000 0x0>, <1800000 0x1>;
 	};
 
 	mmc0_pwrseq: pwrseq {
@@ -239,7 +240,7 @@
 		"","","","","",
 		"","","","","",					/* 60 - 64 */
 		"","","","","",
-		"","GPIO_C_3","","","",					/* 70 - 74 */
+		"","GPIO_C_3","","","",				/* 70 - 74 */
 		"","","","","",
 		"","","","","",					/* 80 - 84 */
 		"","","","","",
@@ -671,7 +672,7 @@
 
 	vdd_sd_pins_default: vdd-sd-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x07c, PIN_OUTPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
+			AM62X_IOPAD(0x07c, PIN_INPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
 		>;
 	};
 };
