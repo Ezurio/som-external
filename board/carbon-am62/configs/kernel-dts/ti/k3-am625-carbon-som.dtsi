@@ -224,6 +224,27 @@
 	};
 };
 
+&main_rti0 {
+	bootph-all;
+	timeout-sec = <6>;
+};
+
+&main_rti1 {
+	status = "disabled";
+};
+
+&main_rti2 {
+	status = "disabled";
+};
+
+&main_rti3 {
+	status = "disabled";
+};
+
+&main_rti15 {
+	status = "disabled";
+};
+
 &main_gpio0 {
 	gpio-line-names = "","GPIO_A_2","GPIO_A_1","","", 	/* 0 - 4 */
 		"","","","","",
