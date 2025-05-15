@@ -1,0 +1,36 @@
+--- a/drivers/regulator/tps65219-regulator.c
++++ b/drivers/regulator/tps65219-regulator.c
+@@ -346,8 +346,11 @@
+ 		return IRQ_HANDLED;
+ 	}
+ 
+-	regulator_notifier_call_chain(irq_data->rdev,
+-				      irq_data->type->event, NULL);
++	if (irq_data->rdev) {
++		/* This is a regulator event */
++		regulator_notifier_call_chain(irq_data->rdev,
++					      irq_data->type->event, NULL);
++	}
+ 
+ 	dev_err(irq_data->dev, "Error IRQ trap %s for %s\n",
+ 		irq_data->type->event_name, irq_data->type->regulator_name);
+@@ -436,7 +439,8 @@
+ 					     pmic->rdesc[i].name);
+ 	}
+ 
+-	irq_data = devm_kmalloc(tps->dev, pmic->common_irq_size, GFP_KERNEL);
++	irq_data = devm_kcalloc(tps->dev, pmic->common_irq_size,
++		sizeof(*irq_data), GFP_KERNEL);
+ 	if (!irq_data)
+ 		return -ENOMEM;
+ 
+@@ -459,7 +463,8 @@
+ 					     irq_type->irq_name, irq, error);
+ 	}
+ 
+-	irq_data = devm_kmalloc(tps->dev, pmic->dev_irq_size, GFP_KERNEL);
++	irq_data = devm_kcalloc(tps->dev, pmic->dev_irq_size,
++		sizeof(*irq_data), GFP_KERNEL);
+ 	if (!irq_data)
+ 		return -ENOMEM;
+ 
