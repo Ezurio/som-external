@@ -34,8 +34,8 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	fi
 
 	# Factory data is only used with LCM/RCM
-	if [ -x $(TARGET_DIR)/usr/bin/weblcm-python ] || [ -x $(TARGET_DIR)/usr/bin/summit-rcm ]; then \
-		for BACKUP_TARGET in "weblcm-python" "modem" "stunnel" "chrony" "summit-rcm"; do
+	if [ -x $(TARGET_DIR)/usr/bin/summit-rcm ]; then \
+		for BACKUP_TARGET in "modem" "stunnel" "chrony" "summit-rcm"; do
 			if [ -d $(TARGET_DIR)/etc/"$${BACKUP_TARGET}" ];then \
 				mv $(TARGET_DIR)/etc/$${BACKUP_TARGET}/ $(BACKUP_SECRET_DIR); \
 				ln -sf /data/secret/$${BACKUP_TARGET} $(TARGET_DIR)/etc/$${BACKUP_TARGET}; \
@@ -65,11 +65,6 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	ln -sf /data/misc/timezone $(TARGET_DIR)/etc/timezone
 	ln -sf /data/misc/localtime $(TARGET_DIR)/etc/localtime
 	ln -sf /data/misc/adjtime $(TARGET_DIR)/etc/adjtime
-
-	if [ -d $(BACKUP_SECRET_DIR)/weblcm-python/ssl ]; then \
-		rm -rf $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
-		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/weblcm-python/ssl; \
-	fi
 
 	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
 		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \

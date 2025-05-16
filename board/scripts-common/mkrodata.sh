@@ -92,7 +92,7 @@ cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_KEY_DEST} || exit_on_error "Failed to
 cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_CERT_CHAIN_DEST} || exit_on_error "Failed to populate REST server certificate chain"
 
 #
-# Populate WebLCM provisioning certificates and key under encrypted directory
+# Populate REST server provisioning certificates and key under encrypted directory
 #
 cp "${REST_SERVER_CERT}" ${REST_SERVER_PROVISIONING_CERT_DEST} || exit_on_error "Failed to populate REST server provisioning certficate"
 cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_PROVISIONING_KEY_DEST} || exit_on_error "Failed to populate REST server provisioning key"
