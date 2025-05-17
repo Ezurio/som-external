@@ -9,19 +9,7 @@
 #include <dt-bindings/gpio/gpio.h>
 
 &{/} {
-	vcc_wifi: regulator-wifi {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_wifi";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_en_default>;
-		gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>; /* W_DISABLE1# */
-		enable-active-high;
-		regulator-always-on;
-	};
-
+	// replace when reset is supported by the bluetooth driver
 	vcc_bt: regulator-bt {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_bt";
@@ -34,22 +22,25 @@
 		enable-active-high;
 		regulator-always-on;
 	};
-};
 
-&wifi_pwrseq {
-	status = "okay";
+	wifi_pwrseq: wifi-pwrseq {
+		compatible = "mmc-pwrseq-sd8787";
 
-	pinctrl-0 = <&main_wifi_en2_default>;
-	reset-gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>; /* SDIO_RESET# */
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_wifi_en_default>, <&main_wifi_en2_default>;
+		powerdown-gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&main_gpio0 21 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
 	status = "okay";
-	vmmc-supply = <&vcc_wifi>;
+	mmc-pwrseq = <&wifi_pwrseq>;
 };
 
 &main_uart1 {
 	status = "okay";
+
 	bluetooth {
 		compatible = "nxp,88w8987-bt";
 		fw-init-baudrate = <3000000>;

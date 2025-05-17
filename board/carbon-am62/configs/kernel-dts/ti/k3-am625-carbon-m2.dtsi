@@ -22,20 +22,11 @@
 		vin-supply = <&vcc_3v3_sys>;
 
 		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
-		startup-delay-us = <200000>;
-		off-on-delay-us = <100000>;
+		//startup-delay-us = <200000>;
+		//off-on-delay-us = <100000>;
 		enable-active-high;
 
 		regulator-always-on;
-	};
-
-	wifi_pwrseq_m2: wifi-pwrseq-m2 {
-		compatible = "mmc-pwrseq-simple";
-		pinctrl-names = "default";
-		power-off-delay-us = <100000>;
-		post-power-on-delay-ms = <150>;
-
-		reset-gpios = <&exp1 4 GPIO_ACTIVE_LOW>;   /* M2_WDISABLE1# */
 	};
 
 	wifi_wakeup_m2: wifi_wakeup_m2 {
@@ -73,15 +64,11 @@
 	status = "okay";
 
 	vmmc-supply = <&vcc_wifi_m2>;
-	mmc-pwrseq = <&wifi_pwrseq_m2>;
+	vqmmc-supply = <&vdd_1v8>;
 
 	non-removable;
 	ti,fails-without-test-cd;
-	ti,driver-strength-ohm = <50>;
 	keep-power-in-suspend;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
 };
 
 &mcu_uart0 {

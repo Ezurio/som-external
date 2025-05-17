@@ -7,28 +7,32 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 
 &{/} {
-	/* Regulator needed to sync Wi-Fi and Bluetooth on power transitions */
-	vcc_wifi_en: regulator-wifi-en {
+	reg_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_wifi_en";
+
+		regulator-name = "reg_wifi_en";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+
+		vin-supply = <&reg_slow_clock>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_wifi_en_default>;
+		gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		startup-delay-us = <10000>;
+		off-on-delay-us = <80>;
 	};
-};
-
-&wifi_pwrseq {
-	status = "okay";
-
-	post-power-on-delay-ms = <10>;
-	power-off-delay-us = <80>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
 	status = "okay";
 
-	vmmc-supply = <&vcc_wifi_en>;
+	vmmc-supply = <&reg_wifi_en>;
 
 	cap-power-off-card;
 
@@ -43,27 +47,23 @@
 	wifi@2 {
 		reg = <2>;
 		compatible = "ti,cc33xx";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_wifi_wake_default>;
+		//interrupts-extended = <&main_gpio0 16 IRQ_TYPE_EDGE_RISING>;
 	};
 };
 
 &main_uart1 {
-	status = "okay";
+ 	status = "okay";
 
 	bluetooth {
 		compatible = "ti,cc33xx-bt";
-		cc33xx-supply = <&vcc_wifi_en>;
+		cc33xx-supply = <&reg_wifi_en>;
 		max-speed = <115200>;
-	};
-};
 
-&wifi_wakeup {
-	status = "okay";
-
-	wifi-wake-up {
-		gpios = <&main_gpio0 16 GPIO_ACTIVE_HIGH>;
-	};
-
-	bt-wake-up {
-		gpios = <&main_gpio0 42 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_bt_wake_pins_default>;
+		host-wakeup-gpios = <&main_gpio0 42 GPIO_ACTIVE_HIGH>;
 	};
 };
