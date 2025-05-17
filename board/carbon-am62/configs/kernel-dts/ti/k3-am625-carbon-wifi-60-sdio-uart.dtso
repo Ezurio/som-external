@@ -11,7 +11,7 @@
 #include <dt-bindings/gpio/gpio.h>
 
 &{/} {
-	regulator-bt-strap {
+	reg_strap_60: regulator-bt-strap {
 		compatible = "regulator-fixed";
 		regulator-name = "bt-strap";
 		regulator-min-microvolt = <3300000>;
@@ -19,27 +19,20 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_bt_en_pins_default>;
-		gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;
-		enable-active-low; /* SDIO-UART mode */
+		gpio = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;
 		regulator-always-on;
 	};
 };
 
-// Add control for SDIO_PWR_EN_B until R6 is removed
-&wifi_pwrseq {
-	pinctrl-0 = <&main_wifi_en_default>, <&main_wifi_en2_default>;
-	reset-gpios = <&main_gpio0 20 GPIO_ACTIVE_LOW>, 
-		<&main_gpio0 21 GPIO_ACTIVE_LOW>;
-
-	status = "okay";
-};
-
 &sdhci2 {
+	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_en_default>;
+
 	status = "okay";
 
 	wifi {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-uart";
+		reset-gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
 	};
 };
 
