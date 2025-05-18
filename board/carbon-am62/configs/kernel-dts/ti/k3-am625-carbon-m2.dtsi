@@ -22,8 +22,6 @@
 		vin-supply = <&vcc_3v3_sys>;
 
 		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
-		//startup-delay-us = <200000>;
-		//off-on-delay-us = <100000>;
 		enable-active-high;
 
 		regulator-always-on;
