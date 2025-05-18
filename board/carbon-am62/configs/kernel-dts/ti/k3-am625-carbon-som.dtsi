@@ -8,7 +8,9 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 #include <dt-bindings/net/ti-dp83867.h>
+
 #include "k3-am625.dtsi"
 
 / {
