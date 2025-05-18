@@ -906,7 +906,7 @@
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
 	vmmc-supply = <&reg_slow_clock>;
-	vqmmc-supply = <&vdd_1v8>;
+	vqmmc-supply = <&buck2_reg>;
 
 	non-removable;
 	ti,fails-without-test-cd;
