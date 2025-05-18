@@ -1,0 +1,7 @@
+menuconfig BR2_PACKAGE_SUMMIT_SET_MODE
+	bool "Summit set board mode"
+	select BR2_PACKAGE_UBOOT_TOOLS
+	select BR2_PACKAGE_UBOOT_TOOLS_DUMPIMAGE
+	select BR2_PACKAGE_UBOOT_TOOLS_FIT_SUPPORT
+	help
+	  Summit set board mode

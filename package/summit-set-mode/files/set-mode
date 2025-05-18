@@ -1,0 +1,66 @@
+#!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2025 Ezurio
+
+# Find kernel FIT Image
+if [ -f '/boot/kernel.itb' ]; then
+    kernel='/boot/kernel.itb'
+elif [ -f '/boot/fitImage' ]; then
+    kernel='/boot/fitImage'
+else
+    echo 'No kernel image found'
+    exit 1
+fi
+
+# Retrieve all configurations from FIT Image
+confs=$(dumpimage -l ${kernel} | grep -F 'Configuration')
+
+# Find default configuration
+default=$(echo "${confs}" | grep -m1 -o 'conf-.*\.dtb')
+# Find dtb prefix
+prefix=$(echo "${default}" | sed -r 's/-[^-]+\.dtb//')
+# Find all parameters
+params=$(echo "${confs}" | sed -rn "s/.*${prefix}-(.*)\.dtbo.*/\1/p" | sort -u)
+
+if [ -z "${1}" ] ; then
+    echo "Usage: $0 <mode> [<mode> ...]"
+    echo "  <mode> is one or multiple of:"
+    echo "  default - remove all overlays"
+    echo "${params}" | sed 's/^/  /'
+    exit 1
+fi
+
+conf=''
+
+if [ "${1}" != "default" ] ; then
+    # If no parameters are found, exit
+    [ -z "${params}" ] && {
+        echo "No overlays found"
+        exit 1
+    }
+
+    # Verify that all parameters are valid and add them into configuration string
+    for i in "${@}" ; do
+        echo "${params}" | grep -qFx "${i}" || {
+            echo "Invalid mode"
+            exit 1
+        }
+        conf="${conf}#${prefix}-${i}.dtbo"
+    done
+
+    # Add main configuration
+    [ -z "${conf}" ] || conf="#${default}${conf}"
+fi
+
+# Verify that requested configuration is different from current one
+cconf=$(fw_printenv -n conf)
+if [ "${cconf}" = "${conf}" ] ; then
+    echo "Configuration already set"
+    exit 0
+fi
+
+# Set new configuration
+fw_setenv conf "${conf}"
+
+# Reboot to apply new configuration
+reboot
