@@ -98,9 +98,9 @@ done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its | grep '\.\(gz\|lzo\
 
 # Create Kernel FIT image, and store signature in u-boot
 if ${SECURE_BOOT} ; then
-    ${mkimage} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
+    ${mkimage} -E -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
 else
-    ${mkimage} -f kernel.its kernel.itb
+    ${mkimage} -E -f kernel.its kernel.itb
 fi
 
 hash_check() {
@@ -164,10 +164,10 @@ som60*|ig60*|wb50n*)
         fi
 
         # Create U-Boot FIT image (encrypted), and store key, IV and signature in SPL
-        ${mkimage} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
+        ${mkimage} -E -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
     else
         # Create U-Boot FIT image (unencrypted)
-        ${mkimage} -f u-boot.its u-boot.itb
+        ${mkimage} -E -f u-boot.its u-boot.itb
     fi
 
     ln -sf u-boot.itb u-boot.bin
