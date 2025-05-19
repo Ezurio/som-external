@@ -1,0 +1,11 @@
+[Unit]
+Description=UBI health daemon
+ConditionFileIsExecutable=/usr/sbin/ubihealthd
+ConditionPathIsDirectory=/sys/class/ubi/ubi0
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/ubihealthd -f
+
+[Install]
+WantedBy=multi-user.target
