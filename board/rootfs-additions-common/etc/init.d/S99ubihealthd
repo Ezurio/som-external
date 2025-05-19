@@ -1,0 +1,31 @@
+#!/bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2025 Ezurio
+
+case "${1}" in
+  start)
+    # Start the ubihealthd daemon
+    /usr/sbin/ubihealthd
+    ;;
+  stop)
+    # Stop the ubihealthd daemon
+    killall ubihealthd
+    ;;
+  restart)
+    # Restart the ubihealthd daemon
+    killall ubihealthd
+    /usr/sbin/ubihealthd
+    ;;
+  status)
+    # Check the status of the ubihealthd daemon
+    if pgrep ubihealthd > /dev/null; then
+      echo "ubihealthd is running"
+    else
+      echo "ubihealthd is not running"
+    fi
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
