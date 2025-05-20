@@ -268,12 +268,20 @@ software =
 					device = "ubi";
 					type = "ubipartition";
 					size = 8388608; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_a";
 					device = "ubi";
 					type = "ubipartition";
 					size = 46465024; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_data_a";
@@ -286,12 +294,20 @@ software =
 					device = "ubi";
 					type = "ubipartition";
 					size = 8388608; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_b";
 					device = "ubi";
 					type = "ubipartition";
 					size = 46465024; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_data_b";

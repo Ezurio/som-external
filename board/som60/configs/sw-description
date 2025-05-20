@@ -15,12 +15,20 @@ software =
 						device = "ubi";
 						type = "ubipartition";
 						size = 12582912; /* in bytes */
+						data = "static";
+						properties: {
+							skip-check = "true";
+						}
 					},
 					{
 						name = "rootfs_a";
 						device = "ubi";
 						type = "ubipartition";
 						size = 184549376; /* in bytes */
+						data = "static";
+						properties: {
+							skip-check = "true";
+						}
 					},
 					{
 						name = "rootfs_data_a";
@@ -33,12 +41,20 @@ software =
 						device = "ubi";
 						type = "ubipartition";
 						size = 12582912; /* in bytes */
+						data = "static";
+						properties: {
+							skip-check = "true";
+						}
 					},
 					{
 						name = "rootfs_b";
 						device = "ubi";
 						type = "ubipartition";
 						size = 184549376; /* in bytes */
+						data = "static";
+						properties: {
+							skip-check = "true";
+						}
 					},
 					{
 						name = "rootfs_data_b";
@@ -244,12 +260,20 @@ software =
 					device = "ubi";
 					type = "ubipartition";
 					size = 12582912; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_a";
 					device = "ubi";
 					type = "ubipartition";
 					size = 92274688; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_data_a";
@@ -262,12 +286,20 @@ software =
 					device = "ubi";
 					type = "ubipartition";
 					size = 12582912; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_b";
 					device = "ubi";
 					type = "ubipartition";
 					size = 92274688; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					}
 				},
 				{
 					name = "rootfs_data_b";
