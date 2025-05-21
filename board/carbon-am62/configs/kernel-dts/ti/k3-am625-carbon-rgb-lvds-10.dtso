@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * RGB to LVDS Expansion Board with BD070LIC3 display for carbon AM62xx
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-rgb-lvds-7.dtso"
+
+&backlight_rgb {
+	pwms = <&epwm1 0 100000 0>;
+};
+
+&display_rgb {
+	/* BD101LCC3 */
+	compatible = "panel-lvds";
+	width-mm = <217>;
+	height-mm = <136>;
+	data-mapping = "vesa-24";
+
+	panel-timing {
+		clock-frequency = <71000000>;
+		hactive = <1280>;
+		vactive = <800>;
+		hback-porch = <5>;
+		hfront-porch = <123>;
+		vback-porch = <3>;
+		vfront-porch = <24>;
+		hsync-len = <1>;
+		vsync-len = <1>;
+	};
+};
+
+&touchscreen_rgb {
+	compatible = "goodix,gt9271";
+	reg = <0x5d>;
+};

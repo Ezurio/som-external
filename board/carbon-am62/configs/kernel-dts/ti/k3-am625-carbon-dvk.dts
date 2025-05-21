@@ -218,10 +218,6 @@
 	};
 };
 
-&epwm1 {
-	status = "okay";
-};
-
 &main_i2c1 { /* I2C_A */
 	status = "okay";
 	clock-frequency = <400000>;
@@ -434,7 +430,7 @@
 };
 
 &mcu_pmx0 {
-	wkupi2c1_pins_default: mywkupi2c1-default-pins {
+	wkup_i2c0_pins_default: wkup_i2c0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x004c, PIN_INPUT_PULLUP, 0) /* GPIO_B_4 (B9) WKUP_I2C0_SCL */
 			AM62X_MCU_IOPAD(0x0050, PIN_INPUT_PULLUP, 0) /* GPIO_B_5 (A9) WKUP_I2C0_SDA */
@@ -483,11 +479,11 @@
 &wkup_i2c0 { /* I2C_C */
 	status = "okay";		/* TODO HW changes */
 	pinctrl-names = "default";
-	pinctrl-0 = <&wkupi2c1_pins_default>;
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <100000>;
 
 	i2c-mux@72 {
-		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
+		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
 		reg = <0x72>;
 
 		vdd-supply = <&vdd_1v8>;

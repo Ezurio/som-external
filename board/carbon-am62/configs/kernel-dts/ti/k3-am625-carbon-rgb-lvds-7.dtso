@@ -14,7 +14,7 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	backlight: backlight-rgb {
+	backlight_rgb: backlight-rgb {
 		compatible = "pwm-backlight";
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
@@ -26,7 +26,7 @@
 		enable-gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
 	};
 
-	display-rgb {
+	display_rgb: display-rgb {
 		/* BD070LIC3 */
 		compatible = "tianma,tm070jdhg30", "panel-simple";
 
@@ -135,7 +135,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen@14 {
+	touchscreen_rgb: touchscreen@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_RISING>;
