@@ -294,7 +294,7 @@
 		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","RGB_CS","RGB_RESET#",
 		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
 		"SDIO_A_PWR_EN","RGB_DISP","","","GPIO_C_7",
-		"GPIO_B_6","SDIO_A_IOPWR","","","",		/* 30 - 34 */
+		"GPIO_B_6","SDIO_A_IOPWR","","GPIO_B_7","",		/* 30 - 34 */
 		"","GPIO_B_3","","GPIO_B_2","GPIO_C_0",
 		"","","BT_HOST_WAKE","GPIO_C_1","",		/* 40 - 44 */
 		"","","","","",
