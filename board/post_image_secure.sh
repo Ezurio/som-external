@@ -96,11 +96,21 @@ while read -r file; do
     esac
 done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its | grep '\.\(gz\|lzo\|lzma\|zst\)$')
 
+case ${BUILD_TYPE} in
+    *sd|*am62*|imx8*)
+        # Align on the block size of the SD/eMMC
+        MKIMAGE_OPT="-B 0x200"
+        ;;
+    *)
+        MKIMAGE_OPT=
+        ;;
+esac
+
 # Create Kernel FIT image, and store signature in u-boot
 if ${SECURE_BOOT} ; then
-    ${mkimage} -E -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
+    ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
 else
-    ${mkimage} -E -f kernel.its kernel.itb
+    ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its kernel.itb
 fi
 
 hash_check() {
@@ -164,10 +174,10 @@ som60*|ig60*|wb50n*)
         fi
 
         # Create U-Boot FIT image (encrypted), and store key, IV and signature in SPL
-        ${mkimage} -E -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
+        ${mkimage} -E ${MKIMAGE_OPT} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
     else
         # Create U-Boot FIT image (unencrypted)
-        ${mkimage} -E -f u-boot.its u-boot.itb
+        ${mkimage} -E ${MKIMAGE_OPT} -f u-boot.its u-boot.itb
     fi
 
     ln -sf u-boot.itb u-boot.bin
