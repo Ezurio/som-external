@@ -192,7 +192,7 @@
 		//assigned-clock-rates = <32768>;
 	};
 
-	wifi_wakeup {
+	wifi_wakeup: wifi-wakeup {
 		compatible = "gpio-keys";
 
 		status = "disabled";
@@ -200,14 +200,14 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_wifi_wake_default>, <&main_bt_wake_pins_default>;
 
-		wifi-wake-up {
+		wifi-wake {
 			label = "Wi-Fi Wake Up";
 			gpios = <&main_gpio0 16 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 		};
 
-		bt-wake-up {
+		bt-wake {
 			label = "BT Wake Up";
 			gpios = <&main_gpio0 42 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WAKEUP>;
@@ -264,11 +264,6 @@
 		ti,mbox-rx = <2 0 0>;
 		ti,mbox-tx = <3 0 0>;
 	};
-};
-
-&main_rti0 {
-	bootph-all;
-	timeout-sec = <6>;
 };
 
 &main_rti1 {
@@ -696,13 +691,13 @@
 		>;
 	};
 
-	main_wifi_en_default: main-wifi-en-default-pins {
+	main_wifi_en_pins_default: main-wifi-en-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x050, PIN_INPUT, 7) /* W_DISABLE1# (P22) GPMC0_AD5.GPIO0_20 */
 		>;
 	};
 
-	main_wifi_en2_default: main-wifi-en2-default-pins {
+	main_wifi_en2_pins_default: main-wifi-en2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x054, PIN_INPUT, 7) /* SDIO_RESET# (P21) GPMC0_AD6.GPIO0_21 */
 		>;
