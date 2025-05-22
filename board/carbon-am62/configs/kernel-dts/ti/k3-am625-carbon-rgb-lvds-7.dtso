@@ -30,7 +30,7 @@
 		/* BD070LIC3 */
 		compatible = "tianma,tm070jdhg30", "panel-simple";
 
-		backlight = <&backlight>;
+		backlight = <&backlight_rgb>;
 		power-supply = <&vcc_3v3_rgb_reset>;
 
 		pinctrl-names = "default";

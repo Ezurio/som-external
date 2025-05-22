@@ -25,11 +25,11 @@
 };
 
 &sdhci2 {
-	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_en_default>;
+	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_en_pins_default>;
 
 	status = "okay";
 
-	wifi {
+	wifi: wifi {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-uart";
 		reset-gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;

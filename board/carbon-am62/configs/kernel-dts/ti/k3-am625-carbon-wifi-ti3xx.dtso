@@ -20,7 +20,7 @@
 		vin-supply = <&reg_slow_clock>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_en_default>;
+		pinctrl-0 = <&main_wifi_en_pins_default>;
 		gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 

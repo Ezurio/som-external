@@ -30,7 +30,7 @@
 		/* BD070LIC3 */
 		compatible = "tianma,tm070jdhg30", "panel-simple";
 
-		backlight = <&backlight>;
+		backlight = <&backlight_lvds_d>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_d_power_default>;
@@ -107,7 +107,7 @@
 	};
 };
 
-&i2c_port_lvds_d {
+&i2c_port_d {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
