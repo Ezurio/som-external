@@ -10,7 +10,7 @@ set -x -e
 echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 
 [ -n "${UBOOT_VER}" ] ||
-	UBOOT_VER=$(make -j1 -s -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
+	UBOOT_VER=$(make -j1 -s --no-print-directory -C "${BASE_DIR}" uboot-show-version | sed '/^make\[/d')
 
 ROOTFS_TYPE=$(sed -rn 's/BR2_TARGET_ROOTFS_([A-Z]+)=y/\L\1/p' "${BR2_CONFIG}" | head -n1)
 [ "${ROOTFS_TYPE}" != ext2 ] || ROOTFS_TYPE=ext4

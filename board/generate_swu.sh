@@ -50,7 +50,9 @@ SWU_FILES=$(
 } | awk '!seen[$0]++'
 )
 
-SWUPDATE_VER=$(make -C "${BASE_DIR}" swupdate-show-version | sed '/^make\[/d')
+[ -n "${SWUPDATE_VER}" ] || \
+	SWUPDATE_VER=$(make -j1 -s --no-print-directory -C "${BASE_DIR}" swupdate-show-version | sed '/^make\[/d')
+
 SWUPDATE_CONF=${BUILD_DIR}/swupdate-${SWUPDATE_VER}/include/config/auto.conf
 nl=$'\n'
 
