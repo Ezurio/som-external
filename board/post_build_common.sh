@@ -305,6 +305,12 @@ create_fw_env_emmc_sd() {
 	echo "/boot/uboot.env 0 ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_sd.config"
 }
 
+create_fw_env_flash() {
+	for i in a b ; do
+		echo "/dev/mtd:u-boot-env-${i} 0x00000 ${ENV_SIZE} 0 1 1"
+	done > "${TARGET_DIR}/etc/fw_env_flash.config"
+}
+
 rm -f "${TARGET_DIR}/etc/fw_env.config"
 touch "${TARGET_DIR}/etc/fw_env.config"
 
@@ -319,9 +325,7 @@ case "${BUILD_TYPE}" in
 		fi
 		sed -r -i "s/load = <.*>;/load = <${TEXT_BASE}>;/" "${BINARIES_DIR}/u-boot.its"
 
-		for i in a b ; do
-			echo "/dev/mtd:u-boot-env-${i} 0x00000 ${ENV_SIZE} 0x20000"
-		done > "${TARGET_DIR}/etc/fw_env_flash.config"
+		create_fw_env_flash
 
 		if ${EXT_KEYS} && [ -f "${BINARIES_DIR}/sw-description" ]; then
 			sed -r -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
