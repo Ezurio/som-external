@@ -194,7 +194,7 @@ else
 	rm -rf "${TARGET_DIR}/usr/lib/systemd" "${TARGET_DIR}/etc/systemd"
 fi
 
-mapfile -t < <(make -j1 --no-print-directory -C "${BASE_DIR}" linux-show-version \
+mapfile -t < <(make -j1 -s --no-print-directory -C "${BASE_DIR}" linux-show-version \
 	uboot-show-version swupdate-show-version linux-show-dtb | sed '/^make\[/d')
 read -r LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE <<< "${MAPFILE[@]}"
 
