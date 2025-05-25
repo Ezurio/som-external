@@ -26,6 +26,7 @@ start() {
   echo "Starting pppd"
   [ -z "$(pidof pppd)" ] || exit
   modprobe -q ppp_async
+  setserial -q ${PPP_SERIAL_INTERFACE} closing_wait none
   /usr/sbin/pppd \
    192.168.0.1:192.168.0.2 \
    ${PPP_SERIAL_INTERFACE} \
@@ -36,7 +37,6 @@ start() {
 stop() {
   echo "Stopping pppd"
   killall pppd
-  killall -9 pppd 2> /dev/null
   modprobe -rq ppp_async
 }
 
