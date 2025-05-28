@@ -65,17 +65,19 @@ write_encrypted_filesystem_key() {
     [ -x "${fdtput}" ] || \
         die "No fdtput found (uboot has not been built?)"
 
-    encrypted_filesystem_key="${KEYS_DIR}/encrypted_filesystem_key.txt"
-    [ -f "${encrypted_filesystem_key}" ] || \
+    encrypted_filesystem_key_path="${KEYS_DIR}/encrypted_filesystem_key.bin"
+    [ -f "${encrypted_filesystem_key_path}" ] || \
         die "No encrypted filesystem key found in the keys directory"
 
     set +x
-    encrypted_filesystem_key=$(sed -r 's/(.{8})/\1 /g' -i "${encrypted_filesystem_key}" | sed 's/[[:space:]]*$//')
+    encrypted_filesystem_key=$(hexdump -v -e '1/1 "%02X"' "${encrypted_filesystem_key_path}" | \
+        sed 's/.\{8\}/& /g' | \
+        sed 's/[[:space:]]*$//')
+    # shellcheck disable=SC2086
     ${fdtput} -p -t x "${BINARIES_DIR}/u-boot.dtb" \
         /encryption \
-        "${BINARIES_DIR}/u-boot.dtb" \
         "summit,fs-key" \
-        "${encrypted_filesystem_key}" || \
+        ${encrypted_filesystem_key} || \
             die "Failed to write encrypted filesystem key to U-Boot device tree"
     set -x
 }
