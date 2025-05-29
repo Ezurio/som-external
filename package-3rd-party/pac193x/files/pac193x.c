@@ -1141,7 +1141,7 @@ static void pac193x_work_periodic_rfsh(struct work_struct *work)
 				   PAC193x_MIN_UPDATE_WAIT_TIME);
 }
 
-void pac193x_read_reg_timeout(struct timer_list *t)
+static void pac193x_read_reg_timeout(struct timer_list *t)
 {
 	int ret;
 	struct pac193x_chip_info *chip_info = from_timer(chip_info, t, tmr_forced_update);
