@@ -477,10 +477,10 @@
 };
 
 &wkup_i2c0 { /* I2C_C */
-	status = "okay";		/* TODO HW changes */
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_i2c0_pins_default>;
-	clock-frequency = <100000>;
+	clock-frequency = <400000>;
 
 	i2c-mux@72 {
 		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
