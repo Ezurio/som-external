@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * RGB to HDMI Expansion Board for Carbon AM62xx
+ * RGB to HDMI v2.0 Expansion Board for Carbon AM62xx
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -18,10 +18,6 @@
 		type = "a";
 		digital;
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_pwr_default>;
-		ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
-
 		ddc-i2c-bus = <&i2c_port_rgb>;
 
 		hpd-gpios = <&exp2 15 GPIO_ACTIVE_HIGH>;
@@ -33,29 +29,14 @@
 		};
 	};
 
-	regulator-reset-rgb {
-		/* output of U4 */
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_3v3_rgb_reset";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_reset_default>;
-		gpios = <&main_gpio0 19 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-	};
-
 	dvi-bridge-rgb {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_rgb_pwr_default>;
-		//powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_pwr_default>;
+		powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
 
 		port@0 {
 			reg = <0>;
@@ -84,12 +65,6 @@
 	main_rgb_pwr_default: main-rgb-pwr-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* RGB_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
-		>;
-	};
-
-	main_rgb_reset_default: main-rgb-reset-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x04c, PIN_INPUT, 7) /* RGB_RESET# (P24) GPMC0_AD4.GPIO0_19 */
 		>;
 	};
 };
