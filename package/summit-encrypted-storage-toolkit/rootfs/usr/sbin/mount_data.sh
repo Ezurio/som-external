@@ -7,7 +7,7 @@ set -e
 DATA_MOUNT=/data
 DATA_SECRET=${DATA_MOUNT}/secret
 
-mount_ubi() {
+mount_fscrypt() {
 	FSCRYPT_KEY=ffffffffffffffff
 
 	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
@@ -23,12 +23,12 @@ mount_ubi() {
 		{ /usr/bin/umount ${DATA_MOUNT}; exit 1; }
 }
 
-umount_ubi() {
+umount_fscrypt() {
 	/usr/bin/umount ${DATA_MOUNT}
 	echo 3 >/proc/sys/vm/drop_caches
 }
 
-mount_emmc() {
+mount_dmcrypt() {
 	if [ -x /usr/sbin/blockdev ]; then
 		DATA_SIZE=$(blockdev --getsz "${DATA_DEVICE}")
 	else
@@ -70,40 +70,44 @@ mount_emmc() {
 	mkdir -p ${DATA_SECRET}
 }
 
-umount_emmc() {
+umount_dmcrypt() {
 	/usr/bin/umount ${DATA_MOUNT}
 	/usr/sbin/dmsetup remove data_enc
 	echo 3 >/proc/sys/vm/drop_caches
 }
 
+anymount() {
+	case "${soc_id:?}" in
+		sama5d3*)
+			"${1}_fscrypt"
+			;;
+		*)
+			case "${rootDevType:?}" in
+				ubi) "${1}_fscrypt" ;;
+				*) "${1}_dmcrypt" ;;
+			esac
+			;;
+	esac
+}
+
 # shellcheck source=/dev/null
 . /usr/sbin/boot-rootfs.sh
+
+getSocId
 
 case "${1}" in
 start)
 	DATA_DEVICE=/dev/$(getPart rootfs_data)
 
-	case "${rootDevType:?}" in
-		ubi) mount_ubi ;;
-		*) mount_emmc ;;
-	esac
+	anymount 'mount'
 
-	/usr/sbin/do_factory_reset.sh check || {
-		case "${rootDevType}" in
-			ubi) umount_ubi ;;
-			*) umount_emmc ;;
-		esac
-		exit 1
-	}
+	/usr/sbin/do_factory_reset.sh check || { anymount 'umount' ; exit 1; }
 
 	echo "Secure Boot Cycle Complete" >/dev/console
 	;;
 
 stop)
-	case "${rootDevType}" in
-		ubi) umount_ubi ;;
-		*) umount_emmc ;;
-	esac
+	anymount 'umount'
 	;;
 
 *)
