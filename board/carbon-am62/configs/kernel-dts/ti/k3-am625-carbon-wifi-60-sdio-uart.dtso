@@ -24,10 +24,16 @@
 	};
 };
 
+&reg_slow_clock {
+	status = "okay";
+};
+
 &sdhci2 {
 	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_en_pins_default>;
 
 	status = "okay";
+
+	vmmc-supply = <&reg_slow_clock>;
 
 	wifi: wifi {
 		compatible = "marvell,sd8997";

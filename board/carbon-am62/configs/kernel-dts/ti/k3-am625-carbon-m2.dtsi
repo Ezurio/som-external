@@ -27,6 +27,22 @@
 		regulator-always-on;
 	};
 
+	reg_wifi_en_m2: regulator-wifi-en-m2 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_wifi_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vcc_wifi_m2>;
+
+		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
+		enable-active-high;
+
+		startup-delay-us = <250000>;
+		off-on-delay-us = <100>;
+	};
+
 	wifi_wakeup_m2: wifi_wakeup_m2 {
 		compatible = "gpio-keys";
 
@@ -61,7 +77,7 @@
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	status = "okay";
 
-	vmmc-supply = <&vcc_wifi_m2>;
+	vmmc-supply = <&reg_wifi_en_m2>;
 	vqmmc-supply = <&vdd_1v8>;
 
 	non-removable;
