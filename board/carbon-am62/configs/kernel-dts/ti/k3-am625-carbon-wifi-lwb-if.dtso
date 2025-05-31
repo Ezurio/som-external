@@ -10,30 +10,16 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
-&{/} {
-	reg_wifi_en: regulator-wifi-en {
-		compatible = "regulator-fixed";
+&reg_slow_clock {
+	status = "okay";
+};
 
-		regulator-name = "reg_wifi_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		vin-supply = <&reg_slow_clock>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_en_pins_default>;
-		gpio = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-
-		startup-delay-us = <250000>;
-		off-on-delay-us = <100>;
-	};
+&reg_wifi_en {
+	status = "okay";
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
 	status = "okay";
-
-	vmmc-supply = <&reg_wifi_en>;
 
 	#address-cells = <1>;
 	#size-cells = <0>;

@@ -10,24 +10,6 @@
 
 #include "k3-am625-carbon-m2.dtsi"
 
-&{/} {
-	reg_wifi_en_m2: regulator-wifi-en-m2 {
-		compatible = "regulator-fixed";
-
-		regulator-name = "reg_wifi_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		vin-supply = <&vcc_wifi_m2>;
-
-		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
-		enable-active-high;
-
-		startup-delay-us = <250000>;
-		off-on-delay-us = <100>;
-	};
-};
-
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	vmmc-supply = <&reg_wifi_en_m2>;
 

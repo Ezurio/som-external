@@ -9,28 +9,17 @@
 #include <dt-bindings/gpio/gpio.h>
 #include "k3-pinctrl.h"
 
-&{/} {
-	reg_wifi_en: regulator-wifi-en {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_wifi_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
+&reg_slow_clock {
+	status = "okay";
+};
 
-		vin-supply = <&reg_slow_clock>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_en_pins_default>;
-		gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;  /* M2_WDISABLE1# */
-		enable-active-high;
-
-		startup-delay-us = <20000>;
-		off-on-delay-us = <100>;
-	};
+&reg_wifi_en {
+	status = "okay";
+	startup-delay-us = <20000>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
 	status = "okay";
-	vmmc-supply = <&reg_wifi_en>;
 };
 
 &main_uart1 {

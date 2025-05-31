@@ -10,28 +10,11 @@
 
 #include "k3-am625-carbon-m2.dtsi"
 
-&{/} {
-	/* Regulator needed to sync Wi-Fi and Bluetooth on power transitions */
-	reg_wifi_en_m2: regulator-wifi-en-m2 {
-		compatible = "regulator-fixed";
-
-		regulator-name = "vcc_wifi_en_m2";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-
-		vin-supply = <&vcc_wifi_m2>;
-
-		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
-		enable-active-high;
-
-		startup-delay-us = <10000>;
-		off-on-delay-us = <80>;
-	};
+&reg_wifi_en_m2 {
+	startup-delay-us = <10000>;
 };
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
-	vmmc-supply = <&reg_wifi_en_m2>;
-
 	cap-power-off-card;
 
 	#address-cells = <1>;
