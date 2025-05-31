@@ -10,29 +10,24 @@
 #include "k3-am625-carbon-m2.dtsi"
 
 &{/} {
-	vcc_bt_m2: regulator-bt-m2 {
+	reg_wifi_en_m2: regulator-wifi-en-m2 {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_bt_m2";
+		regulator-name = "reg_wifi_en_m2";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
 		vin-supply = <&vcc_wifi_m2>;
 
-		gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;  /* M2_WDISABLE2# */
+		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;  /* M2_WDISABLE1# */
 		enable-active-high;
-		regulator-always-on;
-	};
 
-	wifi_pwrseq_m2: wifi-pwrseq-m2 {
-		compatible = "mmc-pwrseq-sd8787";
-
-		powerdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&exp1 10 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <20000>;
+		off-on-delay-us = <100>;
 	};
 };
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
-	wifi_pwrseq = <&wifi_pwrseq_m2>;
+	vmmc-supply = <&reg_wifi_en_m2>;
 };
 
 &mcu_uart0 {
