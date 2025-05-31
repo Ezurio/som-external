@@ -145,13 +145,6 @@ create_secure_boot_encrypted_uboot_spl() {
 }
 
 case $(sed -rn 's/BR2_SUMMIT_FIPS_([0-9]+)=y/\1/p' "${BR2_CONFIG}") in
-    7)
-        hash_check \
-            "${BINARIES_DIR}/${KERNEL_IMAGE}" \
-            "${TARGET_DIR}/usr/bin/fipscheck" \
-            "${TARGET_DIR}/usr/lib/libfipscheck.so.1" \
-            "${TARGET_DIR}/usr/lib/libcrypto.so.1.0.0"
-        ;;
     11)
         hash_check \
             "${BINARIES_DIR}/${KERNEL_IMAGE}" \
