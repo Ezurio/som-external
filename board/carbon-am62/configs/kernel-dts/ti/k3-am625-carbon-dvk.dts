@@ -29,6 +29,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpio = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <5000>;
 	};
 
 	vdd_3v3: regulator-u4-sw2 {
