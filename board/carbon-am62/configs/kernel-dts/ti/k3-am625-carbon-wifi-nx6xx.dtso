@@ -6,9 +6,6 @@
 /dts-v1/;
 /plugin/;
 
-#include <dt-bindings/gpio/gpio.h>
-#include "k3-pinctrl.h"
-
 &reg_slow_clock {
 	status = "okay";
 };
