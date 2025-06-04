@@ -166,32 +166,26 @@ getBaseHwPartNumber() {
 	SOM8MP_2GB_BASE_HW_PART_NUMBER="453-00072"
 	SOM8MP_4GB_BASE_HW_PART_NUMBER="453-00135"
 
-	MEM_128MB_IN_KB=131072
-	MEM_256MB_IN_KB=262144
-	MEM_512MB_IN_KB=524288
-	MEM_1GB_IN_KB=1048576
-	MEM_2GB_IN_KB=2097152
-	MEM_4GB_IN_KB=4194304
+	ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
+	ram_size=$((ram_size / 1024 / 1024)) # Convert to MB
 
 	getSocId
 	case "${soc_id}" in
 	sama5d31*)
 		# WB50
-		echo "$WB50_BASE_HW_PART_NUMBER"
+		echo "${WB50_BASE_HW_PART_NUMBER}"
 		;;
 
 	sama5d36*)
 		# SOM60
-		ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
-
-		if [ "${ram_size}" -le $MEM_128MB_IN_KB ]; then
+		if [ "${ram_size}" -le 128 ]; then
 			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
-			echo "$SOM60v2x1_BASE_HW_PART_NUMBER" ||
-			echo "$SOM60x1_BASE_HW_PART_NUMBER"
-		elif [ "${ram_size}" -le $MEM_256MB_IN_KB ]; then
+			echo "${SOM60v2x1_BASE_HW_PART_NUMBER}" ||
+			echo "${SOM60x1_BASE_HW_PART_NUMBER}"
+		elif [ "${ram_size}" -le 256 ]; then
 			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
-			echo "$SOM60v2x2_BASE_HW_PART_NUMBER" ||
-			echo "$SOM60x2_BASE_HW_PART_NUMBER"
+			echo "${SOM60v2x2_BASE_HW_PART_NUMBER}" ||
+			echo "${SOM60x2_BASE_HW_PART_NUMBER}"
 		else
 			echo "unknown"
 		fi
@@ -199,16 +193,14 @@ getBaseHwPartNumber() {
 
 	i.MX8MP*)
 		# SOM 8M Plus
-		ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
-
-		if [ "${ram_size}" -le $MEM_512MB_IN_KB ]; then
-			echo "$SOM8MP_512MB_BASE_HW_PART_NUMBER"
-		elif [ "${ram_size}" -le $MEM_1GB_IN_KB ]; then
-			echo "$SOM8MP_1GB_BASE_HW_PART_NUMBER"
-		elif [ "${ram_size}" -le $MEM_2GB_IN_KB ]; then
-			echo "$SOM8MP_2GB_BASE_HW_PART_NUMBER"
-		elif [ "${ram_size}" -le $MEM_4GB_IN_KB ]; then
-			echo "$SOM8MP_4GB_BASE_HW_PART_NUMBER"
+		if [ "${ram_size}" -le 512 ]; then
+			echo "${SOM8MP_512MB_BASE_HW_PART_NUMBER}"
+		elif [ "${ram_size}" -le 1024 ]; then
+			echo "${SOM8MP_1GB_BASE_HW_PART_NUMBER}"
+		elif [ "${ram_size}" -le 2048 ]; then
+			echo "${SOM8MP_2GB_BASE_HW_PART_NUMBER}"
+		elif [ "${ram_size}" -le 4096 ]; then
+			echo "${SOM8MP_4GB_BASE_HW_PART_NUMBER}"
 		else
 			echo "unknown"
 		fi
@@ -216,6 +208,14 @@ getBaseHwPartNumber() {
 
 	AM62X)
 		echo "Carbon AM62"
+		;;
+
+	AM62LX)
+		echo "Carbon AM62L"
+		;;
+
+	J722S)
+		echo "Carbon AM67"
 		;;
 
 	*)
