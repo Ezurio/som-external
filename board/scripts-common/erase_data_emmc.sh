@@ -24,9 +24,9 @@ warning() {
 migrate_data() {
 	[ -f /perm/caam/datakey ] && [ -n "${1}" ] || return
 
-	if [ -x /usr/sbin/caam-keygen ]; then
+	if [ -x /usr/bin/caam-keygen ]; then
 		CRYPTO_STR="capi:tk(cbc(aes))-plain :36:logon:datakey:"
-		/usr/sbin/caam-keygen import /perm/caam/datakey.bb datakey
+		/usr/bin/caam-keygen import /perm/caam/datakey.bb datakey
 		/usr/bin/keyctl padd logon datakey: @s < /perm/caam/datakey
 	else
 		CRYPTO_STR="crypt aes-cbc-plain :32:trusted:datakey"
