@@ -78,22 +78,23 @@ migrate_data() {
 	rmdir "${MOUNT_POINT}"
 }
 
+migrate_uboot_var() {
+	var=$(fw_printenv -n "${1}")
+	[ -z "${var}" ] || fw_setenv -c "${fwenvn}" "${1}" "${var}"
+}
+
 # Migrate conf setting
 fwenv=$(sed -rn 's,.*(/etc/fw_env_[^ ]+).*,\1,p' /proc/self/mountinfo)
 case "${fwenv}" in
 	*-a.config)
-		conf=$(fw_printenv -n conf)
-		if [ -n "${conf}" ]; then
-			fwenvn=$(echo "${fwenv}" | sed 's/-a/-b/')
-			fw_setenv -c "${fwenvn}" conf "${conf}"
-		fi
+		fwenvn=${fwenv%-a.config}-b.config
+		migrate_uboot_var conf
+		migrate_uboot_var regdomain
 		;;
 	*-b.config)
-		conf=$(fw_printenv -n conf)
-		if [ -n "${conf}" ]; then
-			fwenvn=$(echo "${fwenv}" | sed 's/-b/-a/')
-			fw_setenv -c "${fwenvn}" conf "${conf}"
-		fi
+		fwenvn=${fwenv%-b.config}-a.config
+		migrate_uboot_var conf
+		migrate_uboot_var regdomain
 		;;
 esac
 
