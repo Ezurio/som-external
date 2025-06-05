@@ -21,7 +21,7 @@ diff --git a/Configure b/Configure
 index 5a699836f3..f9152b1702 100755
 --- a/Configure
 +++ b/Configure
-@@ -1663,6 +1663,10 @@ unless ($disabled{asm}) {
+@@ -1685,6 +1685,10 @@ unless ($disabled{asm}) {
      }
  }
  
@@ -34,4 +34,3 @@ index 5a699836f3..f9152b1702 100755
      # If the attribute makedep_scheme is defined, then we assume that the
 -- 
 2.25.0
-
