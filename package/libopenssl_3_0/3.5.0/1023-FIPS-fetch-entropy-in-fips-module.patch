@@ -14,32 +14,26 @@ diff --git a/crypto/rand/rand_lib.c b/crypto/rand/rand_lib.c
 index 14999540ab..f3c359bc71 100644
 --- a/crypto/rand/rand_lib.c
 +++ b/crypto/rand/rand_lib.c
-@@ -758,11 +758,13 @@ EVP_RAND_CTX *RAND_get0_primary(OSSL_LIB_CTX *ctx)
- #ifdef FIPS_MODULE
-     ret = rand_new_crngt(ctx, dgbl->seed);
- #else
+@@ -780,7 +780,7 @@ EVP_RAND_CTX *rand_get0_primary(OSSL_LIB_CTX *ctx)
+ 
+ #if !defined(FIPS_MODULE) || !defined(OPENSSL_NO_FIPS_JITTER)
+     /* Create a seed source for libcrypto or jitter enabled FIPS provider */
 -    if (dgbl->seed == NULL) {
-+    if (!EVP_default_properties_is_fips_enabled(ctx) &&
-+        dgbl->seed == NULL) {
++    if (dgbl->seed == NULL && !EVP_default_properties_is_fips_enabled(ctx)) {
          ERR_set_mark();
          dgbl->seed = rand_new_seed(ctx);
          ERR_pop_to_mark();
-     }
-+    // note: FIPS module fetches entropy directly
-     ret = rand_new_drbg(ctx, dgbl->seed, PRIMARY_RESEED_INTERVAL,
-                         PRIMARY_RESEED_TIME_INTERVAL);
- #endif
-@@ -796,9 +798,15 @@ EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx)
+@@ -831,9 +831,15 @@ EVP_RAND_CTX *rand_get0_public(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->public);
      if (rand == NULL) {
--        primary = RAND_get0_primary(ctx);
+-        primary = rand_get0_primary(ctx, dgbl);
 -        if (primary == NULL)
 -            return NULL;
 +        primary = NULL;
 +#ifndef FIPS_MODULE
 +        if (!EVP_default_properties_is_fips_enabled(ctx)) {
-+            primary = RAND_get0_primary(ctx);
++            primary = rand_get0_primary(ctx, dgbl);
 +            if (primary == NULL)
 +                return NULL;
 +        }
@@ -48,17 +42,17 @@ index 14999540ab..f3c359bc71 100644
  
          ctx = ossl_lib_ctx_get_concrete(ctx);
  
-@@ -832,9 +840,15 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
+@@ -870,9 +876,15 @@ EVP_RAND_CTX *rand_get0_private(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->private);
      if (rand == NULL) {
--        primary = RAND_get0_primary(ctx);
+-        primary = rand_get0_primary(ctx, dgbl);
 -        if (primary == NULL)
 -            return NULL;
 +        primary = NULL;
 +#ifndef FIPS_MODULE
 +        if (!EVP_default_properties_is_fips_enabled(ctx)) {
-+            primary = RAND_get0_primary(ctx);
++            primary = rand_get0_primary(ctx, dgbl);
 +            if (primary == NULL)
 +                return NULL;
 +        }
@@ -69,4 +63,3 @@ index 14999540ab..f3c359bc71 100644
  
 -- 
 2.34.1
-
