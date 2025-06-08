@@ -300,8 +300,9 @@ ENV_OFFSET=$(sed -rn 's,^CONFIG_ENV_OFFSET=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOO
 TEXT_BASE=$(sed -rn 's,^CONFIG_TEXT_BASE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 
 create_fw_env_emmc_sd() {
-	echo "/dev/mmcblk0boot0 ${ENV_OFFSET} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-a.config"
-	echo "/dev/mmcblk0boot1 ${ENV_OFFSET} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-b.config"
+	emmc=$(sed -rn 's,^BR2_SUMMIT_EMMC_DEVICE="(.*)",\1,p' "${BR2_CONFIG}")
+	echo "/dev/mmcblk${emmc}boot0 ${ENV_OFFSET} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-a.config"
+	echo "/dev/mmcblk${emmc}boot1 ${ENV_OFFSET} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-b.config"
 	echo "/boot/uboot.env 0 ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_sd.config"
 }
 
