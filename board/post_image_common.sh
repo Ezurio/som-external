@@ -25,8 +25,8 @@ export SECURE_BOOT
 
 die() { echo "$@" >&2; exit 1; }
 
-mapfile -t < <(make -j1 -s --no-print-directory -C "${BASE_DIR}" linux-show-version \
-	uboot-show-version swupdate-show-version linux-show-dtb | sed '/^make\[/d')
+mapfile -t < <(make -j1 -s --no-print-directory -C "${BASE_DIR}" \
+	uboot-show-version swupdate-show-version | sed '/^make\[/d')
 read -r UBOOT_VER SWUPDATE_VER <<< "${MAPFILE[@]}"
 export UBOOT_VER SWUPDATE_VER
 
