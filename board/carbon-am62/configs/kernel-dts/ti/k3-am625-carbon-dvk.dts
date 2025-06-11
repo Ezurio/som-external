@@ -390,7 +390,7 @@
 
 	main_vdd_sdio_a_gpio: main-vdd-sdio-a-gpio-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x064, PIN_INPUT, 7) /* SDIO_A_PWR_EN (T25) GPMC0_AD10.GPIO0_25 */
+			AM62X_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* SDIO_A_PWR_EN (T25) GPMC0_AD10.GPIO0_25 */
 		>;
 	};
 
