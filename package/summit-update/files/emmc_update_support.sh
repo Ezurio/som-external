@@ -18,13 +18,10 @@ flash_format() {
 		case ${soc_id:?} in
 		AM62X)
 			echo "Provisioning ${dev}"
-			buscond=$(mmc extcsd read "${dev}" |
-				sed -rn 's/.*BOOT_BUS_CONDITIONS: ([0-9a-fx]+).*/\1/p')
-			[ "${buscond}" = "0x02" ] ||
+			eval $(mmc extcsd read "${dev}" | sed -rn 's/.*(BOOT_BUS_CONDITIONS|RST_N_FUNCTION)\]?: ([0-9a-fx]+).*/\1=\2/p')
+			[ $((BOOT_BUS_CONDITIONS)) = 2 ] ||
 				mmc bootbus set single_backward x1 x8 "${dev}"
-			hwreset=$(mmc extcsd read "${dev}" |
-				sed -rn 's/.*\[RST_N_FUNCTION\]: ([0-9a-fx]+).*/\1/p')
-			[ "${hwreset}" = "0x01" ] ||
+			[ $((RST_N_FUNCTION)) = 1 ] ||
 				mmc hwreset enable "${dev}"
 			;;
 		esac
