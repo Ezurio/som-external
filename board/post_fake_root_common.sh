@@ -149,8 +149,10 @@ get_secure_mode_command() {
         die "Failed to copy set secure mode nk file"
 }
 
-if grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA=y" "${BR2_CONFIG}"; then
-    generate_custom_encrypted_filesystem
+if [ "${BYPASS_RODATA_GENERATION}" != "1" ]; then
+    if grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA=y" "${BR2_CONFIG}"; then
+        generate_custom_encrypted_filesystem
+    fi
 fi
 
 if [ -n "${KEYS_DIR}" ]; then
