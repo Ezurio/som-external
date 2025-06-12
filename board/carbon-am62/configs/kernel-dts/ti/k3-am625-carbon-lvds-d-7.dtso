@@ -26,15 +26,27 @@
 		enable-gpios = <&main_gpio0 33 GPIO_ACTIVE_HIGH>;
 	};
 
+	vcc_lvds_d: regulator-vcc-lvds-d {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_lvds-d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vcc_3v3_sys>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_power_default>;
+		gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <10000>;
+	};
+
 	display_lvds_d: display-lvds {
 		/* BD070LIC3 */
 		compatible = "tianma,tm070jdhg30", "panel-simple";
 
+		power-supply = <&vcc_lvds_d>;
 		backlight = <&backlight_lvds_d>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_power_default>;
-		enable-gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
 
 		port {
 			lcd_in0: endpoint {
@@ -114,6 +126,8 @@
 	touchscreen_lvds_d: touchscreen@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
+		AVDD28-supply = <&vcc_lvds_d>;
+		VDDIO-supply = <&vcc_lvds_d>;
 		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_RISING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
