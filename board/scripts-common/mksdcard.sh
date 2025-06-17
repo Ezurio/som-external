@@ -15,6 +15,9 @@ usage() {
 	echo "mksdcard.sh [-s] [-r <size MiB> ] [-h] <device>" >&2
 	echo "  -s: Secure boot" >&2
 	echo "  -r: rootfs_data size in MiB" >&2
+	echo "  -b: boot size in MiB" >&2
+	echo "  -p: perm size in MiB" >&2
+	echo "  -w: swap size in MiB" >&2
 	echo "  -h: Show this help" >&2
 	echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
 	exit 1
@@ -26,7 +29,7 @@ check_present() {
 	done
 }
 
-while getopts sr:f:h name; do
+while getopts sr:b:p:w:f:h name; do
     case ${name} in
     r)  ROOTFS_DATA_SIZE=${OPTARG} 
 		if ! [ "${ROOTFS_DATA_SIZE}" -eq "${ROOTFS_DATA_SIZE}" ] 2>/dev/null; then
@@ -34,6 +37,9 @@ while getopts sr:f:h name; do
 			exit 1
 		fi
 		;;
+    b)  BOOT_SIZE=${OPTARG} ;;
+    p)  PERM_SIZE=${OPTARG} ;;
+	w)  SWAP_SIZE=${OPTARG} ;;
 	f)  SRCDIR=${OPTARG} ;;
 	s)  SECURE=true ;;
 	?)  usage ;;
@@ -67,9 +73,9 @@ check_present sfdisk lsblk mkfs.ext4 mkfs.vfat mkswap dd mount umount
 set -e
 
 # Specify partition sizes in MiB
-BOOT_SIZE=48
-SWAP_SIZE=256
-PERM_SIZE=48
+BOOT_SIZE=${BOOT_SIZE:-48}
+SWAP_SIZE=${SWAP_SIZE:-256}
+PERM_SIZE=${PERM_SIZE:-256}
 
 find_file() {
 	for f in $(ls -1 -t "${SRCDIR}"/${1} 2> /dev/null);
@@ -80,12 +86,11 @@ find_file() {
 
 ROOTFS_PATH=${SRCDIR}/rootfs.bin
 
-if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then 
+if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then
 	SWU_PATH=$(find_file '*.swu')
 	if [ -n "${SWU_PATH}" ]; then
-		TEMP_SRC=$(mktemp -d -t mksdcard.XXXXXX)
-		cpio -idm --quiet < "${SWU_PATH}" -D "${TEMP_SRC}"
-		SRCDIR=${TEMP_SRC}
+		SRCDIR=${WORKDIR_TMP}/swu_src
+		cpio -idm --quiet < "${SWU_PATH}" -D "${SRCDIR}"
 		ROOTFS_PATH=${SRCDIR}/rootfs.bin
 	else
 		die 'Nothing to load'
@@ -100,6 +105,8 @@ else
 	maxpart=1
 fi
 
+[ -f "${SRCDIR}/flash.bin" ] && FS_OFFSET=8 || FS_OFFSET=1
+
 if ! ${boot_only}; then
 	# Calculate rootfs size
 	ROOTFS_SIZE=$(stat -L -c %s "${ROOTFS_PATH}")
@@ -111,11 +118,12 @@ if ! ${boot_only}; then
 	ROOTFS_SIZE=$(( ROOTFS_SIZE > 48 ? ROOTFS_SIZE : 48 ))
 
 	if [ -z "${ROOTFS_DATA_SIZE}" ]; then
-		# Set rootfs_data size to 25% of the rootfs size
 		ROOTFS_DATA_SIZE="-"
 	else
 		ROOTFS_DATA_SIZE=${ROOTFS_DATA_SIZE}M
 	fi
+
+	EXT_OFFS=$(( FS_OFFSET + BOOT_SIZE + SWAP_SIZE + PERM_SIZE ))
 fi
 
 which /usr/bin/udisksctl > /dev/null && udisk=1 || udisk=0
@@ -167,6 +175,7 @@ check_format() {
 create_ext4_partition() {
 	echo "[Creating \"${2}\" partition...]"
 
+	# Format ext4 partition image
 	/usr/sbin/mkfs.ext4 -q -F -m 1 -L "${2}" \
 		-E root_owner=0:0,lazy_itable_init=0,lazy_journal_init=0 \
 		-O encrypt,ext_attr "${1}" > /dev/null
@@ -191,7 +200,7 @@ create_boot_partition() {
 			"${SRCDIR}/uboot.env"
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
-		dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none
+		/usr/bin/dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none
 	else
 		${SECURE} && EXT="cip" || EXT="bin"
 		cp -t "${BOOT_PART}" \
@@ -227,6 +236,16 @@ create_rootfs_partition() {
 # Un-mount all mounted partitions
 unmount_all "${TARGET}"
 
+cleanup() {
+	e=$?
+	rm -rf "${WORKDIR_TMP}"
+	exit ${e}
+}
+
+trap 'cleanup' EXIT
+
+WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
+
 echo "[Creating SD card image...]"
 
 if ! check_format ; then
@@ -240,14 +259,12 @@ if ! check_format ; then
 
 	# Create device partition table
 	if ${boot_only}; then
-		printf ',%sM,0xc,*\n' ${BOOT_SIZE} | \
+		printf '%s,%sM,0xc,*\n' "${FS_OFFSET}" "${BOOT_SIZE}" | \
 			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	else
-		[ -f "${SRCDIR}/flash.bin" ] && FS_OFFSET=8M || FS_OFFSET=
-
-		printf '%s,%sM,0xc,*\n,%sM,S\n,%sM,L\n%s,-,Ex\n,%sM,L\n,%s,L\n' \
-			"${FS_OFFSET}" ${BOOT_SIZE} ${SWAP_SIZE} ${PERM_SIZE} \
-			"${FS_OFFSET}" "${ROOTFS_SIZE}" "${ROOTFS_DATA_SIZE}" | \
+		printf '%sM,%sM,0xc,*\n,%sM,S\n,%sM,L\n%sM,-,Ex\n,%sM,L\n,%s,L\n' \
+			"${FS_OFFSET}" "${BOOT_SIZE}" "${SWAP_SIZE}" "${PERM_SIZE}" \
+			"${EXT_OFFS}" "${ROOTFS_SIZE}" "${ROOTFS_DATA_SIZE}" | \
 			/usr/sbin/sfdisk -q -W always "${TARGET}" 2> /dev/null
 	fi
 
@@ -257,8 +274,7 @@ else
 fi
 
 # Read partition table and create partitions
-temp=$(mktemp -t mksdcard.XXXXXX)
-/usr/sbin/sfdisk -qlo device "${TARGET}" > "${temp}"
+/usr/sbin/sfdisk -qlo device "${TARGET}" > "${WORKDIR_TMP}/partitions"
 while read -r DEVICE; do
 	num=${DEVICE#"${TARGET}"}
 	num=${num#p}
@@ -269,15 +285,15 @@ while read -r DEVICE; do
 		5) create_rootfs_partition "${DEVICE}" & ;;
 		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" & ;;
 	esac
-done < "${temp}"
-rm -f "${temp}"
+done < "${WORKDIR_TMP}/partitions"
+rm -f "${WORKDIR_TMP}/partitions"
 
 echo "[Waiting for writes to complete ...]"
 wait
+
+# Flush file system buffers
 sync
 
 unmount_all "${TARGET}"
-
-[ ! -d "${TEMP_SRC}" ] || rm -rf "${TEMP_SRC}"
 
 echo "[Done]"
