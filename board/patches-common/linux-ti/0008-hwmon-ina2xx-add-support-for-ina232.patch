@@ -1,19 +1,19 @@
-From ac774cfea9139061c20e8952626046dd525e474c Mon Sep 17 00:00:00 2001
+From cbb7add59ddd0c67026942cbe6dd55fc094a35c4 Mon Sep 17 00:00:00 2001
 From: Simon Gaynor <simon.gaynor@ezurio.com>
 Date: Fri, 20 Sep 2024 09:37:23 -0700
 Subject: [PATCH 1/2] hwmon: (ina2xx) add support for ina232
 
 ina232 is similar to the ina226 except for bus_voltage_lsb
-which is 1600mV
+which is 1600mV and power_lsb_factor is 32
 
 Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
 ---
  Documentation/hwmon/ina2xx.rst | 14 ++++++++++++--
- drivers/hwmon/ina2xx.c         | 20 +++++++++++++++++++-
- 2 files changed, 31 insertions(+), 3 deletions(-)
+ drivers/hwmon/ina2xx.c         | 19 ++++++++++++++++++-
+ 2 files changed, 30 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/hwmon/ina2xx.rst b/Documentation/hwmon/ina2xx.rst
-index 27d2e39bc8ac..acb18727db75 100644
+index 7f1939b40f74f..5e985fe7d5246 100644
 --- a/Documentation/hwmon/ina2xx.rst
 +++ b/Documentation/hwmon/ina2xx.rst
 @@ -53,6 +53,16 @@ Supported chips:
@@ -52,7 +52,7 @@ index 27d2e39bc8ac..acb18727db75 100644
  bus and shunt voltage conversion times multiplied by the averaging rate. We
  don't touch the conversion times and only modify the number of averages. The
 diff --git a/drivers/hwmon/ina2xx.c b/drivers/hwmon/ina2xx.c
-index d8415d1f21fc..7b8a41f710f8 100644
+index f0fa6d073627f..65e20c1cc77e7 100644
 --- a/drivers/hwmon/ina2xx.c
 +++ b/drivers/hwmon/ina2xx.c
 @@ -18,6 +18,10 @@
@@ -66,7 +66,7 @@ index d8415d1f21fc..7b8a41f710f8 100644
   * Copyright (C) 2012 Lothar Felten <lothar.felten@gmail.com>
   * Thanks to Jan Volkering
   */
-@@ -125,7 +129,7 @@ static struct regmap_config ina2xx_regmap_config = {
+@@ -125,7 +129,7 @@ static const struct regmap_config ina2xx_regmap_config = {
  	.writeable_reg = ina2xx_writeable_reg,
  };
  
@@ -85,12 +85,12 @@ index d8415d1f21fc..7b8a41f710f8 100644
 +		.shunt_div = 400,
 +		.bus_voltage_shift = 0,
 +		.bus_voltage_lsb = 1600,
-+		.power_lsb_factor = 25,
++		.power_lsb_factor = 32,
 +	},
  };
  
  /*
-@@ -872,6 +885,7 @@ static const struct i2c_device_id ina2xx_id[] = {
+@@ -872,6 +884,7 @@ static const struct i2c_device_id ina2xx_id[] = {
  	{ "ina226", ina226 },
  	{ "ina230", ina226 },
  	{ "ina231", ina226 },
@@ -98,7 +98,7 @@ index d8415d1f21fc..7b8a41f710f8 100644
  	{ }
  };
  MODULE_DEVICE_TABLE(i2c, ina2xx_id);
-@@ -897,6 +911,10 @@ static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
+@@ -897,6 +910,10 @@ static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
  		.compatible = "ti,ina231",
  		.data = (void *)ina226
  	},
@@ -110,5 +110,5 @@ index d8415d1f21fc..7b8a41f710f8 100644
  };
  MODULE_DEVICE_TABLE(of, ina2xx_of_match);
 -- 
-2.47.1
+2.34.1
 
