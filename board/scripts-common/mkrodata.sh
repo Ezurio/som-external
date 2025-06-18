@@ -24,7 +24,6 @@ CUSTOMER_DIR="${6}"
 
 FSCRYPTCTL="./fscryptctl"
 
-LOOP_DEVICE=$(losetup -f)
 RODATA_MNT_DIR="/mnt/rodata"
 SECRET_DIR="${RODATA_MNT_DIR}/secret"
 PUBLIC_DIR="${RODATA_MNT_DIR}/public"
@@ -38,14 +37,15 @@ REST_SERVER_PROVISIONING_CERT_CHAIN_DEST="${REST_SERVER_SSL_DIR}/provisioning.ca
 UPDATE_CERT_DIR="${PUBLIC_DIR}/ssl/misc"
 UPDATE_CERT_DEST="${UPDATE_CERT_DIR}/update.pem"
 RODATA_IMG="rodata.img"
+RODATA_SQUASHFS="rodata.squashfs"
 RODATA_SIZE=256
-EXT4_BLOCK_SIZE=4096
-KEY_DESC="ffffffffffffffff"
 
 exit_on_error() {
   echo "${1}"
-  umount -fq ${RODATA_MNT_DIR} || true
+  /usr/sbin/dmsetup remove rodata_enc
   rm -f ${RODATA_IMG}
+  rm -f ${RODATA_SQUASHFS}
+  losetup -d "${LOOP_DEVICE}" || true
   exit 1
 }
 
@@ -59,29 +59,9 @@ fi
 [ -x "${FSCRYPTCTL}" ] || exit_on_error "Missing local fscryptctl"
 
 #
-# Prepare mount point
+# Create encrypted directory
 #
-rm -rf ${RODATA_MNT_DIR} || exit_on_error "Directory removal for ${RODATA_MNT_DIR} failed"
-mkdir -p ${RODATA_MNT_DIR} || exit_on_error "Directory Creation for ${RODATA_MNT_DIR} failed"
-
-#
-# Create filesystem on loop image
-#
-fallocate -l ${RODATA_SIZE}KiB ${RODATA_IMG} || exit_on_error "Creation of block image failed"
-mkfs.ext4 -O encrypt -O ^has_journal -b ${EXT4_BLOCK_SIZE} ${RODATA_IMG} || exit_on_error "EXT4 formatting failed"
-
-mount -o loop="${LOOP_DEVICE}" ${RODATA_IMG} ${RODATA_MNT_DIR} || exit_on_error "Mounting ${LOOP_DEVICE} failed"
-
-#
-# Create encrypted directory and apply policy (must be done on empty directory)
-#
-if [ -f "${KEY_BIN}" ] ; then
-  ${FSCRYPTCTL} insert_key --desc=${KEY_DESC} < "${KEY_BIN}"
-else
-  echo "${KEY_BIN}" | xxd -r -p | ${FSCRYPTCTL} insert_key --desc=${KEY_DESC}
-fi
 mkdir -p ${SECRET_DIR} || exit_on_error "Failed to create ${SECRET_DIR}"
-${FSCRYPTCTL} set_policy ${KEY_DESC} ${SECRET_DIR} || exit_on_error "Failed to apply encryption policy"
 
 #
 # Create and populate REST server certificate and key under encrypted directory
@@ -112,12 +92,46 @@ if [ -d "${CUSTOMER_DIR}" ];then
 fi
 
 #
+# Generate the manifest file
+#
+[ -f rodata_manifest.txt ] && rm -f rodata_manifest.txt
+find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> rodata_manifest.txt
+
+#
+# Create the SquashFS image
+#
+mksquashfs ${RODATA_MNT_DIR} ${RODATA_SQUASHFS} || exit_on_error "Failed to create SquashFS image"
+
+#
+# Create a block image for the read-only data
+#
+fallocate -l ${RODATA_SIZE}KiB ${RODATA_IMG} || exit_on_error "Creation of block image failed"
+LOOP_DEVICE=$(losetup -f) || exit_on_error "Failed to find free loop device"
+losetup "${LOOP_DEVICE}" ${RODATA_IMG} || exit_on_error "Failed to associate loop device with image"
+sync
+
+#
+# Setup dm-crypt
+#
+if [ -f "${KEY_BIN}" ] ; then
+  KEY_ASCII_HEX=$(xxd -p < "${KEY_BIN}" | tr -d '\n')
+else
+  KEY_ASCII_HEX=$(echo "${KEY_BIN}" | xxd -p | tr -d '\n')
+fi
+/usr/sbin/dmsetup create rodata_enc --table "0 $((RODATA_SIZE * 2)) crypt aes-xts-plain64 ${KEY_ASCII_HEX} 0 ${LOOP_DEVICE} 0 1 sector_size:512" || exit_on_error "Failed to create dm-crypt device"
+
+#
+# dd the SquashFS image to the dm-crypt device
+#
+dd if=${RODATA_SQUASHFS} of=/dev/mapper/rodata_enc bs=512 conv=fsync || exit_on_error "Failed to dd SquashFS image to dm-crypt device"
+
+#
 # Clean up
 #
 sync
-[ -f rodata_manifest.txt ] && rm -f rodata_manifest.txt
-find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> rodata_manifest.txt
-umount ${RODATA_MNT_DIR}
-keyctl unlink "$(keyctl search @s logon fscrypt:ffffffffffffffff)"
+/usr/sbin/dmsetup remove rodata_enc || exit_on_error "Failed to remove dm-crypt device"
+rm -f ${RODATA_SQUASHFS} || exit_on_error "Failed to remove SquashFS image"
+losetup -d "${LOOP_DEVICE}" || exit_on_error "Failed to detach loop device"
+rm -rf ${RODATA_MNT_DIR} || exit_on_error "Failed to clean up mount directory"
 
 echo "Successfully created factory data in ${RODATA_IMG}"

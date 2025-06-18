@@ -1,0 +1,15 @@
+[Unit]
+Description=Mount Read-Only Data Partition
+DefaultDependencies=no
+Conflicts=umount.target
+Before=umount.target local-fs.target
+After=local-fs-pre.target system.slice rodata.mount
+PartOf=rodata.mount
+ConditionPathExists=/etc/rodata/rodata.img
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mount_rodata.sh start
+ExecStop=/usr/sbin/mount_rodata.sh stop
+KeyringMode=inherit
