@@ -1,8 +1,0 @@
-[Unit]
-Description=Factory Data
-ConditionPathExists=/etc/rodata/rodata.img
-
-[Mount]
-What=/etc/rodata/rodata.img
-Where=/rodata
-Options=ro,nosuid,noexec,nodev
