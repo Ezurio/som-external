@@ -1,5 +1,0 @@
-config BR2_PACKAGE_PAC193X
-	bool "pac193x"
-	depends on BR2_LINUX_KERNEL
-	help
-	  Microchip PAC193x ADC/Power Monitor Driver
