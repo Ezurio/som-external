@@ -3,7 +3,7 @@ Description=Mount Read-Only Data Partition
 DefaultDependencies=no
 Conflicts=umount.target
 Before=umount.target local-fs.target
-After=local-fs-pre.target system.slice rodata.mount
+After=local-fs-pre.target system.slice rodata.mount systemd-modules-load.service
 PartOf=rodata.mount
 ConditionPathExists=/etc/rodata/rodata.img
 
