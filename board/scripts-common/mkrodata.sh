@@ -43,6 +43,7 @@ die_with_cleanup() {
   /usr/sbin/dmsetup remove rodata_enc
   rm -f ${RODATA_IMG} ${RODATA_SQUASHFS}
   losetup -d "${LOOP_DEVICE}" || true
+  rm -rf ${RODATA_MNT_DIR}
   exit 1
 }
 
@@ -101,10 +102,9 @@ mksquashfs ${RODATA_MNT_DIR} ${RODATA_SQUASHFS} || die_with_cleanup "Failed to c
 #
 # Create a block image for the read-only data
 #
-RODATA_SIZE=$(stat -c %s ${RODATA_SQUASHFS})
-RODATA_SIZE=$((((RODATA_SIZE / 512) + 2) * 512)) # Round up to the next 512-byte block
-RODATA_SIZE=$((RODATA_SIZE / 1024)) # Convert to KiB
-fallocate -l ${RODATA_SIZE}KiB ${RODATA_IMG} || die_with_cleanup "Creation of block image failed"
+RODATA_SIZE=$(stat -c %b ${RODATA_SQUASHFS})
+RODATA_SIZE=$(((RODATA_SIZE + 1) * 512)) # Round up to the next 512-byte block and convert to bytes
+fallocate -l ${RODATA_SIZE} ${RODATA_IMG} || die_with_cleanup "Creation of block image failed"
 LOOP_DEVICE=$(losetup -f) || die_with_cleanup "Failed to find free loop device"
 losetup "${LOOP_DEVICE}" ${RODATA_IMG} || die_with_cleanup "Failed to associate loop device with image"
 sync
@@ -117,7 +117,7 @@ if [ -f "${KEY_BIN}" ] ; then
 else
   KEY_ASCII_HEX=$(echo "${KEY_BIN}" | xxd -p | tr -d '\n')
 fi
-/usr/sbin/dmsetup create rodata_enc --table "0 $((RODATA_SIZE * 2)) crypt aes-xts-plain64 ${KEY_ASCII_HEX} 0 ${LOOP_DEVICE} 0 1 sector_size:512" || die_with_cleanup "Failed to create dm-crypt device"
+/usr/sbin/dmsetup create rodata_enc --table "0 $((RODATA_SIZE / 512)) crypt aes-xts-plain64 ${KEY_ASCII_HEX} 0 ${LOOP_DEVICE} 0 1 sector_size:512" || die_with_cleanup "Failed to create dm-crypt device"
 
 #
 # dd the SquashFS image to the dm-crypt device
