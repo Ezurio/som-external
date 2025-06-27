@@ -38,7 +38,7 @@
 	bluetooth {
 		compatible = "brcm,bcm4329-bt";
 		vbat-supply = <&reg_slow_clock>;
-		vddio-supply = <&buck2_reg>;
+		vddio-supply = <&vdd_1v8>;
 		brcm,requires-autobaud-mode;
 		max-speed = <921600>;
 		shutdown-gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;

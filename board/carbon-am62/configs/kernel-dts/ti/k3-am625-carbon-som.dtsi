@@ -123,15 +123,6 @@
 		};
 	};
 
-	cam_mck: cam-mck {
-		compatible = "pwm-clock";
-		status = "disabled";
-		#clock-cells = <0>;
-		clock-frequency = <24000000>;
-		clock-output-names = "cam_mck";
-		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
-	};
-
 	vsys_5v: regulator-vcc-in-5v {
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
@@ -142,28 +133,59 @@
 		regulator-boot-on;
 	};
 
-	vcc_3v3_sys: regulator-u4 {
+	vdd_3v3: regulator-u4 {
 		/* output of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_3v3_sys";
+		regulator-name = "vdd_3v3";
+		vin-supply = <&vsys_5v>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_sd: regulator-u3-ldo1 {
+	vsel_mmc1: regulator-vsel-mmc1 {
 		/* Output of U3 TPS6521920WRHBRQ1 VLDO1 */
 		compatible = "regulator-gpio";
-		vin-supply = <&ldo1_reg>;
-		regulator-name = "vdd_sd_u3_vldo1";
-		pinctrl-names = "default";
-		pinctrl-0 = <&vdd_sd_pins_default>;
+
+		vin-supply = <&vdd_sd_pmic>;
+
+		regulator-name = "vsel_mmc1";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&vsel_mmc1_pins_default>;
 		gpios = <&main_gpio0 31 GPIO_ACTIVE_LOW>;
+
 		/* initial state must be 3.3V */
 		states = <3300000 0x0>, <1800000 0x1>;
+		status = "disabled";
+	};
+
+	vdd_mmc1: regulator-vdd-mmc1 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "vdd_mmc1";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_mmc1_power_en_default>;
+		gpio = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
+
+		enable-active-high;
+		startup-delay-us = <5000>;
+		status = "disabled";
+	};
+
+	cam_mck: cam-mck {
+		compatible = "pwm-clock";
+		status = "disabled";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "cam_mck";
+		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	mmc0_pwrseq: pwrseq {
@@ -183,7 +205,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vcc_3v3_sys>;
+		vin-supply = <&vdd_3v3>;
 		clocks = <&rv3028>;
 
 		startup-delay-us = <1000>;
@@ -262,7 +284,7 @@
 
 &cpsw3g_mdio {
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_mdio1_pins_default>;
+	pinctrl-0 = <&main_mdio0_pins_default>;
 };
 
 &epwm1 {
@@ -367,10 +389,10 @@
 		buck1-supply = <&vsys_5v>;
 		buck2-supply = <&vsys_5v>;
 		buck3-supply = <&vsys_5v>;
-		ldo1-supply = <&vcc_3v3_sys>;
-		ldo2-supply = <&buck2_reg>;
-		ldo3-supply = <&vcc_3v3_sys>;
-		ldo4-supply = <&vcc_3v3_sys>;
+		ldo1-supply = <&vdd_3v3>;
+		ldo2-supply = <&vdd_1v8>;
+		ldo3-supply = <&vdd_3v3>;
+		ldo4-supply = <&vdd_3v3>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pmic_irq_pins_default>;
@@ -382,37 +404,37 @@
 		ti,power-button;
 
 		regulators {
-			buck1_reg: buck1 {
-				regulator-name = "VDD_CORE";
+			vdd_core: buck1 {
+				regulator-name = "vdd_core";
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt = <750000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			buck2_reg: buck2 {
-				regulator-name = "VDD1V8";
+			vdd_1v8: buck2 {
+				regulator-name = "vdd_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			buck3_reg: buck3 {
-				regulator-name = "VDD_1V1";
+			vdd_1v1: buck3 {
+				regulator-name = "vdd_1v1";
 				regulator-min-microvolt = <1100000>;
 				regulator-max-microvolt = <1100000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo1_reg: ldo1 {
+			vdd_sd_pmic: ldo1 {
 				/*
 				 * Regulator is left as is unused, vdd_sd
 				 * is controlled via GPIO with bypass config
 				 * as per the NVM configuration
 				 */
-				regulator-name = "VDD_SD";
+				regulator-name = "vdd_sd_pmic";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-allow-bypass;
@@ -420,24 +442,24 @@
 				regulator-always-on;
 			};
 
-			ldo2_reg: ldo2 {
-				regulator-name = "VDDA_0V85";
+			vdda_0v85: ldo2 {
+				regulator-name = "vdda_0v85";
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <850000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo3_reg: regulator-u3-ldo3 {
-				regulator-name = "VDDA_1V8";
+			vdda_1v8: regulator-u3-ldo3 {
+				regulator-name = "vdda_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo4_reg: ldo4 {
-				regulator-name = "VDD_1V2";
+			vdd_1v2: ldo4 {
+				regulator-name = "vdd_1v2";
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
 				regulator-boot-on;
@@ -450,7 +472,7 @@
 &main_i2c1 { /* I2C_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c1_pins_default>;
-	clock-frequency = <100000>;
+	clock-frequency = <400000>;
 };
 
 &main_i2c2 { /* I2C_B */
@@ -462,6 +484,12 @@
 &main_i2c3 { /* I2C_CAM */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c3_pins_default>;
+	clock-frequency = <400000>;
+};
+
+&wkup_i2c0 { /* I2C_C */
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <400000>;
 };
 
@@ -554,7 +582,7 @@
 	main_mmc2_pins_default: main-mmc2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x120, PIN_INPUT, 0) /* (C24) MMC2_CMD */
-			AM62X_IOPAD(0x118, PIN_OUTPUT, 0) /* (D25) MMC2_CLK */
+			AM62X_IOPAD(0x118, PIN_INPUT, 0) /* (D25) MMC2_CLK */
 			AM62X_IOPAD(0x114, PIN_INPUT, 0) /* (B24) MMC2_DAT0 */
 			AM62X_IOPAD(0x110, PIN_INPUT, 0) /* (C25) MMC2_DAT1 */
 			AM62X_IOPAD(0x10c, PIN_INPUT, 0) /* (E23) MMC2_DAT2 */
@@ -563,7 +591,7 @@
 		>;
 	};
 
-	main_mdio1_pins_default: main-mdio1-default-pins {
+	main_mdio0_pins_default: main-mdio0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x160, PIN_OUTPUT, 0) /* (AD24) MDIO0_MDC */
 			AM62X_IOPAD(0x15c, PIN_INPUT, 0) /* (AB22) MDIO0_MDIO */
@@ -671,7 +699,7 @@
 
 	main_uart0_pins_default: main-uart0-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1c8, PIN_INPUT, 0) /* (D14) UART0_RXD */
+			AM62X_IOPAD(0x1c8, PIN_INPUT_PULLUP, 0) /* (D14) UART0_RXD */
 			AM62X_IOPAD(0x1cc, PIN_OUTPUT, 0) /* (E14) UART0_TXD */
 		>;
 	};
@@ -687,16 +715,16 @@
 
 	main_uart4_pins_default: main-uart4-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x06c, PIN_INPUT, 2) /* (T22) GPMC0_AD12.UART4_RXD */
+			AM62X_IOPAD(0x06c, PIN_INPUT_PULLUP, 2) /* (T22) GPMC0_AD12.UART4_RXD */
 			AM62X_IOPAD(0x070, PIN_OUTPUT, 2) /* (T24) GPMC0_AD13.UART4_TXD */
 		>;
 	};
 
 	main_uart6_pins_default: main-uart6-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x028, PIN_INPUT, 3) /* (J22) OSPI0_D7.UART6_CTSn */
+			AM62X_IOPAD(0x028, PIN_INPUT_PULLUP, 3) /* (J22) OSPI0_D7.UART6_CTSn */
 			AM62X_IOPAD(0x024, PIN_OUTPUT, 3) /* (H25) OSPI0_D6.UART6_RTSn */
-			AM62X_IOPAD(0x01c, PIN_INPUT, 3) /* (J23) OSPI0_D4.UART6_RXD */
+			AM62X_IOPAD(0x01c, PIN_INPUT_PULLUP, 3) /* (J23) OSPI0_D4.UART6_RXD */
 			AM62X_IOPAD(0x020, PIN_OUTPUT, 3) /* (J25) OSPI0_D5.UART6_TXD */
 		>;
 	};
@@ -716,12 +744,6 @@
 	main_wifi_en_pins_default: main-wifi-en-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x050, PIN_INPUT, 7) /* W_DISABLE1# (P22) GPMC0_AD5.GPIO0_20 */
-		>;
-	};
-
-	main_wifi_en2_pins_default: main-wifi-en2-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x054, PIN_INPUT, 7) /* SDIO_RESET# (P21) GPMC0_AD6.GPIO0_21 */
 		>;
 	};
 
@@ -749,11 +771,18 @@
 		>;
 	};
 
-	vdd_sd_pins_default: vdd-sd-default-pins {
+	vsel_mmc1_pins_default: vsel-mmc1-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x07c, PIN_INPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
 		>;
 	};
+
+	main_mmc1_power_en_default: main-mmc1-power-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* SDIO_A_PWR_EN (T25) GPMC0_AD10.GPIO0_25 */
+		>;
+	};
+
 };
 
 &main_spi0 { /* SPI_B */
@@ -814,11 +843,12 @@
 /* mcu_gpio0 and mcu_gpio_intr are reserved for mcu firmware usage */
 &mcu_gpio0 {
 	status = "okay";
-	gpio-line-names = "","","","","",					/* 0 - 4 */
+	gpio-line-names =
+		"","","","","",						/* 0 - 4 */
 		"","","","","",
-		"","GPIO_B_1","GPIO_B_0","","",					/* 10 - 14 */
+		"","GPIO_B_1","GPIO_B_0","","",				/* 10 - 14 */
 		"","USB_A_ID","GPIO_A_4","GPIO_A_5","GPIO_B_4",
-		"GPIO_B_5","","","rv3028_int";					/* 20 - 23 */
+		"GPIO_B_5","","","rv3028_int";				/* 20 - 23 */
 };
 
 &mcu_gpio_intr {
@@ -850,6 +880,13 @@
 			AM62X_MCU_IOPAD(0x030, PIN_OUTPUT, 0) /* (A4/B4) WKUP_UART0_RTSn */
 			AM62X_MCU_IOPAD(0x024, PIN_INPUT_PULLUP, 0) /* (B4/B5) WKUP_UART0_RXD */
 			AM62X_MCU_IOPAD(0x028, PIN_OUTPUT, 0) /* (C5/C6) WKUP_UART0_TXD */
+		>;
+	};
+
+	wkup_i2c0_pins_default: wkup_i2c0-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x004c, PIN_INPUT_PULLUP, 0) /* GPIO_B_4 (B9) WKUP_I2C0_SCL */
+			AM62X_MCU_IOPAD(0x0050, PIN_INPUT_PULLUP, 0) /* GPIO_B_5 (A9) WKUP_I2C0_SDA */
 		>;
 	};
 
@@ -912,7 +949,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
 
-	vqmmc-supply = <&vdd_sd>; /* VSEL_SD */
+	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
+	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
 
 	disable-wp;
 	ti,driver-strength-ohm = <50>;
@@ -923,7 +961,7 @@
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
 	vmmc-supply = <&reg_wifi_en>;
-	vqmmc-supply = <&buck2_reg>;
+	vqmmc-supply = <&vdd_1v8>;
 
 	non-removable;
 	ti,fails-without-test-cd;

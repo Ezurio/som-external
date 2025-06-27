@@ -19,7 +19,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vcc_3v3_sys>;
+		vin-supply = <&vdd_3v3_carrier>;
 
 		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
 		enable-active-high;
@@ -78,7 +78,7 @@
 	status = "okay";
 
 	vmmc-supply = <&reg_wifi_en_m2>;
-	vqmmc-supply = <&vdd_1v8>;
+	vqmmc-supply = <&vdd_1v8_carrier>;
 
 	non-removable;
 	ti,fails-without-test-cd;

@@ -5,7 +5,7 @@
 ################################################################################
 
 # 24.2.6643903
-TI_ROGUE_UM_VERSION = 1ed9ee185cd876200e6747192854015b8e94a7b0
+TI_ROGUE_UM_VERSION = 630f1d5b2be896d3040c927a9fd0d16aaeb33d02
 TI_ROGUE_UM_SITE = https://git.ti.com/cgit/graphics/ti-img-rogue-umlibs/snapshot
 TI_ROGUE_UM_SOURCE = ti-img-rogue-umlibs-$(TI_ROGUE_UM_VERSION).tar.xz
 TI_ROGUE_UM_LICENSE = TI TSPA License

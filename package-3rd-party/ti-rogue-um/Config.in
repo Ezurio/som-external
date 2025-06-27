@@ -15,7 +15,7 @@ config BR2_PACKAGE_TI_ROGUE_UM
 	select BR2_PACKAGE_TI_ROGUE_KM if BR2_LINUX_KERNEL
 	help
 	  Graphics libraries for TI SoCs with Rogue GPU.
-	  This package supports AM62, J721E, J721S2, and J784S4
+	  This package supports AM62, AM64, J721E, J721S2, J722S and J784S4
 	  SoCs only.
 
 	  https://git.ti.com/cgit/graphics/ti-img-rogue-umlibs
