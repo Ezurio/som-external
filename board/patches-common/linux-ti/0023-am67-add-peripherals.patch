@@ -1,0 +1,37 @@
+diff --git a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+index 25287bb68e86..1685e1a4e63d 100644
+--- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+@@ -397,6 +397,19 @@ c7x_1: dsp@7e200000 {
+ 		ti,sci-proc-ids = <0x31 0xff>;
+ 		status = "disabled";
+ 	};
++
++	main_i2c4: i2c@0fe80000 {
++		compatible = "ti,am64-i2c", "ti,omap4-i2c";
++		reg = <0x00 0x0fe80000 0x00 0x100>;
++		interrupt-parent = <&main_gpio_intr>;
++		interrupts = <178>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		power-domains = <&k3_pds 257 TI_SCI_PD_EXCLUSIVE>;
++		clocks = <&k3_clks 257 2>;
++		clock-names = "fck";
++		status = "disabled";
++	};
+ };
+ 
+ &main_bcdma_csi {
+diff --git a/arch/arm64/boot/dts/ti/k3-j722s.dtsi b/arch/arm64/boot/dts/ti/k3-j722s.dtsi
+index 747f989a54a4..fff0cc9cdda4 100644
+--- a/arch/arm64/boot/dts/ti/k3-j722s.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j722s.dtsi
+@@ -156,6 +156,8 @@ cbass_main: bus@f0000 {
+ 			 <0x00 0x0fd80000 0x00 0x0fd80000 0x00 0x00080000>, /* GPU */
+ 			 <0x00 0x0fd20000 0x00 0x0fd20000 0x00 0x00000100>, /* JPEGENC0_CORE */
+ 			 <0x00 0x0fd20200 0x00 0x0fd20200 0x00 0x00000200>, /* JPEGENC0_CORE_MMU */
++			 <0x00 0x0fe00000 0x00 0x0fe00000 0x00 0x00000100>, /* MCASP3 */
++			 <0x00 0x0fe80000 0x00 0x0fe80000 0x00 0x00000100>, /* I2C4 */
+ 			 <0x00 0x20000000 0x00 0x20000000 0x00 0x0a008000>, /* Third peripheral window */
+ 			 <0x00 0x30040000 0x00 0x30040000 0x00 0x00080000>, /* PRUSS-M */
+ 			 <0x00 0x301C0000 0x00 0x301C0000 0x00 0x00001000>, /* DPHY-TX */

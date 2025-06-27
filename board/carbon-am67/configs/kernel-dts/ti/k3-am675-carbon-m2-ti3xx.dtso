@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO TI CC33xx module
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-am675-carbon-m2.dtsi"
+
+&reg_wifi_en_m2 {
+	startup-delay-us = <10000>;
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	cap-power-off-card;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	bt@1 {
+		reg = <1>;
+		compatible = "ti,cc33xxbt";
+	};
+
+	wifi@2 {
+		reg = <2>;
+		compatible = "ti,cc33xx";
+	};
+};
+
+&mcu_uart0 {
+	bluetooth {
+		compatible = "ti,cc33xx-bt";
+		cc33xx-supply = <&reg_wifi_en_m2>;
+		max-speed = <115200>;
+	};
+};
+
+&wifi_wakeup_m2 {
+	status = "disabled";
+};
+
+&exp2 {
+	/delete-property/ wakeup-source;
+};

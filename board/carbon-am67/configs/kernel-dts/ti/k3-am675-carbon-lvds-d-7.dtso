@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS Expansion Board with BD070LIC3 display for carbon AM67x
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pwm/pwm.h>
+#include "k3-pinctrl.h"
+
+&{/} {
+	backlight_lvds_d: backlight-lvds {
+		compatible = "pwm-backlight";
+
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		default-brightness-level = <8>;
+		pwms = <&epwm1 1 30000 0>; /* 33.3 kHz */
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_backlight_en_default>;
+		enable-gpios = <&main_gpio0 52 GPIO_ACTIVE_HIGH>;
+	};
+
+	vcc_lvds_d: regulator-vcc-lvds-d {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_lvds-d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vdd_3v3_carrier>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_power_default>;
+		gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <10000>;
+	};
+
+	display_lvds_d: display-lvds {
+		/* BD070LIC3 */
+		compatible = "tianma,tm070jdhg30", "panel-simple";
+
+		power-supply = <&vcc_lvds_d>;
+		backlight = <&backlight_lvds_d>;
+
+		port {
+			lcd_in0: endpoint {
+				remote-endpoint = <&oldi_0_out>;
+			};
+		};
+	};
+};
+
+&main_pmx0 {
+	main_lvds_d_power_default: main-lvds-d-power-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d0, PIN_INPUT, 7) /* LVDS_D_VDD_EN (Y26) VOUT0_DATA6.GPIO0_51 */
+		>;
+	};
+
+	main_lvds_d_backlight_en_default: main-lvds-d-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d4, PIN_INPUT, 7) /* LVDS_D_BL_EN (Y27) VOUT0_DATA7.GPIO0_52 */
+		>;
+	};
+};
+
+&epwm1 {
+	status = "okay";
+};
+
+&dss0 {
+	status = "okay";
+	/* OLDITX ports have no mux on them */
+};
+
+&oldi0_dss0 {
+	status = "okay";
+};
+
+&oldi0_dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+		oldi_0_in: endpoint {
+			remote-endpoint = <&dpi0_out0>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		oldi_0_out: endpoint {
+			remote-endpoint = <&lcd_in0>;
+		};
+	};
+};
+
+&dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_0_in>;
+		};
+	};
+};
+
+&i2c_port_d {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_lvds_d: touchscreen@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+		AVDD28-supply = <&vcc_lvds_d>;
+		VDDIO-supply = <&vcc_lvds_d>;
+		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "irq";
+		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
+		//reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};

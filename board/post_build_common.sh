@@ -379,7 +379,7 @@ case "${BUILD_TYPE}" in
 		export KERNEL_IMAGE='Image.gz'
 		;;
 
-	*imx8*)
+	imx8*)
 		mkdir -p "${TARGET_DIR}/boot"
 		create_fw_env_emmc_sd
 
@@ -396,7 +396,7 @@ case "${BUILD_TYPE}" in
 		export FIT_PAD_ALG='pss'
 		;;
 
-	*am62*)
+	am6*)
 		mkdir -p "${TARGET_DIR}/boot"
 		create_fw_env_emmc_sd
 

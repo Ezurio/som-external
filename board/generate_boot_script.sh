@@ -75,7 +75,7 @@ case ${BUILD_TYPE} in
         fi
         ;;
 
-    *am62*|imx8*)
+    am6*|imx8*)
         echo "boot_dev=/dev/mmcblk\${mmcdev}p\${rootvol}"
         if ${SECURE_BOOT}; then
             print_verity

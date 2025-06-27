@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2024 Ezurio
+ */
+
+/dts-v1/;
+/plugin/;
+
+&reg_slow_clock {
+	status = "okay";
+};
+
+&reg_wifi_en {
+	status = "okay";
+	startup-delay-us = <20000>;
+};
+
+&sdhci2 { /* SDIO_B  WIFI */
+	status = "okay";
+};
+
+&main_uart1 {
+	status = "okay";
+
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+	};
+};
+
+&wifi_wakeup {
+	status = "okay";
+};
