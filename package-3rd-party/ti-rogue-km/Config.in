@@ -8,7 +8,7 @@ config BR2_PACKAGE_TI_ROGUE_KM
 	select BR2_LINUX_NEEDS_MODULES
 	help
 	  Kernel modules for TI SoCs with Rogue GPU.
-	  This package supports AM62, J721E, J721S2, and J784S4
+	  This package supports AM62, AM64, J721E, J721S2, J722S and J784S4
 	  SoCs only.
 
 	  Note: it needs a TI specific kernel to build properly.

@@ -7,7 +7,6 @@
 /dts-v1/;
 
 #include <dt-bindings/leds/common.h>
-#include <dt-bindings/input/input.h>
 
 #include "k3-am625-carbon-som.dtsi"
 
@@ -20,41 +19,29 @@
 		gpio4 = &exp2;
 	};
 
-	vdd_mmc1: regulator-sdio-a {
-		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_vdd_sdio_a_gpio>;
-		regulator-name = "vdd_mmc1";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		enable-active-high;
-		gpio = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
-		startup-delay-us = <5000>;
-	};
-
-	vdd_3v3: regulator-u4-sw2 {
+	vdd_3v3_carrier: regulator-u4-sw2 {
 		/* output of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_3v3";
+		regulator-name = "vdd_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_1v8: regulator-u4-sw3 {
+	vdd_1v8_carrier: regulator-u4-sw3 {
 		/* output of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_1v8";
+		regulator-name = "vdd_1v8_carrier";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_aud_3v3: regulator-aud-pwr {
+	vdd_aud_3v3_carrier: regulator-aud-pwr {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_aud_3v3";
+		regulator-name = "vdd_aud_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -63,7 +50,6 @@
 
 	codec_audio: sound {
 		compatible = "simple-audio-card";
-		status = "okay";
 
 		simple-audio-card,bitclock-master = <&dailink0_master>;
 		simple-audio-card,frame-master = <&dailink0_master>;
@@ -112,6 +98,13 @@
 			gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_VOLUMEDOWN>;
 		};
+
+		cpu_wakeup {
+			label = "Wakeup";
+			gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+		};
 	};
 
 	leds {
@@ -143,8 +136,9 @@
 
 	vcc_usb0_vbus: regulator-usb0-vbus {
 		compatible = "regulator-fixed";
+		vin-supply = <&vsys_5v>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb0_en_pins_default>;
+		pinctrl-0 = <&main_usb0_pins_default>;
 		enable-active-high;
 		gpio = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
@@ -152,25 +146,21 @@
 		regulator-name = "vcc_usb0_vbus";
 	};
 
-	connector {
+	con_usb0: connector-usb0 {
 		compatible = "gpio-usb-b-connector", "usb-b-connector";
 		pinctrl-names = "default";
 		pinctrl-0 = <&mcu_usb_a_id_pins_default>;
 		id-gpios = <&mcu_gpio0 16 GPIO_ACTIVE_HIGH>;
-		label = "USB_0";
+		label = "USB_A";
 		self-powered;
 		vbus-supply = <&vcc_usb0_vbus>;
 
 		port {
-			usb_dr_connector: endpoint {
+			usb0_dr_connector: endpoint {
 				remote-endpoint = <&usb0_ep>;
 			};
 		};
 	};
-};
-
-&cam_mck {
-//	status = "okay"; /* Remove test_cam_mck before enabling this */
 };
 
 &cpsw3g {
@@ -189,7 +179,7 @@
 
 &cpsw3g_mdio {
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_mdio1_pins_default>, <&main_rgmii_phy0_gpio>,
+	pinctrl-0 = <&main_mdio0_pins_default>, <&main_rgmii_phy0_gpio>,
 		<&main_rgmii_phy1_gpio>;
 
 	status = "okay";
@@ -226,14 +216,14 @@
 	power-sensor-5v@40 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x40>;
-		vs-supply = <&vdd_3v3>;
+		vs-supply = <&vdd_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
 	power-sensor-3v3@41 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x41>;
-		vs-supply = <&vdd_3v3>;
+		vs-supply = <&vdd_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
@@ -241,13 +231,13 @@
 		/* U53, Giantec, GT24C256C-2GLI-TR */
 		compatible = "atmel,24c256";
 		reg = <0x54>;
-		vcc-supply = <&vdd_1v8>;
+		vcc-supply = <&vdd_1v8_carrier>;
 	};
 
 	exp1: gpio@74 {
 		/* U35, TI, TCAL9539RTWR */
 		compatible = "ti,tcal9539";
-		vcc-supply = <&vdd_1v8>;
+		vcc-supply = <&vdd_1v8_carrier>;
 		reg = <0x74>;
 
 		#gpio-cells = <2>;
@@ -265,7 +255,7 @@
 	exp2: gpio@77 {
 		/* U21, TI, TCAL9539RTWR */
 		compatible = "ti,tcal9539";
-		vcc-supply = <&vdd_1v8>;
+		vcc-supply = <&vdd_1v8_carrier>;
 		reg = <0x77>;
 		#gpio-cells = <2>;
 		gpio-controller;
@@ -299,8 +289,8 @@
 		ti,gpios-func = <0>, <0>, <0>; /* GPIOx - Disable */
 		ti,gpi1-func = <0>;
 
-		avdd-supply = <&vdd_aud_3v3>;
-		iovdd-supply = <&vdd_1v8>;
+		avdd-supply = <&vdd_aud_3v3_carrier>;
+		iovdd-supply = <&vdd_1v8_carrier>;
 	};
 
 	headset: ts3a227e@3b {
@@ -318,11 +308,7 @@
 	status = "okay";
 };
 
-&main_i2c2 { /* I2C_B / I2C_B_MCU / J 25 */
-	status = "okay";
-};
-
-&main_i2c3 { /* I2C_CAM / I2C_D_ALT / J 21 */
+&main_i2c2 { /* I2C_B */
 	status = "okay";
 };
 
@@ -332,7 +318,7 @@
 	i2c-mux@73 {
 		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
 		reg = <0x73>;
-		vdd-supply = <&vdd_1v8>;
+		vdd-supply = <&vdd_1v8_carrier>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -388,23 +374,17 @@
 		>;
 	};
 
-	main_vdd_sdio_a_gpio: main-vdd-sdio-a-gpio-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* SDIO_A_PWR_EN (T25) GPMC0_AD10.GPIO0_25 */
-		>;
-	};
-
-	main_usb0_en_pins_default: main-usb0-en-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x254, PIN_INPUT, 7) /* (C20) USB0_DRVVBUS.GPIO1_50 */
-		>;
-	};
-
 	main_led_pins_default: main-led-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x034, PIN_OUTPUT, 7) /* (H21) OSPI0_CSN2.GPIO0_13 */
 		>;
 	};
+};
+
+&main_usb0_pins_default {
+	pinctrl-single,pins = <
+		AM62X_IOPAD(0x254, PIN_INPUT, 7) /* (C20) USB0_DRVVBUS.GPIO1_50 */
+	>;
 };
 
 &main_spi0 { /* SPI_B */
@@ -428,15 +408,6 @@
 &mcu_mcan0 { /* CAN_B */
 	status = "okay";
 	phys = <&transceiver2>;
-};
-
-&mcu_pmx0 {
-	wkup_i2c0_pins_default: wkup_i2c0-default-pins {
-		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x004c, PIN_INPUT_PULLUP, 0) /* GPIO_B_4 (B9) WKUP_I2C0_SCL */
-			AM62X_MCU_IOPAD(0x0050, PIN_INPUT_PULLUP, 0) /* GPIO_B_5 (A9) WKUP_I2C0_SDA */
-		>;
-	};
 };
 
 &ospi0 { /* SPI_A Used as a qSPI */
@@ -468,20 +439,20 @@
 	};
 };
 
+&vsel_mmc1 {
+	status = "okay";
+};
+
+&vdd_mmc1 {
+	status = "okay";
+};
+
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	status = "okay";
-	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
-	vqmmc-supply = <&vdd_sd>; /* VSEL_SD */
-	disable-wp;
-
-	ti,driver-strength-ohm = <50>;
 };
 
 &wkup_i2c0 { /* I2C_C */
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&wkup_i2c0_pins_default>;
-	clock-frequency = <400000>;
 
 	i2c-mux@72 {
 		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
@@ -533,7 +504,7 @@
 
 	port {
 		usb0_ep: endpoint {
-			remote-endpoint = <&usb_dr_connector>;
+			remote-endpoint = <&usb0_dr_connector>;
 		};
 	};
 };

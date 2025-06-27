@@ -45,7 +45,7 @@
 		compatible = "regulator-fixed";
 		regulator-name = "reg_reset_rgb";
 
-		vin-supply = <&vcc_3v3_sys>;
+		vin-supply = <&vdd_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_reset_default>;

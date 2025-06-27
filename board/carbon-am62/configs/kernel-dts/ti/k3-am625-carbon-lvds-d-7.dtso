@@ -32,7 +32,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vcc_3v3_sys>;
+		vin-supply = <&vdd_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_d_power_default>;
