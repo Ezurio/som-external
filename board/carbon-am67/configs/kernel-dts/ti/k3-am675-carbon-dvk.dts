@@ -562,6 +562,8 @@
 };
 
 &usb1 {
+	usb-role-switch;
+
 	port {
 		usb1_ep: endpoint {
 			remote-endpoint = <&usb1_dr_connector>;
