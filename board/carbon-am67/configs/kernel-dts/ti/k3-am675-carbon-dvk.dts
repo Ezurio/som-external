@@ -158,6 +158,16 @@
 		regulator-name = "reg_usb1_reset";
 	};
 
+	reg_usb1_oe: regulator-usb1-oe {
+		compatible = "regulator-fixed";
+		vin-supply = <&vsys_5v>;
+		gpio = <&exp1 0 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "reg_usb1_oe"
+		regulator-always-on;
+	};
+
 	vcc_usb1_vbus: regulator-usb1-vbus {
 		compatible = "regulator-fixed";
 		vin-supply = <&reg_usb1_reset>;
