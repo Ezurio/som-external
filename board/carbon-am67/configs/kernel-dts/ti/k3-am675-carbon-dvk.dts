@@ -164,7 +164,7 @@
 		gpio = <&exp1 0 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
-		regulator-name = "reg_usb1_oe"
+		regulator-name = "reg_usb1_oe";
 		regulator-always-on;
 	};
 
