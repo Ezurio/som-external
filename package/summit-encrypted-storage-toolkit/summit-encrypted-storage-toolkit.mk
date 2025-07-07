@@ -85,6 +85,11 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	if ! grep -qF noexec $(TARGET_DIR)/usr/lib/systemd/system/tmp.mount; then \
 		$(SED) '/^Options=/ s/$$/,noexec/' $(TARGET_DIR)/usr/lib/systemd/system/tmp.mount; \
 	fi
+
+	if [ -f $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/drivers/misc/summit_fs.ko ]; then \
+		$(SED) '/^After=/ s/$$/ modprobe@summit_fs.service/' $(TARGET_DIR)/usr/lib/systemd/system/mount_data.service; \
+		$(SED) '/PartOf=data.mount/aRequires=modprobe@summit_fs.service' $(TARGET_DIR)/usr/lib/systemd/system/mount_data.service; \
+	fi
 endef
 
 SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
