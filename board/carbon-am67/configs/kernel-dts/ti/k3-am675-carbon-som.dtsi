@@ -233,7 +233,7 @@
 		pinctrl-0 = <&wifi_32k_clk>;
 		startup-delay-us = <1000>;
 
-		clocks = <&k3_clks 226 1>;
+		clocks = <&k3_clks 226 5>;
 
 		assigned-clocks = <&k3_clks 157 174>;
 		assigned-clock-parents = <&k3_clks 157 175>;
@@ -1080,6 +1080,7 @@
 	vmmc-supply = <&reg_wifi_en>;
 	vqmmc-supply = <&vdd_1v8>;
 
+	disable-wp;
 	non-removable;
 	ti,fails-without-test-cd;
 	ti,driver-strength-ohm = <50>;
