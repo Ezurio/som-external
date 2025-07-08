@@ -84,6 +84,16 @@ find_file() {
 	done
 }
 
+cleanup() {
+	e=$?
+	rm -rf "${WORKDIR_TMP}"
+	exit ${e}
+}
+
+trap 'cleanup' EXIT
+
+WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
+
 ROOTFS_PATH=${SRCDIR}/rootfs.bin
 
 if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then
@@ -143,7 +153,7 @@ unmount_all() {
 }
 
 check_format() {
-	temp=$(mktemp -t mksdcard.XXXXXX)
+	temp=${WORKDIR_TMP}/check_format
 	/usr/sbin/sfdisk -qlo device,id,size "${TARGET}" > "${temp}" 2> /dev/null \
 		|| return 1
 
@@ -188,7 +198,8 @@ create_boot_partition() {
 	# Format boot partition
 	/usr/sbin/mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
 
-	BOOT_PART=$(mktemp -d -t mksdcard.XXXXXX)
+	BOOT_PART=${WORKDIR_TMP}/boot_part
+	mkdir -p ${BOOT_PART}
 	/usr/bin/mount "${1}" "${BOOT_PART}"
 
 	# Copy files to boot partition
@@ -235,16 +246,6 @@ create_rootfs_partition() {
 
 # Un-mount all mounted partitions
 unmount_all "${TARGET}"
-
-cleanup() {
-	e=$?
-	rm -rf "${WORKDIR_TMP}"
-	exit ${e}
-}
-
-trap 'cleanup' EXIT
-
-WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
 
 echo "[Creating SD card image...]"
 
