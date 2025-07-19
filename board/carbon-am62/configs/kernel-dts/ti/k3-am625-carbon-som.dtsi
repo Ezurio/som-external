@@ -172,19 +172,19 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_mmc1_power_en_default>;
-		gpio = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
 
 		enable-active-high;
 		startup-delay-us = <5000>;
 		status = "disabled";
 	};
 
-	cam_mck: cam-mck {
+	clk_cam_a_hw: clk-cam-a-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "cam_mck";
+		clock-output-names = "clk_cam_a_hw";
 		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
@@ -229,7 +229,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_wifi_en_pins_default>;
-		gpio = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 
 		startup-delay-us = <250000>;
@@ -783,6 +783,12 @@
 		>;
 	};
 
+	main_cam_a_default: main-cam-a-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x068, PIN_INPUT, 7) /* CAM_A_PWR (R21) GPMC0_AD11.GPIO0_26 */
+			AM62X_IOPAD(0x074, PIN_INPUT, 7) /* CAM_A_RST# (U25) GPMC0_AD14.GPIO0_29 */
+		>;
+	};
 };
 
 &main_spi0 { /* SPI_B */

@@ -6,13 +6,10 @@
 /dts-v1/;
 /plugin/;
 
-&reg_slow_clock {
-	status = "okay";
-};
-
 &reg_wifi_en {
 	status = "okay";
 	startup-delay-us = <20000>;
+	vin-supply = <&vdd_3v3>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
