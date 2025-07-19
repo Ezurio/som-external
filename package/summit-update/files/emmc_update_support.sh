@@ -16,11 +16,13 @@ flash_format() {
 		dev=/dev/${sysblock##*/}
 
 		case ${soc_id:?} in
-		AM62X)
+		AM62*|J722S)
 			echo "Provisioning ${dev}"
-			eval $(mmc extcsd read "${dev}" | sed -rn 's/.*(BOOT_BUS_CONDITIONS|RST_N_FUNCTION)\]?: ([0-9a-fx]+).*/\1=\2/p')
+			eval $(mmc extcsd read "${dev}" | sed -rn 's/.*(BOOT_BUS_CONDITIONS|RST_N_FUNCTION|PARTITION_CONFIG)\]?: ([0-9a-fx]+).*/\1=\2/p')
 			[ $((BOOT_BUS_CONDITIONS)) = 2 ] ||
 				mmc bootbus set single_backward x1 x8 "${dev}"
+			[ $((PARTITION_CONFIG)) = $((0x48)) ] || [ $((PARTITION_CONFIG)) = $((0x50)) ] ||
+				mmc bootpart enable 1 1 "${dev}"
 			[ $((RST_N_FUNCTION)) = 1 ] ||
 				mmc hwreset enable "${dev}"
 			;;
