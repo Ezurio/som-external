@@ -16,7 +16,6 @@ ROOTFS_TYPE=$(sed -rn 's/BR2_TARGET_ROOTFS_([A-Z]+)=y/\L\1/p' "${BR2_CONFIG}" | 
 [ "${ROOTFS_TYPE}" != ext2 ] || ROOTFS_TYPE=ext4
 
 # Secure tooling checks
-atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 veritysetup=${HOST_DIR}/sbin/veritysetup
@@ -192,6 +191,7 @@ som60*|ig60*|wb50n*)
         fi
         ;;
     *)
+        atmel_pmecc_params=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/atmel_pmecc_params
         [ -x "${atmel_pmecc_params}" ] || \
             die "no atmel_pmecc_params found (uboot has not been built?)"
 

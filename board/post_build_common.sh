@@ -220,10 +220,9 @@ fi
 
 if [ -z "${FIT_CONF_DEFAULT_DTB}" ]; then
 	for i in ${KERNEL_DEVICETREE}; do
-		if [[ ${i} = *.dtb ]]; then
-			FIT_CONF_DEFAULT_DTB="${i##*/}"
-			break
-		fi
+		case "${i}" in
+			*.dtb) FIT_CONF_DEFAULT_DTB="${i##*/}" ; break ;;
+		esac
 	done
 fi
 
@@ -231,10 +230,11 @@ export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
 # Check that overlays apply
 for i in ${KERNEL_DEVICETREE}; do
-	if [[ ${i} = *.dtbo ]]; then
-		fdtoverlay -i "${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB}" \
-			-o /dev/null "${BINARIES_DIR}/${i##*/}"
-	fi
+	case "${i}" in
+		*.dtbo)
+			fdtoverlay -i "${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB}" \
+				-o /dev/null "${BINARIES_DIR}/${i##*/}"
+		esac
 done
 
 EXT_KEYS=false
