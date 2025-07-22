@@ -632,6 +632,46 @@
 		>;
 	};
 
+	main_rmii1_pins_default: main-rmii1-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x014c, PIN_INPUT, 1) /* (AB17) RGMII1_RD0.RMII1_RD0 */
+			J722S_IOPAD(0x0150, PIN_INPUT, 1) /* (AC17) RGMII1_RD1.RMII1_RD1 */
+			J722S_IOPAD(0x0148, PIN_INPUT, 1) /* (AD17) RGMII1_RXC.RMII1_REF_CLK */
+			J722S_IOPAD(0x0144, PIN_INPUT, 1) /* (AE17) RGMII1_RX_CTL.RMII1_RX_ER */
+			J722S_IOPAD(0x0134, PIN_OUTPUT, 1) /* (AE20) RGMII1_TD0.RMII1_TD0 */
+			J722S_IOPAD(0x0138, PIN_OUTPUT, 1) /* (AD20) RGMII1_TD1.RMII1_TD1 */
+			J722S_IOPAD(0x0130, PIN_OUTPUT, 1) /* (AE19) RGMII1_TXC.RMII1_CRS_DV */
+			J722S_IOPAD(0x012c, PIN_OUTPUT, 1) /* (AD19) RGMII1_TX_CTL.RMII1_TX_EN */
+		>;
+	};
+
+	main_rmii2_pins_default: main-rmii2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x184, PIN_INPUT, 1) /* (AE23) RGMII2_RD0.RMII2_RD0 */
+			J722S_IOPAD(0x188, PIN_INPUT, 1) /* (AB20) RGMII2_RD1.RMII2_RD1 */
+			J722S_IOPAD(0x180, PIN_INPUT, 1) /* (AD23) RGMII2_RXC.RMII2_REF_CLK */
+			J722S_IOPAD(0x17c, PIN_INPUT, 1) /* (AD22) RGMII2_RX_CTL.RMII2_RX_ER */
+			J722S_IOPAD(0x16c, PIN_OUTPUT, 1) /* (Y18) RGMII2_TD0.RMII2_TD0 */
+			J722S_IOPAD(0x170, PIN_OUTPUT, 1) /* (AA18) RGMII2_TD1.RMII2_TD1 */
+			J722S_IOPAD(0x168, PIN_OUTPUT, 1) /* (AE21) RGMII2_TXC.RMII2_CRS_DV */
+			J722S_IOPAD(0x164, PIN_OUTPUT, 1) /* (AA19) RGMII2_TX_CTL.RMII2_TX_EN */
+		>;
+	};
+
+	main_rgmii_phy0_gpio: main-rgmii-phy0-gpio-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x008, PIN_INPUT, 7) /* ETH_A_RST (J24) OSPI0_DQS.GPIO0_2 */
+			AM62X_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (G25) OSPI0_LBCLKO.GPIO0_1 */
+		>;
+	};
+
+	main_rgmii_phy1_gpio: main-rgmii-phy1-gpio-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0a0, PIN_INPUT, 7) /* ETH_B_RST (K25) GPMC0_WPn.GPIO0_39 */
+			AM62X_IOPAD(0x0a8, PIN_INPUT_PULLUP, 7) /* ETH_B_INT(M21) GPMC0_CSn0.GPIO0_41 */
+		>;
+	};
+
 	main_usb0_pins_default: main-usb0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */

@@ -362,20 +362,6 @@
 		>;
 	};
 
-	main_rgmii_phy0_gpio: main-rgmii-phy0-gpio-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x008, PIN_INPUT, 7) /* ETH_A_RST (J24) OSPI0_DQS.GPIO0_2 */
-			AM62X_IOPAD(0x004, PIN_INPUT, 7) /* ETH_A_INT (G25) OSPI0_LBCLKO.GPIO0_1 */
-		>;
-	};
-
-	main_rgmii_phy1_gpio: main-rgmii-phy1-gpio-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0a0, PIN_INPUT, 7) /* ETH_B_RST (K25) GPMC0_WPn.GPIO0_39 */
-			AM62X_IOPAD(0x0a8, PIN_INPUT, 7) /* ETH_B_INT(M21) GPMC0_CSn0.GPIO0_41 */
-		>;
-	};
-
 	main_led_pins_default: main-led-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x034, PIN_OUTPUT, 7) /* (H21) OSPI0_CSN2.GPIO0_13 */
