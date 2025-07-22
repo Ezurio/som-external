@@ -1,3 +1,38 @@
+diff --git a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
+index 13dba104ae3b..03bf4790de6a 100644
+--- a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
+@@ -116,6 +116,30 @@ wkup_rti0: watchdog@2b000000 {
+ 		status = "reserved";
+ 	};
+ 
++	wkup_timer0: timer@2b100000 {
++		compatible = "ti,am654-timer";
++		reg = <0x00 0x2b100000 0x00 0x400>;
++		interrupt-parent = <&main_gpio_intr>;
++		interrupts = <174 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&k3_clks 110>;
++		clock-names = "fck";
++		power-domains = <&k3_pds 110 TI_SCI_PD_EXCLUSIVE>;
++		ti,timer-pwm;
++		status = "disabled";
++	};
++
++	wkup_timer1: timer@2b110000 {
++		compatible = "ti,am654-timer";
++		reg = <0x00 0x2b110000 0x00 0x400>;
++		interrupt-parent = <&main_gpio_intr>;
++		interrupts = <175 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&k3_clks 111>;
++		clock-names = "fck";
++		power-domains = <&k3_pds 111 TI_SCI_PD_EXCLUSIVE>;
++		ti,timer-pwm;
++		status = "disabled";
++	};
++
+ 	wkup_vtm0: temperature-sensor@b00000 {
+ 		compatible = "ti,j7200-vtm";
+ 		reg = <0x00 0xb00000 0x00 0x400>,
 diff --git a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
 index 25287bb68e86..1685e1a4e63d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
@@ -11,7 +46,7 @@ index 25287bb68e86..1685e1a4e63d 100644
 +		compatible = "ti,am64-i2c", "ti,omap4-i2c";
 +		reg = <0x00 0x0fe80000 0x00 0x100>;
 +		interrupt-parent = <&main_gpio_intr>;
-+		interrupts = <178>;
++		interrupts = <178 IRQ_TYPE_EDGE_RISING>;
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +		power-domains = <&k3_pds 257 TI_SCI_PD_EXCLUSIVE>;

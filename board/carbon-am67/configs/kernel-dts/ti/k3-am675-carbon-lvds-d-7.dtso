@@ -19,7 +19,7 @@
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&epwm1 1 30000 0>; /* 33.3 kHz */
+		pwms = <&pwm2 0 30000 0>; /* 33.3 kHz */
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_d_backlight_en_default>;
@@ -70,7 +70,13 @@
 	};
 };
 
-&epwm1 {
+&mcu_timer0 {
+	status = "okay";
+	interrupt-parent = <&main_gpio_intr>;
+	interrupts = <170 IRQ_TYPE_EDGE_RISING>;
+};
+
+&pwm2 {
 	status = "okay";
 };
 

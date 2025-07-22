@@ -31,11 +31,11 @@ few tweaks, which are explained in the code's documentation.
 
 Signed-off-by: Maria Garcia <mariagarcia7293@gmail.com>
 ---
- drivers/gpio/gpio-pca953x.c | 110 ++++++++++++++++++++++++++++++++----
- 1 file changed, 98 insertions(+), 12 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 153 +++++++++++++++++++++++++++++++-----
+ 1 file changed, 133 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index b852e4997629..9fe28d7ba667 100644
+index e80a96f39788..5d40bf9b941d 100644
 --- a/drivers/gpio/gpio-pca953x.c
 +++ b/drivers/gpio/gpio-pca953x.c
 @@ -38,6 +38,10 @@
@@ -81,11 +81,12 @@ index b852e4997629..9fe28d7ba667 100644
  struct pca953x_chip {
  	unsigned gpio_start;
  	struct mutex i2c_lock;
-@@ -237,6 +250,21 @@ static int pca953x_bank_shift(struct pca953x_chip *chip)
+@@ -237,6 +250,22 @@ static int pca953x_bank_shift(struct pca953x_chip *chip)
  	return fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
  }
  
-+/* Helper function to get the correct bit mask for a given offset and chip type.
++/*
++ * Helper function to get the correct bit mask for a given offset and chip type.
 + * The TCA6418's input, output, and direction banks have a peculiar bit order:
 + * the first byte uses reversed bit order, while the second byte uses standard order.
 + */
@@ -96,14 +97,14 @@ index b852e4997629..9fe28d7ba667 100644
 +
 +	if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE && offset <= msb)
 +		return BIT(msb - bit_pos_in_bank);
-+	else
-+		return BIT(bit_pos_in_bank);
++
++	return BIT(bit_pos_in_bank);
 +}
 +
  #define PCA953x_BANK_INPUT	BIT(0)
  #define PCA953x_BANK_OUTPUT	BIT(1)
  #define PCA953x_BANK_POLARITY	BIT(2)
-@@ -353,6 +381,23 @@ static bool pcal6534_check_register(struct pca953x_chip *chip, unsigned int reg,
+@@ -353,18 +382,43 @@ static bool pcal6534_check_register(struct pca953x_chip *chip, unsigned int reg,
  	return true;
  }
  
@@ -114,9 +115,11 @@ index b852e4997629..9fe28d7ba667 100644
 +	/*  Valid Input Registers - BIT(0) for readable access */
 +	if (reg >= TCA6418_INPUT && reg < (TCA6418_INPUT + NBANK(chip)))
 +		return (access_type_mask & BIT(0));
++
 +	/*  Valid Output Registers - BIT(1) for writeable access */
 +	if (reg >= TCA6418_OUTPUT && reg < (TCA6418_OUTPUT + NBANK(chip)))
 +		return (access_type_mask & (BIT(0) | BIT(1)));
++
 +	/*  Valid Direction Registers - BIT(2) for volatile access */
 +	if (reg >= TCA6418_DIRECTION && reg < (TCA6418_DIRECTION + NBANK(chip)))
 +		return (access_type_mask & (BIT(0) | BIT(1)));
@@ -127,43 +130,75 @@ index b852e4997629..9fe28d7ba667 100644
  static bool pca953x_readable_register(struct device *dev, unsigned int reg)
  {
  	struct pca953x_chip *chip = dev_get_drvdata(dev);
-@@ -362,6 +407,9 @@ static bool pca953x_readable_register(struct device *dev, unsigned int reg)
+ 	u32 bank;
+ 
+-	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
++	switch (PCA_CHIP_TYPE(chip->driver_data)) {
++	case PCA957X_TYPE:
  		bank = PCA957x_BANK_INPUT | PCA957x_BANK_OUTPUT |
  		       PCA957x_BANK_POLARITY | PCA957x_BANK_CONFIG |
  		       PCA957x_BANK_BUSHOLD;
-+	} else if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE) {
+-	} else {
++		break;
++	case TCA6418_TYPE:
 +		/* BIT(0) to indicate read access */
 +		return tca6418_check_register(chip, reg, BIT(0));
- 	} else {
++	default:
  		bank = PCA953x_BANK_INPUT | PCA953x_BANK_OUTPUT |
  		       PCA953x_BANK_POLARITY | PCA953x_BANK_CONFIG;
-@@ -384,6 +432,9 @@ static bool pca953x_writeable_register(struct device *dev, unsigned int reg)
- 	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
++		break;
+ 	}
+ 
+ 	if (chip->driver_data & PCA_PCAL) {
+@@ -381,12 +435,18 @@ static bool pca953x_writeable_register(struct device *dev, unsigned int reg)
+ 	struct pca953x_chip *chip = dev_get_drvdata(dev);
+ 	u32 bank;
+ 
+-	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
++	switch (PCA_CHIP_TYPE(chip->driver_data)) {
++	case PCA957X_TYPE:
  		bank = PCA957x_BANK_OUTPUT | PCA957x_BANK_POLARITY |
  			PCA957x_BANK_CONFIG | PCA957x_BANK_BUSHOLD;
-+	} else if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE) {
+-	} else {
++		break;
++	case TCA6418_TYPE:
 +		/* BIT(1) for write access */
 +		return tca6418_check_register(chip, reg, BIT(1));
- 	} else {
++	default:
  		bank = PCA953x_BANK_OUTPUT | PCA953x_BANK_POLARITY |
  			PCA953x_BANK_CONFIG;
-@@ -403,6 +454,9 @@ static bool pca953x_volatile_register(struct device *dev, unsigned int reg)
++		break;
+ 	}
  
- 	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE)
+ 	if (chip->driver_data & PCA_PCAL)
+@@ -401,10 +461,17 @@ static bool pca953x_volatile_register(struct device *dev, unsigned int reg)
+ 	struct pca953x_chip *chip = dev_get_drvdata(dev);
+ 	u32 bank;
+ 
+-	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE)
++	switch (PCA_CHIP_TYPE(chip->driver_data)) {
++	case PCA957X_TYPE:
  		bank = PCA957x_BANK_INPUT;
-+	else if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE)
+-	else
++		break;
++	case TCA6418_TYPE:
 +		/* BIT(2) for volatile access */
 +		return tca6418_check_register(chip, reg, BIT(2));
- 	else
++	default:
  		bank = PCA953x_BANK_INPUT;
++		break;
++	}
  
-@@ -489,6 +543,15 @@ static u8 pcal6534_recalc_addr(struct pca953x_chip *chip, int reg, int off)
+ 	if (chip->driver_data & PCA_PCAL)
+ 		bank |= PCAL9xxx_BANK_IRQ_STAT;
+@@ -489,6 +556,16 @@ static u8 pcal6534_recalc_addr(struct pca953x_chip *chip, int reg, int off)
  	return pinctrl + addr + (off / BANK_SZ);
  }
  
 +static u8 tca6418_recalc_addr(struct pca953x_chip *chip, int reg_base, int offset)
 +{
-+	/* reg_base will be TCA6418_INPUT, TCA6418_OUTPUT, or TCA6418_DIRECTION
++	/*
++	 * reg_base will be TCA6418_INPUT, TCA6418_OUTPUT, or TCA6418_DIRECTION
 +	 * offset is the global GPIO line offset (0-17)
 +	 * BANK_SZ is 8 for TCA6418 (8 bits per register bank)
 +	 */
@@ -173,7 +208,7 @@ index b852e4997629..9fe28d7ba667 100644
  static int pca953x_write_regs(struct pca953x_chip *chip, int reg, unsigned long *val)
  {
  	u8 regaddr = chip->recalc_addr(chip, reg, 0);
-@@ -529,11 +592,14 @@ static int pca953x_gpio_direction_input(struct gpio_chip *gc, unsigned off)
+@@ -529,10 +606,13 @@ static int pca953x_gpio_direction_input(struct gpio_chip *gc, unsigned off)
  {
  	struct pca953x_chip *chip = gpiochip_get_data(gc);
  	u8 dirreg = chip->recalc_addr(chip, chip->regs->direction, off);
@@ -182,15 +217,13 @@ index b852e4997629..9fe28d7ba667 100644
  
  	guard(mutex)(&chip->i2c_lock);
  
--	return regmap_write_bits(chip->regmap, dirreg, bit, bit);
 +	if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE)
 +		return regmap_write_bits(chip->regmap, dirreg, bit, 0);
-+	else
-+		return regmap_write_bits(chip->regmap, dirreg, bit, bit);
++
+ 	return regmap_write_bits(chip->regmap, dirreg, bit, bit);
  }
  
- static int pca953x_gpio_direction_output(struct gpio_chip *gc,
-@@ -542,7 +608,7 @@ static int pca953x_gpio_direction_output(struct gpio_chip *gc,
+@@ -542,7 +622,7 @@ static int pca953x_gpio_direction_output(struct gpio_chip *gc,
  	struct pca953x_chip *chip = gpiochip_get_data(gc);
  	u8 dirreg = chip->recalc_addr(chip, chip->regs->direction, off);
  	u8 outreg = chip->recalc_addr(chip, chip->regs->output, off);
@@ -199,22 +232,22 @@ index b852e4997629..9fe28d7ba667 100644
  	int ret;
  
  	guard(mutex)(&chip->i2c_lock);
-@@ -552,15 +618,20 @@ static int pca953x_gpio_direction_output(struct gpio_chip *gc,
+@@ -552,7 +632,13 @@ static int pca953x_gpio_direction_output(struct gpio_chip *gc,
  	if (ret)
  		return ret;
  
 -	/* then direction */
--	return regmap_write_bits(chip->regmap, dirreg, bit, 0);
-+	/* then direction
++	/*
++	 * then direction
 +	 * (in/out logic is inverted on TCA6418)
 +	 */
 +	if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE)
 +		return regmap_write_bits(chip->regmap, dirreg, bit, bit);
-+	else
-+		return regmap_write_bits(chip->regmap, dirreg, bit, 0);
++
+ 	return regmap_write_bits(chip->regmap, dirreg, bit, 0);
  }
  
- static int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
+@@ -560,7 +646,7 @@ static int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
  {
  	struct pca953x_chip *chip = gpiochip_get_data(gc);
  	u8 inreg = chip->recalc_addr(chip, chip->regs->input, off);
@@ -223,7 +256,7 @@ index b852e4997629..9fe28d7ba667 100644
  	u32 reg_val;
  	int ret;
  
-@@ -576,7 +647,7 @@ static int pca953x_gpio_set_value(struct gpio_chip *gc, unsigned int off,
+@@ -576,7 +662,7 @@ static int pca953x_gpio_set_value(struct gpio_chip *gc, unsigned int off,
  {
  	struct pca953x_chip *chip = gpiochip_get_data(gc);
  	u8 outreg = chip->recalc_addr(chip, chip->regs->output, off);
@@ -232,7 +265,7 @@ index b852e4997629..9fe28d7ba667 100644
  
  	guard(mutex)(&chip->i2c_lock);
  
-@@ -587,7 +658,7 @@ static int pca953x_gpio_get_direction(struct gpio_chip *gc, unsigned off)
+@@ -587,7 +673,7 @@ static int pca953x_gpio_get_direction(struct gpio_chip *gc, unsigned off)
  {
  	struct pca953x_chip *chip = gpiochip_get_data(gc);
  	u8 dirreg = chip->recalc_addr(chip, chip->regs->direction, off);
@@ -241,7 +274,7 @@ index b852e4997629..9fe28d7ba667 100644
  	u32 reg_val;
  	int ret;
  
-@@ -596,10 +667,17 @@ static int pca953x_gpio_get_direction(struct gpio_chip *gc, unsigned off)
+@@ -596,7 +682,14 @@ static int pca953x_gpio_get_direction(struct gpio_chip *gc, unsigned off)
  	if (ret < 0)
  		return ret;
  
@@ -250,40 +283,65 @@ index b852e4997629..9fe28d7ba667 100644
 +	if (reg_val & bit) {
 +		if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE)
 +			return GPIO_LINE_DIRECTION_OUT;
-+		else
-+			return GPIO_LINE_DIRECTION_IN;
++
++		return GPIO_LINE_DIRECTION_IN;
 +	}
 +	if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE)
  		return GPIO_LINE_DIRECTION_IN;
--
--	return GPIO_LINE_DIRECTION_OUT;
-+	else
-+		return GPIO_LINE_DIRECTION_OUT;
- }
  
- static int pca953x_gpio_get_multiple(struct gpio_chip *gc,
-@@ -1099,6 +1177,11 @@ static int pca953x_probe(struct i2c_client *client)
- 	if (PCA_CHIP_TYPE(chip->driver_data) == PCAL653X_TYPE) {
+ 	return GPIO_LINE_DIRECTION_OUT;
+@@ -1096,12 +1189,22 @@ static int pca953x_probe(struct i2c_client *client)
+ 		regmap_config = &pca953x_i2c_regmap;
+ 	}
+ 
+-	if (PCA_CHIP_TYPE(chip->driver_data) == PCAL653X_TYPE) {
++	switch (PCA_CHIP_TYPE(chip->driver_data)) {
++	case PCAL653X_TYPE:
  		chip->recalc_addr = pcal6534_recalc_addr;
  		chip->check_reg = pcal6534_check_register;
-+	}  else if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE) {
+-	} else {
++		break;
++	case TCA6418_TYPE:
 +		chip->recalc_addr = tca6418_recalc_addr;
-+		/* We don't assign chip->check_reg = tca6418_check_register directly here.
++		/*
++		 * We don't assign chip->check_reg = tca6418_check_register directly here.
 +		 * Instead, the wrappers handle the dispatch based on PCA_CHIP_TYPE.
 +		 */
- 	} else {
++		break;
++	default:
  		chip->recalc_addr = pca953x_recalc_addr;
  		chip->check_reg = pca953x_check_register;
-@@ -1136,6 +1219,8 @@ static int pca953x_probe(struct i2c_client *client)
- 	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
++		break;
+ 	}
+ 
+ 	chip->regmap = devm_regmap_init_i2c(client, regmap_config);
+@@ -1130,15 +1233,22 @@ static int pca953x_probe(struct i2c_client *client)
+ 	lockdep_set_subclass(&chip->i2c_lock,
+ 			     i2c_adapter_depth(client->adapter));
+ 
+-	/* initialize cached registers from their original values.
++	/*
++	 * initialize cached registers from their original values.
+ 	 * we can't share this chip with another i2c master.
+ 	 */
+-	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
++	switch (PCA_CHIP_TYPE(chip->driver_data)) {
++	case PCA957X_TYPE:
  		chip->regs = &pca957x_regs;
  		ret = device_pca957x_init(chip);
-+	} else if (PCA_CHIP_TYPE(chip->driver_data) == TCA6418_TYPE) {
+-	} else {
++		break;
++	case TCA6418_TYPE:
 +		chip->regs = &tca6418_regs;
- 	} else {
++		break;
++	default:
  		chip->regs = &pca953x_regs;
  		ret = device_pca95xx_init(chip);
-@@ -1298,6 +1383,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
++		break;
+ 	}
+ 	if (ret)
+ 		return ret;
+@@ -1298,6 +1408,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
  	{ .compatible = "ti,pca9536", .data = OF_953X( 4, 0), },
  	{ .compatible = "ti,tca6408", .data = OF_953X( 8, PCA_INT), },
  	{ .compatible = "ti,tca6416", .data = OF_953X(16, PCA_INT), },
@@ -291,3 +349,14 @@ index b852e4997629..9fe28d7ba667 100644
  	{ .compatible = "ti,tca6424", .data = OF_953X(24, PCA_INT), },
  	{ .compatible = "ti,tca9535", .data = OF_953X(16, PCA_INT), },
  	{ .compatible = "ti,tca9538", .data = OF_953X( 8, PCA_INT), },
+@@ -1330,7 +1441,9 @@ static int __init pca953x_init(void)
+ {
+ 	return i2c_add_driver(&pca953x_driver);
+ }
+-/* register after i2c postcore initcall and before
++
++/*
++ * register after i2c postcore initcall and before
+  * subsys initcalls that may rely on these GPIOs
+  */
+ subsys_initcall(pca953x_init);

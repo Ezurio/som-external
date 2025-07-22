@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 PCIE-UART 60 module
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-am675-carbon-m2.dtsi"
+
+&reg_wifi_en_m2 {
+	regulator-always-on;
+};
+
+&pcie0_rc {
+	status = "okay";
+};
+
+&serdes1 {
+	status = "okay";
+};
+
+&serdes_wiz1 {
+	status = "okay";
+};
+
+&wifi_wakeup_m2 {
+	status = "disabled";
+};

@@ -45,7 +45,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
-		gpio = <&exp1 8 GPIO_ACTIVE_HIGH>;
+		gpios = <&exp1 8 GPIO_ACTIVE_HIGH>;
 	};
 
 	codec_audio: sound {
@@ -86,6 +86,8 @@
 
 	audio_volume {
 		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&mcu_wake_pins_default>;
 
 		volume-up {
 			label = "Volume Up";
@@ -140,7 +142,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_pins_default>;
 		enable-active-high;
-		gpio = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
 		regulator-name = "vcc_usb0_vbus";
@@ -152,7 +154,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb_c_reset_pins_default>;
 		enable-active-high;
-		gpio = <&main_gpio0 45 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio0 45 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
 		regulator-name = "reg_usb1_reset";
@@ -161,7 +163,7 @@
 	reg_usb1_oe: regulator-usb1-oe {
 		compatible = "regulator-fixed";
 		vin-supply = <&vsys_5v>;
-		gpio = <&exp1 0 GPIO_ACTIVE_HIGH>;
+		gpios = <&exp1 0 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
 		regulator-name = "reg_usb1_oe";
@@ -174,7 +176,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb1_pins_default>;
 		enable-active-high;
-		gpio = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
 		regulator-name = "vcc_usb1_vbus";
@@ -410,20 +412,6 @@
 		>;
 	};
 
-	main_rgmii_phy0_gpio: main-rgmii-phy0-gpio-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0a4, PIN_INPUT, 7) /* ETH_A_RST (N25) GPMC0_DIR.GPIO0_40 */
-			J722S_IOPAD(0x094, PIN_INPUT, 7) /* ETH_A_INT (P26) GPMC0_BE1N.GPIO0_36 */
-		>;
-	};
-
-	main_rgmii_phy1_gpio: main-rgmii-phy1-gpio-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0c0, PIN_INPUT, 7) /* ETH_B_RST (W24) VOUT0_DATA2.GPIO0_47 */
-			J722S_IOPAD(0x0c4, PIN_INPUT, 7) /* ETH_B_INT (W23) VOUT0_DATA3.GPIO0_48 */
-		>;
-	};
-
 	main_led_pins_default: main-led-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x1f0, PIN_OUTPUT, 7) /* (A23) EXTREFCLK1.GPIO1_30 */
@@ -433,6 +421,14 @@
 	main_usb_c_reset_pins_default: main-usb-c-reset-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x0b8, PIN_INPUT, 7) /* USB_C_PD_RST (W27) VOUT0_DATA0.GPIO0_45 */
+		>;
+	};
+};
+
+&mcu_pmx0 {
+	mcu_wake_pins_default: mcu-wake-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (A10) MCU_SPI0_CS1.MCU_GPIO0_1 */
 		>;
 	};
 };
@@ -588,4 +584,3 @@
 &serdes_wiz0 {
 	status = "okay";
 };
-
