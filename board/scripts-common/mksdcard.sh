@@ -92,7 +92,7 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
-WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
+WORKDIR_TMP=$(mktemp -d -t mksdcard.XXXXXX)
 
 ROOTFS_PATH=${SRCDIR}/rootfs.bin
 
