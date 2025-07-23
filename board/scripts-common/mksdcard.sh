@@ -5,6 +5,7 @@
 SRCDIR=$(dirname "${0}")
 ROOTFS_DATA_SIZE=
 SECURE=false
+ADD_SWU=false
 
 die () {
 	echo "$@" >&2
@@ -18,6 +19,7 @@ usage() {
 	echo "  -b: boot size in MiB" >&2
 	echo "  -p: perm size in MiB" >&2
 	echo "  -w: swap size in MiB" >&2
+	echo "  -u: add swu file to rootfs_data" >&2
 	echo "  -h: Show this help" >&2
 	echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
 	exit 1
@@ -29,7 +31,7 @@ check_present() {
 	done
 }
 
-while getopts sr:b:p:w:f:h name; do
+while getopts sur:b:p:w:f:h name; do
     case ${name} in
     r)  ROOTFS_DATA_SIZE=${OPTARG} 
 		if ! [ "${ROOTFS_DATA_SIZE}" -eq "${ROOTFS_DATA_SIZE}" ] 2>/dev/null; then
@@ -42,6 +44,7 @@ while getopts sr:b:p:w:f:h name; do
 	w)  SWAP_SIZE=${OPTARG} ;;
 	f)  SRCDIR=${OPTARG} ;;
 	s)  SECURE=true ;;
+	u)  ADD_SWU=true ;;
 	?)  usage ;;
 	esac
 done
@@ -90,7 +93,7 @@ cleanup() {
 	exit ${e}
 }
 
-trap 'cleanup' EXIT
+trap 'cleanup' EXIT INT TERM
 
 WORKDIR_TMP=$(mktemp -d -t mksdcard.XXXXXX)
 
@@ -188,7 +191,7 @@ create_ext4_partition() {
 	# Format ext4 partition image
 	/usr/sbin/mkfs.ext4 -q -F -m 1 -L "${2}" \
 		-E root_owner=0:0,lazy_itable_init=0,lazy_journal_init=0 \
-		-O encrypt,ext_attr "${1}" > /dev/null
+		-O encrypt,ext_attr ${3:+-d "${3}/"} "${1}" > /dev/null
 }
 
 # Create boot partition
@@ -199,7 +202,7 @@ create_boot_partition() {
 	/usr/sbin/mkfs.vfat -F 32 -n BOOT "${1}" > /dev/null
 
 	BOOT_PART=${WORKDIR_TMP}/boot_part
-	mkdir -p ${BOOT_PART}
+	mkdir -p "${BOOT_PART}"
 	/usr/bin/mount "${1}" "${BOOT_PART}"
 
 	# Copy files to boot partition
@@ -244,6 +247,18 @@ create_rootfs_partition() {
 	/usr/bin/dd if="${ROOTFS_PATH}" of="${1}" bs=1M conv=fsync status=none
 }
 
+add_swu() {
+	[ -n "${SWU_PATH}" ] || SWU_PATH=$(find_file '*.swu')
+	if [ -n "${SWU_PATH}" ]; then
+		echo "[Adding SWU file to rootfs_data partition...]"
+		ROOTFS_DATA_PATH=${WORKDIR_TMP}/rootfs_data
+		mkdir -p "${ROOTFS_DATA_PATH}"
+		cp "${SWU_PATH}" "${ROOTFS_DATA_PATH}/"
+	else
+		echo "[No SWU file found, skipping...]"
+	fi
+}
+
 # Un-mount all mounted partitions
 unmount_all "${TARGET}"
 
@@ -274,6 +289,8 @@ else
 	echo "[Reusing existing partitioning ...]"
 fi
 
+! ${ADD_SWU} || add_swu
+
 # Read partition table and create partitions
 /usr/sbin/sfdisk -qlo device "${TARGET}" > "${WORKDIR_TMP}/partitions"
 while read -r DEVICE; do
@@ -284,7 +301,7 @@ while read -r DEVICE; do
 		2) create_swap_partition "${DEVICE}" & ;;
 		3) create_ext4_partition "${DEVICE}" "perm" & ;;
 		5) create_rootfs_partition "${DEVICE}" & ;;
-		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" & ;;
+		6) create_ext4_partition "${DEVICE}" "rootfs_data_a" "${ROOTFS_DATA_PATH}" & ;;
 	esac
 done < "${WORKDIR_TMP}/partitions"
 rm -f "${WORKDIR_TMP}/partitions"
