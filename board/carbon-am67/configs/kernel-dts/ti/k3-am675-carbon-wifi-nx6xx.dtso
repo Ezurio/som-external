@@ -3,13 +3,34 @@
  * Copyright 2024 Ezurio
  */
 
+#include <dt-bindings/gpio/gpio.h>
+#include "k3-pinctrl.h"
+
 /dts-v1/;
 /plugin/;
+
+&{/} {
+	reg_bt_en: regulator-bt-en {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_bt_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_bt_en_pins_default>;
+		gpios = <&main_gpio0 18 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
 
 &reg_wifi_en {
 	status = "okay";
 	startup-delay-us = <20000>;
-	vin-supply = <&vdd_3v3>;
+	vin-supply = <&reg_bt_en>;
+	regulator-always-on;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */

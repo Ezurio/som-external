@@ -11,7 +11,7 @@ index 13dba104ae3b..03bf4790de6a 100644
 +		reg = <0x00 0x2b100000 0x00 0x400>;
 +		interrupt-parent = <&main_gpio_intr>;
 +		interrupts = <174 IRQ_TYPE_EDGE_RISING>;
-+		clocks = <&k3_clks 110>;
++		clocks = <&k3_clks 110 4>;
 +		clock-names = "fck";
 +		power-domains = <&k3_pds 110 TI_SCI_PD_EXCLUSIVE>;
 +		ti,timer-pwm;
@@ -23,7 +23,7 @@ index 13dba104ae3b..03bf4790de6a 100644
 +		reg = <0x00 0x2b110000 0x00 0x400>;
 +		interrupt-parent = <&main_gpio_intr>;
 +		interrupts = <175 IRQ_TYPE_EDGE_RISING>;
-+		clocks = <&k3_clks 111>;
++		clocks = <&k3_clks 111 4>;
 +		clock-names = "fck";
 +		power-domains = <&k3_pds 111 TI_SCI_PD_EXCLUSIVE>;
 +		ti,timer-pwm;
