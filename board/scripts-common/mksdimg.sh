@@ -68,6 +68,16 @@ find_file() {
 	done
 }
 
+cleanup() {
+	e=$?
+	rm -rf "${WORKDIR_TMP}"
+	exit ${e}
+}
+
+trap 'cleanup' EXIT INT TERM
+
+WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
+
 ROOTFS_PATH=${SRCDIR}/rootfs.bin
 
 if [ ! -f "${ROOTFS_PATH}" ] && [ ! -f "${SRCDIR}/u-boot.itb" ]; then
@@ -206,15 +216,6 @@ create_rootfs_partition() {
 	append_image "${1}" "${SRCDIR}/rootfs.bin"
 }
 
-cleanup() {
-	e=$?
-	rm -rf "${WORKDIR_TMP}"
-	exit ${e}
-}
-
-trap 'cleanup' EXIT
-
-WORKDIR_TMP=$(mktemp -d -t mksdimg.XXXXXX)
 TARGET_FINAL=${TARGET}
 TARGET="${WORKDIR_TMP}/image"
 
