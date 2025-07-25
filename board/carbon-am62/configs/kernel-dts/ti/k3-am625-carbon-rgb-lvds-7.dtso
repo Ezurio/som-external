@@ -116,7 +116,7 @@
 
 	main_rgb_backlight_en_default: main-rgb-backlight-en-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x124, PIN_INPUT, 7) /* RGB_VDD_EN (A23) MMC2_SDCD.GPIO0_71 */
+			AM62X_IOPAD(0x124, PIN_INPUT, 7) /* RGB_BL_EN (A23) MMC2_SDCD.GPIO0_71 */
 		>;
 	};
 };
