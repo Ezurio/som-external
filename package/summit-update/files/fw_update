@@ -52,7 +52,7 @@ getSide
 
 ${run_on_sd} && o_method=complete || o_method=full
 
-if grep -qF '"ubi"' /proc/mtd; then
+if grep -qF '"ubi"' /proc/mtd 2>/dev/null; then
     # shellcheck source=/dev/null
     . /usr/bin/ubi_update_support.sh
 else
