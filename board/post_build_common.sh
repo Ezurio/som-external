@@ -226,16 +226,24 @@ if [ -z "${FIT_CONF_DEFAULT_DTB}" ]; then
 	done
 fi
 
-export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
+grep -qF "BR2_SUMMIT_LINUX_APPLY_DTBO_AT_BUILD=y" "${BR2_CONFIG}" \
+	&& APPLY_DTBO=true || APPLY_DTBO=false
+
+${APPLY_DTBO} && RESULT_DBO=${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB} \
+	|| RESULT_DBO=/dev/null
 
 # Check that overlays apply
 for i in ${KERNEL_DEVICETREE}; do
 	case "${i}" in
 		*.dtbo)
 			fdtoverlay -i "${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB}" \
-				-o /dev/null "${BINARIES_DIR}/${i##*/}"
+				-o "${RESULT_DBO}" "${BINARIES_DIR}/${i##*/}"
 		esac
 done
+
+! ${APPLY_DTBO} || KERNEL_DEVICETREE=${FIT_CONF_DEFAULT_DTB}
+
+export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
 EXT_KEYS=false
 if [ -z "${KEYS_DIR}" ]; then

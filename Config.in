@@ -20,6 +20,12 @@ config BR2_SUMMIT_LINUX_DEFAULT_DTB
 		Set this option to select the default device tree blob
 		to use in the kernel build.
 
+config BR2_SUMMIT_LINUX_APPLY_DTBO_AT_BUILD
+	bool "Apply DTBO at build time"
+	help
+		Set this option to apply the device tree overlay (DTBO)
+		at build time.
+
 config BR2_SUMMIT_CONSOLE_LOGGING
 	bool "Summit Console Logging"
 	default y if !BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT
