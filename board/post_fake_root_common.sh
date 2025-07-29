@@ -64,19 +64,28 @@ write_encrypted_filesystem_key() {
     fdtput=${HOST_DIR}/bin/fdtput
     [ -x "${fdtput}" ] || \
         die "No fdtput found (uboot has not been built?)"
+    fdtget=${HOST_DIR}/bin/fdtget
+    [ -x "${fdtget}" ] || \
+        die "No fdtget found (uboot has not been built?)"
 
     encrypted_filesystem_key_path="${KEYS_DIR}/encrypted_filesystem_key.bin"
     [ -f "${encrypted_filesystem_key_path}" ] || \
         die "No encrypted filesystem key found in the keys directory"
 
     set +x
+    key_name="summit,fs-key"
+    if ! ${fdtget} "${BINARIES_DIR}/u-boot.dtb" /encryption "${key_name}" > /dev/null; then
+        # Property "summit,fs-key" does not exist, use the legacy name
+        key_name="laird,fs-key"
+    fi
+
     encrypted_filesystem_key=$(hexdump -v -e '1/1 "%02X"' "${encrypted_filesystem_key_path}" | \
         sed 's/.\{8\}/& /g' | \
         sed 's/[[:space:]]*$//')
     # shellcheck disable=SC2086
     ${fdtput} -p -t x "${BINARIES_DIR}/u-boot.dtb" \
         /encryption \
-        "summit,fs-key" \
+        "${key_name}" \
         ${encrypted_filesystem_key} || \
             die "Failed to write encrypted filesystem key to U-Boot device tree"
     set -x
