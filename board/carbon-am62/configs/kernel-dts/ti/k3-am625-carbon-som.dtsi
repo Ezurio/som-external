@@ -1016,6 +1016,10 @@
 	pinctrl-0 = <&wkup_uart0_pins_default>;
 };
 
+&gpu {
+	status = "disabled";
+};
+
 &oldi0_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;

@@ -125,6 +125,10 @@
 	status = "okay";
 };
 
+&gpu {
+	status = "okay";
+};
+
 &dss {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_dss0_pins_default>;
