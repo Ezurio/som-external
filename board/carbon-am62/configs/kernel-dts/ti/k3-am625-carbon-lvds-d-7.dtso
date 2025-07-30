@@ -74,6 +74,10 @@
 	status = "okay";
 };
 
+&gpu {
+	status = "okay";
+};
+
 &dss {
 	status = "okay";
 	/* OLDITX ports have no mux on them */
