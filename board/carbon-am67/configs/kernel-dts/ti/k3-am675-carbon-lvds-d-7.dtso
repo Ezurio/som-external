@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS Expansion Board with BD070LIC3 display for carbon AM67x
+ * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM67x
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -134,7 +134,7 @@
 		reg = <0x14>;
 		AVDD28-supply = <&vcc_lvds_d>;
 		VDDIO-supply = <&vcc_lvds_d>;
-		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_RISING>;
+		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
 		//reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;

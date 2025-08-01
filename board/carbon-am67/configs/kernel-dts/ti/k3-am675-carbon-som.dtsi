@@ -273,13 +273,12 @@
 		regulator-max-microvolt = <3300000>;
 
 		vin-supply = <&vdd_3v3>;
+		clocks = <&k3_clks 226 0>;
+
+		startup-delay-us = <1000>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_32k_clk>;
-		startup-delay-us = <1000>;
-
-		clocks = <&k3_clks 226 0>;
-
 		assigned-clocks = <&k3_clks 157 174>, <&k3_clks 226 0>;
 		assigned-clock-parents = <&k3_clks 157 175>, <&k3_clks 226 1>;
 	};
@@ -475,42 +474,41 @@
 };
 
 &main_gpio0 {
-	gpio-line-names = 
-		"","","","","", 	/* 0 - 4 */
+	gpio-line-names =
+		"","","","","", 				/* 0 - 4 */
 		"","","","","",
-		"","","","","",		/* 10 - 14 */
+		"","","","","",					/* 10 - 14 */
 		"SDIO_A_PWR_EN","","W_DISABLE1","W_DISABLE2","SDIO_RESET",
-		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",		/* 20 - 24 */
+		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",	/* 20 - 24 */
 		"USB_B_ID","USB_B_OC","SDIO_A_PWR_EN","","",
-		"EFUSE_EN","","","","",		/* 30 - 34 */
+		"EFUSE_EN","","","","",				/* 30 - 34 */
 		"","ETH_A_INT","","SDIO_A_VSEL","",
-		"ETH_A_RST","","","","",		/* 40 - 44 */
+		"ETH_A_RST","","","","",			/* 40 - 44 */
 		"","GPIO_A_3","ETH_B_RST","ETH_B_INT","LVDS_E_VDD_EN",
 		"LVDS_E_BL_EN","LVDS_D_VDD_EN","LVDS_D_BL_EN","","",		/* 50 - 54 */
 		"","","","","",
-		"","","","","",		/* 60 - 64 */
+		"","","","","",					/* 60 - 64 */
 		"","","","","",
-		"","","EXP0_INT","","",		/* 70 - 74 */
+		"","","EXP0_INT","","",				/* 70 - 74 */
 		"","","","","",
-		"","","","","",		/* 80 - 84 */
+		"","","","","",					/* 80 - 84 */
 		"","","","","",
-		"","";				/* 90 - 91 */
-
+		"","";						/* 90 - 91 */
 };
 
 &main_gpio1 {
-	gpio-line-names = 
-		"","","","","",		/* 0 - 4 */
+	gpio-line-names =
+		"","","","","",					/* 0 - 4 */
 		"","","","","",
-		"","","EMMC_RESET","","",	/* 10 - 14 */
+		"","","EMMC_RESET","","",			/* 10 - 14 */
 		"","","","","",
-		"","","","","",		/* 20 - 24 */
+		"","","","","",					/* 20 - 24 */
 		"","","","","",
-		"","","","","",		/* 30 - 34 */
+		"","","","","",					/* 30 - 34 */
 		"","","","","",
-		"","","","","",		/* 40 - 44 */
+		"","","","","",					/* 40 - 44 */
 		"","","","","",
-		"","";			/* 50 - 51 */
+		"","";						/* 50 - 51 */
 };
 
 &wkup_i2c0 {
@@ -544,8 +542,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pmic_irq_pins_default>;
 
-		interrupt-parent = <&gic500>;
-		interrupts = <GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts-extended = <&gic500 GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
 
 		system-power-controller;
 		ti,power-button;
@@ -1223,6 +1220,10 @@
 		cdns,phy-type = <PHY_TYPE_PCIE>;
 		resets = <&serdes_wiz1 1>;
 	};
+};
+
+&gpu {
+	status = "disabled";
 };
 
 &oldi0_dss0_ports {

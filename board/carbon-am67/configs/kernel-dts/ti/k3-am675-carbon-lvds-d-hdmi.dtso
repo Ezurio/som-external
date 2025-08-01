@@ -96,6 +96,10 @@
 	};
 };
 
+&gpu {
+	status = "okay";
+};
+
 &dss0 {
 	status = "okay";
 	/* OLDITX ports have no mux on them */
