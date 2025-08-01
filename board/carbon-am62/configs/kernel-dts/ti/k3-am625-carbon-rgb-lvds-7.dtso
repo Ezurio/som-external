@@ -157,7 +157,7 @@
 		reg = <0x14>;
 		AVDD28-supply = <&vcc_rgb>;
 		VDDIO-supply = <&vcc_rgb>;
-		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_RISING>;
+		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 14 GPIO_ACTIVE_HIGH>;
 		touchscreen-size-x = <1280>;
