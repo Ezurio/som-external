@@ -1,0 +1,95 @@
+From 1775b052ddbbeb4aa47cff748144637813181b6f Mon Sep 17 00:00:00 2001
+From: Shree Ramamoorthy <s-ramamoorthy@ti.com>
+Date: Fri, 20 Jun 2025 16:22:02 -0500
+Subject: [PATCH] FROMLIST: regulator: tps65219: Fix devm_kmalloc size
+ allocation
+
+In probe(), two arrays of structs are allocated with the devm_kmalloc()
+function, but the memory size of the allocations were given as the arrays'
+length (pmic->common_irq_size for the first call and pmic->dev_irq_size for
+the second devm_kmalloc call). The memory size should have been the total
+memory needed.
+
+This led to a heap overflow when the struct array was used. The issue was
+first discovered with the PocketBeagle2 and BeaglePlay. The common and
+device-specific structs are now allocated one at a time within the loop.
+
+Link: https://lore.kernel.org/all/20250620154541.2713036-1-s-ramamoorthy@ti.com/
+Fixes: 38c9f98db20a ("regulator: tps65219: Add support for TPS65215 Regulator IRQs")
+Reported-by: Dhruva Gole <d-gole@ti.com>
+Closes: https://lore.kernel.org/all/20250619153526.297398-1-d-gole@ti.com/
+Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Signed-off-by: Shree Ramamoorthy <s-ramamoorthy@ti.com>
+---
+ drivers/regulator/tps65219-regulator.c | 28 +++++++++++++-------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/regulator/tps65219-regulator.c b/drivers/regulator/tps65219-regulator.c
+index 241a7e841d35..d578c51ec340 100644
+--- a/drivers/regulator/tps65219-regulator.c
++++ b/drivers/regulator/tps65219-regulator.c
+@@ -436,46 +436,46 @@ static int tps65219_regulator_probe(struct platform_device *pdev)
+ 					     pmic->rdesc[i].name);
+ 	}
+ 
+-	irq_data = devm_kmalloc(tps->dev, pmic->common_irq_size, GFP_KERNEL);
+-	if (!irq_data)
+-		return -ENOMEM;
+-
+ 	for (i = 0; i < pmic->common_irq_size; ++i) {
+ 		irq_type = &pmic->common_irq_types[i];
+ 		irq = platform_get_irq_byname(pdev, irq_type->irq_name);
+ 		if (irq < 0)
+ 			return -EINVAL;
+ 
+-		irq_data[i].dev = tps->dev;
+-		irq_data[i].type = irq_type;
++		irq_data = devm_kmalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
++		if (!irq_data)
++			return -ENOMEM;
++
++		irq_data->dev = tps->dev;
++		irq_data->type = irq_type;
+ 		error = devm_request_threaded_irq(tps->dev, irq, NULL,
+ 						  tps65219_regulator_irq_handler,
+ 						  IRQF_ONESHOT,
+ 						  irq_type->irq_name,
+-						  &irq_data[i]);
++						  irq_data);
+ 		if (error)
+ 			return dev_err_probe(tps->dev, PTR_ERR(rdev),
+ 					     "Failed to request %s IRQ %d: %d\n",
+ 					     irq_type->irq_name, irq, error);
+ 	}
+ 
+-	irq_data = devm_kmalloc(tps->dev, pmic->dev_irq_size, GFP_KERNEL);
+-	if (!irq_data)
+-		return -ENOMEM;
+-
+ 	for (i = 0; i < pmic->dev_irq_size; ++i) {
+ 		irq_type = &pmic->irq_types[i];
+ 		irq = platform_get_irq_byname(pdev, irq_type->irq_name);
+ 		if (irq < 0)
+ 			return -EINVAL;
+ 
+-		irq_data[i].dev = tps->dev;
+-		irq_data[i].type = irq_type;
++		irq_data = devm_kmalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
++		if (!irq_data)
++			return -ENOMEM;
++
++		irq_data->dev = tps->dev;
++		irq_data->type = irq_type;
+ 		error = devm_request_threaded_irq(tps->dev, irq, NULL,
+ 						  tps65219_regulator_irq_handler,
+ 						  IRQF_ONESHOT,
+ 						  irq_type->irq_name,
+-						  &irq_data[i]);
++						  irq_data);
+ 		if (error)
+ 			return dev_err_probe(tps->dev, PTR_ERR(rdev),
+ 					     "Failed to request %s IRQ %d: %d\n",
+-- 
+2.50.1
+
