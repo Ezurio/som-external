@@ -327,7 +327,8 @@
 };
 
 &main_gpio0 {
-	gpio-line-names = "","GPIO_A_2","GPIO_A_1","","", 	/* 0 - 4 */
+	gpio-line-names =
+		"","GPIO_A_2","GPIO_A_1","","", 		/* 0 - 4 */
 		"","","","","",
 		"","","","GPIO_A_0","GPIO_C_2",			/* 10 - 14 */
 		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","RGB_CS","RGB_RESET#",
@@ -349,7 +350,8 @@
 };
 
 &main_gpio1 {
-	gpio-line-names = "","","","","",			/* 0 - 4 */
+	gpio-line-names =
+		"","","","","",					/* 0 - 4 */
 		"","","","","",
 		"","","GPIO_A_3","","",				/* 10 - 14 */
 		"","","","","",
@@ -360,10 +362,6 @@
 		"","","","","",					/* 40 - 44 */
 		"","","","SDIO_A_CD#","",
 		"","";						/* 50 - 51 */
-};
-
-&main_gpio_intr {
-	status = "okay";
 };
 
 &main_i2c0 {
@@ -397,8 +395,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pmic_irq_pins_default>;
 
-		interrupt-parent = <&gic500>;
-		interrupts = <GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts-extended = <&gic500 GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
 
 		system-power-controller;
 		ti,power-button;
@@ -763,27 +760,27 @@
 		>;
 	};
 
-	main_bt_en_pins_default: main-bt-en-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x058, PIN_INPUT, 7) /* W_DISABLE2# (R23) GPMC0_AD7.GPIO0_22 */
-		>;
-	};
-
-	main_bt_wake_pins_default: main-bt-wake-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0ac, PIN_INPUT_PULLUP, 7) /* BT_HOST_WAKE (L21) GPMC0_CSn1.GPIO0_42 */
-		>;
-	};
-
 	main_wifi_en_pins_default: main-wifi-en-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x050, PIN_INPUT, 7) /* W_DISABLE1# (P22) GPMC0_AD5.GPIO0_20 */
 		>;
 	};
 
+	main_bt_en_pins_default: main-bt-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x058, PIN_INPUT, 7) /* W_DISABLE2# (R23) GPMC0_AD7.GPIO0_22 */
+		>;
+	};
+
 	main_wifi_wake_default: main-wifi-wake-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x040, PIN_INPUT, 7) /* SDIO_WAKE# (N23) GPMC0_AD1.GPIO0_16 */
+		>;
+	};
+
+	main_bt_wake_pins_default: main-bt-wake-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0ac, PIN_INPUT_PULLUP, 7) /* BT_HOST_WAKE (L21) GPMC0_CSn1.GPIO0_42 */
 		>;
 	};
 
@@ -1003,6 +1000,7 @@
 	vmmc-supply = <&reg_wifi_en>;
 	vqmmc-supply = <&vdd_1v8>;
 
+	disable-wp;
 	non-removable;
 	ti,fails-without-test-cd;
 	ti,driver-strength-ohm = <50>;
