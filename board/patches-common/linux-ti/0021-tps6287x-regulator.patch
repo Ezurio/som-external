@@ -53,7 +53,7 @@
  	struct device *dev = &i2c->dev;
  	struct regulator_config config = {};
  	struct regulator_dev *rdev;
-+	struct regulator_desc* reg = i2c_get_match_data(i2c);
++	const struct regulator_desc* reg = i2c_get_match_data(i2c);
  
  	config.regmap = devm_regmap_init_i2c(i2c, &tps6287x_regmap_config);
  	if (IS_ERR(config.regmap)) {
