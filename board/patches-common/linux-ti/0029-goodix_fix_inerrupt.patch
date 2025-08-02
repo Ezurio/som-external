@@ -1,6 +1,6 @@
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -1172,6 +1172,36 @@
+@@ -1172,6 +1172,34 @@
  	/* Read configuration and apply touchscreen parameters */
  	goodix_read_config(ts);
  
@@ -15,10 +15,8 @@
 +			trig, ctrig);
 +
 +		for (i = 0; i < ARRAY_SIZE(goodix_irq_flags); i++) {
-+			if (goodix_irq_flags[i] == trig) {
-+				new_trigger_type = i;
++			if (goodix_irq_flags[i] == trig)
 +				break;
-+			}
 +		}
 +
 +		if (i < ARRAY_SIZE(goodix_irq_flags)) {
