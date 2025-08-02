@@ -273,14 +273,14 @@
 		regulator-max-microvolt = <3300000>;
 
 		vin-supply = <&vdd_3v3>;
-		clocks = <&k3_clks 226 0>;
+		clocks = <&k3_clks 157 174>;
 
 		startup-delay-us = <1000>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_32k_clk>;
-		assigned-clocks = <&k3_clks 157 174>, <&k3_clks 226 0>;
-		assigned-clock-parents = <&k3_clks 157 175>, <&k3_clks 226 1>;
+		assigned-clocks = <&k3_clks 157 174>;
+		assigned-clock-parents = <&k3_clks 157 175>;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
