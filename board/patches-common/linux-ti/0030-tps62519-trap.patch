@@ -1,0 +1,12 @@
+--- a/drivers/regulator/tps65219-regulator.c
++++ b/drivers/regulator/tps65219-regulator.c
+@@ -346,6 +346,9 @@
+ 		return IRQ_HANDLED;
+ 	}
+ 
++	if (!irq_data->rdev)
++		return IRQ_HANDLED;
++
+ 	regulator_notifier_call_chain(irq_data->rdev,
+ 				      irq_data->type->event, NULL);
+ 
