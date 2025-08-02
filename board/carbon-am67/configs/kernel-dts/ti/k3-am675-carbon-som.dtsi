@@ -740,13 +740,14 @@
 
 	main_mmc1_pins_default: main-mmc1-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x023c, PIN_INPUT, 0) /* SDIO_A_CMD (H22) MMC1_CMD */
-			J722S_IOPAD(0x0234, PIN_OUTPUT, 0) /* SDIO_A_CLK (H24) MMC1_CLK */
-			J722S_IOPAD(0x0230, PIN_INPUT, 0) /* SDIO_A_D0 (H23) MMC1_DAT0 */
-			J722S_IOPAD(0x022c, PIN_INPUT_PULLUP, 0) /* SDIO_A_D1 (H20) MMC1_DAT1 */
-			J722S_IOPAD(0x0228, PIN_INPUT_PULLUP, 0) /* SDIO_A_D2 (J23) MMC1_DAT2 */
-			J722S_IOPAD(0x0224, PIN_INPUT_PULLUP, 0) /* SDIO_A_D3 (H25) MMC1_DAT3 */
-			J722S_IOPAD(0x0240, PIN_INPUT_PULLUP, 0) /* SDIO_A_CD# (B24) MMC1_SDCD */
+			J722S_IOPAD(0x23c, PIN_INPUT, 0) /* SDIO_A_CMD (H22) MMC1_CMD */
+			J722S_IOPAD(0x234, PIN_OUTPUT, 0) /* SDIO_A_CLK (H24) MMC1_CLK */
+			J722S_IOPAD(0x230, PIN_INPUT, 0) /* SDIO_A_D0 (H23) MMC1_DAT0 */
+			J722S_IOPAD(0x22c, PIN_INPUT_PULLUP, 0) /* SDIO_A_D1 (H20) MMC1_DAT1 */
+			J722S_IOPAD(0x228, PIN_INPUT_PULLUP, 0) /* SDIO_A_D2 (J23) MMC1_DAT2 */
+			J722S_IOPAD(0x224, PIN_INPUT_PULLUP, 0) /* SDIO_A_D3 (H25) MMC1_DAT3 */
+			J722S_IOPAD(0x240, PIN_INPUT_PULLUP, 0) /* SDIO_A_CD# (B24) MMC1_SDCD */
+			J722S_IOPAD(0x238, PIN_INPUT, 0) /* (#N/A) MMC1_CLKB */
 		>;
 	};
 
@@ -754,11 +755,11 @@
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x120, PIN_INPUT, 0) /* (F27) MMC2_CMD */
 			J722S_IOPAD(0x118, PIN_OUTPUT, 0) /* (H26) MMC2_CLK */
-			J722S_IOPAD(0x11C, PIN_INPUT, 0) /* () MMC2_CLKB */
 			J722S_IOPAD(0x114, PIN_INPUT, 0) /* (G26) MMC2_DAT0 */
 			J722S_IOPAD(0x110, PIN_INPUT_PULLUP, 0) /* (G27) MMC2_DAT1 */
 			J722S_IOPAD(0x10c, PIN_INPUT_PULLUP, 0) /* (H27) MMC2_DAT2 */
 			J722S_IOPAD(0x108, PIN_INPUT_PULLUP, 0) /* (J27) MMC2_DAT3 */
+			J722S_IOPAD(0x11C, PIN_INPUT, 0) /* (#N/A) MMC2_CLKB */
 		>;
 	};
 
@@ -1153,9 +1154,6 @@
 	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
 	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
 
-	assigned-clocks = <&k3_clks 58 6>;
-	assigned-clock-parents = <&k3_clks 58 7>;
-
 	disable-wp;
 	ti,driver-strength-ohm = <50>;
 };
@@ -1166,9 +1164,6 @@
 
 	vmmc-supply = <&reg_wifi_en>;
 	vqmmc-supply = <&vdd_1v8>;
-
-	assigned-clocks = <&k3_clks 184 6>;
-	assigned-clock-parents = <&k3_clks 184 7>;
 
 	disable-wp;
 	non-removable;

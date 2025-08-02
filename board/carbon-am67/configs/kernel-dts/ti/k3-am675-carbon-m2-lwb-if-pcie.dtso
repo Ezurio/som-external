@@ -8,6 +8,8 @@
 /dts-v1/;
 /plugin/;
 
+#define M2_PCIE
+
 #include "k3-am675-carbon-m2.dtsi"
 
 &reg_wifi_en_m2 {
