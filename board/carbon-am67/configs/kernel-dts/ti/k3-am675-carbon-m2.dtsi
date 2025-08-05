@@ -27,7 +27,7 @@
 	reg_wifi_en_m2: regulator-wifi-en-m2 {
 		compatible = "regulator-fixed";
 
-		regulator-name = "reg_wifi_en";
+		regulator-name = "reg_wifi_en_m2";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 

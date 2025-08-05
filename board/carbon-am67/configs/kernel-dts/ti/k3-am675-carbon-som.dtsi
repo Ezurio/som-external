@@ -265,10 +265,9 @@
 	reg_slow_clock: regulator-slow-clock {
 		compatible = "regulator-fixed-clock";
 
-		//status = "disabled";
-		regulator-always-on;
+		status = "disabled";
 
-		regulator-name = "slow-clock-wifi";
+		regulator-name = "reg_slow_clock";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -446,26 +445,15 @@
 			<&main_r5fss0_core0_memory_region>;
 };
 
-&mcu_rti0 {
-	assigned-clock-parents = <&k3_clks 131 4>;
-};
-
-&main_rti0 {
-	assigned-clock-parents = <&k3_clks 125 4>;
-};
-
 &main_rti1 {
-	assigned-clock-parents = <&k3_clks 126 4>;
 	status = "disabled";
 };
 
 &main_rti2 {
-	assigned-clock-parents = <&k3_clks 127 4>;
 	status = "disabled";
 };
 
 &main_rti3 {
-	assigned-clock-parents = <&k3_clks 128 4>;
 	status = "disabled";
 };
 
@@ -747,7 +735,7 @@
 			J722S_IOPAD(0x228, PIN_INPUT_PULLUP, 0) /* SDIO_A_D2 (J23) MMC1_DAT2 */
 			J722S_IOPAD(0x224, PIN_INPUT_PULLUP, 0) /* SDIO_A_D3 (H25) MMC1_DAT3 */
 			J722S_IOPAD(0x240, PIN_INPUT_PULLUP, 0) /* SDIO_A_CD# (B24) MMC1_SDCD */
-			J722S_IOPAD(0x238, PIN_INPUT, 0) /* (#N/A) MMC1_CLKB */
+			J722S_IOPAD(0x238, PIN_INPUT, 0) /* (#N/A) MMC1_CLKLB */
 		>;
 	};
 
@@ -759,7 +747,7 @@
 			J722S_IOPAD(0x110, PIN_INPUT_PULLUP, 0) /* (G27) MMC2_DAT1 */
 			J722S_IOPAD(0x10c, PIN_INPUT_PULLUP, 0) /* (H27) MMC2_DAT2 */
 			J722S_IOPAD(0x108, PIN_INPUT_PULLUP, 0) /* (J27) MMC2_DAT3 */
-			J722S_IOPAD(0x11C, PIN_INPUT, 0) /* (#N/A) MMC2_CLKB */
+			J722S_IOPAD(0x11c, PIN_INPUT, 0) /* (#N/A) MMC2_CLKLB */
 		>;
 	};
 
