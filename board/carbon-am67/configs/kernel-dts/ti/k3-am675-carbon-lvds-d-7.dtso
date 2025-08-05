@@ -72,8 +72,6 @@
 
 &mcu_timer0 {
 	status = "okay";
-	interrupt-parent = <&main_gpio_intr>;
-	interrupts = <170 IRQ_TYPE_EDGE_RISING>;
 };
 
 &pwm2 {
@@ -129,7 +127,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen_lvds_d: touchscreen@14 {
+	touchscreen_lvds_d: touchscreen-lvds-d@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 		AVDD28-supply = <&vcc_lvds_d>;

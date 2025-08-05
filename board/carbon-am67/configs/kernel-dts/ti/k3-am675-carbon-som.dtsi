@@ -468,7 +468,7 @@
 		"","","","","",					/* 10 - 14 */
 		"SDIO_A_PWR_EN","","W_DISABLE1","W_DISABLE2","SDIO_RESET",
 		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",	/* 20 - 24 */
-		"USB_B_ID","USB_B_OC","SDIO_A_PWR_EN","","",
+		"USB_B_ID","USB_B_OC","SDIO_A_PWR_EN","DSI_VDD_EN","DSI_BL_EN",
 		"EFUSE_EN","","","","",				/* 30 - 34 */
 		"","ETH_A_INT","","SDIO_A_VSEL","",
 		"ETH_A_RST","","","","",			/* 40 - 44 */
@@ -1214,43 +1214,4 @@
 
 &gpu {
 	status = "disabled";
-};
-
-&oldi0_dss0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>; 
-	};
-
-	port@1 {
-		reg = <1>;
-	};
-};
-
-&oldi1_dss0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>; 
-	};
-
-	port@1 {
-		reg = <1>;
-	};
-};
-
-&oldi1_dss1_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>; 
-	};
-
-	port@1 {
-		reg = <1>;
-	};
 };

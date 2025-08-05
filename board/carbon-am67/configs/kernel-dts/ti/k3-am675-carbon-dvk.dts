@@ -316,7 +316,7 @@
 			"M2_SD_HOST_WAKE", "CHRGR_INTn", 
 			"VOL_UP", "VOL_DOWN",
 			"", "",
-			"LVDS_C_INT", "LVDS_C_HPD",
+			"DSI_A_INT", "DSI_A_HPD",
 			"LVDS_D_INT", "LVDS_D_HPD",
 			"LVDS_E_INT", "LVDS_E_HPD",
 			"RGB_INT", "RGB_HDMI_HPD";
@@ -374,25 +374,25 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_cam_a: i2-cam-a@0 {
+		i2c_cam_a: i2c-cam-a@0 {
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_b: i2-cam-b@1 {
+		i2c_cam_b: i2c-cam-b@1 {
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_c: i2-cam-c@2 {
+		i2c_cam_c: i2c-cam-c@2 {
 			reg = <2>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_d: i2-cam-d@3 {
+		i2c_cam_d: i2c-cam-d@3 {
 			reg = <3>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -507,6 +507,7 @@
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	status = "okay";
+	ti,driver-strength-ohm = <33>;
 };
 
 &main_i2c4 { /* I2C_C */
@@ -520,25 +521,25 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_port_c: i2-c-port-c@0 {
+		i2c_port_a: i2c-port-a@0 {
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_port_d: i2-c-port-d@1 {
+		i2c_port_d: i2c-port-d@1 {
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_port_e: i2-c-port-e@2 {
+		i2c_port_e: i2c-port-e@2 {
 			reg = <2>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_port_rgb: i2-c-port-rgb@3 {
+		i2c_port_rgb: i2c-port-rgb@3 {
 			reg = <3>;
 			#address-cells = <1>;
 			#size-cells = <0>;

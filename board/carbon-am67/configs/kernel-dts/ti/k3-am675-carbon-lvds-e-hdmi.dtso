@@ -2,7 +2,7 @@
 /*
  * LVDS E to HDMI Expansion Board for Carbon AM67x
  *
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 /dts-v1/;
@@ -10,13 +10,6 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include "k3-pinctrl.h"
-
-/* CAUTION: LVDS E channel on AM67x is the companion channel to the LVDS D 
-   it will work only when LVDS D is active and will function as the mirror
-   or potentially dual-link LVDS which is not suppoted here
-
-   The device tree provides only additions needed to LVDS D
- */
 
 &{/} {
 	hdmi-connector-lvds-e {
@@ -28,6 +21,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_e_pwr_default>;
 		ddc-en-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+
+		ddc-i2c-bus = <&i2c_port_e>;
+
+		/* Reenable after U3 VDD_5V miswiring fixed */
+		//hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_lvds_e_in: endpoint {
@@ -91,8 +89,6 @@
 };
 
 &main_pmx0 {
-	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN 
-	   as such these functions cannot be used together */
 	main_lvds_e_pwr_default: main-lvds-e-pwr-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x0c8, PIN_INPUT, 7) /* LVDS_E_VDD_EN (W22) VOUT0_DATA4.GPIO0_49 */
@@ -100,18 +96,27 @@
 	};
 };
 
-&oldi1_dss0 {
+&gpu {
 	status = "okay";
 };
 
-&oldi1_dss0_ports {
+&dss1 {
+	status = "okay";
+	/* OLDITX ports have no mux on them */
+};
+
+&oldi1_dss1 {
+	status = "okay";
+};
+
+&oldi1_dss1_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
 	port@0 {
 		reg = <0>;
 		oldi_1_in: endpoint {
-			remote-endpoint = <&dpi0_out1>;
+			remote-endpoint = <&dpi1_out0>;
 		};
 	};
 
@@ -123,19 +128,19 @@
 	};
 };
 
-&dss0_ports {
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	/* Video Port 1 Output to OLDI */
 	port@0 {
+		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		dpi0_out1: endpoint@1 {
-			reg = <1>;
+		dpi1_out0: endpoint@0 {
+			reg = <0>;
 			remote-endpoint = <&oldi_1_in>;
 		};
 	};
-};
-
-&gpu {
-	status = "okay";
 };

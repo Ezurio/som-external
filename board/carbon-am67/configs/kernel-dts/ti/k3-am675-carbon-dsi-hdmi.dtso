@@ -1,0 +1,142 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS E to HDMI Expansion Board for Carbon AM67x
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include "k3-pinctrl.h"
+
+&{/} {
+	hdmi-connector-dsi-a {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_dsi_a_in: endpoint {
+				remote-endpoint = <&adv7535_out>;
+			};
+		};
+	};
+
+	vcc_dsi_a: regulator-vcc-dsi-a {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_dsi_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vdd_3v3_carrier>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_dsi_a_pwr_default>;
+		gpios = <&main_gpio0 28 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <10000>;
+		regulator-always-on;
+	};
+};
+
+&i2c_port_a {
+	hdmi-bridge-dsi-a@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
+		adi,dsi-lanes = <4>;
+		v3p3-supply = <&vcc_dsi_a>;
+
+		avdd-supply = <&vdd_3v3_carrier>;
+		dvdd-supply = <&vdd_3v3_carrier>;
+		pvdd-supply = <&vdd_3v3_carrier>;
+		a2vdd-supply = <&vdd_3v3_carrier>;
+		v1p2-supply = <&vdd_3v3_carrier>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				adv7535_in: endpoint {
+					remote-endpoint = <&dsi0_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				adv7535_out: endpoint {
+					remote-endpoint = <&hdmi_connector_dsi_a_in>;
+				};
+			};
+
+		};
+	};
+};
+
+&main_pmx0 {
+	main_dsi_a_pwr_default: main-dsi-pwr-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
+		>;
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss1 {
+	status = "okay";
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to DSI */
+	port@1 {
+		reg = <1>;
+		dss1_dsi0_out: endpoint {
+			remote-endpoint = <&dsi0_in>;
+		};
+	};
+};
+
+&dphy_tx0 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			dsi0_out: endpoint {
+				remote-endpoint = <&adv7535_in>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			dsi0_in: endpoint {
+				remote-endpoint = <&dss1_dsi0_out>;
+			};
+		};
+	};
+};

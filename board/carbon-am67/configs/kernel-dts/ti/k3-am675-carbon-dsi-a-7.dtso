@@ -1,0 +1,148 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM67x
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pwm/pwm.h>
+#include "k3-pinctrl.h"
+
+&{/} {
+	backlight_dsi_a: backlight-dsi-a {
+		compatible = "pwm-backlight";
+
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		default-brightness-level = <8>;
+		pwms = <&pwm0 0 30000 0>; /* 33.3 kHz */
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_dsi_a_backlight_en_default>;
+		enable-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>;
+	};
+
+	vcc_dsi_a: regulator-vcc-dsi-a {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_dsi_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vdd_3v3_carrier>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_dsi_a_pwr_default>;
+		gpios = <&main_gpio0 28 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <10000>;
+	};
+
+	display_dsi_a: display-dsi-a {
+		/* BD070LIC3 */
+		compatible = "tianma,tm070jdhg30", "panel-simple";
+
+		power-supply = <&vcc_dsi_a>;
+		backlight = <&backlight_dsi_a>;
+
+		port {
+			lcd_in0: endpoint {
+				//remote-endpoint = <&sn65dsi84_out>;
+			};
+		};
+	};
+
+};
+
+&main_pmx0 {
+	main_dsi_a_pwr_default: main-dsi-pwr-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
+		>;
+	};
+
+	main_dsi_a_backlight_en_default: main-dsi-a-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x074, PIN_INPUT, 7) /* DSI_BL_EN (V22) GPMC0_AD14.GPIO0_29 */
+		>;
+	};
+};
+
+&wkup_timer0 {
+	status = "okay";
+};
+
+&pwm0 {
+	status = "okay";
+};
+
+&dss1 {
+	status = "okay";
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 2 Output to DSI */
+	port@1 {
+		reg = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&sn65dsi84_in>;
+		};
+	};
+};
+
+&i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	dsi0_sn65dsi84: bridge@2c {
+		compatible = "ti,sn65dsi84";
+		reg = <0x2c>;
+		vcc-supply = <&vcc_dsi_a>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				sn65dsi84_in: endpoint {
+					remote-endpoint = <&dpi0_out0>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				sn65dsi84_out: endpoint {
+					remote-endpoint = <&lcd_in0>;
+				};
+			};
+
+		};
+	};
+
+	touchscreen_dsi_a: touchscreen-dsi-a@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+		AVDD28-supply = <&vcc_dsi_a>;
+		VDDIO-supply = <&vcc_dsi_a>;
+		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&exp2 8 GPIO_ACTIVE_HIGH>;
+		//reset-gpios = <&exp2 9 GPIO_ACTIVE_HIGH>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};
