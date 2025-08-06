@@ -72,6 +72,10 @@
 
 &mcu_timer0 {
 	status = "okay";
+
+	/* Interrupt not provided by upstream dts */
+	interrupt-parent = <&main_gpio_intr>;
+	interrupts = <170 IRQ_TYPE_EDGE_RISING>;
 };
 
 &pwm2 {

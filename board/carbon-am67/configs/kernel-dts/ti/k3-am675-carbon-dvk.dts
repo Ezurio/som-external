@@ -507,7 +507,6 @@
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	status = "okay";
-	ti,driver-strength-ohm = <33>;
 };
 
 &main_i2c4 { /* I2C_C */
