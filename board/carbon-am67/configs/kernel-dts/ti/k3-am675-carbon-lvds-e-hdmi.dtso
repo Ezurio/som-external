@@ -1,0 +1,146 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS E to HDMI Expansion Board for Carbon AM67x
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include "k3-pinctrl.h"
+
+&{/} {
+	hdmi-connector-lvds-e {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+		digital;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_e_pwr_default>;
+		ddc-en-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+
+		ddc-i2c-bus = <&i2c_port_e>;
+
+		/* Reenable after U3 VDD_5V miswiring fixed */
+		//hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
+
+		port {
+			hdmi_connector_lvds_e_in: endpoint {
+				remote-endpoint = <&tfp410_e_out>;
+			};
+		};
+	};
+
+	dvi-bridge-lvds-e {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "ti,tfp410";
+
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&main_lvds_e_pwr_default>;
+		//powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+
+		port@0 {
+			reg = <0>;
+			tfp410_e_in: endpoint {
+				remote-endpoint = <&lvds_e_out>;
+				pclk-sample = <1>;
+				bus-width = <24>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			tfp410_e_out: endpoint {
+				remote-endpoint = <&hdmi_connector_lvds_e_in>;
+			};
+		};
+	};
+
+	lvds-decoder-e {
+		compatible = "ti,ds90cf386", "lvds-decoder";
+
+		max-frequency = <85000000>;
+		min-frequency = <20000000>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				lvds_e_in: endpoint {
+					data-mapping = "jeida-24";
+					remote-endpoint = <&oldi_1_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				lvds_e_out: endpoint {
+					remote-endpoint = <&tfp410_e_in>;
+				};
+			};
+		};
+	};
+};
+
+&main_pmx0 {
+	main_lvds_e_pwr_default: main-lvds-e-pwr-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0c8, PIN_INPUT, 7) /* LVDS_E_VDD_EN (W22) VOUT0_DATA4.GPIO0_49 */
+		>;
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss1 {
+	status = "okay";
+	/* OLDITX ports have no mux on them */
+};
+
+&oldi1_dss1 {
+	status = "okay";
+};
+
+&oldi1_dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+		oldi_1_in: endpoint {
+			remote-endpoint = <&dpi1_out0>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+		oldi_1_out: endpoint {
+			remote-endpoint = <&lvds_e_in>;
+		};
+	};
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi1_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_1_in>;
+		};
+	};
+};

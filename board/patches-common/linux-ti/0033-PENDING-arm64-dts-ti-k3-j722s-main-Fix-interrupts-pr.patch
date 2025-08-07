@@ -1,0 +1,70 @@
+From 0ed32c12e517134fe0319f7918624d7ce43acb3f Mon Sep 17 00:00:00 2001
+From: Jared McArthur <j-mcarthur@ti.com>
+Date: Thu, 10 Jul 2025 20:22:41 -0500
+Subject: [PATCH 3/5] PENDING: arm64: dts: ti: k3-j722s-main: Fix interrupts
+ property for csi2rx
+
+Commit 1247888616e4 ("PENDING: arm64: dts: ti: k3-j722s-main:
+Add interrupts property") added the interrupts property to the
+cdns_csi2rx1, cdns_csi2rx2, and cdns_csi2rx3 nodes, but added the
+wrong interrupt IDs. Fix this by providing the correct interrupt IDs.
+
+Interrupt IDs are taken from the J722S TRM [0].
+
+Interrupt Line    | Source Interrupt
+------------------|-------------------------
+GICSS0_SPI_IN_178 | CSI_RX_IF1_CSI_ERR_IRQ_0
+GICSS0_SPI_IN_179 | CSI_RX_IF1_CSI_IRQ_0
+GICSS0_SPI_IN_219 | CSI_RX_IF2_CSI_ERR_IRQ_0
+GICSS0_SPI_IN_232 | CSI_RX_IF2_CSI_IRQ_0
+GICSS0_SPI_IN_249 | CSI_RX_IF3_CSI_ERR_IRQ_0
+GICSS0_SPI_IN_250 | CSI_RX_IF3_CSI_IRQ_0
+
+[0] https://www.ti.com/lit/zip/sprujb3
+
+Fixes: 1247888616e4 ("PENDING: arm64: dts: ti: k3-j722s-main: Add interrupts property")
+Signed-off-by: Jared McArthur <j-mcarthur@ti.com>
+---
+ arch/arm64/boot/dts/ti/k3-j722s-main.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+index 25287bb68e86..b0386913c932 100644
+--- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+@@ -173,8 +173,8 @@ ti_csi2rx1: ticsi2rx@30122000 {
+ 		cdns_csi2rx1: csi-bridge@30121000 {
+ 			compatible = "ti,j721e-csi2rx", "cdns,csi2rx";
+ 			reg = <0x00 0x30121000 0x00 0x1000>;
+-			interrupts = <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <GIC_SPI 146 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "error_irq", "irq";
+ 			clocks = <&k3_clks 247 0>, <&k3_clks 247 3>, <&k3_clks 247 0>,
+ 				 <&k3_clks 247 0>, <&k3_clks 247 4>, <&k3_clks 247 4>;
+@@ -230,8 +230,8 @@ ti_csi2rx2: ticsi2rx@30142000 {
+ 		cdns_csi2rx2: csi-bridge@30141000 {
+ 			compatible = "ti,j721e-csi2rx", "cdns,csi2rx";
+ 			reg = <0x00 0x30141000 0x00 0x1000>;
+-			interrupts = <GIC_SPI 202 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <GIC_SPI 187 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 200 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "error_irq", "irq";
+ 			clocks = <&k3_clks 248 0>, <&k3_clks 248 3>, <&k3_clks 248 0>,
+ 				 <&k3_clks 248 0>, <&k3_clks 248 4>, <&k3_clks 248 4>;
+@@ -287,8 +287,8 @@ ti_csi2rx3: ticsi2rx@30162000 {
+ 		cdns_csi2rx3: csi-bridge@30161000 {
+ 			compatible = "ti,j721e-csi2rx", "cdns,csi2rx";
+ 			reg = <0x00 0x30161000 0x00 0x1000>;
+-			interrupts = <GIC_SPI 232 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 233 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "error_irq", "irq";
+ 			clocks = <&k3_clks 249 0>, <&k3_clks 249 3>, <&k3_clks 249 0>,
+ 				 <&k3_clks 249 0>, <&k3_clks 249 4>, <&k3_clks 249 4>;
+-- 
+2.50.1
+

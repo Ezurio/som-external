@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS Expansion Board with BD101LCC3 display for carbon AM67xx
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am675-carbon-dsi-a-7.dtso"
+
+&backlight_dsi_a {
+	pwms = <&pwm0 0 100000 0>;
+};
+
+&display_dsi_a {
+	/* BD101LCC3 */
+	compatible = "panel-lvds";
+	width-mm = <217>;
+	height-mm = <136>;
+	data-mapping = "vesa-24";
+
+	panel-timing {
+		clock-frequency = <71000000>;
+		hactive = <1280>;
+		vactive = <800>;
+		hback-porch = <5>;
+		hfront-porch = <123>;
+		vback-porch = <3>;
+		vfront-porch = <24>;
+		hsync-len = <1>;
+		vsync-len = <1>;
+	};
+};
+
+&touchscreen_dsi_a {
+	compatible = "goodix,gt9271";
+	reg = <0x5d>;
+};

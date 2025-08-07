@@ -1,0 +1,23 @@
+ // SPDX-License-Identifier: GPL-2.0
+/*
+ * ArduCam IMX678 camera module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+#include "k3-am675-carbon-cam-c-ov5640.dtso"
+
+&clk_cam_c_int {
+	clock-frequency = <24000000>;
+};
+
+&camera_cam_c {
+	reg = <0x0c>;
+	compatible = "arducam,arducam-pivariety";
+	reset-gpios = <&exp0 4 GPIO_ACTIVE_HIGH>; /* CAM_C_PWR */
+	/delete-property/ powerdown-gpios;
+};
+
+&csi2_cam2 {
+	data-lanes = <1 2 3 4>;
+};

@@ -1,0 +1,109 @@
+--- a/drivers/regulator/tps6287x-regulator.c
++++ b/drivers/regulator/tps6287x-regulator.c
+@@ -48,6 +48,20 @@
+ 	10000, 5000, 1250, 500
+ };
+ 
++static const struct linear_range tps62874_voltage_ranges[] = {
++	LINEAR_RANGE(400000, 0, 0xFF, 1250),
++	LINEAR_RANGE(400000, 0, 0xFF, 2500),
++	LINEAR_RANGE(400000, 0, 0xFF, 5000),
++};
++
++static const unsigned int tps62874_voltage_range_sel[] = {
++	0x0, 0x1, 0x2
++};
++
++static const unsigned int tps62874_ramp_table[] = {
++	2000, 1000, 770, 500
++};
++
+ static int tps6287x_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ {
+ 	unsigned int val;
+@@ -126,11 +140,35 @@
+ 	.linear_range_selectors_bitfield = tps6287x_voltage_range_sel,
+ };
+ 
++static const struct regulator_desc tps62874_reg = {
++	.name = "tps62874",
++	.owner = THIS_MODULE,
++	.ops = &tps6287x_regulator_ops,
++	.of_map_mode = tps6287x_of_map_mode,
++	.type = REGULATOR_VOLTAGE,
++	.enable_reg = TPS6287X_CTRL1,
++	.enable_mask = TPS6287X_CTRL1_SWEN,
++	.vsel_reg = TPS6287X_VSET,
++	.vsel_mask = 0xFF,
++	.vsel_range_reg = TPS6287X_CTRL2,
++	.vsel_range_mask = TPS6287X_CTRL2_VRANGE,
++	.range_applied_by_vsel = true,
++	.ramp_reg = TPS6287X_CTRL1,
++	.ramp_mask = TPS6287X_CTRL1_VRAMP,
++	.ramp_delay_table = tps6287x_ramp_table,
++	.n_ramp_values = ARRAY_SIZE(tps62874_ramp_table),
++	.n_voltages = 256 * ARRAY_SIZE(tps62874_voltage_ranges),
++	.linear_ranges = tps62874_voltage_ranges,
++	.n_linear_ranges = ARRAY_SIZE(tps62874_voltage_ranges),
++	.linear_range_selectors_bitfield = tps62874_voltage_range_sel,
++};
++
+ static int tps6287x_i2c_probe(struct i2c_client *i2c)
+ {
+ 	struct device *dev = &i2c->dev;
+ 	struct regulator_config config = {};
+ 	struct regulator_dev *rdev;
++	const struct regulator_desc* reg = i2c_get_match_data(i2c);
+ 
+ 	config.regmap = devm_regmap_init_i2c(i2c, &tps6287x_regmap_config);
+ 	if (IS_ERR(config.regmap)) {
+@@ -140,10 +178,9 @@
+ 
+ 	config.dev = dev;
+ 	config.of_node = dev->of_node;
+-	config.init_data = of_get_regulator_init_data(dev, dev->of_node,
+-						      &tps6287x_reg);
++	config.init_data = of_get_regulator_init_data(dev, dev->of_node, reg);
+ 
+-	rdev = devm_regulator_register(dev, &tps6287x_reg, &config);
++	rdev = devm_regulator_register(dev, reg, &config);
+ 	if (IS_ERR(rdev)) {
+ 		dev_err(dev, "Failed to register regulator\n");
+ 		return PTR_ERR(rdev);
+@@ -155,20 +192,28 @@
+ }
+ 
+ static const struct of_device_id tps6287x_dt_ids[] = {
+-	{ .compatible = "ti,tps62870", },
+-	{ .compatible = "ti,tps62871", },
+-	{ .compatible = "ti,tps62872", },
+-	{ .compatible = "ti,tps62873", },
++	{ .compatible = "ti,tps62870", .data = &tps6287x_reg },
++	{ .compatible = "ti,tps62871", .data = &tps6287x_reg },
++	{ .compatible = "ti,tps62872", .data = &tps6287x_reg },
++	{ .compatible = "ti,tps62873", .data = &tps6287x_reg },
++	{ .compatible = "ti,tps62874", .data = &tps62874_reg },
++	{ .compatible = "ti,tps62875", .data = &tps62874_reg },
++	{ .compatible = "ti,tps62876", .data = &tps62874_reg },
++	{ .compatible = "ti,tps62877", .data = &tps62874_reg },
+ 	{ }
+ };
+ 
+ MODULE_DEVICE_TABLE(of, tps6287x_dt_ids);
+ 
+ static const struct i2c_device_id tps6287x_i2c_id[] = {
+-	{ "tps62870" },
+-	{ "tps62871" },
+-	{ "tps62872" },
+-	{ "tps62873" },
++	{ "tps62870", (kernel_ulong_t)&tps6287x_reg },
++	{ "tps62871", (kernel_ulong_t)&tps6287x_reg },
++	{ "tps62872", (kernel_ulong_t)&tps6287x_reg },
++	{ "tps62873", (kernel_ulong_t)&tps6287x_reg },
++	{ "tps62874", (kernel_ulong_t)&tps62874_reg },
++	{ "tps62875", (kernel_ulong_t)&tps62874_reg },
++	{ "tps62876", (kernel_ulong_t)&tps62874_reg },
++	{ "tps62877", (kernel_ulong_t)&tps62874_reg },
+ 	{}
+ };
+ 

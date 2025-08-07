@@ -1,0 +1,586 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2025 Ezurio LLC
+ *
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/leds/common.h>
+
+#include "k3-am675-carbon-som.dtsi"
+
+/ {
+	model = "Summit Carbon AM675 OSM Carrier Board";
+	compatible = "summit,am675-dev", "ti,j722s";
+
+	aliases {
+		gpio4 = &exp1;
+		gpio5 = &exp2;
+	};
+
+	vdd_3v3_carrier: regulator-u4-sw2 {
+		/* output of U4 */
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_3v3_carrier";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vdd_1v8_carrier: regulator-u4-sw3 {
+		/* output of U4 */
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_1v8_carrier";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vdd_aud_3v3_carrier: regulator-aud-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_aud_3v3_carrier";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&exp1 8 GPIO_ACTIVE_HIGH>;
+	};
+
+	codec_audio: sound {
+		compatible = "simple-audio-card";
+
+		simple-audio-card,bitclock-master = <&dailink0_master>;
+		simple-audio-card,frame-master = <&dailink0_master>;
+
+		simple-audio-card,name = "ti,tac5x1x-soundcard";
+		simple-audio-card,format = "i2s";
+
+		simple-audio-card,widgets =
+			"Headphone", "Headphone Jack",
+			"Line",      "Line In",
+			"Line",      "Line Out";
+
+		simple-audio-card,routing =
+			"Headphone Jack", "OUT1",
+			"Headphone Jack", "OUT2",
+			"AIN1", "Line In",
+			"AIN2", "Line In",
+			"Line Out", "OUT1",
+			"Line Out", "OUT2";
+
+		simple-audio-card,aux-devs = <&headset>;
+
+		dailink0_master: simple-audio-card,cpu {
+			sound-dai = <&mcasp1>;
+			bitclock-master;
+			frame-master;
+			system-clock-direction-out;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&tac5112>;
+		};
+	};
+
+	audio_volume {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&mcu_wake_pins_default>;
+
+		volume-up {
+			label = "Volume Up";
+			gpios = <&exp2 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			linux,code = <KEY_VOLUMEUP>;
+		};
+
+		volume-down {
+			label = "Volume Down";
+			gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			linux,code = <KEY_VOLUMEDOWN>;
+		};
+
+		cpu_wakeup {
+			label = "Wakeup";
+			gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_led_pins_default>;
+
+		led0 {
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
+
+	transceiver1: can-phy0 {
+		compatible = "ti,tcan1042";
+		#phy-cells = <0>;
+		max-bitrate = <5000000>;
+		standby-gpios = <&exp1 2 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
+	};
+
+	transceiver2: can-phy1 {
+		compatible = "ti,tcan1042";
+		#phy-cells = <0>;
+		max-bitrate = <5000000>;
+		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
+	};
+
+	vcc_usb0_vbus: regulator-usb0-vbus {
+		compatible = "regulator-fixed";
+		vin-supply = <&vsys_5v>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb0_pins_default>;
+		enable-active-high;
+		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "vcc_usb0_vbus";
+	};
+
+	reg_usb1_reset: regulator-usb1-reset {
+		compatible = "regulator-fixed";
+		vin-supply = <&vsys_5v>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb_c_reset_pins_default>;
+		enable-active-high;
+		gpios = <&main_gpio0 45 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "reg_usb1_reset";
+	};
+
+	reg_usb1_oe: regulator-usb1-oe {
+		compatible = "regulator-fixed";
+		vin-supply = <&vsys_5v>;
+		gpios = <&exp1 0 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "reg_usb1_oe";
+		regulator-always-on;
+	};
+
+	vcc_usb1_vbus: regulator-usb1-vbus {
+		compatible = "regulator-fixed";
+		vin-supply = <&reg_usb1_reset>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb1_pins_default>;
+		enable-active-high;
+		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "vcc_usb1_vbus";
+	};
+
+	con_usb0: connector-usb0 {
+		compatible = "gpio-usb-b-connector", "usb-b-connector";
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb_a_id_pins_default>;
+		id-gpios = <&main_gpio0 23 GPIO_ACTIVE_HIGH>;
+		label = "USB_A";
+		self-powered;
+		vbus-supply = <&vcc_usb0_vbus>;
+
+		port {
+			usb0_dr_connector: endpoint {
+				remote-endpoint = <&usb0_ep>;
+			};
+		};
+	};
+
+	con_usb1: connector-usb1 {
+		compatible = "gpio-usb-b-connector", "usb-c-connector";
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb_c_id_pins_default>;
+		id-gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
+		label = "USB_C";
+		self-powered;
+		vbus-supply = <&vcc_usb1_vbus>;
+
+		port {
+			usb1_dr_connector: endpoint {
+				remote-endpoint = <&usb1_ep>;
+			};
+		};
+	};
+};
+
+&cpsw3g {
+	status = "okay";
+};
+
+&cpsw_port1 {
+	status = "okay";
+	phy-handle = <&cpsw3g_phy0>;
+};
+
+&cpsw_port2 {
+	status = "okay";
+	phy-handle = <&cpsw3g_phy1>;
+};
+
+&cpsw3g_mdio {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_mdio0_pins_default>, <&main_rgmii_phy0_gpio>,
+		<&main_rgmii_phy1_gpio>;
+
+	status = "okay";
+
+	cpsw3g_phy0: ethernet-phy@3 {
+		reg = <3>;
+		interrupts-extended = <&main_gpio0 36 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&main_gpio0 40 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <150>;
+		reset-deassert-us = <300>;
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		ti,clk-output-sel = <DP83867_CLK_O_SEL_OFF>;
+	};
+
+	cpsw3g_phy1: ethernet-phy@1 {
+		reg = <1>;
+		interrupts-extended = <&main_gpio0 48 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&main_gpio0 47 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <150>;
+		reset-deassert-us = <300>;
+		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
+		ti,clk-output-sel = <DP83867_CLK_O_SEL_OFF>;
+	};
+};
+
+&main_i2c0 { /* I2C_A */
+	status = "okay";
+	clock-frequency = <400000>;
+
+	power-sensor-5v@40 {
+		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
+		reg = <0x40>;
+		vs-supply = <&vdd_3v3_carrier>;
+		shunt-resistor = <33000>; /* 0.033 Ohms */
+	};
+
+	power-sensor-3v3@41 {
+		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
+		reg = <0x41>;
+		vs-supply = <&vdd_3v3_carrier>;
+		shunt-resistor = <33000>; /* 0.033 Ohms */
+	};
+
+	eeprom@54 {
+		/* U53, Giantec, GT24C256C-2GLI-TR */
+		compatible = "atmel,24c256";
+		reg = <0x54>;
+		vcc-supply = <&vdd_1v8_carrier>;
+	};
+
+	exp1: gpio@74 {
+		/* U35, TI, TCAL9539RTWR */
+		compatible = "ti,tcal9539";
+		vcc-supply = <&vdd_1v8_carrier>;
+		reg = <0x74>;
+
+		#gpio-cells = <2>;
+		gpio-controller;
+
+		gpio-line-names = "USB_C_OEn_P00", "USB_D_OEn_P01",
+			"CAN_A_STB", "CAN_B_STB",
+			"M2_WDISABLE1#", "M2_WDISABLE2#",
+			"M2_WL_DEVICE_WAKE", "M2_BT_DEVICE_WAKE",
+			"AUD_PWR_EN", "M2_Vendor_DF38", "M2_SD_RST#",
+			"CHGR_CE#", "M2_POWER_EN",
+			"SDIO_A_SWITCH_EN", "SDIO_A_SEL", "";
+	};
+
+	exp2: gpio@77 {
+		/* U21, TI, TCAL9539RTWR */
+		compatible = "ti,tcal9539";
+		vcc-supply = <&vdd_1v8_carrier>;
+		reg = <0x77>;
+		#gpio-cells = <2>;
+		gpio-controller;
+
+		gpio-line-names = "ACD_nINT", "M2_UART_WAKE",
+			"M2_SD_HOST_WAKE", "CHRGR_INTn", 
+			"VOL_UP", "VOL_DOWN",
+			"", "",
+			"DSI_A_INT", "DSI_A_HPD",
+			"LVDS_D_INT", "LVDS_D_HPD",
+			"LVDS_E_INT", "LVDS_E_HPD",
+			"RGB_INT", "RGB_HDMI_HPD";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_exp2_pins_default>;
+
+		#interrupt-cells = <2>;
+		interrupt-controller;
+		interrupts-extended = <&main_gpio0 46 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+	};
+
+	tac5112: audio-codec@51 {
+		/* U19, TI, XTAC5112IRGER */
+		#sound-dai-cells = <0>;
+		compatible = "ti,tac5112";
+		reg = <0x51>;
+
+		ti,vref = <0>;  /* 2.75V */
+		ti,micbias-vg = <0>; /* same as Vref */
+		ti,gpios-func = <0>, <0>, <0>; /* GPIOx - Disable */
+		ti,gpi1-func = <0>;
+
+		avdd-supply = <&vdd_aud_3v3_carrier>;
+		iovdd-supply = <&vdd_1v8_carrier>;
+	};
+
+	headset: ts3a227e@3b {
+		/* U20, TI, TS3A227ERVAR */
+		compatible = "ti,ts3a227e";
+		reg = <0x3b>;
+
+		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		ti,micbias = <6>; /* 2.7V, must match mic bias from codec */
+	};
+};
+
+&mcasp1 {
+	status = "okay";
+};
+
+&mcu_i2c0 { /* I2C_B */
+	status = "okay";
+};
+
+&main_i2c2 { /* I2C_CAM */
+	status = "okay";
+
+	i2c-mux@73 {
+		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
+		reg = <0x73>;
+		vdd-supply = <&vdd_1v8_carrier>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_cam_a: i2c-cam-a@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_cam_b: i2c-cam-b@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_cam_c: i2c-cam-c@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_cam_d: i2c-cam-d@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&main_mcan0 { /* CAN_A */
+	status = "okay";
+	phys = <&transceiver1>;
+};
+
+&main_pmx0 {
+	main_exp2_pins_default: main-exp2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0bc, PIN_INPUT_PULLUP, 7) /* GPIO_A_3 (W25) VOUT0_DATA1.GPIO0_46 */
+		>;
+	};
+
+	main_led_pins_default: main-led-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x1f0, PIN_OUTPUT, 7) /* (A23) EXTREFCLK1.GPIO1_30 */
+		>;
+	};
+
+	main_usb_c_reset_pins_default: main-usb-c-reset-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0b8, PIN_INPUT, 7) /* USB_C_PD_RST (W27) VOUT0_DATA0.GPIO0_45 */
+		>;
+	};
+};
+
+&mcu_pmx0 {
+	mcu_wake_pins_default: mcu-wake-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (A10) MCU_SPI0_CS1.MCU_GPIO0_1 */
+		>;
+	};
+};
+
+&main_usb0_pins_default {
+	pinctrl-single,pins = <
+		J722S_IOPAD(0x254, PIN_OUTPUT, 7) /* (E25) USB0_DRVVBUS.GPIO1_50 */
+	>;
+};
+
+&main_usb1_pins_default {
+	pinctrl-single,pins = <
+		J722S_IOPAD(0x258, PIN_OUTPUT, 7) /* (B27) USB1_DRVVBUS.GPIO1_51 */
+	>;
+};
+
+&main_spi0 { /* SPI_C */
+	status = "okay";
+
+	spidev@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <24000000>;
+		reg = <0>;
+	};
+};
+
+&main_uart5 { /* UART_D */
+	status = "okay";
+};
+
+&main_uart6 { /* UART_A */
+	status = "okay";
+};
+
+&mcu_mcan0 { /* CAN_B */
+	status = "okay";
+	phys = <&transceiver2>;
+};
+
+&ospi0 { /* SPI_A Used as a qSPI */
+	status = "okay";
+
+	flash@0 {
+		compatible = "winbond,w25q64jwz", "jedec,spi-nor";
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
+		spi-max-frequency = <25000000>;
+		cdns,tshsl-ns = <60>;
+		cdns,tsd2d-ns = <60>;
+		cdns,tchsh-ns = <60>;
+		cdns,tslch-ns = <60>;
+		cdns,read-delay = <4>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			/* Sample  partition occupies full size of the device */
+			partition@0 {
+				label = "qspi.part0";
+				reg = <0x0 0>;
+			};
+		};
+	};
+};
+
+&vsel_mmc1 {
+	status = "okay";
+};
+
+&vdd_mmc1 {
+	status = "okay";
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	status = "okay";
+};
+
+&main_i2c4 { /* I2C_C */
+	status = "okay";
+
+	i2c-mux@72 {
+		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
+		reg = <0x72>;
+
+		vdd-supply = <&vdd_1v8>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_port_a: i2c-port-a@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_port_d: i2c-port-d@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_port_e: i2c-port-e@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_port_rgb: i2c-port-rgb@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&usbss0 {
+	status = "okay";
+	ti,vbus-divider;
+};
+
+&usbss1 {
+	status = "okay";
+	ti,vbus-divider;
+};
+
+&usb0 {
+	adp-disable;
+	usb-role-switch;
+
+	port {
+		usb0_ep: endpoint {
+			remote-endpoint = <&usb0_dr_connector>;
+		};
+	};
+};
+
+&usb1 {
+	usb-role-switch;
+
+	port {
+		usb1_ep: endpoint {
+			remote-endpoint = <&usb1_dr_connector>;
+		};
+	};
+};
+
+&serdes0 {
+	status = "okay";
+};
+
+&serdes_wiz0 {
+	status = "okay";
+};
