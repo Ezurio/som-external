@@ -30,15 +30,15 @@ check_present() {
 }
 
 while getopts sr:b:p:w:f:h name; do
-    case ${name} in
-    r)  ROOTFS_DATA_SIZE=${OPTARG} 
+	case ${name} in
+	r)  ROOTFS_DATA_SIZE=${OPTARG}
 		if ! [ "${ROOTFS_DATA_SIZE}" -eq "${ROOTFS_DATA_SIZE}" ] 2>/dev/null; then
 			echo "rootfs_data size is not a number" >&2
 			exit 1
 		fi
 		;;
-    b)  BOOT_SIZE=${OPTARG} ;;
-    p)  PERM_SIZE=${OPTARG} ;;
+	b)  BOOT_SIZE=${OPTARG} ;;
+	p)  PERM_SIZE=${OPTARG} ;;
 	w)  SWAP_SIZE=${OPTARG} ;;
 	f)  SRCDIR=${OPTARG} ;;
 	s)  SECURE=true ;;
