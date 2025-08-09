@@ -236,15 +236,6 @@
 		pwms = <&epwm1 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	pwm0: dmtimer-wkup-pwm-0 {
-		compatible = "ti,omap-dmtimer-pwm";
-		#pwm-cells = <3>;
-		ti,timers = <&wkup_timer0>;
-		pinctrl-0 = <&wkup_timer0_pins_default>;
-		pinctrl-names = "default";
-		status = "disabled";
-	};
-
 	pwm2: dmtimer-mcu-pwm-0 {
 		compatible = "ti,omap-dmtimer-pwm";
 		#pwm-cells = <3>;
@@ -1069,12 +1060,6 @@
 			J722S_MCU_IOPAD(0x030, PIN_OUTPUT, 0) /* (C3) WKUP_UART0_RTSn */
 			J722S_MCU_IOPAD(0x024, PIN_INPUT_PULLUP, 0) /* (B3) WKUP_UART0_RXD */
 			J722S_MCU_IOPAD(0x028, PIN_OUTPUT, 0) /* (C8) WKUP_UART0_TXD */
-		>;
-	};
-
-	wkup_timer0_pins_default: wkup-timer0-default-pins {
-		pinctrl-single,pins = <
-			J722S_MCU_IOPAD(0x034, PIN_OUTPUT, 1) /* DSI_A_BL_PWM / PWM0 (D8) MCU_MCAN0_TX.WKUP_TIMER_IO0 */
 		>;
 	};
 

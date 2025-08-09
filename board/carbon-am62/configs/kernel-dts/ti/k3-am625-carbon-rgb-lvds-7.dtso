@@ -68,7 +68,7 @@
 		pinctrl-0 = <&main_rgb_pwr_default>;
 		gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		startup-delay-us = <10000>;
+		startup-delay-us = <20000>;
 	};
 
 	lvds-encoder {

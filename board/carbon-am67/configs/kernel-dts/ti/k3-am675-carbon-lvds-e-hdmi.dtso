@@ -102,7 +102,23 @@
 
 &dss1 {
 	status = "okay";
-	/* OLDITX ports have no mux on them */
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi1_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_1_in>;
+		};
+	};
 };
 
 &oldi1_dss1 {
@@ -124,23 +140,6 @@
 		reg = <1>;
 		oldi_1_out: endpoint {
 			remote-endpoint = <&lvds_e_in>;
-		};
-	};
-};
-
-&dss1_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	/* Video Port 1 Output to OLDI */
-	port@0 {
-		reg = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		dpi1_out0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&oldi_1_in>;
 		};
 	};
 };

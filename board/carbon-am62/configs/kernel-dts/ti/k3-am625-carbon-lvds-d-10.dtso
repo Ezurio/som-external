@@ -12,23 +12,8 @@
 };
 
 &display_lvds_d {
-	/* BD101LCC3 */
-	compatible = "panel-lvds";
 	width-mm = <217>;
 	height-mm = <136>;
-	data-mapping = "vesa-24";
-
-	panel-timing {
-		clock-frequency = <71000000>;
-		hactive = <1280>;
-		vactive = <800>;
-		hback-porch = <5>;
-		hfront-porch = <123>;
-		vback-porch = <3>;
-		vfront-porch = <24>;
-		hsync-len = <1>;
-		vsync-len = <1>;
-	};
 };
 
 &touchscreen_lvds_d {

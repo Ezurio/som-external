@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM67x
+ * DSI A to DSI Expansion Board with BD070LIC3 display for Carbon AM67x
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -19,7 +19,7 @@
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&pwm0 0 30000 0>; /* 33.3 kHz */
+		pwms = <&epwm2 1 30000 0>; /* 33.3 kHz */
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_dsi_a_backlight_en_default>;
@@ -38,23 +38,40 @@
 		pinctrl-0 = <&main_dsi_a_pwr_default>;
 		gpios = <&main_gpio0 28 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		startup-delay-us = <10000>;
+		startup-delay-us = <20000>;
 	};
 
 	display_dsi_a: display-dsi-a {
-		/* BD070LIC3 */
-		compatible = "tianma,tm070jdhg30", "panel-simple";
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
 
 		power-supply = <&vcc_dsi_a>;
-		backlight = <&backlight_dsi_a>;
+		// Backlight pending PWM support
+		//backlight = <&backlight_dsi_a>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			clock-frequency = <70000000>;
+			hactive = <1280>;
+			vactive = <800>;
+
+			hback-porch = <4>;
+			hfront-porch = <155>;
+			hsync-len = <5>;
+
+			vback-porch = <2>;
+			vfront-porch = <2>;
+			vsync-len = <4>;
+		};
 
 		port {
 			lcd_in0: endpoint {
-				//remote-endpoint = <&sn65dsi84_out>;
+				remote-endpoint = <&sn65dsi84_out>;
 			};
 		};
 	};
-
 };
 
 &main_pmx0 {
@@ -71,11 +88,11 @@
 	};
 };
 
-&wkup_timer0 {
+&epwm2 {
 	status = "okay";
 };
 
-&pwm0 {
+&gpu {
 	status = "okay";
 };
 
@@ -90,12 +107,41 @@
 	/* Video Port 2 Output to DSI */
 	port@1 {
 		reg = <1>;
+
+		dss1_dpi1_out: endpoint {
+			remote-endpoint = <&dsi0_in>;
+		};
+	};
+};
+
+&dphy_tx0 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ports {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		dpi0_out0: endpoint@0 {
+		port@0 {
 			reg = <0>;
-			remote-endpoint = <&sn65dsi84_in>;
+
+			dsi0_out: endpoint {
+				remote-endpoint = <&sn65dsi84_in>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			dsi0_in: endpoint {
+				remote-endpoint = <&dss1_dpi1_out>;
+			};
 		};
 	};
 };
@@ -117,7 +163,7 @@
 				reg = <0>;
 
 				sn65dsi84_in: endpoint {
-					remote-endpoint = <&dpi0_out0>;
+					remote-endpoint = <&dsi0_out>;
 					data-lanes = <1 2 3 4>;
 				};
 			};
@@ -129,7 +175,6 @@
 					remote-endpoint = <&lcd_in0>;
 				};
 			};
-
 		};
 	};
 

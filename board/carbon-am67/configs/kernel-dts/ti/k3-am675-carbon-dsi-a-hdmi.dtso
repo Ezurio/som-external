@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS E to HDMI Expansion Board for Carbon AM67x
+ * DSI A to HDMI Expansion Board for Carbon AM67x
  *
  * Copyright (C) 2025 Ezurio LLC
  */
@@ -42,6 +42,68 @@
 	};
 };
 
+&main_pmx0 {
+	main_dsi_a_pwr_default: main-dsi-pwr-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
+		>;
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss1 {
+	status = "okay";
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 2 Output to DSI */
+	port@1 {
+		reg = <1>;
+
+		dss1_dpi1_out: endpoint {
+			remote-endpoint = <&dsi0_in>;
+		};
+	};
+};
+
+&dphy_tx0 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			dsi0_out: endpoint {
+				remote-endpoint = <&adv7535_in>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			dsi0_in: endpoint {
+				remote-endpoint = <&dss1_dpi1_out>;
+			};
+		};
+	};
+};
+
 &i2c_port_a {
 	hdmi-bridge-dsi-a@3d {
 		compatible = "adi,adv7535";
@@ -76,67 +138,6 @@
 				};
 			};
 
-		};
-	};
-};
-
-&main_pmx0 {
-	main_dsi_a_pwr_default: main-dsi-pwr-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
-		>;
-	};
-};
-
-&gpu {
-	status = "okay";
-};
-
-&dss1 {
-	status = "okay";
-};
-
-&dss1_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	/* Video Port 1 Output to DSI */
-	port@1 {
-		reg = <1>;
-		dss1_dsi0_out: endpoint {
-			remote-endpoint = <&dsi0_in>;
-		};
-	};
-};
-
-&dphy_tx0 {
-	status = "okay";
-};
-
-&dsi0 {
-	status = "okay";
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		port@0 {
-			reg = <0>;
-
-			dsi0_out: endpoint {
-				remote-endpoint = <&adv7535_in>;
-			};
-		};
-
-		port@1 {
-			reg = <1>;
-
-			dsi0_in: endpoint {
-				remote-endpoint = <&dss1_dsi0_out>;
-			};
 		};
 	};
 };
