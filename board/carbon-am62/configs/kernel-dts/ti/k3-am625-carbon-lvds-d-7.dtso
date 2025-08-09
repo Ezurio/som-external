@@ -97,7 +97,23 @@
 
 &dss {
 	status = "okay";
-	/* OLDITX ports have no mux on them */
+};
+
+&dss_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_0_in>;
+		};
+	};
 };
 
 &oldi0 {
@@ -123,28 +139,11 @@
 	};
 };
 
-&dss_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	/* Video Port 1 Output to OLDI */
-	port@0 {
-		reg = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		dpi0_out0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&oldi_0_in>;
-		};
-	};
-};
-
 &i2c_port_d {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen_lvds_d: touchscreen@14 {
+	touchscreen_lvds_d: touchscreen-lvds-d@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 		AVDD28-supply = <&vcc_lvds_d>;
