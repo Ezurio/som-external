@@ -102,7 +102,6 @@
 
 &dss {
 	status = "okay";
-	/* OLDITX ports have no mux on them */
 };
 
 &oldi0 {
@@ -143,8 +142,4 @@
 			remote-endpoint = <&oldi_0_in>;
 		};
 	};
-};
-
-&gpu {
-	status = "okay";
 };

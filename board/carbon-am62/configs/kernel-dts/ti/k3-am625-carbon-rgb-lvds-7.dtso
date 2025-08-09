@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * RGB to LVDS Expansion Board with BD070LIC3 display for carbon AM62xx
+ * RGB to LVDS Expansion Board with BD070LIC3 display for carbon AM62x
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -26,12 +26,44 @@
 		enable-gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
 	};
 
-	display_rgb: display-rgb {
-		/* BD070LIC3 */
-		compatible = "tianma,tm070jdhg30", "panel-simple";
+	vcc_rgb: regulator-vcc-rgb {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_rgb";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 
-		backlight = <&backlight_rgb>;
+		vin-supply = <&reg_reset_rgb>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_pwr_default>;
+		gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <20000>;
+	};
+
+	display_rgb: display-rgb {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
 		power-supply = <&vcc_rgb>;
+		backlight = <&backlight_rgb>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			clock-frequency = <70000000>;
+			hactive = <1280>;
+			vactive = <800>;
+
+			hback-porch = <4>;
+			hfront-porch = <155>;
+			hsync-len = <5>;
+
+			vback-porch = <2>;
+			vfront-porch = <2>;
+			vsync-len = <4>;
+		};
 
 		port {
 			lcd_in0: endpoint {
@@ -54,21 +86,6 @@
 
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-	};
-
-	vcc_rgb: regulator-vcc-rgb {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_rgb";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		vin-supply = <&reg_reset_rgb>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_pwr_default>;
-		gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		startup-delay-us = <20000>;
 	};
 
 	lvds-encoder {
