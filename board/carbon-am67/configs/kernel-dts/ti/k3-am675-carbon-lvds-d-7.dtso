@@ -38,15 +38,32 @@
 		pinctrl-0 = <&main_lvds_d_power_default>;
 		gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		startup-delay-us = <10000>;
+		startup-delay-us = <20000>;
 	};
 
 	display_lvds_d: display-lvds {
-		/* BD070LIC3 */
-		compatible = "tianma,tm070jdhg30", "panel-simple";
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
 
 		power-supply = <&vcc_lvds_d>;
 		backlight = <&backlight_lvds_d>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			clock-frequency = <70000000>;
+			hactive = <1280>;
+			vactive = <800>;
+
+			hback-porch = <4>;
+			hfront-porch = <155>;
+			hsync-len = <5>;
+
+			vback-porch = <2>;
+			vfront-porch = <2>;
+			vsync-len = <4>;
+		};
 
 		port {
 			lcd_in0: endpoint {
@@ -82,9 +99,29 @@
 	status = "okay";
 };
 
+&gpu {
+	status = "okay";
+};
+
 &dss0 {
 	status = "okay";
-	/* OLDITX ports have no mux on them */
+};
+
+&dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_0_in>;
+		};
+	};
 };
 
 &oldi0_dss0 {
@@ -106,23 +143,6 @@
 		reg = <1>;
 		oldi_0_out: endpoint {
 			remote-endpoint = <&lcd_in0>;
-		};
-	};
-};
-
-&dss0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	/* Video Port 1 Output to OLDI */
-	port@0 {
-		reg = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		dpi0_out0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&oldi_0_in>;
 		};
 	};
 };

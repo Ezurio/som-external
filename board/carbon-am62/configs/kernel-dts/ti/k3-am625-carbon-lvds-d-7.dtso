@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM62xx
+ * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM62x
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -42,11 +42,28 @@
 	};
 
 	display_lvds_d: display-lvds {
-		/* BD070LIC3 */
-		compatible = "tianma,tm070jdhg30", "panel-simple";
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
 
 		power-supply = <&vcc_lvds_d>;
 		backlight = <&backlight_lvds_d>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			clock-frequency = <70000000>;
+			hactive = <1280>;
+			vactive = <800>;
+
+			hback-porch = <4>;
+			hfront-porch = <155>;
+			hsync-len = <5>;
+
+			vback-porch = <2>;
+			vfront-porch = <2>;
+			vsync-len = <4>;
+		};
 
 		port {
 			lcd_in0: endpoint {
