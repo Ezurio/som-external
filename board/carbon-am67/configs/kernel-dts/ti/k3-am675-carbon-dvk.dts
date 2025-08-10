@@ -288,7 +288,7 @@
 
 	exp1: gpio@74 {
 		/* U35, TI, TCAL9539RTWR */
-		compatible = "ti,tcal9539";
+		compatible = "ti,tcal9539", "nxp,pcal9535";
 		vcc-supply = <&vdd_1v8_carrier>;
 		reg = <0x74>;
 
@@ -306,7 +306,7 @@
 
 	exp2: gpio@77 {
 		/* U21, TI, TCAL9539RTWR */
-		compatible = "ti,tcal9539";
+		compatible = "ti,tcal9539", "nxp,pcal9535";
 		vcc-supply = <&vdd_1v8_carrier>;
 		reg = <0x77>;
 		#gpio-cells = <2>;

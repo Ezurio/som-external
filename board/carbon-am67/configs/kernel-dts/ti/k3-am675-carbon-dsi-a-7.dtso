@@ -2,7 +2,7 @@
 /*
  * DSI A to DSI Expansion Board with BD070LIC3 display for Carbon AM67x
  *
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 /dts-v1/;
@@ -46,8 +46,7 @@
 		data-mapping = "vesa-24";
 
 		power-supply = <&vcc_dsi_a>;
-		// Backlight pending PWM support
-		//backlight = <&backlight_dsi_a>;
+		backlight = <&backlight_dsi_a>;
 
 		width-mm = <150>;
 		height-mm = <94>;
@@ -186,7 +185,7 @@
 		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 8 GPIO_ACTIVE_HIGH>;
-		//reset-gpios = <&exp2 9 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&exp2 9 GPIO_ACTIVE_HIGH>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};

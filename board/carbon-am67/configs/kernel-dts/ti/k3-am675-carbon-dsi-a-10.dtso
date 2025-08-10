@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS Expansion Board with BD101LCC3 display for carbon AM67xx
+ * LVDS Expansion Board with BD101LCC3 display for carbon AM67x
  *
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 #include "k3-am675-carbon-dsi-a-7.dtso"
