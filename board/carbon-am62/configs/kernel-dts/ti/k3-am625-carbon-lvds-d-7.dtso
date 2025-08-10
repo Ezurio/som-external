@@ -14,7 +14,7 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	backlight_lvds_d: backlight-lvds {
+	backlight_lvds_d: backlight-lvds-d {
 		compatible = "pwm-backlight";
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
@@ -41,7 +41,7 @@
 		startup-delay-us = <10000>;
 	};
 
-	display_lvds_d: display-lvds {
+	display_lvds_d: display-lvds-d {
 		compatible = "panel-lvds";
 		data-mapping = "vesa-24";
 
@@ -70,20 +70,6 @@
 				remote-endpoint = <&oldi_0_out>;
 			};
 		};
-	};
-};
-
-&main_pmx0 {
-	main_lvds_d_power_default: main-lvds-d-power-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x078, PIN_INPUT, 7) /* LVDS_D_VDD_EN (U24) GPMC0_AD15.GPIO0_30 */
-		>;
-	};
-
-	main_lvds_d_backlight_en_default: main-lvds-d-backlight-en-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x088, PIN_INPUT, 7) /* LVDS_D_BL_EN (L17) GPMC0_OEn_REn.GPIO0_33 */
-		>;
 	};
 };
 

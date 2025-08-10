@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS D to LVDS Expansion Board with BD070LIC3 display for Carbon AM67x
+ * LVDS E to LVDS Expansion Board with BD070LIC3 display for Carbon AM67x
  *
  * Copyright (C) 2025 Ezurio LLC
  */
@@ -14,39 +14,39 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	backlight_lvds_d: backlight-lvds-d {
+	backlight_lvds_e: backlight-lvds-e {
 		compatible = "pwm-backlight";
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&pwm2 0 30000 0>; /* 33.3 kHz */
+		pwms = <&epwm2 1 30000 0>; /* 33.3 kHz */
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_backlight_en_default>;
-		enable-gpios = <&main_gpio0 52 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&main_lvds_e_backlight_en_default>;
+		enable-gpios = <&main_gpio0 50 GPIO_ACTIVE_HIGH>;
 	};
 
-	vcc_lvds_d: regulator-vcc-lvds-d {
+	vcc_lvds_e: regulator-vcc-lvds-e {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_lvds-d";
+		regulator-name = "vcc_lvds_e";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
 		vin-supply = <&vdd_3v3_carrier>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_power_default>;
-		gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&main_lvds_e_power_default>;
+		gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		startup-delay-us = <10000>;
 	};
 
-	display_lvds_d: display-lvds-d {
+	display_lvds_e: display-lvds-e {
 		compatible = "panel-lvds";
 		data-mapping = "vesa-24";
 
-		power-supply = <&vcc_lvds_d>;
-		backlight = <&backlight_lvds_d>;
+		power-supply = <&vcc_lvds_e>;
+		backlight = <&backlight_lvds_e>;
 
 		width-mm = <150>;
 		height-mm = <94>;
@@ -66,18 +66,14 @@
 		};
 
 		port {
-			lcd_d_in: endpoint {
-				remote-endpoint = <&oldi_0_out>;
+			lcd_e_in: endpoint {
+				remote-endpoint = <&oldi_1_out>;
 			};
 		};
 	};
 };
 
-&mcu_timer0 {
-	status = "okay";
-};
-
-&pwm2 {
+&epwm2 {
 	status = "okay";
 };
 
@@ -85,11 +81,23 @@
 	status = "okay";
 };
 
-&dss0 {
+&dss1 {
 	status = "okay";
+
+	/* Separate PCLK for each independent display required,
+	   only PLL 18 is connected to DSS1 OLDI */
+	assigned-clocks =
+		<&k3_clks 241 0>,	/* DSS1-VP0 */
+		<&k3_clks 240 0>,	/* DSS1-VP1 */
+		<&k3_clks 235 7>;	/* OLDI TX 1 */
+
+	assigned-clock-parents =
+		<&k3_clks 241 1>,	/* PLL 18 OLDI */
+		<&k3_clks 240 2>,	/* PLL 17 DSI */
+		<&k3_clks 235 9>;	/* PLL 18 OLDI */
 };
 
-&dss0_ports {
+&dss1_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
@@ -99,51 +107,53 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		dpi0_out0: endpoint@0 {
+		dpi1_out0: endpoint@0 {
 			reg = <0>;
-			remote-endpoint = <&oldi_0_in>;
+			remote-endpoint = <&oldi_1_in>;
 		};
 	};
 };
 
-&oldi0_dss0 {
+&oldi1_dss1 {
 	status = "okay";
+
+	reg = <1>;
 };
 
-&oldi0_dss0_ports {
+&oldi1_dss1_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
 	port@0 {
 		reg = <0>;
 
-		oldi_0_in: endpoint {
-			remote-endpoint = <&dpi0_out0>;
+		oldi_1_in: endpoint {
+			remote-endpoint = <&dpi1_out0>;
 		};
 	};
 
 	port@1 {
 		reg = <1>;
 
-		oldi_0_out: endpoint {
-			remote-endpoint = <&lcd_d_in>;
+		oldi_1_out: endpoint {
+			remote-endpoint = <&lcd_e_in>;
 		};
 	};
 };
 
-&i2c_port_d {
+&i2c_port_e {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen_lvds_d: touchscreen-lvds-d@14 {
+	touchscreen_lvds_e: touchscreen-lvds-e@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
-		AVDD28-supply = <&vcc_lvds_d>;
-		VDDIO-supply = <&vcc_lvds_d>;
-		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_FALLING>;
+		AVDD28-supply = <&vcc_lvds_e>;
+		VDDIO-supply = <&vcc_lvds_e>;
+		interrupts-extended = <&exp2 12 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+		irq-gpios = <&exp2 12 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};

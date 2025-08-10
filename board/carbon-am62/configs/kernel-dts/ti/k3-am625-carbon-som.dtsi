@@ -822,6 +822,36 @@
 			AM62X_IOPAD(0x074, PIN_INPUT, 7) /* CAM_A_RST# (U25) GPMC0_AD14.GPIO0_29 */
 		>;
 	};
+
+	main_rgb_power_default: main-rgb-power-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* RGB_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
+		>;
+	};
+
+	main_rgb_reset_default: main-rgb-reset-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x04c, PIN_INPUT, 7) /* RGB_RESET# (P24) GPMC0_AD4.GPIO0_19 */
+		>;
+	};
+
+	main_rgb_backlight_en_default: main-rgb-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x124, PIN_INPUT, 7) /* RGB_BL_EN (A23) MMC2_SDCD.GPIO0_71 */
+		>;
+	};
+
+	main_lvds_d_power_default: main-lvds-d-power-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x078, PIN_INPUT, 7) /* LVDS_D_VDD_EN (U24) GPMC0_AD15.GPIO0_30 */
+		>;
+	};
+
+	main_lvds_d_backlight_en_default: main-lvds-d-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x088, PIN_INPUT, 7) /* LVDS_D_BL_EN (L17) GPMC0_OEn_REn.GPIO0_33 */
+		>;
+	};
 };
 
 &main_spi0 { /* SPI_B */
@@ -1018,30 +1048,4 @@
 
 &gpu {
 	status = "disabled";
-};
-
-&oldi0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>; 
-	};
-
-	port@1 {
-		reg = <1>;
-	};
-};
-
-&oldi1_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>; 
-	};
-
-	port@1 {
-		reg = <1>;
-	};
 };

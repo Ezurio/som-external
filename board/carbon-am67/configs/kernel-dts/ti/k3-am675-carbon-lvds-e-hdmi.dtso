@@ -12,14 +12,14 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	hdmi-connector-lvds-e {
+	hdmi-connector-e {
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
 		digital;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_e_pwr_default>;
+		pinctrl-0 = <&main_lvds_e_power_default>;
 		ddc-en-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
 
 		ddc-i2c-bus = <&i2c_port_e>;
@@ -28,19 +28,19 @@
 		//hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
 
 		port {
-			hdmi_connector_lvds_e_in: endpoint {
+			hdmi_connector_e_in: endpoint {
 				remote-endpoint = <&tfp410_e_out>;
 			};
 		};
 	};
 
-	dvi-bridge-lvds-e {
+	bridge-e {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
 		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_lvds_e_pwr_default>;
+		//pinctrl-0 = <&main_lvds_e_power_default>;
 		//powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
 
 		port@0 {
@@ -55,7 +55,7 @@
 		port@1 {
 			reg = <1>;
 			tfp410_e_out: endpoint {
-				remote-endpoint = <&hdmi_connector_lvds_e_in>;
+				remote-endpoint = <&hdmi_connector_e_in>;
 			};
 		};
 	};
@@ -88,20 +88,24 @@
 	};
 };
 
-&main_pmx0 {
-	main_lvds_e_pwr_default: main-lvds-e-pwr-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0c8, PIN_INPUT, 7) /* LVDS_E_VDD_EN (W22) VOUT0_DATA4.GPIO0_49 */
-		>;
-	};
-};
-
 &gpu {
 	status = "okay";
 };
 
 &dss1 {
 	status = "okay";
+
+	/* Separate PCLK for each independent display required,
+	   only PLL 18 is connected to DSS1 OLDI */
+	assigned-clocks =
+		<&k3_clks 241 0>,	/* DSS1-VP0 */
+		<&k3_clks 240 0>,	/* DSS1-VP1 */
+		<&k3_clks 235 7>;	/* OLDI TX 1 */
+
+	assigned-clock-parents =
+		<&k3_clks 241 1>,	/* PLL 18 OLDI */
+		<&k3_clks 240 2>,	/* PLL 17 DSI */
+		<&k3_clks 235 9>;	/* PLL 18 OLDI */
 };
 
 &dss1_ports {
@@ -123,6 +127,8 @@
 
 &oldi1_dss1 {
 	status = "okay";
+
+	reg = <1>;
 };
 
 &oldi1_dss1_ports {

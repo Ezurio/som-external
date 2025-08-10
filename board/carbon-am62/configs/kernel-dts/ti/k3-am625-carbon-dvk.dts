@@ -19,8 +19,8 @@
 		gpio4 = &exp2;
 	};
 
-	vdd_3v3_carrier: regulator-u4-sw2 {
-		/* output of U4 */
+	vdd_3v3_carrier: vdd-3v3-carrier {
+		/* output 2 of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
@@ -29,8 +29,8 @@
 		regulator-boot-on;
 	};
 
-	vdd_1v8_carrier: regulator-u4-sw3 {
-		/* output of U4 */
+	vdd_1v8_carrier: vdd-1v8-carrier {
+		/* output 3 of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_1v8_carrier";
 		regulator-min-microvolt = <1800000>;
@@ -39,7 +39,7 @@
 		regulator-boot-on;
 	};
 
-	vdd_aud_3v3_carrier: regulator-aud-pwr {
+	vdd_aud_3v3_carrier: vdd-aud-3v3-carrier {
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_aud_3v3_carrier";
 		regulator-min-microvolt = <3300000>;

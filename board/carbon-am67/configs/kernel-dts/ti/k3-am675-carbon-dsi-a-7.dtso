@@ -19,7 +19,7 @@
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&epwm2 1 30000 0>; /* 33.3 kHz */
+		pwms = <&epwm2 0 30000 0>; /* 33.3 kHz */
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_dsi_a_backlight_en_default>;
@@ -35,7 +35,7 @@
 		vin-supply = <&vdd_3v3_carrier>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_dsi_a_pwr_default>;
+		pinctrl-0 = <&main_dsi_a_power_default>;
 		gpios = <&main_gpio0 28 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		startup-delay-us = <20000>;
@@ -66,24 +66,10 @@
 		};
 
 		port {
-			lcd_in0: endpoint {
+			lcd_a_in: endpoint {
 				remote-endpoint = <&sn65dsi84_out>;
 			};
 		};
-	};
-};
-
-&main_pmx0 {
-	main_dsi_a_pwr_default: main-dsi-pwr-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
-		>;
-	};
-
-	main_dsi_a_backlight_en_default: main-dsi-a-backlight-en-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x074, PIN_INPUT, 7) /* DSI_BL_EN (V22) GPMC0_AD14.GPIO0_29 */
-		>;
 	};
 };
 
@@ -171,7 +157,7 @@
 				reg = <2>;
 
 				sn65dsi84_out: endpoint {
-					remote-endpoint = <&lcd_in0>;
+					remote-endpoint = <&lcd_a_in>;
 				};
 			};
 		};

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * M.2 ST60-2230C-SS module
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 #include "k3-am675-carbon-m2-60-sdio-uart.dtso"

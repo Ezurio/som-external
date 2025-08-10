@@ -317,6 +317,12 @@
 	};
 };
 
+&mcu_timer0 {
+	/* Interrupt not provided by upstream dts */
+	interrupt-parent = <&main_gpio_intr>;
+	interrupts = <170 IRQ_TYPE_EDGE_RISING>;
+};
+
 &cpsw3g {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;
@@ -459,7 +465,7 @@
 		"","","","","",					/* 10 - 14 */
 		"SDIO_A_PWR_EN","","W_DISABLE1","W_DISABLE2","SDIO_RESET",
 		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",	/* 20 - 24 */
-		"USB_B_ID","USB_B_OC","SDIO_A_PWR_EN","DSI_VDD_EN","DSI_BL_EN",
+		"USB_B_ID","USB_B_OC","SDIO_A_PWR_EN","DSI_A_VDD_EN","DSI_A_BL_EN",
 		"EFUSE_EN","","","","",				/* 30 - 34 */
 		"","ETH_A_INT","","SDIO_A_VSEL","",
 		"ETH_A_RST","","","","",			/* 40 - 44 */
@@ -970,6 +976,42 @@
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x064, PIN_INPUT, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
 			J722S_IOPAD(0x068, PIN_INPUT, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
+		>;
+	};
+
+	main_dsi_a_power_default: main-dsi-a-power-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x070, PIN_INPUT, 7) /* DSI_VDD_EN (V24) GPMC0_AD13.GPIO0_28 */
+		>;
+	};
+
+	main_dsi_a_backlight_en_default: main-dsi-a-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x074, PIN_INPUT, 7) /* DSI_BL_EN (V22) GPMC0_AD14.GPIO0_29 */
+		>;
+	};
+
+	main_lvds_d_power_default: main-lvds-d-power-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d0, PIN_INPUT, 7) /* LVDS_D_VDD_EN (Y26) VOUT0_DATA6.GPIO0_51 */
+		>;
+	};
+
+	main_lvds_d_backlight_en_default: main-lvds-d-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d4, PIN_INPUT, 7) /* LVDS_D_BL_EN (Y27) VOUT0_DATA7.GPIO0_52 */
+		>;
+	};
+
+	main_lvds_e_power_default: main-lvds-e-power-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0c8, PIN_INPUT, 7) /* LVDS_E_VDD_EN (W22) VOUT0_DATA4.GPIO0_49 */
+		>;
+	};
+
+	main_lvds_e_backlight_en_default: main-lvds-e-backlight-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0cc, PIN_INPUT, 7) /* LVDS_E_BL_EN (W21) VOUT0_DATA5.GPIO0_50 */
 		>;
 	};
 };
