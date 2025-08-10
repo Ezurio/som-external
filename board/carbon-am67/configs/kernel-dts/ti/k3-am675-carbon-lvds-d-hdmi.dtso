@@ -2,7 +2,7 @@
 /*
  * LVDS D to HDMI Expansion Board for Carbon AM67x
  *
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 /dts-v1/;
@@ -12,14 +12,14 @@
 #include "k3-pinctrl.h"
 
 &{/} {
-	hdmi-connector-lvds-d {
+	hdmi-connector-d {
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
 		digital;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_pwr_default>;
+		pinctrl-0 = <&main_lvds_d_power_default>;
 		ddc-en-gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
 
 		ddc-i2c-bus = <&i2c_port_d>;
@@ -28,7 +28,7 @@
 		//hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
 
 		port {
-			hdmi_connector_lvds_d_in: endpoint {
+			hdmi_connector_d_in: endpoint {
 				remote-endpoint = <&tfp410_d_out>;
 			};
 		};
@@ -40,7 +40,7 @@
 		compatible = "ti,tfp410";
 
 		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_lvds_d_pwr_default>;
+		//pinctrl-0 = <&main_lvds_d_power_default>;
 		//powerdown-gpios = <&main_gpio0 51 GPIO_ACTIVE_LOW>;
 
 		port@0 {
@@ -54,8 +54,9 @@
 
 		port@1 {
 			reg = <1>;
+
 			tfp410_d_out: endpoint {
-				remote-endpoint = <&hdmi_connector_lvds_d_in>;
+				remote-endpoint = <&hdmi_connector_d_in>;
 			};
 		};
 	};
@@ -85,14 +86,6 @@
 				};
 			};
 		};
-	};
-};
-
-&main_pmx0 {
-	main_lvds_d_pwr_default: main-lvds-d-pwr-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0d0, PIN_INPUT, 7) /* LVDS_D_VDD_EN (Y26) VOUT0_DATA6.GPIO0_51 */
-		>;
 	};
 };
 
@@ -131,6 +124,7 @@
 
 	port@0 {
 		reg = <0>;
+
 		oldi_0_in: endpoint {
 			remote-endpoint = <&dpi0_out0>;
 		};
@@ -138,6 +132,7 @@
 
 	port@1 {
 		reg = <1>;
+
 		oldi_0_out: endpoint {
 			remote-endpoint = <&lvds_d_in>;
 		};

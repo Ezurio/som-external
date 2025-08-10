@@ -2,7 +2,7 @@
 /*
  * M.2 SDIO Wi-Fi common functions
  *
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>

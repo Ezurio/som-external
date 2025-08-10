@@ -19,30 +19,30 @@
  */
 
 &{/} {
-	hdmi-connector-lvds-e {
+	hdmi-connector-e {
 		compatible = "hdmi-connector";
 		label = "hdmi";
 		type = "a";
 		digital;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_e_pwr_default>;
+		pinctrl-0 = <&main_rgb_power_default>;
 		ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port {
-			hdmi_connector_lvds_e_in: endpoint {
+			hdmi_connector_e_in: endpoint {
 				remote-endpoint = <&tfp410_e_out>;
 			};
 		};
 	};
 
-	dvi-bridge-lvds-e {
+	bridge-e {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
 		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_lvds_e_pwr_default>;
+		//pinctrl-0 = <&main_rgb_power_default>;
 		//powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port@0 {
@@ -57,7 +57,7 @@
 		port@1 {
 			reg = <1>;
 			tfp410_e_out: endpoint {
-				remote-endpoint = <&hdmi_connector_lvds_e_in>;
+				remote-endpoint = <&hdmi_connector_e_in>;
 			};
 		};
 	};
@@ -87,16 +87,6 @@
 				};
 			};
 		};
-	};
-};
-
-&main_pmx0 {
-	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN 
-	   as such these functions cannot be used together */
-	main_lvds_e_pwr_default: main-lvds-e-pwr-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* LVDS_E_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
-		>;
 	};
 };
 

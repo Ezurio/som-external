@@ -1,0 +1,17 @@
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -1111,6 +1111,14 @@
+ 		if (!error)
+ 			return 0;
+ 
++		if (client->addr == 0x14) {
++			client->addr = 0x5d;
++			error = goodix_i2c_read(client, GOODIX_REG_ID, &test, 1);
++			if (!error)
++				return 0;
++			client->addr = 0x14;
++		}
++
+ 		msleep(20);
+ 	}
+ 

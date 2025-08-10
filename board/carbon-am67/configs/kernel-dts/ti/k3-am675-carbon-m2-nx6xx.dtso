@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * M.2 SDIO NX6xx module
- * Copyright (C) 2024 Ezurio LLC
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 /dts-v1/;

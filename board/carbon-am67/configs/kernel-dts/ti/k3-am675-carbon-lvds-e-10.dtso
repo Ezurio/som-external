@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * LVDS E to LVDS Expansion Board with BD101LCC3 display for Carbon AM67x
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+#include "k3-am675-carbon-lvds-e-7.dtso"
+
+&backlight_lvds_e {
+	pwms = <&epwm2 1 100000 0>;
+};
+
+&display_lvds_e {
+	width-mm = <217>;
+	height-mm = <136>;
+};
+
+&touchscreen_lvds_e {
+	compatible = "goodix,gt9271";
+	reg = <0x5d>;
+};

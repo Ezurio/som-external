@@ -35,7 +35,7 @@
 		vin-supply = <&reg_reset_rgb>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_pwr_default>;
+		pinctrl-0 = <&main_rgb_power_default>;
 		gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		startup-delay-us = <20000>;
@@ -66,8 +66,8 @@
 		};
 
 		port {
-			lcd_in0: endpoint {
-				remote-endpoint = <&lvds_out>;
+			lcd_rgb_in: endpoint {
+				remote-endpoint = <&lvds_rgb_out>;
 			};
 		};
 	};
@@ -101,40 +101,18 @@
 
 			port@0 {
 				reg = <0>;
-				lvds_in0: endpoint {
+				lvds_rgb_in: endpoint {
 					remote-endpoint = <&dpi_out0>;
 				};
 			};
 
 			port@1 {
 				reg = <1>;
-				lvds_out: endpoint {
-					remote-endpoint = <&lcd_in0>;
+				lvds_rgb_out: endpoint {
+					remote-endpoint = <&lcd_rgb_in>;
 				};
 			};
 		};
-	};
-};
-
-&main_pmx0 {
-	/* CAUTION: LVDS_E_VDD_EN is shared with RGB_VDD_EN
-	   as such these functions cannot be used together */
-	main_rgb_pwr_default: main-rgb-pwr-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* RGB_VDD_EN (E24) OSPI0_CSn3.GPIO0_14 */
-		>;
-	};
-
-	main_rgb_reset_default: main-rgb-reset-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x04c, PIN_INPUT, 7) /* RGB_RESET# (P24) GPMC0_AD4.GPIO0_19 */
-		>;
-	};
-
-	main_rgb_backlight_en_default: main-rgb-backlight-en-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x124, PIN_INPUT, 7) /* RGB_BL_EN (A23) MMC2_SDCD.GPIO0_71 */
-		>;
 	};
 };
 
@@ -160,7 +138,7 @@
 		reg = <1>;
 
 		dpi_out0: endpoint {
-			remote-endpoint = <&lvds_in0>;
+			remote-endpoint = <&lvds_rgb_in>;
 		};
 	};
 };
