@@ -24,7 +24,7 @@
 
 &mcu_uart0 {
 	bluetooth {
-		compatible = "brcm,bcm4329-bt";
+		compatible = "infineon,cyw55572-bt";
 		vbat-supply = <&vcc_wifi_m2>;
 		vddio-supply = <&vdd_1v8_carrier>;
 		brcm,requires-autobaud-mode;

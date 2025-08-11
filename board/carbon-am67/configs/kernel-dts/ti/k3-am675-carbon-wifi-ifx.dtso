@@ -36,7 +36,7 @@
 	status = "okay";
 
 	bluetooth {
-		compatible = "brcm,bcm4329-bt";
+		compatible = "infineon,cyw55572-bt";
 		vbat-supply = <&reg_slow_clock>;
 		vddio-supply = <&vdd_1v8>;
 		brcm,requires-autobaud-mode;
