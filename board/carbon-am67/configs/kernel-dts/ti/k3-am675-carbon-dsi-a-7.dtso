@@ -52,16 +52,16 @@
 		height-mm = <94>;
 
 		panel-timing {
-			clock-frequency = <70000000>;
+			clock-frequency = <68000000>;
 			hactive = <1280>;
 			vactive = <800>;
 
-			hback-porch = <4>;
-			hfront-porch = <155>;
-			hsync-len = <5>;
+			hback-porch = <27>;
+			hfront-porch = <64>;
+			hsync-len = <4>;
 
-			vback-porch = <2>;
-			vfront-porch = <2>;
+			vback-porch = <4>;
+			vfront-porch = <16>;
 			vsync-len = <4>;
 		};
 
