@@ -14,16 +14,16 @@ diff --git a/crypto/rand/rand_lib.c b/crypto/rand/rand_lib.c
 index 14999540ab..f3c359bc71 100644
 --- a/crypto/rand/rand_lib.c
 +++ b/crypto/rand/rand_lib.c
-@@ -780,7 +780,7 @@ EVP_RAND_CTX *rand_get0_primary(OSSL_LIB_CTX *ctx)
+@@ -775,7 +775,7 @@ EVP_RAND_CTX *rand_get0_primary(OSSL_LIB_CTX *ctx)
  
  #if !defined(FIPS_MODULE) || !defined(OPENSSL_NO_FIPS_JITTER)
      /* Create a seed source for libcrypto or jitter enabled FIPS provider */
--    if (dgbl->seed == NULL) {
-+    if (dgbl->seed == NULL && !EVP_default_properties_is_fips_enabled(ctx)) {
+-    if (seed == NULL) {
++    if (seed == NULL && !EVP_default_properties_is_fips_enabled(ctx)) {
          ERR_set_mark();
-         dgbl->seed = rand_new_seed(ctx);
+         seed = newseed = rand_new_seed(ctx);
          ERR_pop_to_mark();
-@@ -831,9 +831,15 @@ EVP_RAND_CTX *rand_get0_public(OSSL_LIB_CTX *ctx)
+@@ -844,9 +844,15 @@ EVP_RAND_CTX *rand_get0_public(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->public);
      if (rand == NULL) {
@@ -42,7 +42,7 @@ index 14999540ab..f3c359bc71 100644
  
          ctx = ossl_lib_ctx_get_concrete(ctx);
  
-@@ -870,9 +876,15 @@ EVP_RAND_CTX *rand_get0_private(OSSL_LIB_CTX *ctx)
+@@ -883,9 +889,15 @@ EVP_RAND_CTX *rand_get0_private(OSSL_LIB_CTX *ctx)
  
      rand = CRYPTO_THREAD_get_local(&dgbl->private);
      if (rand == NULL) {
