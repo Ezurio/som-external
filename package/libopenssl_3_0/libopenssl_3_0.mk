@@ -7,7 +7,7 @@
 ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
 LIBOPENSSL_3_0_VERSION = 3.2.0
 else
-LIBOPENSSL_3_0_VERSION = 3.5.0
+LIBOPENSSL_3_0_VERSION = 3.5.2
 endif
 LIBOPENSSL_3_0_SITE = https://github.com/openssl/openssl/releases/download/openssl-$(LIBOPENSSL_3_0_VERSION)
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz
@@ -22,7 +22,7 @@ LIBOPENSSL_3_0_CPE_ID_VENDOR = $(LIBOPENSSL_3_0_PROVIDES)
 LIBOPENSSL_3_0_CPE_ID_PRODUCT = $(LIBOPENSSL_3_0_PROVIDES)
 
 ifeq ($(LIBOPENSSL_3_0_VERSION),3.2.0)
-#0102-Only-free-the-read-buffers-if-we-re-not-using-them.patch
+# 0102-Only-free-the-read-buffers-if-we-re-not-using-them.patch
 LIBOPENSSL_3_0_IGNORE_CVES += CVE-2024-4741
 endif
 
