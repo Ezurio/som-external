@@ -220,7 +220,7 @@ if grep -q 'BR2_DEFCONFIG=.*_fips_dev_.*' "${BR2_CONFIG}"; then
 elif grep -qF "BR2_PACKAGE_SUMMITSSL_FIPS_BINARIES=y" "${BR2_CONFIG}"; then
 	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/7.1/${BUILD_TYPE}/"*
 elif grep -qF "BR2_PACKAGE_SUMMIT_OPENSSL_FIPS_PROVIDER=y" "${BR2_CONFIG}"; then
-	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.0/${BUILD_TYPE}/"*
+	install -D -m 0644 -t "${TARGET_DIR}/usr/lib/fipscheck" "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/fips_hash/11.1/${BUILD_TYPE}/"*
 fi
 
 echo "COMMON POST BUILD script: done."
