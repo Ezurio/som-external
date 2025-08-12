@@ -58,6 +58,6 @@
 	status = "okay";
 };
 
-&dphy0 {
+&dphy1 {
 	status = "okay";
 };
