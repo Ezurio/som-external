@@ -115,6 +115,7 @@ fi
 hash_check() {
 	for i in "$@"; do
 		openssl mac -macopt key:orboDeJITITejsirpADONivirpUkvarP -digest sha256 -in  "${i}" hmac | \
+            tr '[:upper:]' '[:lower:]' | \
 			diff -is - "${TARGET_DIR}/usr/lib/fipscheck/${i##*/}.hmac" || \
 			die "FIPS Hash mismatch to the certified for ${i##*/}"
 	done

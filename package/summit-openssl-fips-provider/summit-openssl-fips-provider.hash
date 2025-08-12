@@ -1,4 +1,4 @@
-sha256  3c80e2a399195fc8c02eaa68bbcb514c75f49a3f1ccca0c184d37228d4053764  summit_openssl_fips_provider-arm-eabi-11.0.0.285.tar.bz2
-sha256  f172a56f8b74746e237a85fde71e874ddd2e7e898e2f6b150ffcbaf4496e6295  summit_openssl_fips_provider-arm-eabihf-11.0.0.285.tar.bz2
+sha256  45504dca2f9f3ce2d58bb5815ab12d62891aebe2c5d08509f36fbfbc713b10f3  summit_openssl_fips_provider-arm-eabi-11.0.0.294.tar.bz2
+sha256  48420cb52229e68591e838998050c89ceefcb2b7253a19ccea557ee569f4ba17  summit_openssl_fips_provider-arm-eabihf-11.0.0.294.tar.bz2
 sha256  ff126d9b0f7f474b2652064d045c6b25a015eb94f9d0ac29c96d053c94577343  LICENSE.ezurio
 sha256  7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a  LICENSE.openssl
