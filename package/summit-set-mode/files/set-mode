@@ -31,7 +31,12 @@ case "${1}" in
         echo "  <mode> is one or multiple of:"
         echo "  default - remove all overlays"
         echo "  status - print active overlays"
+        echo
+        echo "Available modes/overlays:"
         echo "${params}" | sed 's/^/  /'
+        echo
+        echo "Currently set modes/overlays:"
+        echo "${cconf}" | tr '#' "\n" | sed -rn "s/${prefix}-(.*)\.dtbo/  \1/p"
         exit 1
         ;;
 
