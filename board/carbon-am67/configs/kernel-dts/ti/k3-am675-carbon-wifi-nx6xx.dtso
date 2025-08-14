@@ -10,7 +10,6 @@
 	status = "okay";
 	startup-delay-us = <20000>;
 	vin-supply = <&vdd_3v3>;
-	regulator-always-on;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */

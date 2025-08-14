@@ -22,9 +22,18 @@
 };
 
 &reg_wifi_en_m2 {
-	regulator-always-on;
+	status = "disabled";
 };
 
 &wifi_wakeup_m2 {
 	status = "disabled";
+};
+
+&{/} {
+	rfkill-wifi-m2 {
+		compatible = "rfkill-gpio";
+		label = "rfkill-wifi-m2";
+		radio-type = "wlan";
+		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
+	};
 };
