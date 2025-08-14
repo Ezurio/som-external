@@ -5,10 +5,14 @@
  * Copyright (C) 2025 Ezurio LLC
  */
 
+#include <dt-bindings/gpio/gpio.h>
+
 /dts-v1/;
 /plugin/;
 
 &{/} {
+
+
 	vcc_wifi_m2: regulator-wifi-m2 {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_wifi_m2";
@@ -22,32 +26,18 @@
 		regulator-always-on;
 	};
 
-	reg_wifi_en_m2: regulator-wifi-en-m2 {
-		compatible = "regulator-fixed";
-
-		regulator-name = "reg_wifi_en_m2";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		vin-supply = <&vcc_wifi_m2>;
-
-		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
-		enable-active-high;
-		regulator-always-on;
-
-		startup-delay-us = <250000>;
-		off-on-delay-us = <100>;
+	rfkill-wifi-m2 {
+		compatible = "rfkill-gpio";
+		label = "rfkill-wifi-m2";
+		radio-type = "wlan";
+		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
 	};
 
-	reg_bt_en_m2: regulator-bt-en-m2 {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_bt_en_m2";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-
-		gpio = <&exp1 5 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		regulator-always-on;
+	rfkill-bt-m2 {
+		compatible = "rfkill-gpio";
+		label = "rfkill-bt-m2";
+		radio-type = "bluetooth";
+		shutdown-gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;
 	};
 };
 
