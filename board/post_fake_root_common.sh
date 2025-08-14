@@ -24,18 +24,18 @@ generate_custom_encrypted_filesystem() {
             die "Encrypted filesystem key not found"
 
         update_signing_cert="${KEYS_DIR}/update_signing.crt"
-
-        # Check if a customer data directory is provided
-        if [ -n "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] ; then
-            [ -d "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] || \
-                die "Encrypted filesystem data directory not found"
-            customer_data_dir="${ENCRYPTED_FILESYSTEM_DATA_DIR}/"
-        fi
     else
         # Keys directory is not set, use the default filesystem encryption key
         encrypted_filesystem_key="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/key-fs.bin"
         [ -f "${encrypted_filesystem_key}" ] || \
             die "Encrypted filesystem key not found"
+    fi
+
+    # Check if a customer data directory is provided
+    if [ -n "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] ; then
+        [ -d "${ENCRYPTED_FILESYSTEM_DATA_DIR}" ] || \
+            die "Encrypted filesystem data directory not found"
+        customer_data_dir="${ENCRYPTED_FILESYSTEM_DATA_DIR}/"
     fi
 
     # Generate the encrypted filesystem
@@ -95,7 +95,7 @@ create_secure_boot_encryption_key() {
     # Check if the Secure SAM-BA Cipher Tool is available
     samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
     [ -f "${samba_cipher_tool_dir}/sam_gen_keypayload.py" ] || \
-        die "No Secure SAM-BA Cipher Tool found"
+        die "No Secure SAM-BA Cipher Tool found - is the host-secure-sam-ba-cipher package enabled?"
 
     license_path="${KEYS_DIR}/license_sama5d3_Prod.txt"
     [ -f "${license_path}" ] || \
@@ -167,8 +167,13 @@ fi
 if [ -n "${KEYS_DIR}" ]; then
     # Keys directory is set, use the custom keys
     write_encrypted_filesystem_key
-    create_secure_boot_encryption_key
-    get_secure_mode_command
+
+    if grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" && \
+       grep -qF "BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER=y" "${BR2_CONFIG}"; then
+        # Create the secure boot encryption key
+        create_secure_boot_encryption_key
+        get_secure_mode_command
+    fi
 
     case "${BUILD_TYPE}" in
         *sd)
