@@ -279,7 +279,7 @@ if [ -n "${SWUPDATE_VER}" ]; then
 	if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 		mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
 		if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
-			cp "${BINARIES_DIR}/keys/dev.crt" "${TARGET_DIR}"/etc/swupdate
+			cp "${BINARIES_DIR}/keys/update_signing.crt" "${TARGET_DIR}/etc/swupdate/dev.crt"
 			# Configure dev.crt if swupdate CMS is enabled
 			# shellcheck disable=SC2016
 			echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > \

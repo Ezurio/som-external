@@ -125,7 +125,7 @@ create_secure_boot_encrypted_uboot_spl() {
     # Check if the Secure SAM-BA Cipher Tool is available
     samba_cipher_tool_dir="${HOST_DIR}/opt/secure-sam-ba-cipher"
     [ -f "${samba_cipher_tool_dir}/sam_genimage.py" ] || \
-        die "No Secure SAM-BA Cipher Tool found"
+        die "No Secure SAM-BA Cipher Tool found - is the host-secure-sam-ba-cipher package enabled?"
 
     customer_key_config="${KEYS_DIR}/customer_key_config.yaml"
     [ -f "${customer_key_config}" ] || \
