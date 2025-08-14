@@ -89,12 +89,12 @@ case "${fwenv}" in
 	*-a.config)
 		fwenvn=${fwenv%-a.config}-b.config
 		migrate_uboot_var conf
-		migrate_uboot_var regdomain
+		migrate_uboot_var RegDomain
 		;;
 	*-b.config)
 		fwenvn=${fwenv%-b.config}-a.config
 		migrate_uboot_var conf
-		migrate_uboot_var regdomain
+		migrate_uboot_var RegDomain
 		;;
 esac
 

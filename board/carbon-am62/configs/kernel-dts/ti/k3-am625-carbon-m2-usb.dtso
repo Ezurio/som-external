@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 USB-USB radio module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+&{/} {
+	vcc_wifi_m2: regulator-wifi-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_wifi_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vdd_3v3_carrier>;
+
+		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_wifi_en_m2: regulator-wifi-en-m2 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_wifi_en_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vcc_wifi_m2>;
+
+		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
+		enable-active-high;
+		regulator-always-on;
+
+		startup-delay-us = <250000>;
+		off-on-delay-us = <100>;
+	};
+
+	reg_bt_en_m2: regulator-bt-en-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_bt_en_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&exp1 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+};
+
+&usbss1 {
+	status = "okay";
+	ti,vbus-divider;
+};
+
+&usb1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usb1_pins_default>;
+
+	dr_mode = "host";
+};
