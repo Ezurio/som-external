@@ -1,5 +1,23 @@
 --- a/drivers/regulator/tps65219-regulator.c
 +++ b/drivers/regulator/tps65219-regulator.c
+@@ -442,7 +442,7 @@ static int tps65219_regulator_probe(struct platform_device *pdev)
+ 		if (irq < 0)
+ 			return -EINVAL;
+ 
+-		irq_data = devm_kmalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
++		irq_data = devm_kzalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
+ 		if (!irq_data)
+ 			return -ENOMEM;
+ 
+@@ -465,7 +465,7 @@ static int tps65219_regulator_probe(struct platform_device *pdev)
+ 		if (irq < 0)
+ 			return -EINVAL;
+ 
+-		irq_data = devm_kmalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
++		irq_data = devm_kzalloc(tps->dev, sizeof(*irq_data), GFP_KERNEL);
+ 		if (!irq_data)
+ 			return -ENOMEM;
+ 
 @@ -346,6 +346,9 @@
  		return IRQ_HANDLED;
  	}
