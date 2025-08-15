@@ -13,6 +13,8 @@
 #include <dt-bindings/pwm/pwm.h>
 #include "k3-pinctrl.h"
 
+#include "k3-am675-carbon-bd-panel.dtsi"
+
 &{/} {
 	backlight_dsi_a: backlight-dsi-a {
 		compatible = "pwm-backlight";
@@ -52,17 +54,7 @@
 		height-mm = <94>;
 
 		panel-timing {
-			clock-frequency = <68000000>;
-			hactive = <1280>;
-			vactive = <800>;
-
-			hback-porch = <27>;
-			hfront-porch = <64>;
-			hsync-len = <4>;
-
-			vback-porch = <4>;
-			vfront-porch = <16>;
-			vsync-len = <4>;
+			BD_PANEL_TIMING
 		};
 
 		port {
