@@ -86,26 +86,39 @@
 
 	audio_volume {
 		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&mcu_wake_pins_default>;
+		autorepeat;
 
 		volume-up {
 			label = "Volume Up";
 			gpios = <&exp2 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_VOLUMEUP>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 
 		volume-down {
 			label = "Volume Down";
 			gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_VOLUMEDOWN>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
+	};
 
-		cpu_wakeup {
+	wake_gpio_key {
+		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&mcu_wake_pins_default>;
+
+		wakeup {
 			label = "Wakeup";
-			gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
+
+			interrupts-extended = <&mcu_gpio0 1 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "irq";
+
+			//gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 	};
 
@@ -276,8 +289,10 @@
 
 		#interrupt-cells = <2>;
 		interrupt-controller;
-		interrupts-extended = <&main_gpio1 12 IRQ_TYPE_EDGE_FALLING>;
-		interrupt-names = "irq";
+
+		interrupts-extended = <&main_gpio1 12 IRQ_TYPE_EDGE_FALLING>,
+			<&main_pmx0 0x1a8>;
+		interrupt-names = "irq", "wakeup";
 	};
 
 	tac5112: audio-codec@51 {
@@ -378,7 +393,7 @@
 &mcu_pmx0 {
 	mcu_wake_pins_default: mcu-wake-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
+			AM62X_MCU_IOPAD(0x004, PIN_INPUT_PULLUP | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 7) /* WAKEUP (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
 		>;
 	};
 };
@@ -404,6 +419,7 @@
 &mcu_mcan0 { /* CAN_B */
 	status = "okay";
 	phys = <&transceiver2>;
+	/delete-property/ wakeup-source;
 };
 
 &ospi0 { /* SPI_A Used as a qSPI */
@@ -511,3 +527,14 @@
 
 	dr_mode = "host";
 };
+
+/* MCUs not loaded currently because of UART conflict */
+/*
+&wkup_r5fss0 {
+	status = "okay";
+};
+
+&mcu_m4fss0 {
+	status = "okay";
+};
+*/

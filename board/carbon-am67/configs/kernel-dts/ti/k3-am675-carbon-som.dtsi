@@ -9,6 +9,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/input/gpio-keys.h>
 #include <dt-bindings/net/ti-dp83867.h>
 #include <dt-bindings/phy/phy.h>
 #include "k3-serdes.h"
@@ -303,16 +304,28 @@
 
 		wifi-wake {
 			label = "Wi-Fi Wake Up";
-			gpios = <&main_gpio0 20 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
+
+			interrupts-extended = <&main_gpio0 20 IRQ_TYPE_EDGE_FALLING>,
+				<&main_pmx0 0x050>;
+			interrupt-names = "irq", "wakeup";
+
+			//gpios = <&main_gpio0 20 GPIO_ACTIVE_LOW>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 
 		bt-wake {
 			label = "BT Wake Up";
-			gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
+
+			interrupts-extended = <&main_gpio0 21 IRQ_TYPE_EDGE_FALLING>,
+				<&main_pmx0 0x054>;
+			interrupt-names = "irq", "wakeup";
+
+			//gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 	};
 };
@@ -373,8 +386,6 @@
 };
 
 &mailbox0_cluster0 {
-	status = "okay";
-
 	mbox_wkup_r5_0: mbox-wkup-r5-0 {
 		ti,mbox-rx = <0 0 0>;
 		ti,mbox-tx = <1 0 0>;
@@ -382,8 +393,6 @@
 };
 
 &mailbox0_cluster1 {
-	status = "okay";
-
 	mbox_mcu_r5_0: mbox-mcu-r5-0 {
 		ti,mbox-rx = <0 0 0>;
 		ti,mbox-tx = <1 0 0>;
@@ -391,8 +400,6 @@
 };
 
 &mailbox0_cluster3 {
-	status = "okay";
-
 	mbox_main_r5_0: mbox-main-r5-0 {
 		ti,mbox-rx = <0 0 0>;
 		ti,mbox-tx = <1 0 0>;
@@ -412,28 +419,16 @@
 	status = "reserved";
 };
 
-&wkup_r5fss0 {
-	status = "okay";
-};
-
 &wkup_r5fss0_core0 {
 	mboxes = <&mailbox0_cluster0 &mbox_wkup_r5_0>;
 	memory-region = <&wkup_r5fss0_core0_dma_memory_region>,
 			<&wkup_r5fss0_core0_memory_region>;
 };
 
-&mcu_r5fss0 {
-	status = "okay";
-};
-
 &mcu_r5fss0_core0 {
 	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5_0>;
 	memory-region = <&mcu_r5fss0_core0_dma_memory_region>,
 			<&mcu_r5fss0_core0_memory_region>;
-};
-
-&main_r5fss0 {
-	status = "okay";
 };
 
 &main_r5fss0_core0 {
@@ -503,14 +498,19 @@
 	clock-frequency = <400000>;
 
 	rv3028: rtc@52 {
-		backup-switchover-dsm;
-		#clock-cells = <0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&rtc_pins_default>;
 		compatible = "microcrystal,rv3028";
 		reg = <0x52>;
-		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>;
+
+		backup-switchover-dsm;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&rtc_pins_default>;
+		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>,
+			<&main_pmx0 0x058>;
+		interrupt-names = "irq", "wakeup";
 		wakeup-source;
+
+		#clock-cells = <0>;
 	};
 
 	tps65219: pmic@30 {
@@ -901,7 +901,7 @@
 
 	rtc_pins_default: rtc-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x058, PIN_INPUT_PULLUP, 7) /* RTC_INT (T22) GPMC0_AD7.GPIO0_22 */
+			J722S_IOPAD(0x058, PIN_INPUT_PULLUP | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 7) /* RTC_INT (T22) GPMC0_AD7.GPIO0_22 */
 		>;
 	};
 
@@ -1026,10 +1026,8 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart2_pins_default>;
-	interrupts-extended = <&gic500 GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>,
-			      <&main_pmx0 0x1d0>; /* (E22) UART2_RXD PADCONFIG116 */
-	interrupt-names = "irq", "wakeup";
-	wakeup-source;
+	interrupts-extended = <&gic500 GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;
+	interrupt-names = "irq";
 };
 
 /* On-module Bluetooth */
