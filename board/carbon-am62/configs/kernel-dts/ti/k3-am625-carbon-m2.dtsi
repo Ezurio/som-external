@@ -11,6 +11,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/input/gpio-keys.h>
 
 &{/} {
 	vcc_wifi_m2: regulator-wifi-m2 {
@@ -50,6 +51,7 @@
 			label = "Wi-Fi Wake Up M2";
 			gpios = <&exp2 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_WAKEUP>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
 			wakeup-source;
 		};
 
@@ -57,6 +59,7 @@
 			label = "BT Wake Up M2";
 			gpios = <&exp2 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_WAKEUP>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
 			wakeup-source;
 		};
 	};
