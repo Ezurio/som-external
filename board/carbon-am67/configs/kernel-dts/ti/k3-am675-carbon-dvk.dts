@@ -115,7 +115,7 @@
 			wakeup-source;
 
 			interrupts-extended = <&mcu_gpio0 1 IRQ_TYPE_EDGE_FALLING>;
-			interrupt-names = "irq", "wakeup";
+			interrupt-names = "irq";
 
 			//gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
@@ -443,7 +443,7 @@
 &mcu_pmx0 {
 	mcu_wake_pins_default: mcu-wake-default-pins {
 		pinctrl-single,pins = <
-			J722S_MCU_IOPAD(0x004, PIN_INPUT_PULLUP | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 7) /* WAKEUP (A10) MCU_SPI0_CS1.MCU_GPIO0_1 */
+			J722S_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (A10) MCU_SPI0_CS1.MCU_GPIO0_1 */
 		>;
 	};
 };
