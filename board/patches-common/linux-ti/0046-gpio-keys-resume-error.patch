@@ -1,0 +1,11 @@
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -367,6 +367,8 @@
+ 	state = bdata->debounce_use_hrtimer ?
+ 			gpiod_get_value(bdata->gpiod) :
+ 			gpiod_get_value_cansleep(bdata->gpiod);
++	if (state == -EBUSY)
++		return;
+ 	if (state < 0) {
+ 		dev_err(input->dev.parent,
+ 			"failed to get gpio state: %d\n", state);
