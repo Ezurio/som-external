@@ -478,7 +478,7 @@
 	status = "okay";
 };
 
-&mcu_mcan0 { /* CAN_B */
+&mcu_mcan1 { /* CAN_B */
 	status = "okay";
 	phys = <&transceiver2>;
 	/delete-property/ wakeup-source;
