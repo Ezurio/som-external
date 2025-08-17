@@ -1,2 +1,3 @@
 sha256  ff4fbe958eca38fb71fbde2d7fc1b784693b3d3652b5d3280431cc2ef42b0533  boundary-imx_5.15.71.tar.gz
-sha256  0e54d2f518c7bf502f6723b22845a96062db25d063f2d188e29e1ac3b06de9d4  linux-11.00.10-git4.tar.gz
+sha256  a7b3dfb1bf3e2521ebf34655c1f1263da4714a70ed4a1a4d58179d6d44c25ab8  ti-linux-kernel-11.00.10.tar.xz
+sha256  b5ac90fa02b448eabdef3e2286aaebe3a1263f2e3452528412cd4d6cd331ef0b  ti-linux-kernel-11.01.10.tar.xz

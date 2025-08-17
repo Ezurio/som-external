@@ -19,7 +19,8 @@
 	model = "Ezurio Carbon AM625 SOM";
 
 	aliases {
-		serial2 = &main_uart0; /* CONSOLE */
+		serial0 = &wkup_uart0; /* UART_C */
+		serial2 = &main_uart0; /* UART_CON */
 		serial3 = &main_uart1; /* BT */
 		serial4 = &main_uart6; /* UART_A */
 		serial5 = &mcu_uart0;  /* UART_B */
@@ -73,6 +74,14 @@
 			pmsg-size = <0x8000>;
 		};
 
+		/* global cma region */
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x00 0x8000000>;
+			linux,cma-default;
+		};
+
 		rtos_ipc_memory_region: ipc-memories@9c800000 {
 			compatible = "shared-dma-pool";
 			reg = <0x00 0x9c800000 0x00 0x00300000>;
@@ -91,12 +100,16 @@
 			no-map;
 		};
 
-		/* global cma region */
-		linux,cma {
+		wkup_r5fss0_core0_dma_memory_region: r5f-dma-memory@9da00000 {
 			compatible = "shared-dma-pool";
-			reusable;
-			size = <0x00 0x8000000>; /* 0x8000000 = 128MiB */
-			linux,cma-default;
+			reg = <0x00 0x9da00000 0x00 0x100000>;
+			no-map;
+		};
+
+		wkup_r5fss0_core0_memory_region: r5f-memory@9db00000 {
+			compatible = "shared-dma-pool";
+			reg = <0x00 0x9db00000 0x00 0xc00000>;
+			no-map;
 		};
 
 		secure_tfa_ddr: tfa@9e780000 {
@@ -108,18 +121,6 @@
 		secure_ddr: optee@9e800000 {
 			reg = <0x00 0x9e800000 0x00 0x01800000>; /* for OP-TEE */
 			alignment = <0x1000>;
-			no-map;
-		};
-
-		wkup_r5fss0_core0_dma_memory_region: r5f-dma-memory@9da00000 {
-			compatible = "shared-dma-pool";
-			reg = <0x00 0x9da00000 0x00 0x00100000>;
-			no-map;
-		};
-
-		wkup_r5fss0_core0_memory_region: r5f-memory@9db00000 {
-			compatible = "shared-dma-pool";
-			reg = <0x00 0x9db00000 0x00 0x00c00000>;
 			no-map;
 		};
 	};
@@ -394,7 +395,8 @@
 		pinctrl-0 = <&mcu_rtc_pins_default>;
 		interrupts-extended = <&mcu_gpio0 23 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		wakeup-source;
+		/* WKUP_CLKOUT0 pin cannot be used as the wakeup source TRM 2.4.6.11 */
+		//wakeup-source;
 
 		#clock-cells = <0>;
 	};
@@ -883,8 +885,6 @@
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart0_pins_default>;
-	interrupts-extended = <&gic500 GIC_SPI 178 IRQ_TYPE_LEVEL_HIGH>;
-	interrupt-names = "irq";
 };
 
 /* On-module Bluetooth */
@@ -927,7 +927,6 @@
 	rx-num-evt = <0>;
 };
 
-/* mcu_gpio0 and mcu_gpio_intr are reserved for mcu firmware usage */
 &mcu_gpio0 {
 	gpio-line-names =
 		"","","","","",						/* 0 - 4 */

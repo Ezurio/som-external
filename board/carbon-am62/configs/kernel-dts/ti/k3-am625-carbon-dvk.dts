@@ -393,7 +393,7 @@
 &mcu_pmx0 {
 	mcu_wake_pins_default: mcu-wake-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x004, PIN_INPUT_PULLUP | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 7) /* WAKEUP (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
+			AM62X_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
 		>;
 	};
 };
@@ -506,7 +506,6 @@
 };
 
 &usbss1 {
-	status = "okay";
 	ti,vbus-divider;
 };
 
@@ -524,8 +523,6 @@
 &usb1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_usb1_pins_default>;
-
-	dr_mode = "host";
 };
 
 /* MCUs not loaded currently because of UART conflict */
@@ -534,7 +531,7 @@
 	status = "okay";
 };
 
-&mcu_m4fss0 {
+&mcu_m4fss {
 	status = "okay";
 };
 */
