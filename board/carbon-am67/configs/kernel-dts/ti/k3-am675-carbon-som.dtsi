@@ -21,7 +21,8 @@
 	model = "Ezurio Carbon AM67x SOM";
 
 	aliases {
-		serial2 = &main_uart2; /* CONSOLE */
+		serial0 = &wkup_uart0; /* UART_C */
+		serial2 = &main_uart2; /* UART_CON */
 		serial3 = &main_uart1; /* BT */
 		serial4 = &main_uart5; /* UART_A */
 		serial5 = &mcu_uart0;  /* UART_B */
@@ -1070,7 +1071,6 @@
 	rx-num-evt = <0>;
 };
 
-/* mcu_gpio0 and mcu_gpio_intr are reserved for mcu firmware usage */
 &mcu_gpio0 {
 	status = "okay";
 	gpio-line-names = 

@@ -41,12 +41,8 @@
 
 &usbss1 {
 	status = "okay";
-	ti,vbus-divider;
 };
 
 &usb1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_pins_default>;
-
 	dr_mode = "host";
 };

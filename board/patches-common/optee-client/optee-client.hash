@@ -1,2 +1,3 @@
- From https://github.com/OP-TEE/optee_client/archive/4.5.0/optee-client-4.5.0.tar.gz
-sha256  ac6dc2c0c253ea228ea230e537211a45475771050faf4e66fe64321de3a0a652  optee-client-4.5.0.tar.gz
+ From https://github.com/OP-TEE/optee_client/archive/4.5.0/optee_client-4.5.0.tar.gz
+sha256  ac6dc2c0c253ea228ea230e537211a45475771050faf4e66fe64321de3a0a652  optee_client-4.5.0.tar.gz
+sha256  a970338c9f69861901336716d89684646e4480b9970996a5b3581ae7d49fdaa3  optee_client-4.6.0.tar.gz
