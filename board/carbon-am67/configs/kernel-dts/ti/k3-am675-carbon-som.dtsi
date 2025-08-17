@@ -902,7 +902,7 @@
 
 	rtc_pins_default: rtc-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x058, PIN_INPUT_PULLUP | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 7) /* RTC_INT (T22) GPMC0_AD7.GPIO0_22 */
+			J722S_IOPAD(0x058, PIN_INPUT_PULLUP, 7) /* RTC_INT (T22) GPMC0_AD7.GPIO0_22 */
 		>;
 	};
 
