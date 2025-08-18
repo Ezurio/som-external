@@ -2,14 +2,18 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2025 Ezurio
 
+die() {
+    echo "$1"
+    exit 1
+}
+
 # Find kernel FIT Image
 if [ -f '/boot/kernel.itb' ]; then
     kernel='/boot/kernel.itb'
 elif [ -f '/boot/fitImage' ]; then
     kernel='/boot/fitImage'
 else
-    echo 'No kernel image found'
-    exit 1
+    die 'No kernel image found'
 fi
 
 # Retrieve all configurations from FIT Image
@@ -25,18 +29,35 @@ params=$(echo "${confs}" | sed -rn "s/.*${prefix}-(.*)\.dtbo.*/\1/p" | sort -u)
 conf=
 cconf=$(fw_printenv -n conf)
 
+print_overlays() {
+    echo 'Currently set modes/overlays:'
+    if [ -z "${cconf}" ]; then
+        echo '  No overlays set'
+    else
+        echo "${cconf}" | tr '#' "\n" | sed -rn "s/${prefix}-(.*)\.dtbo/  \1/p"
+    fi
+}
+
+print_regdomain() {
+    echo 'Currently set regulatory domain:'
+    { printf '  '; fw_printenv -n 'RegDomain'; } || \
+        die '  No regulatory domain set'
+}
+
 case "${1}" in
     '')
         echo "Usage: $0 <mode> [<mode> ...]"
-        echo "  <mode> is one or multiple of:"
-        echo "  default - remove all overlays"
-        echo "  status - print active overlays"
+        echo '  <mode> is one or multiple of:'
+        echo '  default - remove all overlays'
+        echo '  status - print active overlays'
+        echo '  regdomain - set regulatory domain for IFX radios'
         echo
-        echo "Available modes/overlays:"
+        echo 'Available modes/overlays:'
         echo "${params}" | sed 's/^/  /'
         echo
-        echo "Currently set modes/overlays:"
-        echo "${cconf}" | tr '#' "\n" | sed -rn "s/${prefix}-(.*)\.dtbo/  \1/p"
+        print_regdomain
+        echo
+        print_overlays
         exit 1
         ;;
 
@@ -46,28 +67,40 @@ case "${1}" in
 
     status)
         # Print current configuration
-        if [ -z "${cconf}" ]; then
-            echo "No overlays set"
-        else
-            echo "Set overlays:"
-            echo "${cconf}" | tr '#' "\n" | sed -rn "s/${prefix}-(.*)\.dtbo/  \1/p"
-        fi
+        print_overlays
         exit 0
+        ;;
+
+    regdomain)
+        if [ -n "${2}" ]; then
+            fw_setenv 'RegDomain' "${2}"
+        else
+            print_regdomain
+        fi
         ;;
 
     *)
         # If no parameters are found, exit
-        [ -z "${params}" ] && {
-            echo "No overlays found"
-            exit 1
-        }
+        [ -n "${params}" ] || die 'No overlays found'
+
+        . /usr/sbin/boot-rootfs.sh
 
         # Verify that all parameters are valid and add them into configuration string
         for i in "${@}" ; do
-            echo "${params}" | grep -qFx "${i}" || {
-                echo "Invalid mode"
-                exit 1
-            }
+            echo "${params}" | grep -qFx "${i}" || die "Invalid mode ${i}"
+
+            if [ "${rootDevType:?}" = 'SD' ]; then
+                case "${i}" in
+                    m2*sdio*)
+                        die 'M.2 SDIO cannot be used when booting from SD card'
+                        ;;
+                    *ifx*)
+                        [ -n "$(fw_printenv -n 'RegDomain')" ] || \
+                            die 'Regulatory Domain not set for IFX overlay'
+                        ;;
+                esac
+            fi
+
             conf="${conf}#${prefix}-${i}.dtbo"
         done
 
@@ -77,13 +110,10 @@ case "${1}" in
 esac
 
 # Verify that requested configuration is different from current one
-if [ "${cconf}" = "${conf}" ] ; then
-    echo "Configuration already set"
-    exit 0
-fi
+[ "${cconf}" != "${conf}" ] || die 'Configuration already set'
 
 # Set new configuration
-fw_setenv conf "${conf}"
+fw_setenv 'conf' "${conf}"
 
 # Reboot to apply new configuration
 reboot
