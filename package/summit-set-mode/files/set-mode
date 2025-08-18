@@ -85,21 +85,24 @@ case "${1}" in
 
         . /usr/sbin/boot-rootfs.sh
 
-        # Verify that all parameters are valid and add them into configuration string
+        # Verify that all parameters are valid and add them into
+        # configuration string
         for i in "${@}" ; do
             echo "${params}" | grep -qFx "${i}" || die "Invalid mode ${i}"
 
-            if [ "${rootDevType:?}" = 'SD' ]; then
-                case "${i}" in
-                    m2*sdio*)
+            case "${i}" in
+                *ifx*)
+                    [ -n "$(fw_printenv -n 'RegDomain')" ] || \
+                        die 'Regulatory Domain not set for IFX overlay'
+                    ;;
+            esac
+
+            case "${i}" in
+                m2*sdio*)
+                    [ "${rootDevType:?}" != 'SD' ] || \
                         die 'M.2 SDIO cannot be used when booting from SD card'
-                        ;;
-                    *ifx*)
-                        [ -n "$(fw_printenv -n 'RegDomain')" ] || \
-                            die 'Regulatory Domain not set for IFX overlay'
-                        ;;
-                esac
-            fi
+                    ;;
+            esac
 
             conf="${conf}#${prefix}-${i}.dtbo"
         done
