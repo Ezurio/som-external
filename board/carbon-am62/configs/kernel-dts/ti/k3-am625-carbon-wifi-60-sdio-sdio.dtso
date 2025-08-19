@@ -15,3 +15,7 @@
 &wifi {
 	fwtype = "sdio-sdio";
 };
+
+&main_uart1 {
+	status = "disabled";
+};
