@@ -9,3 +9,7 @@
 &wifi {
 	fwtype = "sdio-sdio";
 };
+
+&mcu_uart0 {
+	status = "disabled";
+};
