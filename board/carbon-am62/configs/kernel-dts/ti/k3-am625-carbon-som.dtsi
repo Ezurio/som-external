@@ -996,7 +996,7 @@
 
 	mcu_usb_a_id_pins_default: mcu-usb-a-id-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+			AM62X_MCU_IOPAD(0x040, PIN_INPUT, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
 		>;
 	};
 };
