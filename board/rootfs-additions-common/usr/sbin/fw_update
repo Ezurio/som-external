@@ -18,13 +18,32 @@ U_BOOT_IMG=u-boot.bin
 KERNEL_IMG=kernel.bin
 ROOTFS_IMG=rootfs.bin
 
-# update-list file
 FWUL=/tmp/fw.txt
+FWU_ERR=/tmp/fwu.err
+FWU_FIFO=/tmp/fwu.fifo
+FWU_MD5=/tmp/fwu.fmd5
+FWU_UBIFS=/tmp/fwu.ubifs
+FWU_TRANSFER_LIST=/tmp/alt_rootfs.transfer-list
+TMP_DL=/tmp/fwu.file
 
 # ucs dgram sendto port
 # format is xml or json
 NS_PORT=2012
 NS_FORMAT=xml
+
+errors=0
+
+# cleanup function to remove temporary files
+cleanup_temp_files() {
+  rm -f "$FWUL" \
+    "$FWU_ERR" \
+    "$FWU_FIFO" \
+    "$FWU_MD5" \
+    "$FWU_UBIFS" \
+    "$FWU_TRANSFER_LIST" \
+    "$TMP_DL"
+}
+trap cleanup_temp_files EXIT TERM INT
 
 show_usage_info() {
   [ -z "$1" ] && cat << --Usage-Info--
@@ -193,13 +212,7 @@ ask() {
 
 exit_error() {
   $x_notify && $0 --n "$host" update_failure
-  echo "${1:+  ...$@}"
-  if [ -n "$url" ]
-  then
-    grep -s . /tmp/fwu.err
-    mv $FWUL $FWUL~ 2>$X
-    rm -f /tmp/fwu.[f]*
-  fi
+  echo "${1:+  ...$@}" >&2
   exit 1
 } >&2
 
@@ -394,12 +407,12 @@ wget() {
   [ "$1" = "--spider" ] && [ "$wget_version" = "gnu" ] && wget_v=-v || wget_v=
 
   command wget ${wget_opt} ${wget_v} "$@"
-} 2>>/tmp/fwu.err
+} 2>>"$FWU_ERR"
 
 copy() {
   # args: <src> -O <dst>
   cat "$1" >"$3"
-} 2>>/tmp/fwu.err
+} 2>>"$FWU_ERR"
 
 # assume remote
 test -z "$url" \
@@ -466,42 +479,43 @@ if [ -s "$FWUL" ]
 then
   ## confirm target wb?? match to update upon given version-tag
   vt=$( sed -n '1s/^[# ]*\([^ ]*wb50[^ ]\+\)/\1/p' $FWUL )
-  if [ -n "$vt" ]
-  then
-    test yes = "${vt/*$wb*/yes}" \
-      || exit_error "aborted, $wb update mismatch: $vt"
-    txt=$txt\\\n"  ...updating to $vt"
+  if [ -n "$vt" ]; then
+  case "$vt" in
+    *"$wb"*) ;; # $wb found in $vt, continue
+    *) exit_error "aborted, $wb update mismatch: $vt" ;;
+  esac
+  txt=$(printf "%s\n  ...updating to %s" "$txt" "$vt")
   fi
 
   ## parse md5, name, length and check if absolute url/path or convert
   set -- $( sed -n "/^[^#] *[0-9a-f]\{32\}\ .*${AT91BS_IMG}/p" $FWUL )
   eval AT91BS_MD5="$1" AT91BS_URL="$2" AT91BS_LEN="${3:-0}"
-  test -n "${2}" && [ "${2:0:1}" != "/" -a "${2/*:*/:}" != ":" ] \
+  test -n "${2}" && [ "$(echo "$2" | cut -c1)" != "/" ] && [ "${2/*:*/:}" != ":" ] \
     && AT91BS_URL=${isl:-${url%/*}}/${2/^.\/}
 
   ## parse md5, name, length and check if absolute url/path or convert
   set -- $( sed -n "/^[^#] *[0-9a-f]\{32\}\ .*${U_BOOT_IMG}/p" $FWUL )
   eval U_BOOT_MD5="$1" U_BOOT_URL="$2" U_BOOT_LEN="${3:-0}"
-  test -n "${2}" && [ "${2:0:1}" != "/" -a "${2/*:*/:}" != ":" ] \
+  test -n "${2}" && [ "$(echo "$2" | cut -c1)" != "/" ] && [ "${2/*:*/:}" != ":" ] \
     && U_BOOT_URL=${isl:-${url%/*}}/${2/^.\/}
 
   ## parse md5, name, length and check if absolute url/path or convert
   set -- $( sed -n "/^[^#] *[0-9a-f]\{32\}\ .*${KERNEL_IMG}/p" $FWUL )
   eval KERNEL_MD5="$1" KERNEL_URL="$2" KERNEL_LEN="${3:-0}"
-  test -n "${2}" && [ "${2:0:1}" != "/" -a "${2/*:*/:}" != ":" ] \
+  test -n "${2}" && [ "$(echo "$2" | cut -c1)" != "/" ] && [ "${2/*:*/:}" != ":" ] \
     && KERNEL_URL=${isl:-${url%/*}}/${2/^.\/}
 
   ## parse md5, name, length and check if absolute url/path or convert
   set -- $( sed -n "/^[^#] *[0-9a-f]\{32\}\ .*${ROOTFS_IMG}/p" $FWUL )
   eval ROOTFS_MD5="$1" ROOTFS_URL="$2" ROOTFS_LEN="${3:-0}"
-  test -n "${2}" && [ "${2:0:1}" != "/" -a "${2/*:*/:}" != ":" ] \
+  test -n "${2}" && [ "$(echo "$2" | cut -c1)" != "/" ] && [ "${2/*:*/:}" != ":" ] \
     && ROOTFS_URL=${isl:-${url%/*}}/${2/^.\/}
 
   ## parse other options
   shell=$( sed -n '/^ *sh[ell]* /{s/.*sh[ell]* //p;q}' $FWUL )
 
   ## parse/copy transfer-list items to file
-  sed -n '/transfer-list/,/^$/p' $FWUL >>/tmp/alt_rootfs.transfer-list
+  sed -n '/transfer-list/,/^$/p' $FWUL >>"$FWU_TRANSFER_LIST"
 else
   exit_error "firmware-update-list error"
 fi
@@ -585,7 +599,7 @@ bootcmd_x() {
 
   BC_kia=$( hexify "$BC_kia" )
 
-  set -- "$(fw_printenv -n bootargs)"
+  set -- $(fw_printenv -n bootargs)
   for x in "$@"; do
     case "$x" in
       fips=*)
@@ -629,12 +643,22 @@ iszero() { ! let ${1:-0} && return 0 || return 1; }
 # shellcheck disable=SC3039
 hexify() { let x=${1:-0}; printf "0x%08x" "$x"; }
 
+get_file_md5() {
+  file="$1"
+  [ -f "$file" ] || return 1
+  md5sum "$file" | awk '{print $1}'
+  unset file
+}
+
 assert_image() {
   # args: <image_name_var> <label>
   sz=
   src=
+  img_name=${1}
+  img_is_remote=false
+  img_downloaded=false
   echo "${tm:+\n}Checking $2"
-  : >/tmp/fwu.err
+  : >"$FWU_ERR"
   eval src=\$"${1}"_URL
   test -n "$src" \
     || { echo - update n/a; return 1; }
@@ -651,12 +675,12 @@ assert_image() {
     #
     case $src in
     http*)
-      wget --spider "$src" 2>>fwu.err && \
-        sz=$( sed -n 's/Length: \([0-9]*\).*/\1/p' /tmp/fwu.err )
+      wget --spider "$src" 2>>"$FWU_ERR" && \
+        sz=$( sed -n 's/Length: \([0-9]*\).*/\1/p' "$FWU_ERR" )
       ;;
     ftp*)
-      wget --spider "$src" 2>>fwu.err
-      sz=$( sed -n 's/.*SIZE.* \([0-9]*\)$/\1/p' /tmp/fwu.err )
+      wget --spider "$src" 2>>"$FWU_ERR"
+      sz=$( sed -n 's/.*SIZE.* \([0-9]*\)$/\1/p' "$FWU_ERR" )
       ;;
     esac
 
@@ -664,6 +688,7 @@ assert_image() {
       # try reading file when length n/a via wc as a last resort
       eval sz=\$"${1}"_LEN || sz=$( wget -q -O - "$src" |wc -c )
     fi
+    img_is_remote=true
   else
     # method local
     if [ -s "$src" ]
@@ -673,12 +698,29 @@ assert_image() {
     fi
   fi
   sz=$((sz+0)) \
-    || { print "file n/a\n\t$src";
-         grep -s . /tmp/fwu.err; errors++; return 3; }
+    || { printf "file n/a\n\t%s\n" "$src";
+         grep -s . "$FWU_ERR"; errors++; return 3; }
 
   eval md5=\$"${1}"_MD5
   test -n "$md5" \
     || { echo - md5sum n/a; errors++; return 3; }
+
+  # bootstrap and uboot images do not have backup slots
+  # download and check md5 sum before flashing the images
+  if [ "$img_is_remote" = true ] && \
+   { [ "$img_name" = AT91BS ] || [ "$img_name" = U_BOOT ]; }; then
+    rm -f "$TMP_DL"
+    echo "Download and verify $img_name"
+    if ! wget -O "$TMP_DL" "$src" 2>>"$FWU_ERR"; then
+      exit_error "ERROR: Failed to download $src"
+    fi
+
+    dl_md5=$(get_file_md5 "$TMP_DL")
+    if [ "$dl_md5" != "$md5" ]; then
+      exit_error "ERROR: MD5 mismatch for $img_name. downloaded $dl_md5 != expected $md5"
+    fi
+    img_downloaded=true
+  fi
 
   # compare the md5_of_image with the md5_in_flash
   if [ "$md5" = "$(fw_printenv -n md5_"$image" 2>$X)" ]
@@ -701,10 +743,11 @@ assert_image() {
 }
 
 flash_image() {
-  # args: <image_url>
+  # args: <image_url> <image_md5>
   #
+  img_is_remote=false
   echo "Updating $image"
-  : >/tmp/fwu.err
+  : >"$FWU_ERR"
   mtdinfo /dev/"$tp" |grep -q 'writabl.*tru' \
     || { printf "(protected)\n"; return 1; }
   if ${ubifs:=false}
@@ -713,8 +756,8 @@ flash_image() {
     ${tm:-:} ubiformat -y /dev/"$tp" -S $sz -f -
     ${tm:-:} \ \ ^--- "$1"
     verbose "  (${et}s) erasing/writing"
-    ${tm:+:} ubiformat -y /dev/"$tp" -S $sz -f - < /tmp/fwu.fifo 2>&1 \
-              |sed 's/.*\r//;s/e  u.*: w/e  \n  w/' >>/tmp/fwu.ubifs &
+    ${tm:+:} ubiformat -y /dev/"$tp" -S $sz -f - < "$FWU_FIFO" 2>&1 \
+              |sed 's/.*\r//;s/e  u.*: w/e  \n  w/' >>"$FWU_UBIFS" &
   else
     ${tm:-:} flash_erase -q /dev/"$tp" 0 0
     ${tm:-:} nandwrite -mpq /dev/"$tp"
@@ -722,23 +765,40 @@ flash_image() {
     verbose "  (${et}s) erasing"
     ${tm:+:} flash_erase -q /dev/"$tp" 0 0
     verbose "/writing"
-    ${tm:+:} nandwrite -mpq /dev/"$tp" < /tmp/fwu.fifo &
+    ${tm:+:} nandwrite -mpq /dev/"$tp" < "$FWU_FIFO" &
   fi
-  ${tm:+eval wc -c < /tmp/fwu.fifo >>/tmp/fwu.err & }
+  ${tm:+eval wc -c < "$FWU_FIFO" >>"$FWU_ERR" & }
   await $! "$et" _
-  case $1 in
-    *://*) ## using a transfer protocol
+  if echo "$1" | grep -q '://'; then
+    # using a transfer protocol
     txt="image download/flash interrupted"
-    wget $1 -O /tmp/fwu.fifo
-    ;;
-    *) ## assume local copy
+    if [ $img_downloaded = false ]; then
+      img_is_remote=true
+      # download the file to the fifo and calculate md5 sum at the same time
+      wget -O - "$1" | tee "$FWU_FIFO" | (md5sum | awk '{print $1}' > "$FWU_MD5")
+    else
+      # the image was already downloaded, copy it to the fifo so it will be written to flash
+      copy "$TMP_DL" -O "$FWU_FIFO"
+      rm -f "$TMP_DL"
+    fi
+  else
+    # assume local copy
     txt="image copy/flash failed"
-    copy $1 -O /tmp/fwu.fifo
-  esac
+    copy "$1" -O "$FWU_FIFO"
+  fi
+  # shellcheck disable=SC2181
   if [ $? -eq 0 ] ; then
     wait
   else
     exit_error "$txt"
+  fi
+  # check downloaded image md5sum
+  if [ $img_is_remote = true ]; then
+    md5=$(cat "$FWU_MD5")
+    if [ "$md5" != "$2" ]; then
+      exit_error "ERROR: MD5 mismatch for $image. downloaded $md5 != expected $2"
+    fi
+    unset md5
   fi
   return 0
 }
@@ -747,6 +807,7 @@ test_image() {
   # args: <image_md5>
   #
   md5=0
+  error=0
   if $o_check
   then
     verbose "_reading"
@@ -767,12 +828,12 @@ test_image() {
         umount /mnt/"$tp"
         ubidetach -p /dev/"$tp"
       { dmesg -E; set +x; echo; } 2>$X
-      } >>/tmp/fwu.ubifs 2>&1 &
+      } >>"$FWU_UBIFS" 2>&1 &
       await $! "$et" _ && wait
-      test -n "$(sed -n '/^State:.*OK/,${/^0x......../p}' /tmp/fwu.ubifs)"
+      test -n "$(sed -n '/^State:.*OK/,${/^0x......../p}' "$FWU_UBIFS")"
     else
-      md5=$(nanddump -ql $sz --omitoob --bb=skipbad /dev/"$tp" 2>>/tmp/fwu.err \
-        | md5sum | sed -r 's/(\w+).*/\1/') || error=$?
+      md5=$(nanddump -ql $sz --omitoob --bb=skipbad /dev/"$tp" 2>>"$FWU_ERR" \
+        | md5sum | awk '{print $1}') || error=$?
       [ "$md5" = "$1" ]
     fi
   fi
@@ -782,7 +843,7 @@ test_image() {
     echo ^OK
   else
     echo ^FAIL
-    grep -s . /tmp/fwu.err
+    grep -s . "$FWU_ERR"
     if $o_check
     then
       echo "  ${md5:-${1//?/ }}  $image"
@@ -806,7 +867,7 @@ ${tm:-:} "\n  testmode active\n  ...remove '$TMF'\n     or try: '--tm off'" >&2
 fw_select --transfer access off >$X
 
 # wr/rd require fifo
-mkfifo /tmp/fwu.fifo 2>$X
+mkfifo "$FWU_FIFO" 2>$X
 
 # get info
 bootcmd_x
@@ -815,7 +876,7 @@ tp=mtd0
 image=${AT91BS_IMG%%.*}
 if assert_image AT91BS "Bootstrap"
 then
-  if flash_image "$AT91BS_URL"
+  if flash_image "$AT91BS_URL" "$AT91BS_MD5"
   then
     if test_image "$AT91BS_MD5"
     then
@@ -828,11 +889,15 @@ then
   fi
 fi
 
+if [ "$errors" -gt 0 ]; then
+  exit_error "ERROR: Bootloader update failed"
+fi
+
 tp=mtd1
 image=${U_BOOT_IMG%%.*}
 if assert_image U_BOOT "Bootloader"
 then
-  if flash_image "$U_BOOT_URL"
+  if flash_image "$U_BOOT_URL" "$U_BOOT_MD5"
   then
     if test_image "$U_BOOT_MD5"
     then
@@ -842,6 +907,10 @@ then
       fi
     fi
   fi
+fi
+
+if [ "$errors" -gt 0 ]; then
+  exit_error "ERROR: U-Boot update failed"
 fi
 
 kip_a=$KIP
@@ -854,7 +923,7 @@ esac
 image=${KERNEL_IMG%%.*}-$ab
 if assert_image KERNEL "Linux Kernel"
 then
-  if flash_image "$KERNEL_URL"
+  if flash_image "$KERNEL_URL" "$KERNEL_MD5"
   then
     if test_image "$KERNEL_MD5"
     then
@@ -867,6 +936,10 @@ then
   fi
 fi
 
+if [ "$errors" -gt 0 ]; then
+  exit_error "ERROR: Kernel update failed"
+fi
+
 rip_a=$RIP
 rip_b=$((RIP+1))
 case $(rootfs_x) in
@@ -877,7 +950,7 @@ esac
 image=${ROOTFS_IMG%%.*}-$ab ubifs=${UBIFS:-true}
 if assert_image ROOTFS "Root Filesystem"
 then
-  if flash_image "$ROOTFS_URL"
+  if flash_image "$ROOTFS_URL" "$ROOTFS_MD5"
   then
     if test_image "$ROOTFS_MD5"
     then
@@ -889,6 +962,10 @@ then
       fi
     fi
   fi
+fi
+
+if [ "$errors" -gt 0 ]; then
+  exit_error "ERROR: File system update failed"
 fi
 
 ${tm:-:}
@@ -928,7 +1005,7 @@ then
   && fw_select -- >$X 2>&1
   then
     txt="Transfer system files"; false
-    if [ -r /tmp/alt_rootfs.transfer-list ]
+    if [ -r "$FWU_TRANSFER_LIST" ]
     then
       echo "$txt - found transfer-list"
     else
@@ -961,6 +1038,6 @@ if $x_reboot ; then
 fi
 
 ${tm:-:} \\\n$SELF v$VERSION \[testmode\]
-errors=$((errors+0)) && echo "Errors:$errors"
+[ $errors != 0 ] && echo "Errors:$errors"
 echo "Done."
 exit $errors
