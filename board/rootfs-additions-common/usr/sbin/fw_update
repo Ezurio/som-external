@@ -526,10 +526,15 @@ verbose true "$txt"
 o_verbose=${o_verbose:-true}
 o_quiet=${o_quiet:-false}
 o_force=${o_force:-false}
-o_check=${o_check:-false}
+o_check=${o_check:-true}
 x_notify=${x_notify:-true}
 x_transfer=${x_transfer:-true}
 x_reboot=${x_reboot:-true}
+
+# if using check option, ensure nanddump exists
+if $o_check; then
+  command -v nanddump >/dev/null 2>&1 || exit_error "nanddump not found"
+fi
 
 # set/check env tool
 fw_printenv=fw_printenv
