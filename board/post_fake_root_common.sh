@@ -39,7 +39,9 @@ generate_custom_encrypted_filesystem() {
     fi
 
     # Generate the encrypted filesystem
+    TEMP_DIR=$(mktemp -d)
     (cd "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common" && sudo ./mkrodata.sh \
+        "${TEMP_DIR}" \
         "${encrypted_filesystem_key}" \
         "${update_signing_cert}" \
         "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.crt" \
@@ -47,17 +49,19 @@ generate_custom_encrypted_filesystem() {
         "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/ca.crt" \
         "${customer_data_dir}")
 
-    [ -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata.img" ] || \
+    [ -f "${TEMP_DIR}/rodata.img" ] || \
         die "Failed to generate encrypted filesystem"
     mkdir -p "${TARGET_DIR}/etc/rodata"
-    mv -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata.img" \
+    mv -f "${TEMP_DIR}/rodata.img" \
         "${TARGET_DIR}/etc/rodata/rodata.img"
     sudo chown "${USER}:${GROUP}" "${TARGET_DIR}/etc/rodata/rodata.img"
 
-    [ -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata_manifest.txt" ] || \
+    [ -f "${TEMP_DIR}/rodata_manifest.txt" ] || \
         die "Failed to generate encrypted filesystem manifest"
-    mv -f "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/scripts-common/rodata_manifest.txt" \
+    mv -f "${TEMP_DIR}/rodata_manifest.txt" \
         "${BINARIES_DIR}/rodata_manifest.txt"
+
+    rm -rf "${TEMP_DIR}"
 }
 
 write_encrypted_filesystem_key() {

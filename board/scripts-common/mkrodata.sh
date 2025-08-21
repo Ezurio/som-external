@@ -2,24 +2,25 @@
 #
 # mkrodata.sh - Create read-only factory data image
 #
-# usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>
+# usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>
 #
 # This script must be run as root!
 #
 # The optional customer data should be a directory containing anything a customer may require in rodata.
 # This provides a way to copy in data living in a custom br2-external.
 
-[ $# -lt 5 ] && echo "usage: mkrodata.sh <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
+[ $# -lt 6 ] && echo "usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
 [ "$(id -u)" -ne 0 ] && echo "Please run as root" && exit 1
 
-KEY_BIN="${1}"
-UPDATE_PUB_CERT="${2}"
-REST_SERVER_CERT="${3}"
-REST_SERVER_PRIV_KEY="${4}"
-REST_SERVER_CERT_CHAIN="${5}"
-CUSTOMER_DIR="${6}"
+WORKING_DIR="${1:-.}"
+KEY_BIN="${2}"
+UPDATE_PUB_CERT="${3}"
+REST_SERVER_CERT="${4}"
+REST_SERVER_PRIV_KEY="${5}"
+REST_SERVER_CERT_CHAIN="${6}"
+CUSTOMER_DIR="${7}"
 
-RODATA_MNT_DIR="/mnt/rodata"
+RODATA_MNT_DIR="${WORKING_DIR}/mnt/rodata"
 SECRET_DIR="${RODATA_MNT_DIR}/secret"
 PUBLIC_DIR="${RODATA_MNT_DIR}/public"
 REST_SERVER_SSL_DIR="${SECRET_DIR}/rest-server/ssl"
@@ -31,8 +32,8 @@ REST_SERVER_PROVISIONING_KEY_DEST="${REST_SERVER_SSL_DIR}/provisioning.key"
 REST_SERVER_PROVISIONING_CERT_CHAIN_DEST="${REST_SERVER_SSL_DIR}/provisioning.ca.crt"
 UPDATE_CERT_DIR="${PUBLIC_DIR}/ssl/misc"
 UPDATE_CERT_DEST="${UPDATE_CERT_DIR}/update.pem"
-RODATA_IMG="rodata.img"
-RODATA_SQUASHFS="rodata.squashfs"
+RODATA_IMG="${WORKING_DIR}/rodata.img"
+RODATA_SQUASHFS="${WORKING_DIR}/rodata.squashfs"
 
 die() {
   echo "${1}" >&2; exit 1
@@ -91,8 +92,8 @@ fi
 #
 # Generate the manifest file
 #
-[ -f rodata_manifest.txt ] && rm -f rodata_manifest.txt
-find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> rodata_manifest.txt
+[ -f "${WORKING_DIR}/rodata_manifest.txt" ] && rm -f "${WORKING_DIR}/rodata_manifest.txt"
+find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> "${WORKING_DIR}/rodata_manifest.txt"
 
 #
 # Create the SquashFS image
