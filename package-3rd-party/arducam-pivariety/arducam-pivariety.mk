@@ -1,0 +1,7 @@
+ARDUCAM_PIVARIETY_SITE = $(ARDUCAM_PIVARIETY_PKGDIR)/files
+ARDUCAM_PIVARIETY_SITE_METHOD = local
+
+ARDUCAM_PIVARIETY_LICENSE = GPL-2.0
+
+$(eval $(kernel-module))
+$(eval $(generic-package))

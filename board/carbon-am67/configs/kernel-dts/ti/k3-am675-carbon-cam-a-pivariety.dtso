@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0
 /*
- * ArduCam IMX678 camera module
+ * ArduCam xISP camera module
  *
  * Copyright (C) 2025 Ezurio LLC
  */
@@ -19,5 +19,9 @@
 };
 
 &csi2_cam0 {
+	data-lanes = <1 2 3 4>;
+};
+
+&csi2rx0_in_sensor {
 	data-lanes = <1 2 3 4>;
 };
