@@ -1,0 +1,33 @@
+From 48c3063b6704921fc46b718ea06281c79ec892ef Mon Sep 17 00:00:00 2001
+From: Rahul T R <r-ravikumar@ti.com>
+Date: Tue, 10 Oct 2023 14:42:13 +0530
+Subject: [PATCH] HACK: gstv4l2object: Increase min buffers for CSI capture
+
+With default min buffers, frame drops are observed with CSI capture
+pipeline with VISS, LDC and DSS with DMABuf Import mode
+
+Increasing min buffers queued in v4l2src seems to fix this issue.
+Need more amalysis on the exact root cause
+
+Upstream-Status: Pending
+
+Signed-off-by: Rahul T R <r-ravikumar@ti.com>
+---
+ sys/v4l2/gstv4l2object.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/sys/v4l2/gstv4l2object.c b/sys/v4l2/gstv4l2object.c
+index 4ce9fac..9f5a85b 100644
+--- a/sys/v4l2/gstv4l2object.c
++++ b/sys/v4l2/gstv4l2object.c
+@@ -5172,6 +5172,8 @@ gst_v4l2_object_decide_allocation (GstV4l2Object * obj, GstQuery * query)
+      * pool, we'll need what the driver one, and one more, so we can dequeu */
+     if (0 == strcmp(obj->vcap.driver, "wave5-dec")) {
+         own_min = obj->min_buffers + 3;
++    } else if (0 == strcmp(obj->vcap.driver, "j721e-csi2rx")) {
++        own_min = obj->min_buffers + 4;
+     } else {
+         own_min = obj->min_buffers + 1;
+     }
+--
+2.34.1

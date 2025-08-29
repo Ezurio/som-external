@@ -13,7 +13,7 @@
 
 &camera_cam_a {
 	compatible = "ovti,ov5645";
-	enable-gpios = <&main_gpio0 26 GPIO_ACTIVE_HIGH>; /* GPIO_C_6 / CAM_A_PWR */
+	enable-gpios = <&main_gpio0 72 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
 	/delete-property/ powerdown-gpios;
 	clock-frequency = <24000000>;
 };

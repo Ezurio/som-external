@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ARDUCAM_PIVARIETY
+	bool "Arducam Pivariety"
+	depends on BR2_LINUX_KERNEL
+	help
+	  Arducam Pivariety Camera Driver

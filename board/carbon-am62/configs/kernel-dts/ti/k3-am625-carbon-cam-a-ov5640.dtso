@@ -1,4 +1,4 @@
- // SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Digilent Pcam 5C 5MP OV5640 camera module
  *
@@ -16,7 +16,9 @@
 	clk_cam_a_int: clk-cam-a-int {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <12000000>;
+		/* 24 MHz clock enables higher resolutions
+		   even though actual clock is 12 MHz */
+		clock-frequency = <24000000>;
 	};
 };
 
@@ -33,8 +35,8 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_cam_a_default>;
-		reset-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>;
-		powerdown-gpios = <&main_gpio0 26 GPIO_ACTIVE_LOW>; /* CAM_A_PWR */
+		reset-gpios = <&main_gpio0 29 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&main_gpio0 72 GPIO_ACTIVE_LOW>; /* CAM_A_PWR */
 
 		port {
 			csi2_cam0: endpoint {
