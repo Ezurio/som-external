@@ -32,7 +32,7 @@
 		clocks = <&clk_cam_c_int>; /* On Camera module */
 		clock-names = "xclk";
 
-		reset-gpios = <&exp0 5 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&exp0 5 GPIO_ACTIVE_LOW>; /* CAM_C_RST */
 		powerdown-gpios = <&exp0 4 GPIO_ACTIVE_LOW>; /* CAM_C_PWR */
 
 		port {
