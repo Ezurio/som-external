@@ -7,14 +7,16 @@
 
 #include "k3-am625-carbon-cam-a-ov5640.dtso"
 
-&clk_cam_a_int {
-	clock-frequency = <24000000>;
-};
-
 &camera_cam_a {
 	reg = <0x0c>;
 	compatible = "arducam,arducam-pivariety";
-	reset-gpios = <&main_gpio0 72 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
+
+	VANA-supply = <&vdd_3v3_carrier>;
+	VDIG-supply = <&vdd_3v3_carrier>;
+	VDDL-supply = <&vdd_3v3_carrier>;
+
+	reset-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>; /* CAM_A_RST */
+	enable-gpios = <&main_gpio0 72 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
 	/delete-property/ powerdown-gpios;
 };
 

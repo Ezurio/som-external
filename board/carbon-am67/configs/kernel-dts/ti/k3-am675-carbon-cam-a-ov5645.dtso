@@ -7,12 +7,13 @@
 
 #include "k3-am675-carbon-cam-a-ov5640.dtso"
 
-&clk_cam_a_int {
-	clock-frequency = <24000000>;
-};
-
 &camera_cam_a {
 	compatible = "ovti,ov5645";
+
+	vdddo-supply = <&vdd_3v3_carrier>;
+	vdda-supply = <&vdd_3v3_carrier>;
+	vddd-supply = <&vdd_3v3_carrier>;
+
 	enable-gpios = <&exp0 13 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
 	/delete-property/ powerdown-gpios;
 	clock-frequency = <24000000>;
