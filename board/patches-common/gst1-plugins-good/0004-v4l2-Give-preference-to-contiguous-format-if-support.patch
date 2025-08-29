@@ -24,8 +24,9 @@ diff --git a/sys/v4l2/gstv4l2object.c b/sys/v4l2/gstv4l2object.c
 index e9026da..ad9f630 100644
 --- a/sys/v4l2/gstv4l2object.c
 +++ b/sys/v4l2/gstv4l2object.c
-@@ -2013,17 +2013,17 @@ gst_v4l2_object_get_caps_info (GstV4l2Object * v4l2object, GstCaps * caps,
+@@ -1930,17 +1930,17 @@ gst_v4l2_object_get_caps_info (GstV4l2Object * v4l2object, GstCaps * caps,
    }
+
 
 -  /* Prefer the non-contiguous if supported */
 -  v4l2object->prefered_non_contiguous = TRUE;
@@ -47,6 +48,5 @@ index e9026da..ad9f630 100644
    }
 
    if (fmt == NULL)
-     goto unsupported_format;
 --
 2.39.0
