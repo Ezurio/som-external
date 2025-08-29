@@ -149,11 +149,11 @@ gzip -c "${TARGET_DIR}/etc/network/interfaces" > "${TARGET_DIR}/etc/network/inte
 LOCRELSTR="${SUMMIT_RELEASE_STRING}"
 if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" = "0.0.0.0" ]; then
 	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0"
-	DATE_SUFFIX="-$(date +%Y%m%d)"
+	DATE_SUFFIX="-$(date +%Y%m%d%H%M)"
 else
 	DATE_SUFFIX=""
 fi
-echo "${LOCRELSTR}" > "${TARGET_DIR}/etc/issue"
+echo "${LOCRELSTR}${DATE_SUFFIX}" > "${TARGET_DIR}/etc/issue"
 
 cat << EOF > "${TARGET_DIR}/usr/lib/os-release"
 NAME="Summit Linux"
