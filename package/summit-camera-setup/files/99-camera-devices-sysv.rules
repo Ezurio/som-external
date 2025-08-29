@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="media", KERNEL=="media[0-9]*", RUN+="/usr/bin/camera-setup.sh /dev/%k"

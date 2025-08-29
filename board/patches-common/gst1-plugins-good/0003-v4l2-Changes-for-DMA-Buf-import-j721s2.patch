@@ -1,0 +1,156 @@
+From b9727b08f69649a2ec58055b4fb1d40c094ba8d0 Mon Sep 17 00:00:00 2001
+From: Prasanth Babu Mantena <p-mantena@ti.com>
+Date: Wed, 7 Jun 2023 18:24:55 +0530
+Subject: [PATCH] v4l2: Changes for DMA Buf import j721s2
+
+Add checks to release the buffer to downstream pool when returned with
+error flag from the driver. This buffer which registered with driver is
+used a an offset buffer without any new allocation in downstram pool.
+Set buffer offset to ref_frames plus 3. Added check for buffer
+allocations that are applied only for wave5 driver. v4l2src which uses
+the buffer pool objects uses the default allocations.
+
+Upstream-Status: Pending
+
+Signed-off-by: Prasanth Babu Mantena <p-mantena@ti.com>
+---
+ sys/v4l2/gstv4l2bufferpool.c | 17 ++++++++++++++---
+ sys/v4l2/gstv4l2bufferpool.h |  2 ++
+ sys/v4l2/gstv4l2object.c     | 16 +++++++++++++---
+ sys/v4l2/gstv4l2videodec.c   | 20 ++++++++++++++------
+ 4 files changed, 43 insertions(+), 12 deletions(-)
+
+diff --git a/sys/v4l2/gstv4l2bufferpool.c b/sys/v4l2/gstv4l2bufferpool.c
+index d85f036..e6a60dc 100644
+--- a/sys/v4l2/gstv4l2bufferpool.c
++++ b/sys/v4l2/gstv4l2bufferpool.c
+@@ -83,7 +83,7 @@ enum _GstV4l2BufferState
+ static void gst_v4l2_buffer_pool_complete_release_buffer (GstBufferPool * bpool,
+     GstBuffer * buffer, gboolean queued);
+
+-static gboolean
++gboolean
+ gst_v4l2_is_buffer_valid (GstBuffer * buffer, GstV4l2MemoryGroup ** out_group,
+     gboolean check_writable)
+ {
+@@ -1584,11 +1584,22 @@ gst_v4l2_buffer_pool_complete_release_buffer (GstBufferPool * bpool,
+             gst_v4l2_allocator_reset_group (pool->vallocator, group);
+             /* queue back in the device */
+             if (pool->other_pool)
+-              ret = gst_v4l2_buffer_pool_prepare_buffer (pool, buffer, NULL);
+-            if (ret != GST_FLOW_OK ||
++	    {
++	      if(!(group->buffer.flags & V4L2_BUF_FLAG_ERROR))
++	              ret = gst_v4l2_buffer_pool_prepare_buffer (pool, buffer, NULL);
++	    }
++            if(!(group->buffer.flags & V4L2_BUF_FLAG_ERROR)) {
++	    if (ret != GST_FLOW_OK ||
+                 gst_v4l2_buffer_pool_qbuf (pool, buffer, group,
+                     NULL) != GST_FLOW_OK)
+               pclass->release_buffer (bpool, buffer);
++	    }
++	    else
++	    {
++                GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_TAG_MEMORY);
++                pclass->release_buffer (bpool, buffer);
++
++	    }
+           } else {
+             /* Simply release invalid/modified buffer, the allocator will
+              * give it back later */
+diff --git a/sys/v4l2/gstv4l2bufferpool.h b/sys/v4l2/gstv4l2bufferpool.h
+index 60340c2..cec4207 100644
+--- a/sys/v4l2/gstv4l2bufferpool.h
++++ b/sys/v4l2/gstv4l2bufferpool.h
+@@ -124,6 +124,9 @@ gboolean            gst_v4l2_buffer_pool_orphan  (GstV4l2Object * v4l2object);
+
+ void                gst_v4l2_buffer_pool_enable_resolution_change (GstV4l2BufferPool *self);
+
++gboolean            gst_v4l2_is_buffer_valid (GstBuffer * buffer, GstV4l2MemoryGroup ** out_group,
++                                              gboolean check_writable);
++
+ G_END_DECLS
+
+ #endif /*__GST_V4L2_BUFFER_POOL_H__ */
+diff --git a/sys/v4l2/gstv4l2object.c b/sys/v4l2/gstv4l2object.c
+index ee60540..eff1cf2 100644
+--- a/sys/v4l2/gstv4l2object.c
++++ b/sys/v4l2/gstv4l2object.c
+@@ -5040,7 +5040,11 @@ gst_v4l2_object_decide_allocation (GstV4l2Object * obj, GstQuery * query)
+   } else {
+     /* In this case we'll have to configure two buffer pool. For our buffer
+      * pool, we'll need what the driver one, and one more, so we can dequeu */
+-    own_min = obj->min_buffers + 1;
++    if (0 == strcmp(obj->vcap.driver, "wave5-dec")) {
++        own_min = obj->min_buffers + 3;
++    } else {
++        own_min = obj->min_buffers + 1;
++    }
+     own_min = MAX (own_min, GST_V4L2_MIN_BUFFERS (obj));
+
+     /* for the downstream pool, we keep what downstream wants, though ensure
+@@ -5049,8 +5053,14 @@ gst_v4l2_object_decide_allocation (GstV4l2Object * obj, GstQuery * query)
+     min = MAX (min, GST_V4L2_MIN_BUFFERS (obj));
+
+     /* To import we need the other pool to hold at least own_min */
+-    if (obj_pool == pool)
+-      min += own_min;
++    if (obj_pool == pool) {
++        if (0 == strcmp(obj->vcap.driver, "wave5-dec")) {
++            min = own_min;
++            max = min;
++        } else {
++            min += own_min;
++        }
++    }
+   }
+
+   /* Request a bigger max, if one was suggested but it's too small */
+diff --git a/sys/v4l2/gstv4l2videodec.c b/sys/v4l2/gstv4l2videodec.c
+index 3042995..0e4ac09 100644
+--- a/sys/v4l2/gstv4l2videodec.c
++++ b/sys/v4l2/gstv4l2videodec.c
+@@ -738,6 +738,8 @@ gst_v4l2_video_dec_loop (GstVideoDecoder * decoder)
+   GstVideoCodecFrame *frame;
+   GstBuffer *buffer = NULL;
+   GstFlowReturn ret;
++  GstV4l2MemoryGroup *group;
++  int buffer_valid=0;
+
+   GST_LOG_OBJECT (self, "Looping.");
+
+@@ -795,6 +797,7 @@ gst_v4l2_video_dec_loop (GstVideoDecoder * decoder)
+
+     if (ret != GST_FLOW_OK)
+       goto beach;
++    buffer_valid = gst_v4l2_is_buffer_valid (buffer, &group, FALSE);
+
+     GST_LOG_OBJECT (decoder, "Process output buffer");
+     {
+@@ -861,13 +864,18 @@ gst_v4l2_video_dec_loop (GstVideoDecoder * decoder)
+     if (oldest_frame)
+       gst_video_codec_frame_unref (oldest_frame);
+
+-    frame->duration = self->v4l2capture->duration;
+-    frame->output_buffer = buffer;
+-    buffer = NULL;
+-    ret = gst_video_decoder_finish_frame (decoder, frame);
++    if(!(buffer_valid && (group->buffer.flags & V4L2_BUF_FLAG_ERROR))) {
++	       frame->duration = self->v4l2capture->duration;
++               frame->output_buffer = buffer;
++               buffer = NULL;
++               ret = gst_video_decoder_finish_frame (decoder, frame);
++               if (ret != GST_FLOW_OK)
++                       goto beach;
++       }
++       else {
++               gst_buffer_unref (buffer);
++       }
+
+-    if (ret != GST_FLOW_OK)
+-      goto beach;
+   } else {
+     GST_WARNING_OBJECT (decoder, "Decoder is producing too many buffers");
+     gst_buffer_unref (buffer);
+--
+2.39.0

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SUMMIT_CAMERA_SETUP
+	bool "summit-camera-setup"
+	depends on BR2_PACKAGE_LIBV4L
+	help
+	  Initial camera setup for DVKs boards

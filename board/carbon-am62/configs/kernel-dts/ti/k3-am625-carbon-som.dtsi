@@ -19,23 +19,24 @@
 	model = "Ezurio Carbon AM625 SOM";
 
 	aliases {
-		serial0 = &wkup_uart0; /* UART_C */
-		serial2 = &main_uart0; /* UART_CON */
-		serial3 = &main_uart1; /* BT */
-		serial4 = &main_uart6; /* UART_A */
-		serial5 = &mcu_uart0;  /* UART_B */
-		serial6 = &main_uart4; /* UART_D */
-		mmc0 = &sdhci0;
-		mmc1 = &sdhci1;
-		mmc2 = &sdhci2;
-		spi0 = &ospi0;
-		spi1 = &main_spi0;
-		ethernet0 = &cpsw_port1;
-		ethernet1 = &cpsw_port2;
-		can0 = &main_mcan0;
-		can1 = &mcu_mcan0;
-		usb0 = &usb0;
-		usb1 = &usb1;
+		serial0 = &wkup_uart0;		/* UART_C */
+		serial2 = &main_uart0;		/* UART_CON */
+		serial3 = &main_uart1;		/* BT */
+		serial4 = &main_uart6;		/* UART_A */
+		serial5 = &mcu_uart0;		/* UART_B */
+		serial6 = &main_uart4;		/* UART_D */
+		mmc0 = &sdhci0;			/* EMMC */
+		mmc1 = &sdhci1;			/* SD */
+		mmc2 = &sdhci2;			/* WIFI */
+		spi0 = &ospi0;			/* SPI_A */
+		spi1 = &main_spi0;		/* SPI_B */
+		spi2 = &mcu_spi0;		/* SPI_C */
+		ethernet0 = &cpsw_port1;	/* ETH_A */
+		ethernet1 = &cpsw_port2;	/* ETH_B */
+		can0 = &main_mcan0;		/* CAN_A */
+		can1 = &mcu_mcan0;		/* CAN_B */
+		usb0 = &usb0;			/* USB_A */
+		usb1 = &usb1;			/* USB_B */
 		gpio0 = &main_gpio0;
 		gpio1 = &main_gpio1;
 		gpio2 = &mcu_gpio0;
@@ -80,7 +81,7 @@
 		linux,cma {
 			compatible = "shared-dma-pool";
 			reusable;
-			size = <0x00 0x8000000>;
+			size = <0x00 0x10000000>;
 			linux,cma-default;
 		};
 
@@ -205,7 +206,7 @@
 
 		status = "disabled";
 
-		regulator-name = "slow-clock-wifi";
+		regulator-name = "reg_slow_clock";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -326,6 +327,18 @@
 	};
 };
 
+&mcu_m4fss {
+	mboxes = <&mailbox0_cluster0 &mbox_m4_0>;
+	memory-region = <&mcu_m4fss_dma_memory_region>,
+			<&mcu_m4fss_memory_region>;
+};
+
+&wkup_r5fss0_core0 {
+	mboxes = <&mailbox0_cluster0 &mbox_r5_0>;
+	memory-region = <&wkup_r5fss0_core0_dma_memory_region>,
+			<&wkup_r5fss0_core0_memory_region>;
+};
+
 &main_rti1 {
 	status = "disabled";
 };
@@ -344,21 +357,21 @@
 
 &main_gpio0 {
 	gpio-line-names =
-		"","GPIO_A_2","GPIO_A_1","","", 		/* 0 - 4 */
+		"","ETH_A_INT","ETH_A_RST","","", 		/* 0 - 4 */
 		"","","","","",
-		"","","","GPIO_A_0","GPIO_C_2",			/* 10 - 14 */
+		"","","","GPIO_A_0","RGB_VDD_EN",			/* 10 - 14 */
 		"EMMC_RESET#","WIFI_WAKE","GPIO_B_7","RGB_CS","RGB_RESET#",
 		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
-		"SDIO_A_PWR_EN","","","","GPIO_C_7",
-		"GPIO_B_6","SDIO_A_IOPWR","","GPIO_B_7","",		/* 30 - 34 */
-		"","GPIO_B_3","","GPIO_B_2","GPIO_C_0",
-		"","GPIO_C_1","BT_HOST_WAKE","","",		/* 40 - 44 */
+		"SDIO_A_PWR_EN","","","","CAM_A_RST",
+		"LVDS_D_VDD_EN","SDIO_A_IOPWR","","GPIO_B_7","",		/* 30 - 34 */
+		"","GPIO_B_3","","GPIO_B_2","ETH_B_RST",
+		"","ETH_B_INT","BT_HOST_WAKE","","",		/* 40 - 44 */
 		"","","","","",
 		"","","","","",					/* 50 - 54 */
 		"","","","","",
 		"","","","","",					/* 60 - 64 */
 		"","","","","",
-		"","GPIO_C_3","GPIO_C_6","","",				/* 70 - 74 */
+		"","RGB_BL_EN","CAM_A_PWR","","",				/* 70 - 74 */
 		"","","","","",
 		"","","","","",					/* 80 - 84 */
 		"","","","","",
@@ -377,7 +390,7 @@
 		"","","","","",
 		"","","","","",					/* 40 - 44 */
 		"","","","SDIO_A_CD#","",
-		"","";						/* 50 - 51 */
+		"USB_A_VBUS","USB_B_VBUS";						/* 50 - 51 */
 };
 
 &main_i2c0 {
@@ -488,31 +501,36 @@
 	};
 };
 
-&main_i2c1 { /* I2C_A */
+&main_i2c1 {
+	/* I2C_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c1_pins_default>;
 	clock-frequency = <400000>;
 };
 
-&main_i2c2 { /* I2C_B */
+&main_i2c2 {
+	/* I2C_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c2_pins_default>;
 	clock-frequency = <400000>;
 };
 
-&main_i2c3 { /* I2C_CAM */
+&main_i2c3 {
+	/* I2C_CAM */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c3_pins_default>;
 	clock-frequency = <400000>;
 };
 
-&wkup_i2c0 { /* I2C_C/I2C_DISP */
+&wkup_i2c0 {
+	/* I2C_C/I2C_DISP */
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <400000>;
 };
 
-&main_mcan0 { /* CAN_A */
+&main_mcan0 {
+	/* CAN_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mcan0_pins_default>;
 };
@@ -876,7 +894,8 @@
 	};
 };
 
-&main_spi0 { /* SPI_B */
+&main_spi0 {
+	/* SPI_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_spi0_pins_default>;
 };
@@ -938,23 +957,6 @@
 		"GPIO_B_5","","","rv3028_int";				/* 20 - 23 */
 };
 
-&mcu_m4fss {
-	mboxes = <&mailbox0_cluster0 &mbox_m4_0>;
-	memory-region = <&mcu_m4fss_dma_memory_region>,
-			<&mcu_m4fss_memory_region>;
-};
-
-&wkup_r5fss0_core0 {
-	mboxes = <&mailbox0_cluster0 &mbox_r5_0>;
-	memory-region = <&wkup_r5fss0_core0_dma_memory_region>,
-			<&wkup_r5fss0_core0_memory_region>;
-};
-
-&mcu_mcan0 { /* CAN_B */
-	pinctrl-names = "default";
-	pinctrl-0 = <&mcu_mcan0_pins_default>;
-};
-
 &mcu_pmx0 {
 	wkup_uart0_pins_default: wkup-uart0-default-pins {
 		pinctrl-single,pins = <
@@ -979,9 +981,12 @@
 		>;
 	};
 
-	mcu_rtc_pins_default: mcu-rtc-default-pins {
+	mcu_spi0_pins_default: mcu-spi0-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x084, PIN_INPUT_PULLUP, 7) /* RTC_INT (A12) WKUP_CLKOUT0.MCU_GPIO0_23 */
+			AM62X_MCU_IOPAD(0x000, PIN_OUTPUT, 0) /* SPI_C_CS0# (E8) MCU_SPI0_CS0 */
+			AM62X_MCU_IOPAD(0x008, PIN_OUTPUT, 0) /* SPI_C_SCK (A7) MCU_SPI0_CLK */
+			AM62X_MCU_IOPAD(0x00c, PIN_INPUT, 0) /* SPI_C_SDI (D9) MCU_SPI0_D0 */
+			AM62X_MCU_IOPAD(0x010, PIN_OUTPUT, 0) /* SPI_C_SDO (C9) MCU_SPI0_D1 */
 		>;
 	};
 
@@ -994,11 +999,23 @@
 		>;
 	};
 
-	mcu_usb_a_id_pins_default: mcu-usb-a-id-default-pins {
+	mcu_rtc_pins_default: mcu-rtc-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x040, PIN_INPUT, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+			AM62X_MCU_IOPAD(0x084, PIN_INPUT_PULLUP, 7) /* RTC_INT (A12) WKUP_CLKOUT0.MCU_GPIO0_23 */
 		>;
 	};
+
+	mcu_usb_a_id_pins_default: mcu-usb-a-id-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+		>;
+	};
+};
+
+&mcu_mcan0 {
+	/* CAN_B */
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_mcan0_pins_default>;
 };
 
 &mcu_uart0 {
@@ -1007,12 +1024,20 @@
 	pinctrl-0 = <&mcu_uart0_pins_default>;
 };
 
-&ospi0 { /* SPI_A Only 4 bits are routed out */
+&mcu_spi0 {
+	/* SPI_C */
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_spi0_pins_default>;
+};
+
+&ospi0 {
+	/* SPI_A Only 4 bits are routed out */
 	pinctrl-names = "default";
 	pinctrl-0 = <&ospi0_pins_default>;
 };
 
-&sdhci0 { /* eMMC */
+&sdhci0 {
+	/* eMMC */
 	status = "okay";
 
 	pinctrl-names = "default";
@@ -1027,7 +1052,8 @@
 	ti,driver-strength-ohm = <50>;
 };
 
-&sdhci1 { /* SDIO_A */
+&sdhci1 {
+	/* SDIO_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
 
@@ -1038,7 +1064,8 @@
 	ti,driver-strength-ohm = <50>;
 };
 
-&sdhci2 { /* SDIO_B  WIFI */
+&sdhci2 {
+	/* SDIO_B  WIFI */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
