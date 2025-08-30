@@ -628,7 +628,7 @@
 			"", "CAM_C_PWR", "CAM_C_RST",
 			"CAM_D_PWR", "CAM_D_RST", "CARRIER_STBY",
 			"", "", "",
-			"CAM_A_RST", "CAM_A_PWR", "",
+			"CAM_A_RST/GPIO_C_7", "CAM_A_PWR/GPIO_C_6", "",
 			"", "", "";
 
 		pinctrl-names = "default";
@@ -950,8 +950,8 @@
 	ospi0_pins_default: ospi0-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x000, PIN_OUTPUT, 0) /* SPI_A_SCK (H24) OSPI0_CLK */
-			J722S_IOPAD(0x02c, PIN_OUTPUT, 0) /* SPI_A_CS0 (K26) OSPI0_CSn0 */
-			J722S_IOPAD(0x030, PIN_OUTPUT, 0) /* SPI_A_CS1 (K23) OSPI0_CSn1 */
+			J722S_IOPAD(0x02c, PIN_OUTPUT, 0) /* SPI_A_CS0 (K26) OSPI0_CSN0 */
+			J722S_IOPAD(0x030, PIN_OUTPUT, 0) /* SPI_A_CS1 (K23) OSPI0_CSN1 */
 			J722S_IOPAD(0x00c, PIN_INPUT, 0) /* SPI_A_(SDI)IO0 (K27) OSPI0_D0 */
 			J722S_IOPAD(0x010, PIN_INPUT, 0) /* SPI_A_(SDO)IO1 (L27) OSPI0_D1 */
 			J722S_IOPAD(0x014, PIN_INPUT, 0) /* SPI_A_IO2 (L26) OSPI0_D2 */
@@ -1026,6 +1026,120 @@
 			J722S_IOPAD(0x0cc, PIN_INPUT, 7) /* LVDS_E_BL_EN (W21) VOUT0_DATA5.GPIO0_50 */
 		>;
 	};
+
+	osm_gpio_a_0_pins_default: osm-gpio-a-0-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x1f0, PIN_INPUT, 7) /* GPIO_A_0 (A23) EXT_REFCLK1.GPIO1_30 */
+		>;
+	};
+
+	osm_gpio_a_1_pins_default: osm-gpio-a-1-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0a4, PIN_INPUT, 7) /* GPIO_A_1 (N25) GPMC0_DIR.GPIO0_40 */
+		>;
+	};
+
+	osm_gpio_a_2_pins_default: osm-gpio-a-2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x094, PIN_INPUT, 7) /* GPIO_A_2 (P26) GPMC0_BE1N.GPIO0_36 */
+		>;
+	};
+
+	osm_gpio_a_3_pins_default: osm-gpio-a-3-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0bc, PIN_INPUT, 7) /* GPIO_A_3 (W25) VOUT0_DATA1.GPIO0_46 */
+		>;
+	};
+
+	osm_gpio_a_4_pins_default: osm-gpio-a-4-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0b8, PIN_INPUT, 7) /* GPIO_A_4 (W27) VOUT0_DATA0.GPIO0_45 */
+		>;
+	};
+
+	osm_gpio_a_5_pins_default: osm-gpio-a-5-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x088, PIN_INPUT, 7) /* GPIO_A_5 (N22) GPMC0_OEN_REN.GPIO0_34 */
+		>;
+	};
+
+	osm_gpio_a_6_pins_default: osm-gpio-a-6-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x030, PIN_INPUT, 7) /* GPIO_A_6 (K23) OSPI0_CSN1.GPIO0_12 */
+		>;
+	};
+
+	osm_gpio_b_2_pins_default: osm-gpio-b-2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x024, PIN_INPUT, 7) /* GPIO_B_2 (N27) OSPI0_D6.GPIO0_9 */
+		>;
+	};
+
+	osm_gpio_b_3_pins_default: osm-gpio-b-3-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x028, PIN_INPUT, 7) /* GPIO_B_3 (M27) OSPI0_D7.GPIO0_10 */
+		>;
+	};
+
+	osm_gpio_b_4_pins_default: osm-gpio-b-4-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0a8, PIN_INPUT, 7) /* GPIO_B_4 (R27) GPMC0_CSn0.GPIO0_41 */
+		>;
+	};
+
+	osm_gpio_b_5_pins_default: osm-gpio-b-5-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0ac, PIN_INPUT, 7) /* GPIO_B_5 (P21) GPMC0_CSn1.GPIO0_42 */
+		>;
+	};
+
+	osm_gpio_b_6_pins_default: osm-gpio-b-6-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d0, PIN_INPUT, 7) /* GPIO_B_6 (Y26) VOUT0_DATA6.GPIO0_51 */
+		>;
+	};
+
+	osm_gpio_b_7_pins_default: osm-gpio-b-7-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0d4, PIN_INPUT, 7) /* GPIO_B_7 (Y27) VOUT0_DATA7.GPIO0_52 */
+		>;
+	};
+
+	osm_gpio_c_0_pins_default: osm-gpio-c-0-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0c0, PIN_INPUT, 7) /* GPIO_C_0 (W24) VOUT0_DATA2.GPIO0_47 */
+		>;
+	};
+
+	osm_gpio_c_1_pins_default: osm-gpio-c-1-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0c4, PIN_INPUT, 7) /* GPIO_C_1 (W23) VOUT0_DATA3.GPIO0_48 */
+		>;
+	};
+
+	osm_gpio_c_2_pins_default: osm-gpio-c-2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0c8, PIN_INPUT, 7) /* GPIO_C_2 (W22) VOUT0_DATA4.GPIO0_49 */
+		>;
+	};
+
+	osm_gpio_c_3_pins_default: osm-gpio-c-3-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0cc, PIN_INPUT, 7) /* GPIO_C_3 (W21) VOUT0_DATA5.GPIO0_50 */
+		>;
+	};
+
+	osm_gpio_c_4_pins_default: osm-gpio-c-4-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x070, PIN_INPUT, 7) /* GPIO_C_4 (V24) GPMC0_AD13.GPIO0_28 */
+		>;
+	};
+
+	osm_gpio_c_5_pins_default: osm-gpio-c-5-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x074, PIN_INPUT, 7) /* GPIO_C_5 (V22) GPMC0_AD14.GPIO0_29 */
+		>;
+	};
 };
 
 &main_spi0 {
@@ -1035,7 +1149,7 @@
 };
 
 &main_uart2 {
-	/* Console ttyS2 */
+	/* UART_CON */
 	status = "okay";
 
 	pinctrl-names = "default";
@@ -1152,6 +1266,24 @@
 	mcu_timer0_pins_default: mcu-timer0-default-pins {
 		pinctrl-single,pins = <
 			J722S_MCU_IOPAD(0x038, PIN_OUTPUT, 1) /* LVDS_D_BL_PWM / PWM2 (D8) MCU_MCAN0_RX.MCU_TIMER_IO0 */
+		>;
+	};
+
+	osm_gpio_a_7_pins_default: osm-gpio-a-7-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x004, PIN_INPUT, 7) /* GPIO_A_7 (A10) MCU_SPI0_CS1.MCU_GPIO0_4 */
+		>;
+	};
+
+	osm_gpio_b_0_pins_default: osm-gpio-b-0-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x030, PIN_INPUT, 7) /* GPIO_B_0 (C3) WKUP_UART0_RTSn.MCU_GPIO0_12 */
+		>;
+	};
+
+	osm_gpio_b_1_pins_default: osm-gpio-b-1-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x02c, PIN_INPUT, 7) /* GPIO_B_1 (C4) WKUP_UART0_CTSn.MCU_GPIO0_11 */
 		>;
 	};
 };
