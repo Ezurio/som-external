@@ -25,6 +25,7 @@
 		type = "a";
 		digital;
 
+		/* For miswired U3 VDD_5V */
 		//pinctrl-names = "default";
 		//pinctrl-0 = <&main_rgb_power_default>;
 		//ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
@@ -95,6 +96,10 @@
 };
 
 &gpu {
+	status = "okay";
+};
+
+&dss {
 	status = "okay";
 };
 
