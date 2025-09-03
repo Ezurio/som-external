@@ -18,14 +18,14 @@
 		type = "a";
 		digital;
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_d_power_default>;
-		ddc-en-gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
+		/* For miswired U3 VDD_5V */
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&main_lvds_d_power_default>;
+		//ddc-en-gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
 
 		ddc-i2c-bus = <&i2c_port_d>;
 
-		/* Reenable after U3 VDD_5V miswiring fixed */
-		//hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+		hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_d_in: endpoint {
@@ -34,17 +34,18 @@
 		};
 	};
 
-	bridge-d {
+	bridge-lvds-d {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_lvds_d_power_default>;
-		//powerdown-gpios = <&main_gpio0 30 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_power_default>;
+		powerdown-gpios = <&main_gpio0 30 GPIO_ACTIVE_LOW>;
 
 		port@0 {
 			reg = <0>;
+
 			tfp410_d_in: endpoint {
 				remote-endpoint = <&lvds_d_out>;
 				pclk-sample = <1>;
@@ -54,6 +55,7 @@
 
 		port@1 {
 			reg = <1>;
+
 			tfp410_d_out: endpoint {
 				remote-endpoint = <&hdmi_connector_d_in>;
 			};
@@ -62,6 +64,8 @@
 
 	lvds-decoder-d {
 		compatible = "ti,ds90cf386", "lvds-decoder";
+
+		power-supply = <&vdd_3v3_carrier>;
 
 		max-frequency = <85000000>;
 		min-frequency = <20000000>;
@@ -96,29 +100,6 @@
 	status = "okay";
 };
 
-&oldi0 {
-	status = "okay";
-};
-
-&oldi0_ports {
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	port@0 {
-		reg = <0>;
-		oldi_0_in: endpoint {
-			remote-endpoint = <&dpi0_out0>;
-		};
-	};
-
-	port@1 {
-		reg = <1>;
-		oldi_0_out: endpoint {
-			remote-endpoint = <&lvds_d_in>;
-		};
-	};
-};
-
 &dss_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -132,6 +113,31 @@
 		dpi0_out0: endpoint@0 {
 			reg = <0>;
 			remote-endpoint = <&oldi_0_in>;
+		};
+	};
+};
+
+&oldi0 {
+	status = "okay";
+};
+
+&oldi0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+
+		oldi_0_in: endpoint {
+			remote-endpoint = <&dpi0_out0>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+
+		oldi_0_out: endpoint {
+			remote-endpoint = <&lvds_d_in>;
 		};
 	};
 };

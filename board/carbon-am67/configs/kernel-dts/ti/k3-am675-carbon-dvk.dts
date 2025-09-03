@@ -429,7 +429,7 @@
 
 	main_led_pins_default: main-led-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x1f0, PIN_OUTPUT, 7) /* (A23) EXTREFCLK1.GPIO1_30 */
+			J722S_IOPAD(0x1f0, PIN_OUTPUT, 7) /* (A23) EXT_REFCLK1.GPIO1_30 */
 		>;
 	};
 
