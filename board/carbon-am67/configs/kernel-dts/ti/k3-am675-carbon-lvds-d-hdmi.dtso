@@ -18,13 +18,13 @@
 		type = "a";
 		digital;
 
+		/* For miswired U3 VDD_5V */
 		//pinctrl-names = "default";
 		//pinctrl-0 = <&main_lvds_d_power_default>;
 		//ddc-en-gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
 
 		ddc-i2c-bus = <&i2c_port_d>;
 
-		/* Reenable after U3 VDD_5V miswiring fixed */
 		hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
 
 		port {
