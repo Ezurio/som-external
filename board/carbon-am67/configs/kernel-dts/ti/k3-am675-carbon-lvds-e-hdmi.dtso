@@ -18,14 +18,14 @@
 		type = "a";
 		digital;
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_lvds_e_power_default>;
-		ddc-en-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&main_lvds_e_power_default>;
+		//ddc-en-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
 
 		ddc-i2c-bus = <&i2c_port_e>;
 
 		/* Reenable after U3 VDD_5V miswiring fixed */
-		//hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
+		hpd-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_e_in: endpoint {
@@ -34,17 +34,18 @@
 		};
 	};
 
-	bridge-e {
+	bridge-lvds-e {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_lvds_e_power_default>;
-		//powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_e_power_default>;
+		powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
 
 		port@0 {
 			reg = <0>;
+
 			tfp410_e_in: endpoint {
 				remote-endpoint = <&lvds_e_out>;
 				pclk-sample = <1>;
@@ -54,6 +55,7 @@
 
 		port@1 {
 			reg = <1>;
+
 			tfp410_e_out: endpoint {
 				remote-endpoint = <&hdmi_connector_e_in>;
 			};
@@ -62,6 +64,8 @@
 
 	lvds-decoder-e {
 		compatible = "ti,ds90cf386", "lvds-decoder";
+
+		power-supply = <&vdd_3v3_carrier>;
 
 		max-frequency = <85000000>;
 		min-frequency = <20000000>;
@@ -137,6 +141,7 @@
 
 	port@0 {
 		reg = <0>;
+
 		oldi_1_in: endpoint {
 			remote-endpoint = <&dpi1_out0>;
 		};
@@ -144,6 +149,7 @@
 
 	port@1 {
 		reg = <1>;
+
 		oldi_1_out: endpoint {
 			remote-endpoint = <&lvds_e_in>;
 		};

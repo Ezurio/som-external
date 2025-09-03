@@ -25,9 +25,9 @@
 		type = "a";
 		digital;
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_power_default>;
-		ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&main_rgb_power_default>;
+		//ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_e_in: endpoint {
@@ -36,17 +36,18 @@
 		};
 	};
 
-	bridge-e {
+	bridge-lvds-e {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "ti,tfp410";
 
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_rgb_power_default>;
-		//powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_power_default>;
+		powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
 
 		port@0 {
 			reg = <0>;
+
 			tfp410_e_in: endpoint {
 				remote-endpoint = <&lvds_e_out>;
 				pclk-sample = <1>;
@@ -56,6 +57,7 @@
 
 		port@1 {
 			reg = <1>;
+
 			tfp410_e_out: endpoint {
 				remote-endpoint = <&hdmi_connector_e_in>;
 			};
@@ -64,6 +66,8 @@
 
 	lvds-decoder-e {
 		compatible = "ti,ds90cf386", "lvds-decoder";
+
+		power-supply = <&vdd_3v3_carrier>;
 
 		max-frequency = <85000000>;
 		min-frequency = <20000000>;
@@ -90,32 +94,17 @@
 	};
 };
 
-&oldi1 {
+&gpu {
 	status = "okay";
 };
 
-&oldi1_ports {
+&dss_ports {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	port@0 {
-		reg = <0>;
-		oldi_1_in: endpoint {
-			remote-endpoint = <&dpi0_out1>;
-		};
-	};
-
-	port@1 {
-		reg = <1>;
-		oldi_1_out: endpoint {
-			remote-endpoint = <&lvds_e_in>;
-		};
-	};
-};
-
-&dss_ports {
 	/* Video Port 1 Output to OLDI */
 	port@0 {
+		reg = <0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -126,6 +115,32 @@
 	};
 };
 
-&gpu {
+&oldi0 {
+	ti,companion-oldi = <&oldi1>;
+};
+
+&oldi1 {
 	status = "okay";
+	ti,secondary-oldi;
+};
+
+&oldi1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+
+		oldi_1_in: endpoint {
+			remote-endpoint = <&dpi0_out1>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+
+		oldi_1_out: endpoint {
+			remote-endpoint = <&lvds_e_in>;
+		};
+	};
 };
