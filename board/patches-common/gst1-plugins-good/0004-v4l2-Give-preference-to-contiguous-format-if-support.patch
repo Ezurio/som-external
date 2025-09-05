@@ -34,9 +34,10 @@ index e9026da..ad9f630 100644
 
 -  if (fourcc_nc)
 -    fmt = gst_v4l2_object_get_format_from_fourcc (v4l2object, fourcc_nc);
+-  else if (fourcc == 0)
 +  if (fourcc)
 +    fmt = gst_v4l2_object_get_format_from_fourcc (v4l2object, fourcc);
-   else if (fourcc == 0)
++  else if (fourcc_nc == 0)
      goto unhandled_format;
 
    if (fmt == NULL) {
