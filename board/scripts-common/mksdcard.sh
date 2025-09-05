@@ -142,7 +142,7 @@ fi
 which /usr/bin/udisksctl > /dev/null && udisk=1 || udisk=0
 
 unmount_all() {
-	drives=$(grep -o "^${1}p\?[0-9]\+" /proc/mounts) || return 0
+	drives=$(grep -o "^${1}p\?[0-9]*" /proc/mounts) || return 0
 
 	for f in ${drives} ; do
 		if [ "${udisk}" -ne 0 ]; then
