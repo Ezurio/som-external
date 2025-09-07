@@ -140,12 +140,17 @@
 	touchscreen_lvds_e: touchscreen-lvds-e@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
+
 		AVDD28-supply = <&vcc_lvds_e>;
 		VDDIO-supply = <&vcc_lvds_e>;
+
 		interrupts-extended = <&exp2 12 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 12 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&exp2 13 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};
