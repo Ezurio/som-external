@@ -34,7 +34,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&reg_reset_rgb>;
+		vin-supply = <&vdd_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_power_default>;
@@ -62,22 +62,6 @@
 				remote-endpoint = <&lvds_rgb_out>;
 			};
 		};
-	};
-
-	reg_reset_rgb: regulator-reset-rgb {
-		/* output of U4 */
-		compatible = "regulator-fixed";
-		regulator-name = "reg_reset_rgb";
-
-		vin-supply = <&vdd_3v3_carrier>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_rgb_reset_default>;
-		gpios = <&main_gpio0 19 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
 	};
 
 	lvds-encoder {
@@ -142,11 +126,20 @@
 	touchscreen_rgb: touchscreen@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
+
 		AVDD28-supply = <&vcc_rgb>;
 		VDDIO-supply = <&vcc_rgb>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_reset_default>;
+
 		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 14 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&main_gpio0 19 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};

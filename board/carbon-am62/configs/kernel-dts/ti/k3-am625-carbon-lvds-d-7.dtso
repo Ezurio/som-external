@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * LVDS to LVDS Expansion Board with BD070LIC3 display for carbon AM62x
+ * LVDS D to LVDS Expansion Board with BD070LIC3 display for Carbon AM62x
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -58,7 +58,7 @@
 		};
 
 		port {
-			lcd_in0: endpoint {
+			lcd_d_in: endpoint {
 				remote-endpoint = <&oldi_0_out>;
 			};
 		};
@@ -104,6 +104,7 @@
 
 	port@0 {
 		reg = <0>;
+
 		oldi_0_in: endpoint {
 			remote-endpoint = <&dpi0_out0>;
 		};
@@ -111,8 +112,9 @@
 
 	port@1 {
 		reg = <1>;
+
 		oldi_0_out: endpoint {
-			remote-endpoint = <&lcd_in0>;
+			remote-endpoint = <&lcd_d_in>;
 		};
 	};
 };
@@ -124,12 +126,17 @@
 	touchscreen_lvds_d: touchscreen-lvds-d@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
+
 		AVDD28-supply = <&vcc_lvds_d>;
 		VDDIO-supply = <&vcc_lvds_d>;
+
 		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
-		//reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};
