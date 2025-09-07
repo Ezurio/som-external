@@ -35,7 +35,7 @@ export CONSOLE_LOGGING
 LOCRELSTR="${SUMMIT_RELEASE_STRING}"
 if [ -z "${LOCRELSTR}" ] || [ "${LOCRELSTR}" = "0.0.0.0" ]; then
 	LOCRELSTR="Summit Linux development build 0.${BR2_SUMMIT_BRANCH}.0.0"
-	DATE_SUFFIX="$(date +%Y%m%d%H%M)"
+	DATE_SUFFIX="-$(date +%Y%m%d%H%M)"
 else
 	DATE_SUFFIX=""
 fi
