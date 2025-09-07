@@ -158,12 +158,17 @@
 	touchscreen_dsi_a: touchscreen-dsi-a@14 {
 		compatible = "goodix,gt911";
 		reg = <0x14>;
+
 		AVDD28-supply = <&vcc_dsi_a>;
 		VDDIO-supply = <&vcc_dsi_a>;
+
 		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		irq-gpios = <&exp2 8 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&exp2 9 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
 		touchscreen-size-x = <1280>;
 		touchscreen-size-y = <800>;
 	};
