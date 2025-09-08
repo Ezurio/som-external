@@ -18,5 +18,4 @@
 
 &touchscreen_lvds_d {
 	compatible = "goodix,gt9271";
-	reg = <0x5d>;
 };
