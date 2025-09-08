@@ -132,7 +132,7 @@
 
 		interrupts-extended = <&exp2 10 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		irq-gpios = <&exp2 10 GPIO_ACTIVE_HIGH>;
+		irq-gpios = <&exp2 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
 		reset-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
 
 		touchscreen-min-x = <0>;
