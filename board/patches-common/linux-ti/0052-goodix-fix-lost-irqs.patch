@@ -1,0 +1,39 @@
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -465,7 +470,7 @@
+  * Called when the IRQ is triggered. Read the current device state, and push
+  * the input events to the user space.
+  */
+-static void goodix_process_events(struct goodix_ts_data *ts)
++static int goodix_process_events(struct goodix_ts_data *ts)
+ {
+ 	u8  point_data[2 + GOODIX_MAX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
+ 	int touch_num;
+@@ -473,7 +478,7 @@
+ 
+ 	touch_num = goodix_ts_read_input_report(ts, point_data);
+ 	if (touch_num < 0)
+-		return;
++		return touch_num;
+ 
+ 	/* The pen being down is always reported as a single touch */
+ 	if (touch_num == 1 && (point_data[1] & 0x80)) {
+@@ -497,6 +502,7 @@
+ sync:
+ 	input_mt_sync_frame(ts->input_dev);
+ 	input_sync(ts->input_dev);
++	return touch_num;
+ }
+ 
+ static void goodix_ts_work_i2c_poll(struct input_dev *input)
+@@ -517,8 +531,8 @@
+ {
+ 	struct goodix_ts_data *ts = dev_id;
+ 
+-	goodix_process_events(ts);
+-	goodix_i2c_write_u8(ts->client, GOODIX_READ_COOR_ADDR, 0);
++	while (goodix_process_events(ts) >= 0)
++		goodix_i2c_write_u8(ts->client, GOODIX_READ_COOR_ADDR, 0);
+ 
+ 	return IRQ_HANDLED;
+ }
