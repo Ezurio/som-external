@@ -18,5 +18,4 @@
 
 &touchscreen_rgb {
 	compatible = "goodix,gt9271";
-	reg = <0x5d>;
 };
