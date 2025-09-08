@@ -18,5 +18,4 @@
 
 &touchscreen_dsi_a {
 	compatible = "goodix,gt9271";
-	reg = <0x5d>;
 };
