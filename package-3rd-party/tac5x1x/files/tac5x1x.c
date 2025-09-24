@@ -863,14 +863,13 @@ static const struct snd_soc_dapm_route tac5x1x_common_dapm_routes[] = {
 	{"ADC Power", NULL, "Mic Bias"},
 
 	{"AIF OUT", NULL, "ADC Power"},
-
 };
 
 static const struct reg_default tac5x1x_reg_defaults[] = {
 	{TAC5X1X_PGSEL, 0x00},
 	{TAC5X1X_INT, 0x10},
-	{TAC5X1X_ADCCH1C0, 0x04},
-	{TAC5X1X_ADCCH2C0, 0x04},
+	{TAC5X1X_ADCCH1C0, 0x14},
+	{TAC5X1X_ADCCH2C0, 0x14},
 	{TAC5X1X_OUT1CFG0, 0x28},
 	{TAC5X1X_OUT2CFG0, 0x28},
 	{TAC5X1X_CH_EN, 0x00},
@@ -1045,8 +1044,8 @@ static int tac5x1x_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
-	snd_soc_component_update_bits(component, TAC5X1X_CLK0,
-				TAC5X1X_PASI_SAMP_RATE_MASK, sample_rate << 2);
+//	snd_soc_component_update_bits(component, TAC5X1X_CLK0,
+//				TAC5X1X_PASI_SAMP_RATE_MASK, sample_rate << 2);
 	snd_soc_component_update_bits(component, TAC5X1X_PASI0,
 				TAC5X1X_PASI_DATALEN_MASK, word_length);
 
