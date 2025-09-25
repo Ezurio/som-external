@@ -149,6 +149,20 @@
 		regulator-boot-on;
 	};
 
+	vdd_efuse: regulator-vdd-efuse {
+		/* TCK107AG,LF U5 */
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_efuse";
+		vin-supply = <&vdd_1v8>;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_efuse_en_pins_default>;
+		gpios = <&main_gpio0 17 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
 	vsel_mmc1: regulator-vsel-mmc1 {
 		/* Output of U3 TPS6521920WRHBRQ1 VLDO1 */
 		compatible = "regulator-gpio";
@@ -574,6 +588,12 @@
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x1d0, PIN_INPUT_PULLUP, 2) /* I2C_CAM_A_SCL (A15) UART0_CTSn.I2C3_SCL */
 			AM62X_IOPAD(0x1d4, PIN_INPUT_PULLUP, 2) /* I2C_CAM_A_SDA (B15) UART0_RTSn.I2C3_SDA */
+		>;
+	};
+
+	main_efuse_en_pins_default: main-efuse-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x044, PIN_OUTPUT, 7) /* (N24) GPMC0_AD2.GPIO0_17 */
 		>;
 	};
 

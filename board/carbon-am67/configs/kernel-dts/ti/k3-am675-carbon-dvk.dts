@@ -46,6 +46,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 8 GPIO_ACTIVE_HIGH>;
+		regulator-always-on;
 	};
 
 	codec_audio: sound {
@@ -86,20 +87,25 @@
 
 	audio_volume {
 		compatible = "gpio-keys";
-		autorepeat;
 
 		volume-up {
 			label = "Volume Up";
-			gpios = <&exp2 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			interrupts-extended = <&exp2 4 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "irq";
 			linux,code = <KEY_VOLUMEUP>;
-			wakeup-event-action = <EV_ACT_ASSERTED>;
+
+			//gpios = <&exp2 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 
 		volume-down {
 			label = "Volume Down";
-			gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			interrupts-extended = <&exp2 5 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "irq";
 			linux,code = <KEY_VOLUMEDOWN>;
-			wakeup-event-action = <EV_ACT_ASSERTED>;
+
+			//gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 	};
 
