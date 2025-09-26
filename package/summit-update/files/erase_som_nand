@@ -89,5 +89,8 @@ while getopts "bfh" opt; do
 	esac
 done
 
-erase_emmc
-erase_nand
+if grep -qF '"ubi"' /proc/mtd 2>/dev/null; then
+	erase_nand
+else
+	erase_emmc
+fi
