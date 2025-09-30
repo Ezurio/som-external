@@ -212,6 +212,9 @@ create_boot_partition() {
 			"${SRCDIR}/tiboot3.bin" \
 			"${SRCDIR}/u-boot.img" \
 			"${SRCDIR}/uboot.env"
+		if [ -f "${SRCDIR}/tiboot3.bin.kw" ]; then
+			cp -t "${BOOT_PART}" "${SRCDIR}/tiboot3.bin.kw"
+		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
 		/usr/bin/dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none

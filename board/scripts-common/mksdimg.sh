@@ -166,6 +166,9 @@ create_boot_partition() {
 			"${SRCDIR}/u-boot.img" \
 			"${SRCDIR}/uboot.env" \
 			::/
+		if [ -f "${SRCDIR}/tiboot3.bin.kw" ]; then
+			/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/tiboot3.bin.kw" ::/
+		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/uboot.env" ::/
 		append_image 64 "${SRCDIR}/flash.bin"
