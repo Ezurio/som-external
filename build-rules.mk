@@ -129,4 +129,3 @@ $(addsuffix -full-legal,$(TARGETS)): %-full-legal: % %-legal-info
 .PHONY: $(addsuffix -sdk-only,$(TARGETS))
 $(addsuffix -sdk-only,$(TARGETS)): %-sdk-only: $(OUTPUT_DIR)/%/.config
 	$(MAKE) $(PARALLEL_OPTS) -C $(BR_DIR) O=$(OUTPUT_DIR)/$* BR2_SDK_PREFIX=$(call release_name,$*) sdk
-	sha256sum $(call release_file,$*).gz | sed 's, .*/, ,' > $(call release_file,$*).gz.sha
