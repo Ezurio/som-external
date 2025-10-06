@@ -357,11 +357,21 @@
 &cpsw_port1 {
 	status = "disabled";
 	phy-mode = "rgmii-rxid";
+
+	/delete-property/ mac-address;
+	/delete-property/ ti,syscon-efuse;
+	nvmem-cells = <&eth_mac0>;
+	nvmem-cell-names = "mac-address";
 };
 
 &cpsw_port2 {
 	status = "disabled";
 	phy-mode = "rgmii-rxid";
+
+	/delete-property/ mac-address;
+	/delete-property/ ti,syscon-efuse;
+	nvmem-cells = <&eth_mac1>;
+	nvmem-cell-names = "mac-address";
 };
 
 &cpsw3g_mdio {
@@ -518,6 +528,28 @@
 		wakeup-source;
 
 		#clock-cells = <0>;
+
+		eeprom {
+			compatible = "microcrystal,rv3028-eeprom";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			eth_mac0: mac-address@0 {
+				reg = <0x00 0x06>;
+			};
+
+			eth_mac1: mac-address@6 {
+				reg = <0x06 0x06>;
+			};
+
+			ram_type: ram-type@b {
+				reg = <0x0b 0x02>;
+			};
+
+			radio_type: radio-type@d {
+				reg = <0x0d 0x02>;
+			};
+		};
 	};
 
 	tps65219: pmic@30 {
