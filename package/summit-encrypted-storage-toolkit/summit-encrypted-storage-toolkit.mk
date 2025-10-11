@@ -11,9 +11,17 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_EXEC_PERM
 endef
 endif
 
+ifeq ($(BR2_aarch64),y)
+define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_INHERIT
+	$(SED) '/KeyringMode/d;/\[Service\]/d' \
+		$(TARGET_DIR)/usr/lib/systemd/system/inherit-keyring.conf 
+endef
+endif
+
 define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_TARGET_CMDS
 	rsync -rlpDWK --no-perms --inplace --exclude=.empty  $(SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_PKGDIR)/rootfs/ $(TARGET_DIR)/
 	$(SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_EXEC_PERM)
+	$(SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_INHERIT)
 endef
 
 # setup files for factory reset and /data usage
