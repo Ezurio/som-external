@@ -46,16 +46,18 @@ mount_dmcrypt() {
 		CRYPTO_STR="capi:tk(cbc(aes))-plain :36:logon:datakey:"
 	else
 		[ -f /perm/caam/datakey ] &&
-			KEY_ID=$(/usr/bin/keyctl add trusted datakey "load $(cat /perm/caam/datakey)" @s) ||
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey \
+				"load $(cat /perm/caam/datakey)" @us) ||
 		{
-			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 32" @s)
+			mkdir -p /perm/caam
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 64" @us)
 			/usr/bin/keyctl pipe "${KEY_ID}" > /perm/caam/datakey
 		}
-		CRYPTO_STR="crypt aes-cbc-plain :32:trusted:datakey"
+		CRYPTO_STR="aes-xts-plain64 :64:trusted:datakey"
 	fi
 
-	/usr/sbin/dmsetup -v create data_enc --table "0 ${DATA_SIZE} \
-		crypt ${CRYPTO_STR} 0 ${DATA_DEVICE} 0 1 sector_size:512"
+	/usr/sbin/dmsetup -v create data_enc --table \
+		"0 ${DATA_SIZE} crypt ${CRYPTO_STR} 0 ${DATA_DEVICE} 0 1 sector_size:512"
 
 	[ "$(/usr/bin/lsblk -ndo FSTYPE /dev/mapper/data_enc)" = "ext4" ] || \
 		/usr/sbin/mkfs.ext4 /dev/mapper/data_enc
