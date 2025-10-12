@@ -20,17 +20,17 @@ flash_scrub()
 
     flash_cleanup || return 1
 
-	if "${1:-false}"; then
+    if "${1:-false}"; then
         echo "Module must be rebooted after complete erase" >&2
-		echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
-	fi
+        echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
+    fi
 
-	for i in "${main_flash}"/mtd[0-9]; do
-		echo "Erasing ${i##*/}"
-		flash_erase "/dev/${i##*/}" 0 0
-	done
+    for i in "${main_flash}"/mtd[0-9]; do
+        echo "Erasing ${i##*/}"
+        flash_erase "/dev/${i##*/}" 0 0
+    done
 
-	if "${1:-false}"; then
+    if "${1:-false}"; then
         echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode
     fi
 }
