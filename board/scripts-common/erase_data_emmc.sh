@@ -29,7 +29,7 @@ migrate_data() {
 		/usr/bin/caam-keygen import /perm/caam/datakey.bb datakey
 		/usr/bin/keyctl padd logon datakey: @s < /perm/caam/datakey
 	else
-		CRYPTO_STR="crypt aes-cbc-plain :32:trusted:datakey"
+		CRYPTO_STR="aes-xts-plain64 :64:trusted:datakey"
 		/usr/bin/keyctl add trusted datakey "load $(cat /perm/caam/datakey)" @s
 	fi
 
