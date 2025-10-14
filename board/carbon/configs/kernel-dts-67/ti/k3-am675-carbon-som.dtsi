@@ -542,12 +542,12 @@
 				reg = <0x06 0x06>;
 			};
 
-			ram_type: ram-type@b {
-				reg = <0x0b 0x02>;
+			ram_type: ram-type@c {
+				reg = <0x0c 0x02>;
 			};
 
-			radio_type: radio-type@d {
-				reg = <0x0d 0x02>;
+			radio_type: radio-type@e {
+				reg = <0x0e 0x02>;
 			};
 		};
 	};
