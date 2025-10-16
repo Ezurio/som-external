@@ -343,16 +343,10 @@ case "${BUILD_TYPE}" in
 		case "${BUILD_TYPE}" in
 			*60*)
 				[ "${BUILD_TYPE}" != ig60 ] || ENCRYPTED_TOOLKIT=true
-				[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_60.db" ] || \
-					ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_60.db" \
-						"${TARGET_DIR}/lib/firmware/regulatory.db"
 				SOM=som60
 				;;
 			*50*)
 				rm -f "${TARGET_DIR}/usr/lib/NetworkManager/system-connections/eth1.nmconnection"
-				[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_50.db" ] || \
-					ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_50.db" \
-						"${TARGET_DIR}/lib/firmware/regulatory.db"
 				SOM=wb50n
 				;;
 		esac
