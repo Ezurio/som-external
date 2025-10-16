@@ -12,19 +12,6 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON LEGACY script: starting..."
 # enable tracing and exit on errors
 set -x -e
 
-case "${BUILD_TYPE}" in
-	*50*) 
-		REG_SUFFIX=50
-		;;
-	*45*) 
-		REG_SUFFIX=45
-		;;
-esac
-
-[ ! -f "${TARGET_DIR}/lib/firmware/regulatory_${REG_SUFFIX}.db" ] || \
-    ln -sfr "${TARGET_DIR}/lib/firmware/regulatory_${REG_SUFFIX}.db" \
-		"${TARGET_DIR}/lib/firmware/regulatory.db"
-
 # remove default ssh init file
 # real version is in init.d/opt and works w/ inetd or standalone
 rm -f "${TARGET_DIR}/etc/init.d/S50sshd"
