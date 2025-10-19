@@ -39,8 +39,8 @@ index 25287bb68e86..1685e1a4e63d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
 @@ -397,6 +397,19 @@ c7x_1: dsp@7e200000 {
- 		ti,sci-proc-ids = <0x31 0xff>;
- 		status = "disabled";
+ 		power-domains = <&k3_pds 201 TI_SCI_PD_EXCLUSIVE>;
+ 		interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
  	};
 +
 +	main_i2c4: i2c@0fe80000 {
