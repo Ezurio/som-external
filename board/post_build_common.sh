@@ -407,10 +407,10 @@ case "${BUILD_TYPE}" in
 		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
 
 		export linux_comp='zstd'
-		export UBOOT_LOADADDRESS=0x81000000
-		export UBOOT_ENTRYPOINT=0x81000000
-		export UBOOT_DTB_LOADADDRESS=0x83800000
-		export UBOOT_DTBO_LOADADDRESS=0x83880000
+		export UBOOT_LOADADDRESS=0x82000000
+		export UBOOT_ENTRYPOINT=0x82000000
+		export UBOOT_DTB_LOADADDRESS=0x88000000
+		export UBOOT_DTBO_LOADADDRESS=0x88080000
 		export UBOOT_ARCH='arm64'
 		export KERNEL_IMAGE='Image.zst'
 		export FIT_PAD_ALG='pss'
