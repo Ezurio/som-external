@@ -708,6 +708,9 @@
 };
 
 &main_pmx0 {
+	///delete-property/ interrupts;
+	interrupts = <GIC_SPI 248 IRQ_TYPE_LEVEL_HIGH>;
+
 	main_ecap1_pins_default: main-ecap1-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x1c8, PIN_OUTPUT, 1) /* CAM_B_MCK/PWM_4 (F19) UART0_RXD.ECAP1_IN_APWM_OUT */

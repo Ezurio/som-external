@@ -128,6 +128,19 @@
 		};
 	};
 
+	idle-states {
+		entry-method = "psci";
+
+		CPU_SLEEP_0: stby {
+			compatible = "arm,idle-state";
+			idle-state-name = "standby";
+			arm,psci-suspend-param = <0x00000001>;
+			entry-latency-us = <100>;
+			exit-latency-us = <50>;
+			min-residency-us = <1000>;
+		};
+	};
+
 	vsys_5v: regulator-vcc-in-5v {
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
@@ -289,6 +302,22 @@
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 	};
+};
+
+&cpu0 {
+	cpu-idle-states = <&CPU_SLEEP_0>;
+};
+
+&cpu1 {
+	cpu-idle-states = <&CPU_SLEEP_0>;
+};
+
+&cpu2 {
+	cpu-idle-states = <&CPU_SLEEP_0>;
+};
+
+&cpu3 {
+	cpu-idle-states = <&CPU_SLEEP_0>;
 };
 
 &cpsw3g {
