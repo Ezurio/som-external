@@ -48,7 +48,7 @@ case "${BUILD_TYPE}" in
 *50*|*60*)
 	case "${BUILD_TYPE}" in
 	*sd)
-		[ -n "${KEYS_DIR}" ] && BOOTEXT=cip || BOOTEXT=bin
+		[ -n "${SECURE_TARGET_BUILD}" ] && BOOTEXT=cip || BOOTEXT=bin
 		tar -chSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
 			"boot.${BOOTEXT}" u-boot.itb uboot.env kernel.itb rootfs.bin \
@@ -61,7 +61,7 @@ case "${BUILD_TYPE}" in
 		;;
 	esac
 
-	if [ -n "${KEYS_DIR}" ]; then
+	if [ -n "${SECURE_TARGET_BUILD}" ]; then
 		# Secure boot build
 		tar -rhSf "${RELEASE_FILE}" --owner=root --group=root \
 			-C "${BINARIES_DIR}" \
