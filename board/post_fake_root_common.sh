@@ -17,15 +17,15 @@ die() { echo "$@" >&2; exit 1; }
 generate_custom_encrypted_filesystem() {
     customer_data_dir=""
     update_signing_cert="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/update_signing.crt"
-    if [ -n "${KEYS_DIR}" ]; then
-        # Keys directory is set, use the custom key
+    if [ -n "${SECURE_TARGET_BUILD}" ]; then
+        # Secure target build, use the custom key
         encrypted_filesystem_key="${KEYS_DIR}/encrypted_filesystem_key.bin"
         [ -f "${encrypted_filesystem_key}" ] || \
             die "Encrypted filesystem key not found"
 
         update_signing_cert="${KEYS_DIR}/update_signing.crt"
     else
-        # Keys directory is not set, use the default filesystem encryption key
+        # Not a secure target build, use the default filesystem encryption key
         encrypted_filesystem_key="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/key-fs.bin"
         [ -f "${encrypted_filesystem_key}" ] || \
             die "Encrypted filesystem key not found"
@@ -162,31 +162,44 @@ get_secure_mode_command() {
         die "Failed to copy set secure mode nk file"
 }
 
-if [ "${BYPASS_RODATA_GENERATION}" != "1" ]; then
-    if grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA=y" "${BR2_CONFIG}"; then
-        generate_custom_encrypted_filesystem
-    fi
-fi
+case "${BUILD_TYPE}" in
+    *50*|*60*)
+        if [ "${BYPASS_RODATA_GENERATION}" != "1" ]; then
+            if grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA=y" "${BR2_CONFIG}"; then
+                generate_custom_encrypted_filesystem
+            fi
+        fi
 
-if [ -n "${KEYS_DIR}" ]; then
-    # Keys directory is set, use the custom keys
-    write_encrypted_filesystem_key
+        if [ -n "${SECURE_TARGET_BUILD}" ]; then
+            [ -z "${KEY_PATH}" ] && die "KEY_PATH is not set"
 
-    if grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" && \
-       grep -qF "BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER=y" "${BR2_CONFIG}"; then
-        # Create the secure boot encryption key
-        create_secure_boot_encryption_key
-        get_secure_mode_command
-    fi
+            KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
+            if [ ! -d "${KEYS_DIR}" ]; then
+                die "Keys directory not found: ${KEYS_DIR}"
+            fi
 
-    case "${BUILD_TYPE}" in
-        *sd)
-            ;;
-        *)
-            # Replace boot.bin with boot.cip in sw-description to support encrypted u-boot-spl
-            sed -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
-            ;;
-    esac
-fi
+            # Secure target build, use the custom keys
+            write_encrypted_filesystem_key
+
+            if grep -qF "BR2_SUMMIT_SECURE_BOOT=y" "${BR2_CONFIG}" && \
+            grep -qF "BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER=y" "${BR2_CONFIG}"; then
+                # Create the secure boot encryption key
+                create_secure_boot_encryption_key
+                get_secure_mode_command
+            fi
+
+            case "${BUILD_TYPE}" in
+                *sd)
+                    ;;
+                *)
+                    # Replace boot.bin with boot.cip in sw-description to support encrypted u-boot-spl
+                    sed -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
+                    ;;
+            esac
+        fi
+        ;;
+    *)
+        ;;
+esac
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST FAKE ROOT COMMON script: done."
