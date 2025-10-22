@@ -20,6 +20,29 @@ mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 veritysetup=${HOST_DIR}/sbin/veritysetup
 
+if ${SECURE_BOOT}; then
+    if [ -z "${KEY_PATH}" ]; then
+        if [ -n "${SECURE_TARGET_BUILD}" ]; then
+            die "KEY_PATH is not set for secure target build"
+        fi
+
+        # KEY_PATH not set, use default
+        case "${BUILD_TYPE}" in
+            am6*)
+                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key}"
+                ;;
+            *)
+                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key}"
+                ;;
+        esac
+    fi
+
+    KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
+    if [ ! -d "${KEYS_DIR}" ]; then
+        die "Keys directory not found: ${KEYS_DIR}"
+    fi
+fi
+
 die() { echo "$@" >&2; exit 1; }
 
 size_check () {
@@ -182,7 +205,7 @@ som60*|ig60*|wb50n*)
     *sd)
         ${mkimage} -T atmelimage -d u-boot-spl.bin boot.bin
 
-        if [ -n "${KEYS_DIR}" ]; then
+        if [ -n "${SECURE_TARGET_BUILD}" ]; then
             create_secure_boot_encrypted_uboot_spl
 
             # Rename the encrypted, bootstrap binary to 'boot.cip' for use with an SD card image (no
@@ -207,7 +230,7 @@ som60*|ig60*|wb50n*)
                 ${mkenvimage} ${MKENVIMGOPT} -s "${ENV_SIZE}" -o uboot1.env u-boot1-initial-env
             fi
 
-            if [ -n "${KEYS_DIR}" ]; then
+            if [ -n "${SECURE_TARGET_BUILD}" ]; then
                 create_secure_boot_encrypted_uboot_spl
 
                 # Save off the raw PMECC header
@@ -242,9 +265,28 @@ som60*|ig60*|wb50n*)
     esac
     ;;
 
-am6*|imx8*)
+imx8*)
     if ${SECURE_BOOT} ; then
+        export KEY_PATH
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
+    fi
+    ;;
+
+am6*)
+    if ${SECURE_BOOT} ; then
+        export KEY_PATH
+        make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
+        make -C "${BASE_DIR}" ti-k3-r5-loader-rebuild
+		if [ -n "${SECURE_TARGET_BUILD}" ]; then
+			case "${BUILD_TYPE}" in
+				am62*)
+					ln -sf tiboot3-am62x-hs-carbon.bin "${BINARIES_DIR}/tiboot3.bin"
+					;;
+				am67*)
+					ln -sf tiboot3-am67x-hs-carbon.bin "${BINARIES_DIR}/tiboot3.bin"
+					;;
+			esac
+		fi
     fi
     ;;
 esac

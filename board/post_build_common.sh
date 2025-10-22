@@ -247,14 +247,27 @@ done
 
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
-EXT_KEYS=false
-if [ -z "${KEYS_DIR}" ]; then
-	KEYS_DIR="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys"
-elif [ ! -d "${KEYS_DIR}" ]; then
+if [ -z "${KEY_PATH}" ]; then
+	if [ -n "${SECURE_TARGET_BUILD}" ]; then
+		echo "KEY_PATH is not set for secure target build"
+		exit 1
+	fi
+
+	# KEY_PATH not set, use default
+	case "${BUILD_TYPE}" in
+		am6*)
+			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key}"
+			;;
+		*)
+			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key}"
+			;;
+	esac
+fi
+
+KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
+if [ ! -d "${KEYS_DIR}" ]; then
 	echo "Keys directory not found: ${KEYS_DIR}"
 	exit 1
-else
-	EXT_KEYS=true
 fi
 
 # Copy keys if present
@@ -336,7 +349,7 @@ case "${BUILD_TYPE}" in
 
 		create_fw_env_flash
 
-		if ${EXT_KEYS} && [ -f "${BINARIES_DIR}/sw-description" ]; then
+		if [ -n "${SECURE_TARGET_BUILD}" ] && [ -f "${BINARIES_DIR}/sw-description" ]; then
 			sed -r -i "s/boot.bin/boot.cip/g" "${BINARIES_DIR}/sw-description"
 		fi
 
@@ -414,6 +427,9 @@ case "${BUILD_TYPE}" in
 		export UBOOT_ARCH='arm64'
 		export KERNEL_IMAGE='Image.zst'
 		export FIT_PAD_ALG='pss'
+		export FIT_HASH_ALG='sha512'
+		export FIT_SIGN_ALG='rsa4096'
+		export FIT_SIGN_NUMBITS='4096'
 		;;
 esac
 
