@@ -1437,3 +1437,7 @@
 &gpu {
 	status = "disabled";
 };
+
+&oldi1_dss1 {
+	reg = <1>;
+};

@@ -131,8 +131,6 @@
 
 &oldi1_dss1 {
 	status = "okay";
-
-	reg = <1>;
 };
 
 &oldi1_dss1_ports {
