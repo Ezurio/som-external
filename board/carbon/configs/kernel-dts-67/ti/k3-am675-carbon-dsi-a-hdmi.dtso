@@ -97,6 +97,9 @@
 };
 
 &i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	hdmi-bridge-dsi-a@3d {
 		compatible = "adi,adv7535";
 		reg = <0x3d>;
