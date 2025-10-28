@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * RGB to HDMI v2.0 Expansion Board for Carbon AM62x
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include "k3-pinctrl.h"
+
+&{/} {
+	hdmi-connector-rgb {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+		digital;
+
+		ddc-i2c-bus = <&i2c_port_rgb>;
+
+		hpd-gpios = <&exp2 15 GPIO_ACTIVE_HIGH>;
+
+		port {
+			hdmi_connector_rgb_in: endpoint {
+				remote-endpoint = <&tfp410_rgb_out>;
+			};
+		};
+	};
+
+	bridge-rgb {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "ti,tfp410";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgb_power_default>;
+		powerdown-gpios = <&main_gpio0 14 GPIO_ACTIVE_LOW>;
+
+		port@0 {
+			reg = <0>;
+
+			tfp410_rgb_in: endpoint {
+				remote-endpoint = <&dpi_out0>;
+				pclk-sample = <1>;
+				bus-width = <24>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			tfp410_rgb_out: endpoint {
+				remote-endpoint =
+					<&hdmi_connector_rgb_in>;
+			};
+		};
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_dss0_pins_default>;
+	status = "okay";
+};
+
+&dss_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@1 {
+		reg = <1>;
+
+		dpi_out0: endpoint {
+			remote-endpoint = <&tfp410_rgb_in>;
+		};
+	};
+};
