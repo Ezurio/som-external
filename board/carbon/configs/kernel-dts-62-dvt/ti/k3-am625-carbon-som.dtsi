@@ -172,7 +172,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_vpp_en_pins_default>;
-		gpios = <&main_gpio0 17 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -238,14 +238,15 @@
 		regulator-max-microvolt = <3300000>;
 
 		vin-supply = <&vdd_3v3>;
-		clocks = <&rv3028>;
+		clocks = <&k3_clks 157 158>;
 
 		startup-delay-us = <1000>;
+	
+		pinctrl-names = "default";
+		pinctrl-0 = <&wifi_32k_clk>;
 
-		// Store the clock rate and enable in the EEPROM
-		// so it comes up on power up
-		//assigned-clocks = <&rv3028>;
-		//assigned-clock-rates = <32768>;
+		assigned-clocks = <&k3_clks 157 158>;
+		assigned-clock-parents = <&k3_clks 157 160>;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
@@ -266,6 +267,23 @@
 
 		startup-delay-us = <250000>;
 		off-on-delay-us = <100>;
+	};
+
+	vbus_usb_b: regulator-vbus-usb-b {
+		compatible = "regulator-fixed";
+
+		status = "disabled";
+
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "vbus_usb_b";
+
+		vin-supply = <&vsys_5v>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb1_pins_default>;
+		gpios = <&main_gpio0 17 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	wifi_wakeup: wifi-wakeup {
@@ -413,10 +431,10 @@
 		"","ETH_A_INT","ETH_A_RST","","", 		/* 0 - 4 */
 		"","","","","",
 		"","","","GPIO_A_0","RGB_VDD_EN",			/* 10 - 14 */
-		"EMMC_RESET#","WIFI_WAKE","VPP_EN","RGB_CS","RGB_RESET#",
-		"W_DISABLE1#","SDIO_RESET#","W_DISABLE2#","","",	/* 20 - 24 */
+		"EMMC_RESET#","WIFI_WAKE","USB_B_EN","RGB_CS","RGB_RESET#",
+		"W_DISABLE1#","W_DISABLE2#","VPP_EN","","",	/* 20 - 24 */
 		"SDIO_A_PWR_EN","","","","CAM_A_RST",
-		"LVDS_D_VDD_EN","SDIO_A_IOPWR","","GPIO_B_7","",		/* 30 - 34 */
+		"LVDS_D_VDD_EN","SDIO_A_IOPWR","","LVDS_D_BL_EN","",		/* 30 - 34 */
 		"","GPIO_B_3","","GPIO_B_2","ETH_B_RST",
 		"","ETH_B_INT","BT_HOST_WAKE","","",		/* 40 - 44 */
 		"","","","","",
@@ -435,15 +453,15 @@
 	gpio-line-names =
 		"","","","","",					/* 0 - 4 */
 		"","","","","",
-		"","","GPIO_A_3","","",				/* 10 - 14 */
+		"","","","","",				/* 10 - 14 */
 		"","","","","",
 		"","","","","",					/* 20 - 24 */
 		"","","","","",
 		"","","","","",					/* 30 - 34 */
-		"","","","","",
+		"USB_B_ID","","","","",
 		"","","","","",					/* 40 - 44 */
 		"","","","SDIO_A_CD#","",
-		"USB_A_VBUS","USB_B_VBUS";						/* 50 - 51 */
+		"USB_A_EN","USB_A_ID";						/* 50 - 51 */
 };
 
 &main_i2c0 {
@@ -461,10 +479,9 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&mcu_rtc_pins_default>;
-		interrupts-extended = <&mcu_gpio0 23 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&mcu_gpio0 16 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		/* WKUP_CLKOUT0 pin cannot be used as the wakeup source TRM 2.4.6.11 */
-		//wakeup-source;
+		wakeup-source;
 
 		#clock-cells = <0>;
 
@@ -654,7 +671,7 @@
 
 	main_vpp_en_pins_default: main-vpp-en-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x044, PIN_OUTPUT, 7) /* (N24) GPMC0_AD2.GPIO0_17 */
+			AM62X_IOPAD(0x058, PIN_OUTPUT, 7) /* VPP_EN (R23) GPMC0_AD7.GPIO0_22 */
 		>;
 	};
 
@@ -794,7 +811,7 @@
 
 	main_usb1_pins_default: main-usb1-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_VBUS (F18) USB1_DRVVBUS */
+			AM62X_IOPAD(0x044, PIN_OUTPUT, 7) /* USB_B_EN (N24) GPMC0_AD2.GPIO0_17 */
 		>;
 	};
 
@@ -891,7 +908,7 @@
 
 	main_bt_en_pins_default: main-bt-en-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x058, PIN_INPUT, 7) /* W_DISABLE2# (R23) GPMC0_AD7.GPIO0_22 */
+			AM62X_IOPAD(0x054, PIN_INPUT, 7) /* W_DISABLE2# (P21) GPMC0_AD6.GPIO0_21 */
 		>;
 	};
 
@@ -974,6 +991,18 @@
 		>;
 	};
 
+	main_usb_a_id_pins_default: main-usb-a-id-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x258, PIN_INPUT_PULLUP, 7) /* USB_A_ID (F18) USB1_DRVVBUS.GPIO1_51 */
+		>;
+	};
+
+	main_usb_b_id_pins_default: main-usb-b-id-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x1f0, PIN_INPUT_PULLUP, 7) /* USB_B_ID (A18) EXT_REFCLK1.GPIO1_30 */
+		>;
+	};
+
 	osm_gpio_a_0_default: osm-gpio-a-0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x034, PIN_INPUT, 7) /* GPIO_A_0 (H21) OSPI0_CSN2.GPIO0_13 */
@@ -989,12 +1018,6 @@
 	osm_gpio_a_2_default: osm-gpio-a-2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x004, PIN_INPUT, 7) /* GPIO_A_2 (G25) OSPI0_LBCLKO.GPIO0_1 */
-		>;
-	};
-
-	osm_gpio_a_3_default: osm-gpio-a-3-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1a8, PIN_INPUT, 7) /* GPIO_A_3 (D20) MCASP0_AFSX.GPIO1_12 */
 		>;
 	};
 
@@ -1129,8 +1152,8 @@
 		"","","","","",						/* 0 - 4 */
 		"","","","","",
 		"","GPIO_B_1","GPIO_B_0","","",				/* 10 - 14 */
-		"","USB_A_ID","GPIO_A_4","GPIO_A_5","GPIO_B_4",
-		"GPIO_B_5","","","rv3028_int";				/* 20 - 23 */
+		"GPIO_A_3","rv3028_int","GPIO_A_4","GPIO_A_5","GPIO_B_4",
+		"GPIO_B_5","","","";				/* 20 - 23 */
 };
 
 &mcu_pmx0 {
@@ -1175,6 +1198,12 @@
 		>;
 	};
 
+	wifi_32k_clk: mcu-clk-out-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x084, PIN_OUTPUT, 0) /* (A12) WKUP_CLKOUT0 */
+		>;
+	};
+
 	mcu_i2c0_pins_default: mcu-i2c0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x044, PIN_INPUT_PULLUP, 0) /* (A8) MCU_I2C0_SCL.MCU_I2C0_SCL */
@@ -1184,13 +1213,13 @@
 
 	mcu_rtc_pins_default: mcu-rtc-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x084, PIN_INPUT_PULLUP, 7) /* RTC_INT (A12) WKUP_CLKOUT0.MCU_GPIO0_23 */
+			AM62X_MCU_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* RTC_INT (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
 		>;
 	};
 
-	mcu_usb_a_id_pins_default: mcu-usb-a-id-default-pins {
+	osm_gpio_a_3_default: osm-gpio-a-3-default-pins {
 		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* USB_A_ID (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+			AM62X_MCU_IOPAD(0x03c, PIN_INPUT, 7) /* GPIO_A_3 (E5) MCU_MCAN1_TX.GPIO0_15 */
 		>;
 	};
 

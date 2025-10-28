@@ -147,16 +147,16 @@
 		regulator-boot-on;
 	};
 
-	vdd_efuse: regulator-vdd-efuse {
+	vpp: regulator-vpp {
 		/* TPS22916 U11 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_efuse";
+		regulator-name = "vpp";
 		vin-supply = <&vdd_1v8>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_efuse_en_pins_default>;
+		pinctrl-0 = <&main_vpp_en_pins_default>;
 		gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
@@ -477,7 +477,7 @@
 		"SDIO_A_PWR_EN","","W_DISABLE1","W_DISABLE2","SDIO_RESET",
 		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",	/* 20 - 24 */
 		"USB_C_ID","USB_C_OC","SDIO_A_PWR_EN","DSI_A_VDD_EN","DSI_A_BL_EN",
-		"EFUSE_EN","","","","",				/* 30 - 34 */
+		"VPP_EN","","","","",				/* 30 - 34 */
 		"","ETH_A_INT","","SDIO_A_VSEL","",
 		"ETH_A_RST","","","","",			/* 40 - 44 */
 		"USB_C_PD_RESET","GPIO_A_3","ETH_B_RST","ETH_B_INT","LVDS_E_VDD_EN",
@@ -758,7 +758,7 @@
 		>;
 	};
 
-	main_efuse_en_pins_default: main-efuse-en-default-pins {
+	main_vpp_en_pins_default: main-vpp-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x1a0, PIN_OUTPUT, 7) /* (V23) GPMC0_AD15.GPIO0_30 */
 		>;
