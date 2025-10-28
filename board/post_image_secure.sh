@@ -20,35 +20,32 @@ mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
 veritysetup=${HOST_DIR}/sbin/veritysetup
 
-if ${SECURE_BOOT}; then
-    if [ -z "${KEY_PATH}" ]; then
-        if [ -n "${SECURE_TARGET_BUILD}" ]; then
-            die "KEY_PATH is not set for secure target build"
-        fi
-
-        # KEY_PATH not set, use default
-        case "${BUILD_TYPE}" in
-            am6*)
-                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key}"
-                ;;
-            *)
-                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key}"
-                ;;
-        esac
-    fi
-
-    KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
-    if [ ! -d "${KEYS_DIR}" ]; then
-        die "Keys directory not found: ${KEYS_DIR}"
-    fi
-fi
-
 die() { echo "$@" >&2; exit 1; }
 
 size_check () {
     [ "$(stat -Lc "%s" "${BINARIES_DIR}/${1}")" -le "${2}" ] || \
         die "${1} size exceeded ${2} block limit, failed"
 }
+
+if ${SECURE_BOOT}; then
+    if [ -z "${KEY_PATH}" ]; then
+        [ -z "${SECURE_TARGET_BUILD}" ] || \
+            die "KEY_PATH is not set for secure target build"
+
+        # KEY_PATH not set, use default
+        case "${BUILD_TYPE}" in
+            am6*)
+                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key"
+                ;;
+            *)
+                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key"
+                ;;
+        esac
+    fi
+
+    KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
+    [ -d "${KEYS_DIR}" ] || die "Keys directory not found: ${KEYS_DIR}"
+fi
 
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
