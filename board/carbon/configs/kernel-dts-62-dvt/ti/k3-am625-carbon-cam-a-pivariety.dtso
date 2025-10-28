@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * ArduCam xISP camera module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-cam-a-ov5640.dtso"
+
+&camera_cam_a {
+	reg = <0x0c>;
+	compatible = "arducam,arducam-pivariety";
+
+	VANA-supply = <&vdd_3v3_carrier>;
+	VDIG-supply = <&vdd_3v3_carrier>;
+	VDDL-supply = <&vdd_3v3_carrier>;
+
+	reset-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>; /* CAM_A_RST */
+	enable-gpios = <&main_gpio0 72 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
+	/delete-property/ powerdown-gpios;
+};
+
+&csi2_cam0 {
+	data-lanes = <1 2 3 4>;
+};
+
+&csi2rx0_in_sensor {
+	data-lanes = <1 2 3 4>;
+};
