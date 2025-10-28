@@ -269,23 +269,6 @@
 		off-on-delay-us = <100>;
 	};
 
-	vbus_usb_b: regulator-vbus-usb-b {
-		compatible = "regulator-fixed";
-
-		status = "disabled";
-
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		regulator-name = "vbus_usb_b";
-
-		vin-supply = <&vsys_5v>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb1_pins_default>;
-		gpios = <&main_gpio0 17 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
 	wifi_wakeup: wifi-wakeup {
 		compatible = "gpio-keys";
 
