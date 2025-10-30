@@ -46,8 +46,3 @@
 &usb1 {
 	dr_mode = "host";
 };
-
-&vbus_usb_b {
-	status = "okay";
-	regulator-always-on;
-};
