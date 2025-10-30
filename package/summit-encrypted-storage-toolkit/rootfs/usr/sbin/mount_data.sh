@@ -59,7 +59,7 @@ mount_dmcrypt() {
 	/usr/sbin/dmsetup -v create data_enc --table \
 		"0 ${DATA_SIZE} crypt ${CRYPTO_STR} 0 ${DATA_DEVICE} 0 1 sector_size:512"
 
-	[ "$(/usr/bin/lsblk -ndo FSTYPE /dev/mapper/data_enc)" = "ext4" ] || \
+	[ "$(/usr/sbin/blkid -p -s TYPE -o value /dev/mapper/data_enc)" = "ext4" ] || \
 		/usr/sbin/mkfs.ext4 /dev/mapper/data_enc
 
 	/usr/bin/mount -o noatime,noexec,nosuid,nodev -t auto \

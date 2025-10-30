@@ -44,6 +44,11 @@ migrate_data() {
 		crypt ${CRYPTO_STR} 0 ${1} 0 1 sector_size:512" || \
 		die "dm_crypt table creation for ${1} Failed"
 
+	[ -e /dev/mapper/data_enc_o ] || {
+		/usr/sbin/dmsetup remove data_enc_o
+		die "dm_crypt table creation for ${1} Failed"
+	}
+
 	# Wipe data patition
 	/usr/sbin/mkfs.ext4 /dev/mapper/data_enc_o || {
 		/usr/sbin/dmsetup remove data_enc_o
@@ -63,7 +68,8 @@ migrate_data() {
 		die "Mounting ${1} to ${MOUNT_POINT} Failed"
 	}
 
-	cp -fa -t ${MOUNT_POINT} ${DATA_SRC}/* || {
+	find ${DATA_SRC} -maxdepth 1 -path ${DATA_SRC}/lost+found -prune -o \
+		-exec cp -fav -t ${MOUNT_POINT} {} \; || {
 		/bin/umount ${MOUNT_POINT} || true
 		/usr/sbin/dmsetup remove data_enc_o
 		rmdir ${MOUNT_POINT}
@@ -100,12 +106,19 @@ esac
 
 # Find location for /data
 DATA_MOUNT=$(awk "\$2 == \"${DATA_SRC}\" { print \$1 }" /proc/mounts)
-[ ! -L "${DATA_MOUNT}" ] || DATA_MOUNT=$(readlink -f "${DATA_MOUNT}")
 
 # Migrate only from secure partitions
 case "${DATA_MOUNT}" in
-	/dev/dm-*)
-		DATA_MOUNT=$(ls "/sys/class/block/${DATA_MOUNT#/dev/}/slaves")
+	/dev/mapper/*)
+		for i in /sys/block/dm-*/dm/name; do
+			if [ -f "${i}" ]; then
+				read -r MOUNT_NAME < "${i}"
+				if [ "/dev/mapper/${MOUNT_NAME}" = "${DATA_MOUNT}" ]; then
+					DATA_MOUNT=$(ls "${i%/dm/name}/slaves")
+					break
+				fi
+			fi
+		done
 		;;
 	*)
 		warning "Data from ${DATA_SRC} not migrated, because it was not mounted."
