@@ -19,7 +19,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_bt_en_pins_default>;
-		gpio = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;
+		gpio = <&main_gpio0 21 GPIO_ACTIVE_HIGH>;
 		regulator-always-on;
 	};
 };

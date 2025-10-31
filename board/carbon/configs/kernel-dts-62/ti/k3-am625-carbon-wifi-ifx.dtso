@@ -41,6 +41,6 @@
 		vddio-supply = <&vdd_1v8>;
 		brcm,requires-autobaud-mode;
 		max-speed = <3000000>;
-		shutdown-gpios = <&main_gpio0 22 GPIO_ACTIVE_HIGH>;
+		shutdown-gpios = <&main_gpio0 21 GPIO_ACTIVE_HIGH>;
 	};
 };
