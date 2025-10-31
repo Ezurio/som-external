@@ -47,10 +47,10 @@ mount_dmcrypt() {
 	else
 		[ -f /perm/caam/datakey ] &&
 			KEY_ID=$(/usr/bin/keyctl add trusted datakey \
-				"load $(cat /perm/caam/datakey)" @us) ||
+				"load $(cat /perm/caam/datakey)" @s) ||
 		{
 			mkdir -p /perm/caam
-			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 64" @us)
+			KEY_ID=$(/usr/bin/keyctl add trusted datakey "new 64" @s)
 			/usr/bin/keyctl pipe "${KEY_ID}" > /perm/caam/datakey
 		}
 		CRYPTO_STR="aes-xts-plain64 :64:trusted:datakey"

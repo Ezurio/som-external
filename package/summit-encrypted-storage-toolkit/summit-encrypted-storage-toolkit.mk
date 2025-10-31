@@ -14,7 +14,9 @@ endif
 ifeq ($(BR2_aarch64),y)
 define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_INSTALL_INHERIT
 	$(SED) '/KeyringMode/d;/\[Service\]/d' \
-		$(TARGET_DIR)/usr/lib/systemd/system/inherit-keyring.conf 
+		$(TARGET_DIR)/usr/lib/systemd/system/inherit-keyring.conf
+	$(SED) '/KeyringMode/d' \
+		$(TARGET_DIR)/usr/lib/systemd/system/mount_data.service
 endef
 endif
 
