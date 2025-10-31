@@ -34,6 +34,6 @@
 		compatible = "rfkill-gpio";
 		label = "rfkill-wifi-m2";
 		radio-type = "wlan";
-		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_LOW>;
+		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
 	};
 };
