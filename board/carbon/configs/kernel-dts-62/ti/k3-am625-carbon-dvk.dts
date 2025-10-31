@@ -170,8 +170,8 @@
 	con_usb0: connector-usb0 {
 		compatible = "gpio-usb-b-connector", "usb-b-connector";
 		pinctrl-names = "default";
-		pinctrl-0 = <&mcu_usb_a_id_pins_default>;
-		id-gpios = <&mcu_gpio0 16 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&main_usb_a_id_pins_default>;
+		id-gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
 		label = "USB_A";
 		self-powered;
 		vbus-supply = <&vcc_usb0_vbus>;
@@ -530,14 +530,3 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_usb1_pins_default>;
 };
-
-/* MCUs not loaded currently because of UART conflict */
-/*
-&wkup_r5fss0 {
-	status = "okay";
-};
-
-&mcu_m4fss {
-	status = "okay";
-};
-*/
