@@ -12,4 +12,3 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/sbin/mount_rodata.sh start
 ExecStop=/usr/sbin/mount_rodata.sh stop
-KeyringMode=inherit
