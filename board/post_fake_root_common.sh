@@ -171,13 +171,6 @@ case "${BUILD_TYPE}" in
         fi
 
         if [ -n "${SECURE_TARGET_BUILD}" ]; then
-            [ -z "${KEY_PATH}" ] && die "KEY_PATH is not set"
-
-            KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
-            if [ ! -d "${KEYS_DIR}" ]; then
-                die "Keys directory not found: ${KEYS_DIR}"
-            fi
-
             # Secure target build, use the custom keys
             write_encrypted_filesystem_key
 
