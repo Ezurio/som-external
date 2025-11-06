@@ -27,26 +27,6 @@ size_check () {
         die "${1} size exceeded ${2} block limit, failed"
 }
 
-if ${SECURE_BOOT}; then
-    if [ -z "${KEY_PATH}" ]; then
-        [ -z "${SECURE_TARGET_BUILD}" ] || \
-            die "KEY_PATH is not set for secure target build"
-
-        # KEY_PATH not set, use default
-        case "${BUILD_TYPE}" in
-            am6*)
-                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key"
-                ;;
-            *)
-                KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key"
-                ;;
-        esac
-    fi
-
-    KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
-    [ -d "${KEYS_DIR}" ] || die "Keys directory not found: ${KEYS_DIR}"
-fi
-
 [ -x "${mkimage}" ] || \
 	die "No mkimage found (uboot has not been built?)"
 
