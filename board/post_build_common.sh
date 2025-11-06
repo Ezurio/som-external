@@ -247,29 +247,6 @@ done
 
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
-if [ -z "${KEY_PATH}" ]; then
-	if [ -n "${SECURE_TARGET_BUILD}" ]; then
-		echo "KEY_PATH is not set for secure target build"
-		exit 1
-	fi
-
-	# KEY_PATH not set, use default
-	case "${BUILD_TYPE}" in
-		am6*)
-			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key"
-			;;
-		*)
-			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key"
-			;;
-	esac
-fi
-
-KEYS_DIR=$(dirname "$(realpath "${KEY_PATH}")")
-if [ ! -d "${KEYS_DIR}" ]; then
-	echo "Keys directory not found: ${KEYS_DIR}"
-	exit 1
-fi
-
 # Copy keys if present
 if [ -f "${KEYS_DIR}/dev.key" ]; then
 	rm -rf "${BINARIES_DIR}/keys"
