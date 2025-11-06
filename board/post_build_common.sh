@@ -256,10 +256,10 @@ if [ -z "${KEY_PATH}" ]; then
 	# KEY_PATH not set, use default
 	case "${BUILD_TYPE}" in
 		am6*)
-			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key}"
+			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/keys/dev.key"
 			;;
 		*)
-			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key}"
+			KEY_PATH="${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/dev.key"
 			;;
 	esac
 fi
