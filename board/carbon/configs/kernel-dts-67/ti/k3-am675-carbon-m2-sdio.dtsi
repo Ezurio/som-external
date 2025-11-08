@@ -72,7 +72,6 @@
 	uart-has-rtscts;
 };
 
-#ifndef M2_PCIE
 &exp1 {
 	sdio_a_sel_hog {
 		gpio-hog;
@@ -91,4 +90,3 @@
 	ti,fails-without-test-cd;
 	keep-power-in-suspend;
 };
-#endif

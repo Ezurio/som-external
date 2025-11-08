@@ -20,7 +20,7 @@
 	};
 
 	vdd_3v3_carrier: vdd-3v3-carrier {
-		/* output 3 of U4 */
+		/* output 2 of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
@@ -47,6 +47,46 @@
 		enable-active-high;
 		gpios = <&exp1 8 GPIO_ACTIVE_HIGH>;
 		regulator-always-on;
+	};
+
+	vdd_cam_a: vdd-cam-a {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_cam_a";
+		vin-supply = <&vdd_3v3_carrier>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&exp1 6 GPIO_ACTIVE_HIGH>;
+	};
+
+	vdd_cam_b: vdd-cam-b {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_cam_b";
+		vin-supply = <&vdd_3v3_carrier>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&exp1 7 GPIO_ACTIVE_HIGH>;
+	};
+
+	vdd_cam_c: vdd-cam-c {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_cam_c";
+		vin-supply = <&vdd_3v3_carrier>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&exp1 10 GPIO_ACTIVE_HIGH>;
+	};
+
+	vdd_cam_d: vdd-cam-d {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_cam_d";
+		vin-supply = <&vdd_3v3_carrier>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&exp1 13 GPIO_ACTIVE_HIGH>;
 	};
 
 	codec_audio: sound {
@@ -85,8 +125,11 @@
 		};
 	};
 
-	audio_volume {
+	dvk_keys {
 		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&osm_gpio_a_7_pins_default>;
 
 		volume-up {
 			label = "Volume Up";
@@ -107,21 +150,13 @@
 			//gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
-	};
-
-	wake_gpio_key {
-		compatible = "gpio-keys";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&mcu_wake_pins_default>;
 
 		wakeup {
 			label = "Wakeup";
-			linux,code = <KEY_WAKEUP>;
-			wakeup-source;
-
 			interrupts-extended = <&mcu_gpio0 1 IRQ_TYPE_EDGE_FALLING>;
 			interrupt-names = "irq";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
 
 			//gpios = <&mcu_gpio0 1 GPIO_ACTIVE_LOW>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
@@ -132,7 +167,7 @@
 		compatible = "gpio-leds";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_led_pins_default>;
+		pinctrl-0 = <&osm_gpio_a_0_pins_default>;
 
 		led0 {
 			color = <LED_COLOR_ID_GREEN>;
@@ -167,18 +202,6 @@
 		regulator-name = "vcc_usb0_vbus";
 	};
 
-	reg_usb1_reset: regulator-usb1-reset {
-		compatible = "regulator-fixed";
-		vin-supply = <&vsys_5v>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb_c_reset_pins_default>;
-		enable-active-high;
-		gpios = <&main_gpio0 45 GPIO_ACTIVE_HIGH>;
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		regulator-name = "reg_usb1_reset";
-	};
-
 	reg_usb1_oe: regulator-usb1-oe {
 		compatible = "regulator-fixed";
 		vin-supply = <&vsys_5v>;
@@ -191,7 +214,7 @@
 
 	vcc_usb1_vbus: regulator-usb1-vbus {
 		compatible = "regulator-fixed";
-		vin-supply = <&reg_usb1_reset>;
+		vin-supply = <&vsys_5v>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb1_pins_default>;
 		enable-active-high;
@@ -317,34 +340,34 @@
 		gpio-line-names = "USB_C_OEn_P00", "USB_D_OEn_P01",
 			"CAN_A_STB", "CAN_B_STB",
 			"M2_WDISABLE1#", "M2_WDISABLE2#",
-			"M2_WL_DEVICE_WAKE", "M2_BT_DEVICE_WAKE",
-			"AUD_PWR_EN", "M2_Vendor_DF38", "M2_SD_RST#",
+			"CSI_PWR_CTL_A", "CSI_PWR_CTL_B",
+			"AUD_PWR_EN", "M2_Vendor_DF38", "CSI_PWR_CTL_C",
 			"CHGR_CE#", "M2_POWER_EN",
-			"SDIO_A_SWITCH_EN", "SDIO_A_SEL", "";
+			"CSI_PWR_CTL_B", "SDIO_A_SEL", "NC";
 	};
 
-	exp2: gpio@77 {
-		/* U21, TI, TCAL9539RTWR */
-		compatible = "ti,tcal9539", "nxp,pcal9535";
-		vcc-supply = <&vdd_1v8_carrier>;
-		reg = <0x77>;
+	exp2: gpio@27 {
+		/* U21, Microchip, MCP23018 */
+		compatible = "microchip,mcp23018";
+		reg = <0x27>;
 		#gpio-cells = <2>;
 		gpio-controller;
 
 		gpio-line-names = "ACD_nINT", "M2_UART_WAKE",
 			"M2_SD_HOST_WAKE", "CHRGR_INTn", 
 			"VOL_UP", "VOL_DOWN",
-			"", "",
+			"", "DSI_A_IRQ",
 			"DSI_A_INT", "DSI_A_HPD",
 			"LVDS_D_INT", "LVDS_D_HPD",
 			"LVDS_E_INT", "LVDS_E_HPD",
 			"RGB_INT", "RGB_HDMI_HPD";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_exp2_pins_default>;
+		pinctrl-0 = <&osm_gpio_a_3_pins_default>;
 
 		#interrupt-cells = <2>;
 		interrupt-controller;
+		microchip,irq-mirror;
 
 		interrupts-extended = <&main_gpio0 46 IRQ_TYPE_EDGE_FALLING>,
 			<&main_pmx0 0x0bc>;
@@ -426,43 +449,15 @@
 	phys = <&transceiver1>;
 };
 
-&main_pmx0 {
-	main_exp2_pins_default: main-exp2-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0bc, PIN_INPUT_PULLUP, 7) /* GPIO_A_3 (W25) VOUT0_DATA1.GPIO0_46 */
-		>;
-	};
-
-	main_led_pins_default: main-led-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x1f0, PIN_OUTPUT, 7) /* (A23) EXT_REFCLK1.GPIO1_30 */
-		>;
-	};
-
-	main_usb_c_reset_pins_default: main-usb-c-reset-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x0b8, PIN_INPUT, 7) /* USB_C_PD_RST (W27) VOUT0_DATA0.GPIO0_45 */
-		>;
-	};
-};
-
-&mcu_pmx0 {
-	mcu_wake_pins_default: mcu-wake-default-pins {
-		pinctrl-single,pins = <
-			J722S_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* WAKEUP (A10) MCU_SPI0_CS1.MCU_GPIO0_1 */
-		>;
-	};
-};
-
 &main_usb0_pins_default {
 	pinctrl-single,pins = <
-		J722S_IOPAD(0x254, PIN_OUTPUT, 7) /* (E25) USB0_DRVVBUS.GPIO1_50 */
+		J722S_IOPAD(0x254, PIN_OUTPUT, 7) /* USB_C_EN (E25) USB0_DRVVBUS.GPIO1_50 */
 	>;
 };
 
 &main_usb1_pins_default {
 	pinctrl-single,pins = <
-		J722S_IOPAD(0x258, PIN_OUTPUT, 7) /* (B27) USB1_DRVVBUS.GPIO1_51 */
+		J722S_IOPAD(0x258, PIN_OUTPUT, 7) /* USB_D_EN (B27) USB1_DRVVBUS.GPIO1_51 */
 	>;
 };
 
