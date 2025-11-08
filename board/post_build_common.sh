@@ -238,7 +238,7 @@ ${APPLY_DTBO} && RESULT_DBO=${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB} \
 for i in ${KERNEL_DEVICETREE}; do
 	case "${i}" in
 		*.dtbo)
-			fdtoverlay -i "${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB}" \
+			fdtoverlay -v -i "${BINARIES_DIR}/${FIT_CONF_DEFAULT_DTB}" \
 				-o "${RESULT_DBO}" "${BINARIES_DIR}/${i##*/}"
 		esac
 done

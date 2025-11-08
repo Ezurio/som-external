@@ -1,0 +1,57 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Digilent Pcam 5C 5MP OV5640 camera module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	/* On Camera module oscillator */
+	clk_cam_d_int: clk-cam-d-int {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+};
+
+&i2c_cam_d {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	cam_d: cam-d {
+		clocks = <&clk_cam_d_int>; /* On Camera module */
+		clock-names = "xclk";
+
+		port {
+			cam_d_ep: endpoint {
+				remote-endpoint = <&csi2rx3_in_sensor>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
+};
+
+&csi3_port0 {
+	status = "okay";
+
+	csi2rx3_in_sensor: endpoint {
+		remote-endpoint = <&cam_d_ep>;
+		bus-type = <4>; /* CSI2 DPHY. */
+		clock-lanes = <0>;
+		data-lanes = <1 2>;
+	};
+};
+
+&ti_csi2rx3 {
+	status = "okay";
+};
+
+&dphy3 {
+	status = "okay";
+};

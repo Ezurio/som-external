@@ -986,90 +986,84 @@
 		>;
 	};
 
-	osm_gpio_a_0_default: osm-gpio-a-0-default-pins {
+	osm_gpio_a_0_pins_default: osm-gpio-a-0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x034, PIN_INPUT, 7) /* GPIO_A_0 (H21) OSPI0_CSN2.GPIO0_13 */
 		>;
 	};
 
-	osm_gpio_a_1_default: osm-gpio-a-1-default-pins {
+	osm_gpio_a_1_pins_default: osm-gpio-a-1-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x008, PIN_INPUT, 7) /* GPIO_A_1 (J24) OSPI0_DQS.GPIO0_2 */
 		>;
 	};
 
-	osm_gpio_a_2_default: osm-gpio-a-2-default-pins {
+	osm_gpio_a_2_pins_default: osm-gpio-a-2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x004, PIN_INPUT, 7) /* GPIO_A_2 (G25) OSPI0_LBCLKO.GPIO0_1 */
 		>;
 	};
 
-	osm_gpio_a_6_default: osm-gpio-a-6-default-pins {
+	osm_gpio_a_6_pins_default: osm-gpio-a-6-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x030, PIN_INPUT, 7) /* GPIO_A_6 (G21) OSPI0_CSN1.GPIO0_12 */
 		>;
 	};
 
-	osm_gpio_a_7_default: osm-gpio-a-7-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x1b8, PIN_INPUT, 7) /* GPIO_A_7 (C13) SPI0_CS1.GPIO1_16 */
-		>;
-	};
-
-	osm_gpio_b_2_default: osm-gpio-b-2-default-pins {
+	osm_gpio_b_2_pins_default: osm-gpio-b-2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x09c, PIN_INPUT, 7) /* GPIO_B_2 (V25) GPMC0_WAIT1.GPIO0_38 */
 		>;
 	};
 
-	osm_gpio_b_3_default: osm-gpio-b-3-default-pins {
+	osm_gpio_b_3_pins_default: osm-gpio-b-3-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x094, PIN_INPUT, 7) /* GPIO_B_3 (N20) GPMC0_BE1N.GPIO0_36 */
 		>;
 	};
 
-	osm_gpio_b_6_default: osm-gpio-b-6-default-pins {
+	osm_gpio_b_6_pins_default: osm-gpio-b-6-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x078, PIN_INPUT, 7) /* GPIO_B_6 (U24) GPMC0_AD15.GPIO0_30 */
 		>;
 	};
 
-	osm_gpio_b_7_default: osm-gpio-b-7-default-pins {
+	osm_gpio_b_7_pins_default: osm-gpio-b-7-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x088, PIN_INPUT, 7) /* GPIO_B_7 (L17) GPMC0_OEn_REn.GPIO0_33 */
 		>;
 	};
 
-	osm_gpio_c_0_default: osm-gpio-c-0-default-pins {
+	osm_gpio_c_0_pins_default: osm-gpio-c-0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x0a0, PIN_INPUT, 7) /* GPIO_C_0 (K25) GPMC0_WPn.GPIO0_39 */
 		>;
 	};
 
-	osm_gpio_c_1_default: osm-gpio-c-1-default-pins {
+	osm_gpio_c_1_pins_default: osm-gpio-c-1-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x0a8, PIN_INPUT, 7) /* GPIO_C_1 (M21) GPMC0_CSn0.GPIO0_41 */
 		>;
 	};
 
-	osm_gpio_c_2_default: osm-gpio-c-2-default-pins {
+	osm_gpio_c_2_pins_default: osm-gpio-c-2-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x038, PIN_INPUT, 7) /* GPIO_C_2 (E24) OSPI0_CSn3.GPIO0_14 */
 		>;
 	};
 
-	osm_gpio_c_3_default: osm-gpio-c-3-default-pins {
+	osm_gpio_c_3_pins_default: osm-gpio-c-3-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x124, PIN_INPUT, 7) /* GPIO_C_3 (A23) MMC2_SDCD.GPIO0_71 */
 		>;
 	};
 
-	osm_gpio_c_6_default: osm-gpio-c-6-default-pins {
+	osm_gpio_c_6_pins_default: osm-gpio-c-6-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x128, PIN_INPUT, 7) /* GPIO_C_6 (B23) MMC2_SDWP.GPIO0_72 */
 		>;
 	};
-	osm_gpio_c_7_default: osm-gpio-c-7-default-pins {
+	osm_gpio_c_7_pins_default: osm-gpio-c-7-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x074, PIN_INPUT, 7) /* GPIO_C_7 (U25) GPMC0_AD14.GPIO0_29 */
 		>;
@@ -1200,43 +1194,49 @@
 		>;
 	};
 
-	osm_gpio_a_3_default: osm-gpio-a-3-default-pins {
+	osm_gpio_a_3_pins_default: osm-gpio-a-3-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x03c, PIN_INPUT, 7) /* GPIO_A_3 (E5) MCU_MCAN1_TX.GPIO0_15 */
 		>;
 	};
 
-	osm_gpio_a_4_default: osm-gpio-a-4-default-pins {
+	osm_gpio_a_4_pins_default: osm-gpio-a-4-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x044, PIN_INPUT, 7) /* GPIO_A_4 (A8) MCU_I2C0_SCL.MCU_GPIO0_17 */
 		>;
 	};
 
-	osm_gpio_a_5_default: osm-gpio-a-5-default-pins {
+	osm_gpio_a_5_pins_default: osm-gpio-a-5-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x048, PIN_INPUT, 7) /* GPIO_A_5 (D10) MCU_I2C0_SDA.MCU_GPIO0_18 */
 		>;
 	};
 
-	osm_gpio_b_0_default: osm-gpio-b-0-default-pins {
+	osm_gpio_a_7_pins_default: osm-gpio-a-7-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x004, PIN_INPUT, 7) /* GPIO_A_7 (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
+		>;
+	};
+
+	osm_gpio_b_0_pins_default: osm-gpio-b-0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x030, PIN_INPUT, 7) /* GPIO_B_0 (A4) WKUP_UART0_RTSn.MCU_GPIO0_12 */
 		>;
 	};
 
-	osm_gpio_b_1_default: osm-gpio-b-1-default-pins {
+	osm_gpio_b_1_pins_default: osm-gpio-b-1-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x02c, PIN_INPUT, 7) /* GPIO_B_1 (C6) WKUP_UART0_CTSn.MCU_GPIO0_11 */
 		>;
 	};
 
-	osm_gpio_b_4_default: osm-gpio-b-4-default-pins {
+	osm_gpio_b_4_pins_default: osm-gpio-b-4-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x04c, PIN_INPUT, 0) /* GPIO_B_4 (B9) WKUP_I2C0_SCL.MCU_GPIO0_19 */
 		>;
 	};
 
-	osm_gpio_b_5_default: osm-gpio-b-5-default-pins {
+	osm_gpio_b_5_pins_default: osm-gpio-b-5-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x050, PIN_INPUT, 0) /* GPIO_B_5 (A9) WKUP_I2C0_SDA.MCU_GPIO0_20 */
 		>;

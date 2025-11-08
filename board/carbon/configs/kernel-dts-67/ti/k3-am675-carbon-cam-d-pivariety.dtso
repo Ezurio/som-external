@@ -5,22 +5,24 @@
  * Copyright (C) 2025 Ezurio LLC
  */
 
-#include "k3-am675-carbon-cam-d-ov5640.dtso"
+/dts-v1/;
+/plugin/;
 
-&camera_cam_d {
+#include "k3-am675-carbon-cam-d.dtsi"
+
+&cam_d {
 	reg = <0x0c>;
 	compatible = "arducam,arducam-pivariety";
 
-	VANA-supply = <&vdd_3v3_carrier>;
-	VDIG-supply = <&vdd_3v3_carrier>;
-	VDDL-supply = <&vdd_3v3_carrier>;
+	VANA-supply = <&vdd_cam_d>;
+	VDIG-supply = <&vdd_cam_d>;
+	VDDL-supply = <&vdd_cam_d>;
 
 	reset-gpios = <&exp0 7 GPIO_ACTIVE_HIGH>; /* CAM_D_RST */
 	enable-gpios = <&exp0 6 GPIO_ACTIVE_HIGH>; /* CAM_D_PWR */
-	/delete-property/ powerdown-gpios;
 };
 
-&csi2_cam3 {
+&cam_d_ep {
 	data-lanes = <1 2 3 4>;
 };
 
