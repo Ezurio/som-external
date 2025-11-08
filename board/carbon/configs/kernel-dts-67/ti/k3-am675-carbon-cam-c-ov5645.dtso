@@ -5,16 +5,21 @@
  * Copyright (C) 2025 Ezurio LLC
  */
 
-#include "k3-am675-carbon-cam-c-ov5640.dtso"
+/dts-v1/;
+/plugin/;
 
-&camera_cam_c {
+#include "k3-am675-carbon-cam-c.dtsi"
+
+&cam_c {
 	compatible = "ovti,ov5645";
+	reg = <0x3c>;
 
-	vdddo-supply = <&vdd_3v3_carrier>;
-	vdda-supply = <&vdd_3v3_carrier>;
-	vddd-supply = <&vdd_3v3_carrier>;
+	vdddo-supply = <&vdd_cam_c>;
+	vdda-supply = <&vdd_cam_c>;
+	vddd-supply = <&vdd_cam_c>;
 
-	enable-gpios = <&exp0 4 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
-	/delete-property/ powerdown-gpios;
+	reset-gpios = <&exp0 5 GPIO_ACTIVE_LOW>; /* CAM_C_RST */
+	enable-gpios = <&exp0 4 GPIO_ACTIVE_HIGH>; /* CAM_C_PWR */
+
 	clock-frequency = <24000000>;
 };

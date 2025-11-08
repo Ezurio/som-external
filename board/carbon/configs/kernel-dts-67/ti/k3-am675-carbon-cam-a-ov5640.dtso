@@ -8,58 +8,16 @@
 /dts-v1/;
 /plugin/;
 
-#include <dt-bindings/gpio/gpio.h>
+#include "k3-am675-carbon-cam-a.dtsi"
 
-&{/} {
-	/* On Camera module oscillator */
-	clk_cam_a_int: clk-cam-a-int {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		/* 24 MHz clock enables higher resolutions
-		   even though actual clock is 12 MHz */
-		clock-frequency = <24000000>;
-	};
-};
+&cam_a {
+	compatible = "ovti,ov5640";
+	reg = <0x3c>;
 
-&i2c_cam_a {
-	#address-cells = <1>;
-	#size-cells = <0>;
+	DOVDD-supply = <&vdd_cam_a>;
+	VDDA-supply = <&vdd_cam_a>;
+	VDDD-supply = <&vdd_cam_a>;
 
-	camera_cam_a: camera-cam-a@3c {
-		compatible = "ovti,ov5640";
-		reg = <0x3c>;
-
-		clocks = <&clk_cam_a_int>; /* On Camera module */
-		clock-names = "xclk";
-
-		reset-gpios = <&exp0 12 GPIO_ACTIVE_LOW>; /* CAM_A_RST */
-		powerdown-gpios = <&exp0 13 GPIO_ACTIVE_LOW>; /* CAM_A_PWR */
-
-		port {
-			csi2_cam0: endpoint {
-				remote-endpoint = <&csi2rx0_in_sensor>;
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
-			};
-		};
-	};
-};
-
-&csi0_port0 {
-	status = "okay";
-
-	csi2rx0_in_sensor: endpoint {
-		remote-endpoint = <&csi2_cam0>;
-		bus-type = <4>; /* CSI2 DPHY. */
-		clock-lanes = <0>;
-		data-lanes = <1 2>;
-	};
-};
-
-&ti_csi2rx0 {
-	status = "okay";
-};
-
-&dphy0 {
-	status = "okay";
+	reset-gpios = <&exp0 12 GPIO_ACTIVE_LOW>; /* CAM_A_RST */
+	powerdown-gpios = <&exp0 13 GPIO_ACTIVE_LOW>; /* CAM_A_PWR */
 };

@@ -7,7 +7,7 @@
 /dts-v1/;
 /plugin/;
 
-#include "k3-am625-carbon-m2.dtsi"
+#include "k3-am625-carbon-m2-sdio.dtsi"
 
 &reg_wifi_en_m2 {
 	startup-delay-us = <20000>;
