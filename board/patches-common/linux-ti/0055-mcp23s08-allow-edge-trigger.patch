@@ -1,0 +1,14 @@
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -570,11 +570,6 @@
+ 	int err;
+ 	unsigned long irqflags = IRQF_ONESHOT | IRQF_SHARED;
+ 
+-	if (mcp->irq_active_high)
+-		irqflags |= IRQF_TRIGGER_HIGH;
+-	else
+-		irqflags |= IRQF_TRIGGER_LOW;
+-
+ 	err = devm_request_threaded_irq(chip->parent, mcp->irq, NULL,
+ 					mcp23s08_irq,
+ 					irqflags, dev_name(chip->parent), mcp);
