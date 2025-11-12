@@ -67,6 +67,13 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin $(SUMMIT_RCM_PKGDIR)/factory_powerup_summit-rcm.sh
 
 	$(SED) '/^default_/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/^server.ssl_certificate/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/^server.ssl_private_key/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/^server.ssl_certificate_chain/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[global\]/a server.ssl_certificate: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[global\]/a server.ssl_private_key: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_PRIVATE_KEY)' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[global\]/a server.ssl_certificate_chain: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE_CHAIN)' $(TARGET_DIR)/etc/summit-rcm.ini
+
 	$(SED) '/\[summit-rcm\]/a default_password: \"$(SUMMIT_RCM_DEFAULT_PASSWORD)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a default_username: \"$(SUMMIT_RCM_DEFAULT_USERNAME)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 

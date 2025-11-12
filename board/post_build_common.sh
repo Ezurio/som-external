@@ -253,6 +253,66 @@ if [ -f "${KEYS_DIR}/dev.key" ]; then
 	ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
 fi
 
+case "${BUILD_TYPE}" in
+    *am6*)
+        if grep -qF "BR2_PACKAGE_SUMMIT_PROV=y" "${BR2_CONFIG}"; then
+			# Assume SMEK and SMPK are in the keys directory
+			smek_path="${KEYS_DIR}/smek.key"
+			[ -f "${smek_path}" ] || \
+				die "No SMEK key found in the keys directory"
+			smpk_path="${KEYS_DIR}/smpk.key"
+			[ -f "${smpk_path}" ] || \
+				die "No SMPK key found in the keys directory"
+			prov_data_path="${KEYS_DIR}/prov_data"
+			[ -d "${prov_data_path}" ] || \
+				die "No provisioning data directory found in the keys directory"
+			keystore_source_path="${prov_data_path}/keystore"
+			[ -d "${keystore_source_path}" ] || \
+				die "No keystore directory found in the prov_data directory"
+
+			TEMP_DIR=$(mktemp -d)
+
+			# Create prov_data.tar.zst
+			(cd "${prov_data_path}" && tar -cf - . | zstd -o "${TEMP_DIR}/prov_data.tar.zst")
+
+			if [ -n "${SECURE_TARGET_BUILD}" ]; then
+				# Secure target build, sign and encrypt the provisioning data using SMPK and SMEK
+				"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/scripts/gen_core_x509_cert.sh" \
+					-b "${TEMP_DIR}/prov_data.tar.zst" \
+					-k "${smpk_path}" \
+					-a 2 \
+					-n \
+					-y ENCRYPT \
+					-e "${smek_path}" \
+					-o "${TEMP_DIR}/cert_prov_data.tar.zst.bin"
+				cat "${TEMP_DIR}/cert_prov_data.tar.zst.bin" "${TEMP_DIR}/prov_data.tar.zst-ENC" > "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin"
+			else
+				# If not a secure target build, encrypt the prov_data.tar.zst using SMEK and inject the SMEK
+				# and IV into the summit-prov.sh script using sed (for decryption during provisioning)
+				openssl rand -out "${TEMP_DIR}/random_iv.bin" 16
+				KEY=$(xxd -p -c 0 "${smek_path}")
+				IV=$(xxd -p -c 0 "${TEMP_DIR}/random_iv.bin")
+				openssl enc -aes-256-cbc -e -in "${TEMP_DIR}/prov_data.tar.zst" -out "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin" -K "${KEY}" -iv "${IV}"
+
+				# Update the decryption key and IV variables for summit-prov.sh using sed
+				sed -i "s/^DECRYPT_KEY=\".*\"/DECRYPT_KEY=\"${KEY}\"/" "${TARGET_DIR}/usr/sbin/summit-prov.sh"
+				sed -i "s/^DECRYPT_IV=\".*\"/DECRYPT_IV=\"${IV}\"/" "${TARGET_DIR}/usr/sbin/summit-prov.sh"
+			fi
+
+			rm -rf "${TEMP_DIR}"
+
+			# Verify the encrypted provisioning data file is not greater than 1MB
+			if [ "$(stat -c%s "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin")" -gt 1048576 ]; then
+				die "Generated encrypted provisioning data file exceeds 1MB size limit"
+			fi
+        else
+            touch "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin"
+        fi
+        ;;
+    *)
+        ;;
+esac
+
 # Configure keys, boot script, and SWU tools when using encrypted toolkit
 if ${SECURE_BOOT} ; then
 	export UBOOT_SIGN_ENABLE='1'

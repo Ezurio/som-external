@@ -1,0 +1,11 @@
+[Unit]
+Description=Summit Provisioning Service
+After=mount_boot.service
+Requires=mount_boot.service
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/sbin/summit-prov.sh
+
+[Install]
+WantedBy=multi-user.target
