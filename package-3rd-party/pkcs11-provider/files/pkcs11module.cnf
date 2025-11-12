@@ -1,0 +1,8 @@
+[pkcs11_sect]
+module = /usr/lib/ossl-modules/pkcs11.so
+pkcs11-module-path = /usr/lib/libckteec.so
+activate = 1
+
+# When activating a custom provider, the default provider must also be activated explicitly.
+[default_sect]
+activate = 1

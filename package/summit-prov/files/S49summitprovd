@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case "${1}" in
+	start)
+		/usr/sbin/summit-prov.sh
+		;;
+
+	stop)
+		;;
+
+	restart|reload)
+		/usr/sbin/summit-prov.sh
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit $?

@@ -203,5 +203,13 @@ endef
 LIBOPENSSL_3_0_POST_INSTALL_TARGET_HOOKS += LIBOPENSSL_3_0_REMOVE_LIBOPENSSL_3_0_ENGINES
 endif
 
+ifeq ($(BR2_PACKAGE_PKCS11_PROVIDER),y)
+define LIBOPENSSL_3_0_INSTALL_PKCS11_MODULE_CNFS
+	$(SED) '/# pkcs11 = pkcs11_sect/c\pkcs11 = pkcs11_sect' \
+		$(TARGET_DIR)/etc/ssl/openssl.cnf
+endef
+LIBOPENSSL_3_0_POST_INSTALL_TARGET_HOOKS += LIBOPENSSL_3_0_INSTALL_PKCS11_MODULE_CNFS
+endif
+
 $(eval $(generic-package))
 $(eval $(host-generic-package))

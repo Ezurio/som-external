@@ -169,6 +169,9 @@ create_boot_partition() {
 		if [ -f "${SRCDIR}/tiboot3.bin.kw" ]; then
 			/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/tiboot3.bin.kw" ::/
 		fi
+		if [ -f "${SRCDIR}/prov_data.tar.zst_sign_enc.bin" ]; then
+			/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/prov_data.tar.zst_sign_enc.bin" ::/
+		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/uboot.env" ::/
 		append_image 64 "${SRCDIR}/flash.bin"

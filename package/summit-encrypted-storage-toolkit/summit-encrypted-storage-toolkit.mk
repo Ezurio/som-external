@@ -76,11 +76,6 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	ln -sf /data/misc/localtime $(TARGET_DIR)/etc/localtime
 	ln -sf /data/misc/adjtime $(TARGET_DIR)/etc/adjtime
 
-	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
-		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
-		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
-	fi
-
 	if ! grep -qF noexec $(TARGET_DIR)/usr/lib/systemd/system/var.mount; then \
 		$(SED) '/^Options=/ s/$$/,noexec/' $(TARGET_DIR)/usr/lib/systemd/system/var.mount; \
 	fi
@@ -91,5 +86,17 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 endef
 
 SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
+
+ifneq ($(BR2_PACKAGE_SUMMIT_PROV),y)
+define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_SUMMIT_RCM_RODATA_ROOTFS_PRE_CMD_HOOK
+	set -x
+
+	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
+		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
+		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
+	fi
+endef
+SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_SUMMIT_RCM_RODATA_ROOTFS_PRE_CMD_HOOK
+endif
 
 $(eval $(generic-package))
