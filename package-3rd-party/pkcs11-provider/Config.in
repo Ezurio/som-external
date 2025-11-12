@@ -1,0 +1,13 @@
+menuconfig BR2_PACKAGE_PKCS11_PROVIDER
+    bool "PKCS#11 Provider for OP-TEE"
+    depends on BR2_PACKAGE_OPTEE_CLIENT
+    depends on BR2_PACKAGE_OPENSSL
+    select BR2_PACKAGE_P11_KIT
+    select BR2_PACKAGE_OPENSC
+    help
+      This package provides a PKCS#11 provider that allows
+      applications running in the Linux user space to access
+      cryptographic services provided by OP-TEE through the
+      PKCS#11 API.
+
+      https://github.com/latchset/pkcs11-provider
