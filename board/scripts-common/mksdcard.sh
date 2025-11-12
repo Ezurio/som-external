@@ -215,6 +215,9 @@ create_boot_partition() {
 		if [ -f "${SRCDIR}/tiboot3.bin.kw" ]; then
 			cp -t "${BOOT_PART}" "${SRCDIR}/tiboot3.bin.kw"
 		fi
+		if [ -f "${SRCDIR}/prov_data.tar.zst_sign_enc.bin" ]; then
+			cp -t "${BOOT_PART}" "${SRCDIR}/prov_data.tar.zst_sign_enc.bin"
+		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
 		/usr/bin/dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none

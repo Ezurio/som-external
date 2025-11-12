@@ -1,20 +1,22 @@
 --- a/apps/openssl.cnf
 +++ b/apps/openssl.cnf
-@@ -48,7 +48,7 @@
+@@ -48,7 +48,8 @@
  # fips provider. It contains a named section e.g. [fips_sect] which is
  # referenced from the [provider_sect] below.
  # Refer to the OpenSSL security policy for more information.
 -# .include fipsmodule.cnf
 +.include /etc/ssl/fipsmodule.cnf
++.include /etc/ssl/pkcs11module.cnf
  
  [openssl_init]
  providers = provider_sect
-@@ -58,7 +58,11 @@
+@@ -58,7 +58,12 @@
  default = default_sect
  # The fips section name should match the section name inside the
  # included fipsmodule.cnf.
 -# fips = fips_sect
 +fips = fips_sect
++# pkcs11 = pkcs11_sect
 +base = base_sect
 +
 +[base_sect]
