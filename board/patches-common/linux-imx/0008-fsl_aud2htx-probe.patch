@@ -1,0 +1,34 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/sound/soc/fsl/fsl_aud2htx.c b/sound/soc/fsl/fsl_aud2htx.c
+index 38f3863739f4..fe1aa6827c42 100644
+--- a/sound/soc/fsl/fsl_aud2htx.c
++++ b/sound/soc/fsl/fsl_aud2htx.c
+@@ -221,7 +221,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+ 
+ 	aud2htx->bus_clk = devm_clk_get(&pdev->dev, "bus");
+ 	if (IS_ERR(aud2htx->bus_clk)) {
+-		dev_err(&pdev->dev, "failed to get mem clock\n");
++		dev_err_probe(&pdev->dev, PTR_ERR(aud2htx->bus_clk), "failed to get mem clock\n");
+ 		return PTR_ERR(aud2htx->bus_clk);
+ 	}
+ 
+@@ -240,7 +240,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+ 	 */
+ 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to pcm register\n");
++		dev_err_probe(&pdev->dev, ret, "failed to pcm register\n");
+ 		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
+@@ -249,7 +249,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+ 					      &fsl_aud2htx_component,
+ 					      &fsl_aud2htx_dai, 1);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to register ASoC DAI\n");
++		dev_err_probe(&pdev->dev, ret, "failed to register ASoC DAI\n");
+ 		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}

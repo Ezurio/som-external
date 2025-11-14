@@ -1,0 +1,27 @@
+From 3d4d146fc68b9c1f0e7f6613cb5c1974ecad5727 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Tue, 15 Apr 2025 06:42:01 -0400
+Subject: [PATCH] loadpin: Fixed auto enable config
+
+PROD-21983
+---
+ security/loadpin/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/security/loadpin/Kconfig b/security/loadpin/Kconfig
+index 848f8b4a60190..d82bcdb34cc8a 100644
+--- a/security/loadpin/Kconfig
++++ b/security/loadpin/Kconfig
+@@ -16,7 +16,7 @@ config SECURITY_LOADPIN_ENFORCE
+ 	depends on SECURITY_LOADPIN
+ 	# Module compression breaks LoadPin unless modules are decompressed in
+ 	# the kernel.
+-	depends on !MODULES || (MODULE_COMPRESS_NONE || MODULE_DECOMPRESS)
++	depends on !MODULES || (!MODULE_COMPRESS || MODULE_DECOMPRESS)
+ 	help
+ 	  If selected, LoadPin will enforce pinning at boot. If not
+ 	  selected, it can be enabled at boot with the kernel parameter
+-- 
+2.51.0

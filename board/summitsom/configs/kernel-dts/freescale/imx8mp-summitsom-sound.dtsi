@@ -1,0 +1,164 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * Copyright 2021 Ezurio
+ */
+
+&{/} {
+	reg_audio_pwr: regulator-audio-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "audio-pwr";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		/* using gpio hog to resolve i2c lockup */
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&pinctrl_audpwr>;
+		//gpio = <&gpio4 29 GPIO_ACTIVE_HIGH>;
+		//enable-active-high;
+	};
+
+	sound-wm8960 {
+		compatible = "fsl,imx-audio-wm8960";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wm8960>;
+
+		model = "wm8960-audio";
+		audio-cpu = <&sai3>;
+		audio-codec = <&codec>;
+		audio-asrc = <&easrc>;
+		audio-headset = <&headset>;
+		hp-det-gpio = <&gpio4 28 GPIO_ACTIVE_LOW>;
+		audio-routing =
+			"Headphone Jack", "HP_L",
+			"Headphone Jack", "HP_R",
+			"Ext Spk", "SPK_LP",
+			"Ext Spk", "SPK_LN",
+			"Ext Spk", "SPK_RP",
+			"Ext Spk", "SPK_RN",
+			"LINPUT1", "Mic Jack";
+	};
+
+	sound-xcvr {
+		compatible = "fsl,imx-audio-card";
+		model = "imx-audio-xcvr";
+		status = "disabled";
+
+		pri-dai-link {
+			link-name = "XCVR PCM";
+			cpu {
+				sound-dai = <&xcvr>;
+			};
+		};
+	};
+
+	audio_volume {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_audio_keys>;
+
+		volume-up {
+			label = "Volume Up";
+			gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEUP>;
+		};
+
+		volume-down {
+			label = "Volume Down";
+			gpios = <&gpio3 22 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEDOWN>;
+		};
+	};
+};
+
+&dsp {
+	status = "okay";
+};
+
+&i2c3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	codec: wm8960@1a {
+		compatible = "wlf,wm8960";
+		reg = <0x1a>;
+		clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI3_MCLK1>;
+		clock-names = "mclk";
+		wlf,shared-lrclk;
+		wlf,hp-cfg = <3 3 3>;
+		wlf,gpio-cfg = <1 3>;
+		wlf,mic-bias-0.6;
+		AVDD-supply = <&reg_audio_pwr>;
+		SPKVDD1-supply = <&reg_audio_pwr>;
+		SPKVDD2-supply = <&reg_audio_pwr>;
+	};
+
+	headset: ts3a227e@3b {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ts3a227e>;
+
+		compatible = "ti,ts3a227e";
+		reg = <0x3b>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
+		ti,micbias = <1>;
+		ti,debounce-insertion-ms = <200>;
+	};
+};
+
+&easrc {
+	fsl,asrc-rate  = <48000>;
+	status = "okay";
+};
+
+&sai3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai3>;
+	assigned-clocks = <&clk IMX8MP_CLK_SAI3>;
+	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <12288000>;
+	fsl,sai-mclk-direction-output;
+	status = "okay";
+};
+
+&xcvr {
+	#sound-dai-cells = <0>;
+//	status = "okay";
+};
+
+&sdma2 {
+	status = "okay";
+};
+
+
+&iomuxc {
+	pinctrl_wm8960: wm8960grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI3_RXFS__GPIO4_IO28		0x86
+		>;
+	};
+
+	pinctrl_ts3a227e: ts3a227egrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05     0x000001C6
+		>;
+	};
+
+	pinctrl_sai3: sai3grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI3_TXFS__AUDIOMIX_SAI3_TX_SYNC	0xd6
+			MX8MP_IOMUXC_SAI3_TXC__AUDIOMIX_SAI3_TX_BCLK	0xd6
+			MX8MP_IOMUXC_SAI3_RXD__AUDIOMIX_SAI3_RX_DATA00	0xd6
+			MX8MP_IOMUXC_SAI3_TXD__AUDIOMIX_SAI3_TX_DATA00	0xd6
+			MX8MP_IOMUXC_SAI3_MCLK__AUDIOMIX_SAI3_MCLK	0xd6
+		>;
+	};
+
+	pinctrl_audio_keys: audio_keysgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI5_RXD1__GPIO3_IO22         0x400001C6
+			MX8MP_IOMUXC_SAI5_RXD2__GPIO3_IO23         0x400001C6
+		>;
+	};
+};

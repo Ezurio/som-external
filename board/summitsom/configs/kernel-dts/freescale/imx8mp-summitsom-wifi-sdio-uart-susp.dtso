@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * Copyright 2022 Ezurio
+ */
+
+#include "imx8mp-summitsom-wifi-sdio-uart.dtso"
+
+&usdhc1 {
+	/delete-property/ keep-power-in-suspend;
+};

@@ -1,0 +1,46 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/sound/soc/codecs/ts3a227e.c b/sound/soc/codecs/ts3a227e.c
+index 6d9166d9116a..730ac997c883 100644
+--- a/sound/soc/codecs/ts3a227e.c
++++ b/sound/soc/codecs/ts3a227e.c
+@@ -242,9 +242,21 @@ static irqreturn_t ts3a227e_interrupt(int irq, void *data)
+  */
+ int ts3a227e_enable_jack_detect(struct snd_soc_component *component,
+ 				struct snd_soc_jack *jack)
++{
++	return snd_soc_component_set_jack(component, jack, NULL);
++}
++EXPORT_SYMBOL_GPL(ts3a227e_enable_jack_detect);
++
++static int ts3a227e_set_jack(struct snd_soc_component *component,
++			     struct snd_soc_jack *jack, void *data)
+ {
+ 	struct ts3a227e *ts3a227e = snd_soc_component_get_drvdata(component);
+ 
++	if (jack == NULL) {
++		ts3a227e->jack = NULL;
++		return 0;
++	}
++
+ 	snd_jack_set_key(jack->jack, SND_JACK_BTN_0, KEY_PLAYPAUSE);
+ 	snd_jack_set_key(jack->jack, SND_JACK_BTN_1, KEY_VOICECOMMAND);
+ 	snd_jack_set_key(jack->jack, SND_JACK_BTN_2, KEY_VOLUMEUP);
+@@ -255,16 +267,6 @@ int ts3a227e_enable_jack_detect(struct snd_soc_component *component,
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(ts3a227e_enable_jack_detect);
+-
+-static int ts3a227e_set_jack(struct snd_soc_component *component,
+-			     struct snd_soc_jack *jack, void *data)
+-{
+-	if (jack == NULL)
+-		return -EINVAL;
+-
+-	return ts3a227e_enable_jack_detect(component, jack);
+-}
+ 
+ static int ts3a227e_get_jack_type(struct snd_soc_component *component)
+ {
