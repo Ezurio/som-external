@@ -12,9 +12,8 @@
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
-		ranges;
 
-		m4_reserved: m4@0x47000000 {
+		m4_reserved: m4@47000000 {
 			no-map;
 			reg = <0 0x47000000 0 0x1000000>;
 		};
@@ -40,7 +39,7 @@
 			no-map;
 		};
 /*
-		audio_reserved: audio@0x48000000 {
+		audio_reserved: audio@48000000 {
 			compatible = "shared-dma-pool";
 			no-map;
 			reg = <0 0x48000000 0 0x8000000>;

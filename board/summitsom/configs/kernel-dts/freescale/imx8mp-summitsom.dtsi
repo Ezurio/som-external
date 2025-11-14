@@ -39,6 +39,23 @@
 		startup-delay-us = <5000>;
 	};
 
+	reg_pmu_enable: regulator-pmu-enable {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wifi_pmu>;
+
+		compatible = "regulator-fixed";
+
+		regulator-name = "wifi_pmu_enable";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpios = <&gpio2 10 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		startup-delay-us = <1000>;
+		off-on-delay-us = <100000>;
+	};
+
 	radio_wake {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
