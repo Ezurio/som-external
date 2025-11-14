@@ -3,61 +3,12 @@
  * Copyright 2022 Ezurio
  */
 
-/dts-v1/;
-/plugin/;
-
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/interrupt-controller/irq.h>
-
-#include "imx8mp-pinfunc.h"
-
-&{/} {
-	reg_pcie_gpio: regulator-pcie-gpio {
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pcie_disable &pinctrl_pcie_reset>;
-
-		compatible = "regulator-fixed";
-
-		regulator-name = "PCIE GPIO";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-
-		gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
-		enable-active-low;
-		regulator-always-on;
-	};
-};
-
-&uart3 {
-	/* BT */
- 	status = "okay";
-};
+#include "imx8mp-summitsom-wifi-sdio-uart.dtso"
 
 &usdhc1 {
-	pinctrl-0 = <&pinctrl_usdhc1>, <&pinctrl_wifi_pmu>, <&pinctrl_wifibs>;
-	pinctrl-1 = <&pinctrl_usdhc1_100mhz>, <&pinctrl_wifi_pmu>, <&pinctrl_wifibs>;
-	pinctrl-2 = <&pinctrl_usdhc1_200mhz>, <&pinctrl_wifi_pmu>, <&pinctrl_wifibs>;
-
-	status = "okay";
-
-	non-removable;
-
-	wifi: wifi {
-		compatible = "marvell,sd8997";
-		fwtype = "sdio-uart";
-		//interrupts-extended = <&gpio3 14 GPIO_ACTIVE_LOW>;
-		reset-gpios = <&gpio2 10 GPIO_ACTIVE_HIGH>;
-		remove-power-on-link-down;
-	};
+	/delete-property/ keep-power-in-suspend;
 };
 
-&wifi_wake {
-	interrupts-extended = <&gpio3 14 IRQ_TYPE_EDGE_FALLING>;
-	//gpios = <&gpio3 14 GPIO_ACTIVE_LOW>;
-};
-
-&pinctrl_wifi_pmu {
-	fsl,pins = <
-		MX8MP_IOMUXC_SD1_RESET_B__GPIO2_IO10       0x00000140
-	>;
+&wifi {
+	remove-power-on-link-down;
 };

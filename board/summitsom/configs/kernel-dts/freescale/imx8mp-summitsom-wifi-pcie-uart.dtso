@@ -8,26 +8,29 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
-&{/} {
-	reg_pmu_enable: regulator_pmu_enablegrp {
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_wifi_pmu &pinctrl_wifibs &pinctrl_pcie_disable>;
+&gpio2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_wifibs>, <&pinctrl_pcie_disable>;
 
-		compatible = "regulator-gpio";
+	pcie-disable {
+		gpio-hog;
+		gpios = <7 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "pcie_disable";
+	};
 
-		regulator-name = "WIFI PMU EN";
-		//regulator-min-microvolt = <1800000>;
-		//regulator-max-microvolt = <1800000>;
+	wifi_bs0: wifi-bs0 {
+		gpio-hog;
+		gpios = <8 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "wifi_bs0";
+	};
 
-		gpios = <&gpio2  8 GPIO_ACTIVE_HIGH>,
-		        <&gpio2  9 GPIO_ACTIVE_HIGH>,
-		        <&gpio2 10 GPIO_ACTIVE_HIGH>,
-		        <&gpio2  7 GPIO_ACTIVE_HIGH>;
-		states = <1800000 15>, <0 0>;
-		enable-active-high;
-
-		startup-delay-us = <1000>;
-		off-on-delay-us = <100000>;
+	wifi_bs1: wifi-bs1 {
+		gpio-hog;
+		gpios = <9 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "wifi_bs1";
 	};
 };
 

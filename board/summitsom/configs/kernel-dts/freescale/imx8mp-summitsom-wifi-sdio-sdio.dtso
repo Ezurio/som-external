@@ -3,44 +3,18 @@
  * Copyright 2021 Ezurio
  */
 
-/dts-v1/;
-/plugin/;
+#include "imx8mp-summitsom-wifi-sdio-uart.dtso"
 
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/interrupt-controller/irq.h>
-
-&{/} {
-	wifi_pwrseq: wifi_pwrseqgrp {
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_wifi_pmu>, <&pinctrl_wifibs>;
-
-		compatible = "mmc-pwrseq-simple";
-		reset-gpios =
-			<&gpio2 8 GPIO_ACTIVE_LOW>,
-			<&gpio2 10 GPIO_ACTIVE_LOW>;
-
-		power-off-delay-us = <100000>;
-		post-power-on-delay-ms = <1>;
-	};
+&uart3 {
+	/* BT */
+ 	status = "disabled";
 };
 
-&usdhc1 {
-	status = "okay";
-
-	mmc-pwrseq = <&wifi_pwrseq>;
-
-	non-removable;
-	keep-power-in-suspend;
-
-	wifi: wifi {
-		compatible = "marvell,sd8997";
-		fwtype = "sdio-sdio";
-		//interrupts-extended = <&gpio3 14 GPIO_ACTIVE_LOW>;
-		//reset-gpios = <&gpio2 10 GPIO_ACTIVE_HIGH>;
-	};
+&wifi {
+	fwtype = "sdio-sdio";
 };
 
-&wifi_wake {
-	interrupts-extended = <&gpio3 14 IRQ_TYPE_EDGE_FALLING>;
-	//gpios = <&gpio3 14 GPIO_ACTIVE_LOW>;
+&wifi_bs0 {
+	/delete-property/ output-low;
+	output-high;
 };
