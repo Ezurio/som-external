@@ -482,7 +482,9 @@ if grep -qF 'BR2_TARGET_GENERIC_ROOT_PASSWD=""' "${BR2_CONFIG}" && \
    grep -qF 'BR2_TARGET_ENABLE_ROOT_LOGIN=y' "${BR2_CONFIG}"
 then
 	if [ -f "${TARGET_DIR}/etc/inittab" ]; then
-		sed -i 's,^.*/getty.*,::respawn:-/bin/sh,' \
+		sed -i \
+			-e 's,.*/getty .*,::respawn:-/bin/login -f root # GENERIC_SERIAL,' \
+			-e 's,/agetty ,/agetty -a root ,g' \
 			"${TARGET_DIR}/etc/inittab"
 	else
 		sed -i 's,/agetty -o,/agetty -a root -o,g' \
