@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * Copyright 2021 Ezurio
+ */
+
+/* For MIPI to HDMI bridge */
+
+/dts-v1/;
+/plugin/;
+
+&lcdif1 {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@1 {
+		dsim_to_adv7535: endpoint {
+			remote-endpoint = <&adv7535_from_dsim>;
+			attach-bridge;
+		};
+	};
+};
+
+&i2c2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	adv_bridge: adv7535@3d {
+		compatible = "adi,adv7535";
+		reg = <0x3d>;
+		adi,addr-cec = <0x3b>;
+		adi,dsi-lanes = <4>;
+
+		port {
+			adv7535_from_dsim: endpoint {
+				remote-endpoint = <&dsim_to_adv7535>;
+			};
+		};
+	};
+};
+
+#include "imx8mp-summitsom-gpu.dtsi"

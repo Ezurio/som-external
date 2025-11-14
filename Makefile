@@ -3,7 +3,8 @@ TARGETS_meta-som = \
 	som60 som60sd som60sd_sdcsdk_nm \
 	som60_fips_11 som60sd_fips_11 \
 	ig60ll ig60llsd \
-	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x
+	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x \
+	summitsom_imx8mp
 
 TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy wb45n_legacy_fips_11

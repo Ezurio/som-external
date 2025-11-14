@@ -1,0 +1,17 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/sound/soc/fsl/fsl_easrc.c b/sound/soc/fsl/fsl_easrc.c
+index 8e50d6654e6f..72ae9fc6d227 100644
+--- a/sound/soc/fsl/fsl_easrc.c
++++ b/sound/soc/fsl/fsl_easrc.c
+@@ -1917,7 +1917,8 @@ static int fsl_easrc_probe(struct platform_device *pdev)
+ 
+ 	easrc->mem_clk = devm_clk_get(dev, "mem");
+ 	if (IS_ERR(easrc->mem_clk)) {
+-		dev_err(dev, "failed to get mem clock\n");
++		dev_err_probe(dev, PTR_ERR(easrc->mem_clk),
++			"failed to get mem clock\n");
+ 		return PTR_ERR(easrc->mem_clk);
+ 	}
+ 
