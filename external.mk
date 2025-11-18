@@ -12,28 +12,26 @@ export SUMMIT_SOM_URI_BASE_INTERNAL ?= https://$(RFPROS_FILESHARE_AUTH)files.dev
 ifeq ($(KEY_PATH),)
 ifneq ($(SECURE_TARGET_BUILD),)
 $(error KEY_PATH is not set for secure target build)
-else
-ifeq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),am6)
-KEY_PATH := $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys/dev.key
-else
-KEY_PATH := $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/dev.key
 endif
+
+ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
+KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys/dev.key
+else
+KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/dev.key
 endif
 endif
 
-ifeq ("$(wildcard $(KEY_PATH))","")
+ifeq ($(wildcard $(KEY_PATH)),)
 $(error Key file not found: $(KEY_PATH))
 endif
 
-export KEY_PATH
+KEYS_DIR = $(dir $(KEY_PATH))
 
-KEYS_DIR := $(dir $(KEY_PATH))
-
-ifeq ("$(wildcard $(KEYS_DIR))","")
+ifeq ($(wildcard $(KEYS_DIR)),)
 $(error Keys directory not found: $(KEYS_DIR))
 endif
 
-export KEYS_DIR
+export KEY_PATH KEYS_DIR
 
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
