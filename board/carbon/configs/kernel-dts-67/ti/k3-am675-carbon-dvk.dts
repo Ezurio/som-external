@@ -133,21 +133,21 @@
 
 		volume-up {
 			label = "Volume Up";
-			interrupts-extended = <&exp2 4 IRQ_TYPE_EDGE_FALLING>;
+			interrupts-extended = <&exp2 12 IRQ_TYPE_EDGE_FALLING>;
 			interrupt-names = "irq";
 			linux,code = <KEY_VOLUMEUP>;
 
-			//gpios = <&exp2 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			//gpios = <&exp2 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 
 		volume-down {
 			label = "Volume Down";
-			interrupts-extended = <&exp2 5 IRQ_TYPE_EDGE_FALLING>;
+			interrupts-extended = <&exp2 13 IRQ_TYPE_EDGE_FALLING>;
 			interrupt-names = "irq";
 			linux,code = <KEY_VOLUMEDOWN>;
 
-			//gpios = <&exp2 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			//gpios = <&exp2 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
 		};
 
@@ -394,7 +394,7 @@
 		compatible = "ti,ts3a227e";
 		reg = <0x3b>;
 
-		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
 		ti,micbias = <6>; /* 2.7V, must match mic bias from codec */
 	};

@@ -49,7 +49,7 @@
 
 		wifi-wake-up-m2 {
 			label = "Wi-Fi Wake Up M2";
-			gpios = <&exp2 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&exp2 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-event-action = <EV_ACT_ASSERTED>;
 			wakeup-source;
@@ -57,7 +57,7 @@
 
 		bt-wake-up-m2 {
 			label = "BT Wake Up M2";
-			gpios = <&exp2 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&exp2 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 			linux,code = <KEY_WAKEUP>;
 			wakeup-event-action = <EV_ACT_ASSERTED>;
 			wakeup-source;

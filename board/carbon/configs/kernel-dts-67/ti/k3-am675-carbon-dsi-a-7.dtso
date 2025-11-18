@@ -162,10 +162,10 @@
 		AVDD28-supply = <&vcc_dsi_a>;
 		VDDIO-supply = <&vcc_dsi_a>;
 
-		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		irq-gpios = <&exp2 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-		reset-gpios = <&exp2 9 GPIO_ACTIVE_HIGH>;
+		irq-gpios = <&exp2 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_HIGH>;
 
 		touchscreen-min-x = <0>;
 		touchscreen-min-y = <0>;

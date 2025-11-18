@@ -133,9 +133,9 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_reset_default>;
 
-		interrupts-extended = <&exp2 14 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&exp2 6 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		irq-gpios = <&exp2 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+		irq-gpios = <&exp2 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
 		reset-gpios = <&main_gpio0 19 GPIO_ACTIVE_HIGH>;
 
 		touchscreen-min-x = <0>;
