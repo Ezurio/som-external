@@ -103,7 +103,7 @@
 	hdmi-bridge-dsi-a@3d {
 		compatible = "adi,adv7535";
 		reg = <0x3d>;
-		interrupts-extended = <&exp2 8 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
 		adi,dsi-lanes = <4>;
 		v3p3-supply = <&vcc_dsi_a>;
 

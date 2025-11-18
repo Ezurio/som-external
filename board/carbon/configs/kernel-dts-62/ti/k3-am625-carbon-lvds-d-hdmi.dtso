@@ -25,7 +25,7 @@
 
 		ddc-i2c-bus = <&i2c_port_d>;
 
-		hpd-gpios = <&exp2 11 GPIO_ACTIVE_HIGH>;
+		hpd-gpios = <&exp2 3 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_d_in: endpoint {
