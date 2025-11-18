@@ -20,7 +20,7 @@
 
 		ddc-i2c-bus = <&i2c_port_rgb>;
 
-		hpd-gpios = <&exp2 15 GPIO_ACTIVE_HIGH>;
+		hpd-gpios = <&exp2 7 GPIO_ACTIVE_HIGH>;
 
 		port {
 			hdmi_connector_rgb_in: endpoint {
