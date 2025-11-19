@@ -10,6 +10,11 @@
 
 #include "k3-am675-carbon-cam-a.dtsi"
 
+&vdd_cam_a {
+	startup-delay-us = <4000000>;
+	regulator-always-on;
+};
+
 &cam_a {
 	reg = <0x0c>;
 	compatible = "arducam,arducam-pivariety";

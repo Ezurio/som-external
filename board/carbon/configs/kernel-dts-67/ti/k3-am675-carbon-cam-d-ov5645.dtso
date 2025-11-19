@@ -5,6 +5,9 @@
  * Copyright (C) 2025 Ezurio LLC
  */
 
+/dts-v1/;
+/plugin/;
+
 #include "k3-am675-carbon-cam-d.dtsi"
 
 &cam_d {
