@@ -57,6 +57,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 6 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <50000>;
 	};
 
 	vdd_cam_b: vdd-cam-b {
@@ -67,6 +68,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 7 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <50000>;
 	};
 
 	vdd_cam_c: vdd-cam-c {
@@ -77,6 +79,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 10 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <50000>;
 	};
 
 	vdd_cam_d: vdd-cam-d {
@@ -87,6 +90,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 13 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <50000>;
 	};
 
 	codec_audio: sound {
