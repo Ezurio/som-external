@@ -57,6 +57,7 @@
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
 		gpios = <&exp1 6 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <50000>;
 	};
 
 	codec_audio: sound {
