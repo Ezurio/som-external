@@ -14,7 +14,6 @@
 };
 
 &reg_wifi_en {
-	status = "okay";
 	startup-delay-us = <10000>;
 };
 

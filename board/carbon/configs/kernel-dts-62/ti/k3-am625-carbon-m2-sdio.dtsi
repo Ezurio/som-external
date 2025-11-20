@@ -5,9 +5,6 @@
  * Copyright (C) 2024 Ezurio LLC
  */
 
-/dts-v1/;
-/plugin/;
-
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
@@ -47,6 +44,8 @@
 	wifi_wakeup_m2: wifi_wakeup_m2 {
 		compatible = "gpio-keys";
 
+		status = "disabled";
+
 		wifi-wake-up-m2 {
 			label = "Wi-Fi Wake Up M2";
 			gpios = <&exp2 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
@@ -63,10 +62,6 @@
 			wakeup-source;
 		};
 	};
-};
-
-&exp2 {
-	wakeup-source;
 };
 
 &mcu_uart0 {

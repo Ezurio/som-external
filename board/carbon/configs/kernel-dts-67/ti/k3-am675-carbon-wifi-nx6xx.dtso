@@ -7,7 +7,6 @@
 /plugin/;
 
 &reg_wifi_en {
-	status = "okay";
 	startup-delay-us = <20000>;
 	vin-supply = <&vdd_3v3>;
 };
