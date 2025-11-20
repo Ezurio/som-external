@@ -22,3 +22,11 @@
 		reset-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
 	};
 };
+
+&wifi_wakeup_m2 {
+	status = "okay";
+};
+
+&exp2 {
+	wakeup-source;
+};

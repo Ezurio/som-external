@@ -263,8 +263,6 @@
 	reg_slow_clock: regulator-slow-clock {
 		compatible = "regulator-fixed-clock";
 
-		status = "disabled";
-
 		regulator-name = "reg_slow_clock";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -276,14 +274,13 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_32k_clk>;
-		assigned-clocks = <&k3_clks 157 174>;
-		assigned-clock-parents = <&k3_clks 157 175>;
+
+		assigned-clocks = <&k3_clks 157 158>;
+		assigned-clock-parents = <&k3_clks 157 160>;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
-
-		status = "disabled";
 
 		regulator-name = "reg_wifi_en";
 		regulator-min-microvolt = <3300000>;

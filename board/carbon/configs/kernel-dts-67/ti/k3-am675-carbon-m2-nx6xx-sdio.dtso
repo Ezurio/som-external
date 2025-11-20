@@ -19,3 +19,11 @@
 		fw-init-baudrate = <3000000>;
 	};
 };
+
+&wifi_wakeup_m2 {
+	status = "okay";
+};
+
+&exp2 {
+	wakeup-source;
+};
