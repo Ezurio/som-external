@@ -11,34 +11,34 @@
 #include <dt-bindings/gpio/gpio.h>
 
 &{/} {
-	reg_strap_60: regulator-bt-strap {
+	reg_wifi_pdn: regulator-wifi-pdn {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_strap_60";
+		regulator-name = "reg_wifi_pdn";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_wifi_en>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_bt_en_pins_default>;
 		gpio = <&main_gpio0 21 GPIO_ACTIVE_HIGH>;
-		regulator-always-on;
+		enable-active-high;
 	};
 };
 
-&reg_slow_clock {
-	status = "okay";
+&reg_wifi_en {
+	startup-delay-us = <1000>;
+	off-on-delay-us = <100000>;
 };
 
 &sdhci2 {
-	pinctrl-0 = <&main_mmc2_pins_default>, <&main_wifi_en_pins_default>;
-
 	status = "okay";
 
-	vmmc-supply = <&reg_slow_clock>;
+	vmmc-supply = <&reg_wifi_pdn>;
 
 	wifi: wifi {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-uart";
-		reset-gpios = <&main_gpio0 20 GPIO_ACTIVE_HIGH>;
 	};
 };
 

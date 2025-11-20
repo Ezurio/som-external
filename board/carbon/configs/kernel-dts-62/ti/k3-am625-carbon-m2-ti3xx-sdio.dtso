@@ -38,11 +38,3 @@
 		max-speed = <115200>;
 	};
 };
-
-&wifi_wakeup_m2 {
-	status = "disabled";
-};
-
-&exp2 {
-	/delete-property/ wakeup-source;
-};

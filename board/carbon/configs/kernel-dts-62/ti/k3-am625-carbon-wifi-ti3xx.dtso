@@ -9,13 +9,23 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
-&reg_slow_clock {
-	status = "okay";
-};
+#include "k3-pinctrl.h"
 
 &reg_wifi_en {
-	status = "okay";
 	startup-delay-us = <10000>;
+	off-on-delay-us = <100>;
+};
+
+&main_wifi_wake_default {
+	pinctrl-single,pins = <
+		AM62X_IOPAD(0x040, PIN_INPUT_PULLDOWN, 7) /* SDIO_WAKE# (N23) GPMC0_AD1.GPIO0_16 */
+	>;
+};
+
+&main_bt_wake_pins_default {
+	pinctrl-single,pins = <
+		AM62X_IOPAD(0x0ac, PIN_INPUT_PULLDOWN, 7) /* BT_HOST_WAKE (L21) GPMC0_CSn1.GPIO0_42 */
+	>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */
