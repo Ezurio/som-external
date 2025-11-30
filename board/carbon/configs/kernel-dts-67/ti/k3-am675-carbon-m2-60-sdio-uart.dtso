@@ -9,16 +9,9 @@
 
 #include "k3-am675-carbon-m2.dtsi"
 
-&reg_wifi_en_m2 {
-	status = "disabled";
-};
-
 &sdhci1 {
-	vmmc-supply = <&vcc_wifi_m2>;
-
 	wifi: wifi {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-uart";
-		reset-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;
 	};
 };

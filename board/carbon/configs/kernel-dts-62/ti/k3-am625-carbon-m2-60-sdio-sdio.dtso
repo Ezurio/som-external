@@ -6,8 +6,11 @@
 
 #include "k3-am625-carbon-m2-60-sdio-uart.dtso"
 
-&wifi {
-	fwtype = "sdio-sdio";
+&sdhci2 {
+	wifi-m2 {
+		compatible = "marvell,sd8997";
+		fwtype = "sdio-sdio";
+	};
 };
 
 &mcu_uart0 {
