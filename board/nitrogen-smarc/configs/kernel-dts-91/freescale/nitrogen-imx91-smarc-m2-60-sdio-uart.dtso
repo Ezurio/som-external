@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO LWBxx & IFxxx module
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&reg_slow_clock {
+	status = "okay";
+};
+
+&reg_usdhc2_vmmc {
+	vin-supply = <&reg_slow_clock>;
+
+	startup-delay-us = <1000>;
+	off-on-delay-us = <100000>;
+};
+
+&usdhc2 {
+	wifi-m2 {
+		compatible = "marvell,sd8997";
+		fwtype = "sdio-uart";
+	};
+};
+
+&lpuart8 {
+	status = "okay";
+};

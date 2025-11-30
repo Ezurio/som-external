@@ -310,6 +310,20 @@ create_fw_env_flash() {
 	done > "${TARGET_DIR}/etc/fw_env_flash.config"
 }
 
+emmc_common_params() {
+		mkdir -p "${TARGET_DIR}/boot"
+		create_fw_env_emmc_sd
+
+		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
+		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
+		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
+
+		export linux_comp='zstd'
+		export UBOOT_ARCH='arm64'
+		export KERNEL_IMAGE='Image.zst'
+		export FIT_PAD_ALG='pss'
+}
+
 rm -f "${TARGET_DIR}/etc/fw_env.config"
 touch "${TARGET_DIR}/etc/fw_env.config"
 
@@ -372,38 +386,29 @@ case "${BUILD_TYPE}" in
 		;;
 
 	imx8*)
-		mkdir -p "${TARGET_DIR}/boot"
-		create_fw_env_emmc_sd
+		emmc_common_params
 
-		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
-		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
-		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
-
-		export linux_comp='zstd'
 		export UBOOT_LOADADDRESS=0x40400000
 		export UBOOT_ENTRYPOINT=0x40400000
 		export FDT_LOADADDRESS=0x43000000
-		export UBOOT_ARCH='arm64'
-		export KERNEL_IMAGE='Image.zst'
-		export FIT_PAD_ALG='pss'
+		;;
+
+	imx9*)
+		emmc_common_params
+
+		export UBOOT_LOADADDRESS=0x82000000
+		export UBOOT_ENTRYPOINT=0x82000000
+		export UBOOT_DTB_LOADADDRESS=0x85000000
+		export UBOOT_DTBO_LOADADDRESS=0x85080000
 		;;
 
 	am6*)
-		mkdir -p "${TARGET_DIR}/boot"
-		create_fw_env_emmc_sd
+		emmc_common_params
 
-		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
-		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
-		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
-
-		export linux_comp='zstd'
 		export UBOOT_LOADADDRESS=0x82000000
 		export UBOOT_ENTRYPOINT=0x82000000
 		export UBOOT_DTB_LOADADDRESS=0x88000000
 		export UBOOT_DTBO_LOADADDRESS=0x88080000
-		export UBOOT_ARCH='arm64'
-		export KERNEL_IMAGE='Image.zst'
-		export FIT_PAD_ALG='pss'
 		export FIT_HASH_ALG='sha512'
 		export FIT_SIGN_ALG='rsa4096'
 		export FIT_SIGN_NUMBITS='4096'

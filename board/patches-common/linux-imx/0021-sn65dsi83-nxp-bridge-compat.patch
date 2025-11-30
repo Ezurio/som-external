@@ -1,0 +1,74 @@
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c 
+@@ -242,11 +242,18 @@
+ 	return container_of(bridge, struct sn65dsi83, bridge);
+ }
+ 
++static int sn65dsi83_host_attach(struct sn65dsi83 *ctx);
++
+ static int sn65dsi83_attach(struct drm_bridge *bridge,
+ 			    enum drm_bridge_attach_flags flags)
+ {
+ 	struct sn65dsi83 *ctx = bridge_to_sn65dsi83(bridge);
++	int ret;
+ 
++	ret = sn65dsi83_host_attach(ctx);
++	if (ret)
++		return ret;
++
+ 	return drm_bridge_attach(bridge->encoder, ctx->panel_bridge,
+ 				 &ctx->bridge, flags);
+ }
+@@ -257,6 +264,9 @@
+ 
+ 	if (!ctx->dsi)
+ 		return;
++
++	mipi_dsi_detach(ctx->dsi);
++	mipi_dsi_device_unregister(ctx->dsi);
+ 
+ 	ctx->dsi = NULL;
+ }
+@@ -639,16 +649,19 @@
+ 	of_node_put(host_node);
+ 	of_node_put(endpoint);
+ 
+-	if (!host)
+-		return -EPROBE_DEFER;
++	if (!host) {
++		dev_err(dev, "failed to find dsi host\n");
++		return -ENODEV;
++	}
+ 
+ 	if (dsi_lanes < 0)
+ 		return dsi_lanes;
+ 
+ 	dsi = devm_mipi_dsi_device_register_full(dev, host, &info);
+-	if (IS_ERR(dsi))
+-		return dev_err_probe(dev, PTR_ERR(dsi),
+-				     "failed to create dsi device\n");
++	if (IS_ERR(dsi)) {
++		dev_err(dev, "failed to create dsi device: %ld\n", PTR_ERR(dsi));
++		return PTR_ERR(dsi);
++	}
+ 
+ 	ctx->dsi = dsi;
+ 
+@@ -712,17 +725,7 @@
+ 	ctx->bridge.pre_enable_prev_first = true;
+ 	drm_bridge_add(&ctx->bridge);
+ 
+-	ret = sn65dsi83_host_attach(ctx);
+-	if (ret) {
+-		dev_err_probe(dev, ret, "failed to attach DSI host\n");
+-		goto err_remove_bridge;
+-	}
+-
+ 	return 0;
+-
+-err_remove_bridge:
+-	drm_bridge_remove(&ctx->bridge);
+-	return ret;
+ }
+ 
+ static void sn65dsi83_remove(struct i2c_client *client)

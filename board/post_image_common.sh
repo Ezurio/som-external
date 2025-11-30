@@ -75,7 +75,7 @@ case "${BUILD_TYPE}" in
 	fi
 	;;
 
-imx8*|am6*)
+imx*|am6*)
 	tar -chSf "${RELEASE_FILE}" --owner=root --group=root \
 		-C "${BINARIES_DIR}" \
 		"${BR2_SUMMIT_PRODUCT}.swu" mksdcard.sh mksdimg.sh

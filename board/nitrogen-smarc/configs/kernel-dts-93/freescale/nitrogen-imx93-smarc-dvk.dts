@@ -1,0 +1,387 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+
+#include "nitrogen-imx93-smarc.dtsi"
+
+/ {
+	model = "Boundary Devices Nitrogen93 SMARC DSI(sn65) 7\" or 10\"";
+	compatible = "summit,nitrogen-imx93-smarc", "fsl,imx93";
+
+	aliases {
+		rtc0 = &rv3028;
+		rtc1 = &bbnsm_rtc;
+	};
+
+	led-controller {
+		compatible = "gpio-leds";
+
+		led-0 {
+			label = "428A-link-100";
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&pcal6534 30 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			linux,default-trigger = "stmmac-1:07:100Mbps";
+		};
+
+		led-1 {
+			label = "4289-link-100";
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&pcal6534 11 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			linux,default-trigger = "42890000.ethernet-1:07:100Mbps";
+		};
+	};
+
+	reg_can1_stby: regulator-can1-stby {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_can1_stby>;
+		regulator-name = "can1-stby";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio3 27 GPIO_ACTIVE_HIGH>; /* CCM_CLK02 -> GPIO1 */
+		enable-active-high;
+	};
+
+	reg_can2_stby: regulator-can2-stby {
+		compatible = "regulator-fixed";
+		regulator-name = "can2-stby";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pcal6534 15 GPIO_ACTIVE_HIGH>; /* P1_7 -> GPIO4 */
+		enable-active-high;
+	};
+
+	reg_i2c_mux_smarc_lcd: regulator-i2c-mux-smarc-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_i2c_mux_smarc_lcd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pcal6534 29 GPIO_ACTIVE_HIGH>; /* P3_5 / GPIO_13 */
+		enable-active-high;
+	};
+
+	reg_i2c_mux_smarc_gp: regulator-i2c-mux-smarc-gp {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_i2c_mux_smarc_gp";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio2 2 GPIO_ACTIVE_HIGH>; /* SMARC GPIO6 */
+		enable-active-high;
+	};
+
+	reg_backlight_gpio_dsi0: regulator-backlight-gpio-dsi0 {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_gpio_dsi0>;
+		regulator-name = "backlight-gpio-dsi0";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio2 22 GPIO_ACTIVE_HIGH>; /* SMARC GPIO22 */
+		enable-active-high;
+	};
+
+	reg_backlight_gpio_lvds1: regulator-backlight-gpio-lvds1 {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_gpio_lvds1>;
+		regulator-name = "backlight-gpio-lvds1";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio2 23 GPIO_ACTIVE_HIGH>; /* SMARC GPIO23 */
+		enable-active-high;
+	};
+
+	reg_slow_clock: regulator-slow-clock {
+		compatible = "regulator-fixed-clock";
+
+		regulator-name = "reg_slow_clock";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		clocks = <&rv3028>;
+		status = "disabled";
+
+		startup-delay-us = <1000>;
+	};
+
+	sound-wm8962 {
+		compatible = "fsl,imx-audio-wm8962";
+		model = "wm8962-audio";
+		audio-cpu = <&sai3>;
+		audio-codec = <&codec>;
+		audio-routing =
+			"Headphone Jack", "HPOUTL",
+			"Headphone Jack", "HPOUTR",
+			"Ext Spk", "SPKOUTL",
+			"Ext Spk", "SPKOUTR",
+			"AMIC", "MICBIAS",
+			"IN3R", "AMIC",
+			"IN1R", "AMIC";
+		codec-master;
+	};
+};
+
+&flexcan1 {
+	status = "okay";
+	xceiver-supply = <&reg_can1_stby>;
+};
+
+&flexcan2 {
+	status = "okay";
+	xceiver-supply = <&reg_can2_stby>;
+};
+
+&i2c_som_lcd { /* LCD I2C */
+	i2c_mux_smarc_lcd@73 { /* On SMARC carrier */
+		compatible = "nxp,pca9546";
+		reg = <0x73>;
+
+		vdd-supply = <&reg_i2c_mux_smarc_lcd>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_smarc_lcd_exp1: i2c-smarc-lcd-exp1@0 {
+			/* EXP1 I2C */
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_smarc_lcd_exp2: i2c-smarc-lcd-exp2@1 {
+			/* EXP2 I2C */
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_smarc_lcd_dsi0: i2c-smarc-lcd-dsi0@2 {
+			/* DSI0 I2C */
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_smarc_lcd_dsi1: i2c-smarc-lcd-dsi1@3 {
+			/* DSI1 I2C */
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&lpi2c3 { /* SM_I2C_GP */
+	status = "okay";
+
+	i2c-mux-smarc-gp@73 {
+		compatible = "nxp,pca9546";
+		reg = <0x73>;
+
+		vdd-supply = <&reg_i2c_mux_smarc_gp>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_smarc_gp_rtc: i2c-smarc-gp-rtc@0 {
+			/* RTC */
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			rv3028: rtc@52 {
+				compatible = "microcrystal,rv3028";
+				reg = <0x52>;
+
+				backup-switchover-dsm;
+				#clock-cells = <0>;
+
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_rv3028>;
+				interrupts-extended = <&gpio2 24 IRQ_TYPE_LEVEL_LOW>; /* SMARC GPIO12 */
+				wakeup-source;
+			};
+		};
+
+		i2c_smarc_gp_usbc: i2c-smarc-gp-usbc@1 {
+			/* USB C */
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			typec: typec@47 {
+				compatible = "ti,tusb320";
+				reg = <0x60>;
+				interrupts-extended = <&pcal6534 27 IRQ_TYPE_EDGE_FALLING>; /* P3_3 GPIO_11 */
+			};
+		};
+
+		i2c_smarc_gp_aud: i2c-smarc-gp-aud@2 {
+			/* audio */
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			codec: wm8962@1a {
+				compatible = "wlf,wm8962";
+				reg = <0x1a>;
+				clocks = <&clk IMX93_CLK_SAI3_GATE>;
+				AVDD-supply = <&reg_vref_1v8>;
+				CPVDD-supply = <&reg_vref_1v8>;
+				DBVDD-supply = <&reg_vdd_3v3>;
+				DCVDD-supply = <&reg_vref_1v8>;
+				MICVDD-supply = <&reg_vdd_3v3>;
+				PLLVDD-supply = <&reg_vref_1v8>;
+				SPKVDD1-supply = <&reg_vref_5v0>;
+				SPKVDD2-supply = <&reg_vref_5v0>;
+				gpio-cfg = <
+					0x0000 /* n/c */
+					0x0000 /* gpio2: */
+					0x0000 /* gpio3: */
+					0x0000 /* n/c */
+					0x8081 /* gpio5:HP detect */
+					0x8095 /* gpio6:Mic detect */
+				>;
+				gpio-line-names = "N/C", "GPIO2",
+					"GPIO3", "N/C",
+					"GPIO5:HP detect",
+					"GPIO6:Mic detect";
+			};
+		};
+
+		i2c_smarc_gp_pcie: i2c-smarc-gp-pcie@3 {
+			/* pcie */
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&lpspi1 {
+	status = "okay";
+
+	spi1dev0: spi1@0 {
+		reg = <0>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+
+	spi1dev1: spi1@1 {
+		reg = <1>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+};
+
+&lpspi3 {
+	status = "okay";
+
+	spi0dev0: spi0@0 {
+		reg = <0>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+
+	spi0dev1: spi0@1 {
+		reg = <1>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+};
+
+&media_blk_ctrl {
+	status = "okay";
+};
+
+&mu1 {
+	status = "okay";
+};
+
+&mu2 {
+	status = "okay";
+};
+
+&ocotp {
+	status = "okay";
+};
+
+&sai3 { /* I2S0 */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai3>;
+	assigned-clocks = <&clk IMX93_CLK_SAI3>;
+	assigned-clock-parents = <&clk IMX93_CLK_AUDIO_PLL>;
+	/* wm8962 needs MCLK 14 - 40 MHz */
+	assigned-clock-rates = <24000000>;
+	fsl,sai-mclk-direction-output;
+	status = "okay";
+};
+
+&usbotg1 { /* USB-C */
+	dr_mode = "otg";
+	hnp-disable;
+	srp-disable;
+	adp-disable;
+	usb-role-switch;
+	disable-over-current;
+	status = "okay";
+
+	// 1st VBUS detect, 2nd CC detect
+	extcon = <&typec>, <&typec>;
+};
+
+&usbotg2 { /* J2 */
+	dr_mode = "host";
+	disable-over-current;
+	samsung,picophy-pre-emp-curr-control = <3>;
+	samsung,picophy-dc-vol-level-adjust = <7>;
+	status = "okay";
+};
+
+&usdhc2 { /* SDIO - SDCARD */
+	status = "okay";
+
+	// SD card power on the carrier board is not connected to control signal, 
+	// as such SD card cannot be reset, thus disabling 1.8V
+	//no-1-8-v;
+};
+
+&iomuxc {
+	pinctrl_reg_can1_stby: pinctrl-reg-can1-stby {
+		fsl,pins = <
+			MX93_PAD_CCM_CLKO2__GPIO3_IO27   0x31e
+		>;
+	};
+
+	pinctrl_rv3028: pinctrl-rv3028 {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO24__GPIO2_IO24   0x31e
+		>;
+	};
+
+	pinctrl_backlight_gpio_dsi0: pinctrl-backlight-gpio-dsi0 {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO22__GPIO2_IO22     0x402
+		>;
+	};
+
+	pinctrl_backlight_gpio_lvds1: pinctrl-backlight-gpio-lvds1 {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO23__GPIO2_IO23	0x402
+		>;
+	};
+
+	pinctrl_csi0: pinctrl-csi0 {
+		fsl,pins = <
+			MX93_PAD_CCM_CLKO1__GPIO3_IO26   0x31e
+			MX93_PAD_GPIO_IO06__GPIO2_IO06   0x31e
+		>;
+	};
+};

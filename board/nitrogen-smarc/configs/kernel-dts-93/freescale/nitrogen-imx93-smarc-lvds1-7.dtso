@@ -1,0 +1,129 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Ezurio
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include "imx93-pinfunc.h"
+
+#include "nitrogen-imx93-bd-panel.dtsi"
+
+&{/} {
+	backlight_lvds1: backlight-lvds1 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&tpm6 1 30000 0>;       /* 33.3 KHz */
+	};
+
+	display_lvds1: panel-lvds1 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_lvds1>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_lvds1: endpoint {
+				remote-endpoint = <&lvds1_out_ep>;
+			};
+		};
+	};
+};
+
+&lpi2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_lvds1: touchscreen-lvds1@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&reg_vdd_3v3>; /* Real supply is on the display */
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		interrupts-extended = <&pcal6534 23 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&pcal6534 23 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+
+		reset-gpios = <&pcal6534 9 GPIO_ACTIVE_HIGH>; // P1_1
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};
+
+&reg_backlight_gpio_lvds1 {
+	status = "disabled";
+};
+
+&tpm6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_backlight_lvds1>;
+
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&lcdif {
+	// 1st 2 numbers are set for your display panel (72MHz here)
+    // 7 * PIXEL_CLOCK, PIXEL_CLOCK
+	assigned-clock-rates = <505400000>, <72000000>, <400000000>, <133333333>;
+	status = "okay";
+};
+
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+		
+		port@1 {
+			reg = <1>;
+
+			lvds1_out_ep: endpoint {
+				remote-endpoint = <&display_in_ep_lvds1>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_backlight_lvds1: pinctrl-backlight-lvds1 {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO23__TPM6_CH1	0x02
+		>;
+	};
+
+	pinctrl_touchscreen_lvds1: pinctrl-touchscreen-lvds1 {
+		fsl,pins = <
+			MX93_PAD_CCM_CLKO3__GPIO4_IO28	0x31e
+		>;
+	};
+};
