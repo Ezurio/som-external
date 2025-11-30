@@ -96,7 +96,7 @@ while read -r file; do
 done < <(sed -rn 's|.*/incbin/\("([^"]+).*|\1|p' kernel.its | grep '\.\(gz\|lzo\|lzma\|zst\)$')
 
 case ${BUILD_TYPE} in
-    *sd|am6*|imx8*)
+    *sd|am6*|imx*)
         # Align on the block size of the SD/eMMC
         MKIMAGE_OPT="-B 0x200"
         ;;
@@ -242,7 +242,7 @@ som60*|ig60*|wb50n*)
     esac
     ;;
 
-imx8*)
+imx*)
     if ${SECURE_BOOT} ; then
         export KEY_PATH
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"

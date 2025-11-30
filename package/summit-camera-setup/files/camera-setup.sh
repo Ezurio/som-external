@@ -1,6 +1,8 @@
 #!/bin/sh
 
-SENSOR=$(media-ctl -d "${1}" -p | sed -rn 's/- entity [0-9]+: (.* [0-9]+-[0-9a-f]+) \(.*/\1/p')
+ID=${1:-/dev/media0}
+
+SENSOR=$(media-ctl -d "${ID}" -p | sed -rn 's/- entity [0-9]+: (.* [0-9]+-[0-9a-f]+) \(.*/\1/p')
 
 # BD LCD panels are 1280x800, thus the format choice
 case "${SENSOR}" in
@@ -15,16 +17,21 @@ case "${SENSOR}" in
 		;;
 esac
 
-CSI_BRIDGE_NAME=$(media-ctl -d "${1}" -p -e "${SENSOR}" | sed -rn 's/.*(cdns_csi2rx.*csi-bridge).*/\1/p')
-CSI2RX_NAME=$(media-ctl -d "${1}" -p -e "${CSI_BRIDGE_NAME}" | sed -rn 's/.*"(.*\.ticsi2rx)".*/\1/p')
+NODE_NEXT="\"${SENSOR}\":0"
+while true; do
+	NODE="${NODE_NEXT%\"*}"
+	NODE="${NODE#\"}"
 
-media-ctl -d 0 --set-v4l2 "\"${SENSOR}\":0 ${OV564x_CAM_FMT}"
-media-ctl -d 0 --set-v4l2 "\"${CSI_BRIDGE_NAME}\":0 ${OV564x_CAM_FMT}"
-media-ctl -d 0 --set-v4l2 "\"${CSI2RX_NAME}\":0 ${OV564x_CAM_FMT}"
+	media-ctl -d "${ID}" -p -e "${NODE}" | grep -q 'V4L2 subdev' || break
+	media-ctl -d "${ID}" --set-v4l2 "${NODE_NEXT} ${OV564x_CAM_FMT}"
 
-CSI2RX_CONTEXT_NAME="${CSI2RX_NAME} context 0"
-CAM_SUBDEV=$(media-ctl -d "${1}" -p -e "${SENSOR}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
-CAM_DEV=$(media-ctl -d "${1}" -p -e "${CSI2RX_CONTEXT_NAME}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
-num=${1#/dev/media}
+	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s*-> (".*"[^ ]*).*/\1/p')
+	[ -n "${NODE_NEXT}" ] || break
+done
+
+CAM_SUBDEV=$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
+CAM_DEV=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
+
+num=${ID#/dev/media}
 ln -snf "${CAM_DEV}" "/dev/video-${SENSOR%% *}-cam${num}"
 ln -snf "${CAM_SUBDEV}" "/dev/v4l-${SENSOR%% *}-subdev${num}"

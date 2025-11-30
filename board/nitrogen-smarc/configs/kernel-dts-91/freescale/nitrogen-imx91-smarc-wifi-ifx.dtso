@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO LWBxx & IFxxx module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&reg_wifi_en {
+	startup-delay-us = <250000>;
+	off-on-delay-us = <100>;
+};
+
+&usdhc3 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+	};
+};
+
+&lpuart5 {
+	status = "okay";
+
+	bluetooth {
+		compatible = "infineon,cyw55572-bt";
+		vddio-supply = <&reg_vref_1v8>;
+		brcm,requires-autobaud-mode;
+		max-speed = <3000000>;
+		shutdown-gpios = <&pcal6534 4 GPIO_ACTIVE_HIGH>;
+	};
+};
