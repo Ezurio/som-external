@@ -1,0 +1,14 @@
+--- a/aws_kms_pkcs11.cpp	2026-01-23 15:47:29.987038478 -0500
++++ b/aws_kms_pkcs11.cpp	2026-01-23 15:47:53.526340149 -0500
+@@ -72,6 +72,11 @@
+     if (xdg_config_home.length() > 0) {
+         config_paths.push_back(xdg_config_home + "/aws-kms-pkcs11/config.json");
+     }
++ 
++    const char* aws_kms_pkcs11_config_cstr = getenv("AWS_KMS_PKCS11_CONFIG");
++    if (aws_kms_pkcs11_config_cstr != NULL) {
++        config_paths.push_back(string(aws_kms_pkcs11_config_cstr));
++    }
+ 
+     std::reverse(config_paths.begin(), config_paths.end());
+     for (size_t i = 0; i < config_paths.size(); i++) {

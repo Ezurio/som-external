@@ -15,6 +15,12 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 ROOTFS_TYPE=$(sed -rn 's/BR2_TARGET_ROOTFS_([A-Z]+)=y/\L\1/p' "${BR2_CONFIG}" | head -n1)
 [ "${ROOTFS_TYPE}" != ext2 ] || ROOTFS_TYPE=ext4
 
+if [ -n "${AWS_KMS_SIGNING}" ] ; then
+    export AWS_KMS_SIGNING
+    export AWS_KMS_PKCS11_CONFIG=${HOST_DIR}/aws-kms-pkcs11-config.json
+    export OPENSSL_CONF=${HOST_DIR}/host_pkcs11config.cnf
+fi
+
 # Secure tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
@@ -107,7 +113,12 @@ esac
 
 # Create Kernel FIT image, and store signature in u-boot
 if ${SECURE_BOOT} ; then
-    ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
+    if [ -n "${AWS_KMS_SIGNING}" ] ; then
+        cp "${AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH}" "keys/dev_pkcs11.pub"
+        ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -g "dev_pkcs11" -r kernel.itb
+    else
+        ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
+    fi
 else
     ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its kernel.itb
 fi

@@ -1,0 +1,23 @@
+--- a/aws_kms_pkcs11.cpp	2026-01-26 09:52:58.879158849 -0500
++++ b/aws_kms_pkcs11.cpp	2026-01-26 09:53:10.792334248 -0500
+@@ -444,6 +444,7 @@
+     CK_ULONG keySize = 0;
+     switch (type) {
+     case CKM_RSA_PKCS:
++    case CKM_RSA_PKCS_PSS:
+         switch(slot.GetKeySpec()) {
+         case Aws::KMS::Model::KeySpec::RSA_2048:
+             keySize = 2048;
+@@ -490,9 +491,10 @@
+     }
+     if (pMechanismList != NULL) {
+         pMechanismList[0] = CKM_RSA_PKCS;
+-        pMechanismList[1] = CKM_ECDSA;
++        pMechanismList[1] = CKM_RSA_PKCS_PSS;
++        pMechanismList[2] = CKM_ECDSA;
+     }
+-    *pulCount = 2;
++    *pulCount = 3;
+     return CKR_OK;
+ }
+ 
