@@ -1,0 +1,8 @@
+config BR2_PACKAGE_HOST_AWS_KMS_PKCS11
+	bool "host aws-kms-pkcs11"
+	select BR2_PACKAGE_HOST_AWS_SDK_CPP
+	select BR2_PACKAGE_HOST_PKCS11_PROVIDER
+	help
+	  PKCS#11 Provider Using AWS KMS.
+
+	  https://github.com/JackOfMostTrades/aws-kms-pkcs11

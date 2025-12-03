@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_AWS_SDK_CPP
+	bool "host aws-sdk-cpp"
+	help
+	  AWS SDK for C++, a cross-platform C++ library for AWS.
+
+	  https://aws.amazon.com/sdk-for-cpp/
