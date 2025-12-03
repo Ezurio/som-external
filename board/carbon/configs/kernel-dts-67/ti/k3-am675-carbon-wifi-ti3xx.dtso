@@ -9,10 +9,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
-&reg_slow_clock {
-	status = "okay";
-};
-
 &reg_wifi_en {
 	status = "okay";
 	startup-delay-us = <10000>;
