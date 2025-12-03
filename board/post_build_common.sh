@@ -251,7 +251,7 @@ done
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
 # Copy keys if present
-if [ -f "${KEYS_DIR}/dev.key" ]; then
+if [ -f "${KEY_PATH}" ]; then
 	rm -rf "${BINARIES_DIR}/keys"
 	ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
 fi
