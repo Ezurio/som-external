@@ -64,10 +64,6 @@
 	};
 };
 
-&exp2 {
-	wakeup-source;
-};
-
 &mcu_uart0 {
 	status = "okay";
 
