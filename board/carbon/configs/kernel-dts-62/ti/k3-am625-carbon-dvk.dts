@@ -423,35 +423,6 @@
 	/delete-property/ wakeup-source;
 };
 
-&ospi0 { /* SPI_A Used as a qSPI */
-	status = "okay";
-
-	flash@0 {
-		compatible = "winbond,w25q64jwz", "jedec,spi-nor";
-		reg = <0>;
-		spi-rx-bus-width = <4>;
-		spi-tx-bus-width = <4>;
-		spi-max-frequency = <25000000>;
-		cdns,tshsl-ns = <60>;
-		cdns,tsd2d-ns = <60>;
-		cdns,tchsh-ns = <60>;
-		cdns,tslch-ns = <60>;
-		cdns,read-delay = <4>;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			/* Sample  partition occupies full size of the device */
-			partition@0 {
-				label = "qspi.part0";
-				reg = <0x0 0>;
-			};
-		};
-	};
-};
-
 &vsel_mmc1 {
 	status = "okay";
 };
