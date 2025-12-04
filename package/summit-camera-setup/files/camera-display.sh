@@ -13,10 +13,10 @@ SENSOR=$(media-ctl -d "${ID}" -p | sed -rn 's/- entity [0-9]+: (.* [0-9]+-[0-9a-
     exit 1
 }
 
-NODE="${SENSOR}"
-while [ -n "${NODE}" ]; do
-	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn '/^\s*->/{s/^\s*-> "(.*)".*/\1/p;q}')
+NODE_NEXT="${SENSOR}"
+while [ -n "${NODE_NEXT}" ]; do
     NODE="${NODE_NEXT}"
+	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn '/^\s*->/{s/^\s*-> "(.*)".*/\1/p;q}')
 done
 
 FORMAT="$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/.*fmt:(.*)\/([0-9]+)x([0-9]+).*/\1 \2 \3/p')"
