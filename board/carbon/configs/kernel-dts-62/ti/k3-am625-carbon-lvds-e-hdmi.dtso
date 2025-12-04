@@ -25,11 +25,6 @@
 		type = "a";
 		digital;
 
-		/* For miswired U3 VDD_5V */
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&main_rgb_power_default>;
-		//ddc-en-gpios = <&main_gpio0 14 GPIO_ACTIVE_HIGH>;
-
 		port {
 			hdmi_connector_e_in: endpoint {
 				remote-endpoint = <&tfp410_e_out>;
