@@ -14,9 +14,8 @@ SENSOR=$(media-ctl -d "${ID}" -p | sed -rn 's/- entity [0-9]+: (.* [0-9]+-[0-9a-
 }
 
 NODE="${SENSOR}"
-while true; do
-	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s*-> "(.*)".*/\1/p')
-	[ -n "${NODE_NEXT}" ] || break
+while [ -n "${NODE}" ]; do
+	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn '/^\s*->/{s/^\s*-> "(.*)".*/\1/p;q}')
     NODE="${NODE_NEXT}"
 done
 

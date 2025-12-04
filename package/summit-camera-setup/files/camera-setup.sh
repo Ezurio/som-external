@@ -18,15 +18,13 @@ case "${SENSOR}" in
 esac
 
 NODE_NEXT="\"${SENSOR}\":0"
-while true; do
+while [ -n "${NODE_NEXT}" ]; do
 	NODE="${NODE_NEXT%\"*}"
 	NODE="${NODE#\"}"
-
 	media-ctl -d "${ID}" -p -e "${NODE}" | grep -q 'V4L2 subdev' || break
 	media-ctl -d "${ID}" --set-v4l2 "${NODE_NEXT} ${OV564x_CAM_FMT}"
 
-	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s*-> (".*"[^ ]*).*/\1/p')
-	[ -n "${NODE_NEXT}" ] || break
+	NODE_NEXT=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn '/^\s*->/{s/\s*-> (".*"[^ ]*).*/\1/p;q}')
 done
 
 CAM_SUBDEV=$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
