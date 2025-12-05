@@ -52,3 +52,11 @@
 &dphy2 {
 	status = "okay";
 };
+
+&cam_c_rst_hog {
+	status = "disabled";
+};
+
+&cam_c_pwr_hog {
+	status = "disabled";
+};

@@ -404,6 +404,56 @@
 	};
 };
 
+&exp0 {
+	cam_a_rst_hog: cam-a-rst-hog {
+		gpio-hog;
+		gpios = <12 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_a_pwr_hog: cam-a-pwr-hog {
+		gpio-hog;
+		gpios = <13 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_b_rst_hog: cam-b-rst-hog {
+		gpio-hog;
+		gpios = <2 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_b_pwr_hog: cam-b-pwr-hog {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_c_rst_hog: cam-c-rst-hog {
+		gpio-hog;
+		gpios = <5 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_c_pwr_hog: cam-c-pwr-hog {
+		gpio-hog;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_d_rst_hog: cam-d-rst-hog {
+		gpio-hog;
+		gpios = <7 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_d_pwr_hog: cam-d-pwr-hog {
+		gpio-hog;
+		gpios = <6 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+};
+
 &mcasp1 {
 	status = "okay";
 };
