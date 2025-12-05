@@ -190,6 +190,20 @@
 	};
 };
 
+&main_gpio0 {
+	cam_a_rst_hog: cam-a-rst-hog {
+		gpio-hog;
+		gpios = <29 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+
+	cam_a_pwr_hog: cam-a-pwr-hog {
+		gpio-hog;
+		gpios = <72 GPIO_ACTIVE_HIGH>;
+		output-low;
+	};
+};
+
 &cpsw3g {
 	status = "okay";
 };
