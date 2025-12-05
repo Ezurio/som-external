@@ -509,8 +509,8 @@
 		regulators {
 			vdd_core: buck1 {
 				regulator-name = "vdd_core";
-				regulator-min-microvolt = <750000>;
-				regulator-max-microvolt = <750000>;
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <850000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
