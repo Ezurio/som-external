@@ -1,9 +1,20 @@
-menuconfig BR2_PACKAGE_PKCS11_PROVIDER
+config BR2_PACKAGE_PKCS11_PROVIDER
     bool "PKCS#11 Provider for OpenSSL 3.0+"
     depends on BR2_PACKAGE_OPENSSL
     select BR2_PACKAGE_P11_KIT
     select BR2_PACKAGE_OPENSC
     help
-      A pkcs#11 provider for OpenSSL 3.0+
+      A PKCS#11 provider for OpenSSL 3.0+
 
       https://github.com/latchset/pkcs11-provider
+
+if BR2_PACKAGE_PKCS11_PROVIDER
+
+config BR2_PACKAGE_PKCS11_PROVIDER_PEM_URI
+    bool "PKCS#11 URI PEM tool"
+    select BR2_PACKAGE_PYTHON_ASN1CRYPTO
+    default y
+    help
+      Tool for converting PKCS#11 URIs to PEM certificate
+
+endif
