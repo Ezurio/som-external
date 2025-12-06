@@ -10,6 +10,13 @@ PKCS11_PROVIDER_LICENSE = Apache-2.0
 PKCS11_PROVIDER_LICENSE_FILES = LICENSES/Apache-2.0.txt
 PKCS11_PROVIDER_DEPENDENCIES = openssl host-pkgconf p11-kit opensc
 
+ifeq($(BR2_PACKAGE_PKCS11_PROVIDER_PEM_URI),y)
+define PKCS11_PROVIDER_INSTALL_TARGET_CMDS_PEM_URI
+	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/usr/bin \
+		$(@D)/tools/uri2pem.py
+endef
+endif
+
 define PKCS11_PROVIDER_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/usr/lib/ossl-modules \
 		$(@D)/build/src/pkcs11.so
@@ -17,13 +24,7 @@ define PKCS11_PROVIDER_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc/ssl \
 		$(PKCS11_PROVIDER_PKGDIR)/files/pkcs11module.cnf
 
-	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/usr/bin \
-		$(@D)/tools/uri2pem.py
-endef
-
-define HOST_PKCS11_PROVIDER_INSTALL_CMDS
-	$(INSTALL) -D -m 755 -t $(HOST_DIR)/usr/bin $(@D)/tools/uri2pem.py
+	$(PKCS11_PROVIDER_INSTALL_TARGET_CMDS_PEM_URI)
 endef
 
 $(eval $(meson-package))
-$(eval $(host-generic-package))
