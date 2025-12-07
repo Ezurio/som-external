@@ -1,0 +1,9 @@
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -40,5 +40,5 @@
+   link_depends: [pkcs11_provider_map],
+   link_args: pkcs11_provider_ldflags,
+   install: true,
+-  install_dir: provider_path,
++  install_dir: 'lib/ossl-modules',
+ )
