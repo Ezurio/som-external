@@ -10,6 +10,7 @@ fail() {
 # Mount all filesystems
 mount /proc
 mount /sys
+mount /tmp
 
 read -r cmdline </proc/cmdline
 for x in ${cmdline}; do
