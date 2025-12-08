@@ -4,7 +4,7 @@ die() { echo "$@" >&2; exit 1; }
 
 case "${BUILD_TYPE}" in
     *am6*)
-        if !grep -qF "BR2_PACKAGE_SUMMIT_PROV=y" "${BR2_CONFIG}"; then
+        if ! grep -qF "BR2_PACKAGE_SUMMIT_PROV=y" "${BR2_CONFIG}"; then
             touch "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin"
             exit 0
         fi
@@ -24,12 +24,12 @@ case "${BUILD_TYPE}" in
             die "No keystore directory found in the prov_data directory"
 
         # Create prov_data.tar.zst
-        tar -C "${prov_data_path}" -cf - . | zstd -o "${BINARIES_DIR}/prov_data.tar.zst"
+        tar -C "${prov_data_path}" -cf - . | zstd -fo "${BINARIES_DIR}/prov_data.tar.zst"
 
         if [ -n "${SECURE_TARGET_BUILD}" ]; then
             # Secure target build, sign and encrypt the provisioning data using SMPK and SMEK
             "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/scripts/gen_core_x509_cert.sh" \
-                -b "${TEMP_DIR}/prov_data.tar.zst" \
+                -b "${BINARIES_DIR}/prov_data.tar.zst" \
                 -k "${smpk_path}" \
                 -a 2 \
                 -n \
