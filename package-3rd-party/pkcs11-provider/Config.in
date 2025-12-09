@@ -13,7 +13,6 @@ if BR2_PACKAGE_PKCS11_PROVIDER
 config BR2_PACKAGE_PKCS11_PROVIDER_PEM_URI
     bool "PKCS#11 URI PEM tool"
     select BR2_PACKAGE_PYTHON_ASN1CRYPTO
-    default y
     help
       Tool for converting PKCS#11 URIs to PEM certificate
 
