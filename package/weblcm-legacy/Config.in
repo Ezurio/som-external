@@ -1,9 +1,0 @@
-config BR2_PACKAGE_WEBLCM_LEGACY
-	bool "weblcm-legacy"
-	select BR2_PACKAGE_PHP_SDK
-	select BR2_PACKAGE_LIGHTTPD
-	select BR2_PACKAGE_LIGHTTPD_OPENSSL
-	select BR2_PACKAGE_LIGHTTPD_PCRE
-	select BR2_PACKAGE_ZLIB
-	help
-	  Summit Legacy Web configuration utility based on sdcsdk

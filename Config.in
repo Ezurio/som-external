@@ -112,7 +112,6 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-update/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-usbgadget/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-userspace-examples/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-wifi-bridge/Config.in"
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/weblcm-legacy/Config.in"
 endmenu
 
 menu "Packages (3rd party)"
