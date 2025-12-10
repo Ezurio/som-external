@@ -126,7 +126,7 @@
 	};
 };
 
-&reg_backlight_gpio_dsi0 {
+&dsi0_backlight {
 	status = "disabled";
 };
 

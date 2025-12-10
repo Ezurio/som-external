@@ -7,10 +7,10 @@ SENSOR=$(media-ctl -d "${ID}" -p | sed -rn 's/- entity [0-9]+: (.* [0-9]+-[0-9a-
 # BD LCD panels are 1280x800, thus the format choice
 case "${SENSOR}" in
 	ov5640*|*pivariety*)
-		OV564x_CAM_FMT="[fmt:UYVY/1280x720]"
+		OV564x_CAM_FMT="[fmt:UYVY/1280x720 field:none colorspace:srgb]"
 		;;
 	ov5645*)
-		OV564x_CAM_FMT="[fmt:UYVY/1280x960]"
+		OV564x_CAM_FMT="[fmt:UYVY/1280x960 field:none colorspace:srgb]"
 		;;
 	*)
 		exit 0

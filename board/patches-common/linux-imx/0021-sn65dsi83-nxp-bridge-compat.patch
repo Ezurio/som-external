@@ -1,3 +1,5 @@
+Upstream-Status: Inappropriate No time for upstreaming  
+
 --- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
 +++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c 
 @@ -242,11 +242,18 @@
