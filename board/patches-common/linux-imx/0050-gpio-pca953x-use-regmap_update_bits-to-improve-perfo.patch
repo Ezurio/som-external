@@ -19,6 +19,8 @@ Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
  drivers/gpio/gpio-pca953x.c | 20 ++++++++++----------
  1 file changed, 10 insertions(+), 10 deletions(-)
 
+Upstream-Status: Backport
+
 diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
 index f5184860bd89..169877e59da9 100644
 --- a/drivers/gpio/gpio-pca953x.c

@@ -1,0 +1,57 @@
+media: nxp: dwc-mipi-csi2: Added support for device tree linking 
+
+Current implementation of DWC MIPI CSI-2 receiver driver support only
+camera links created from userspace, this patch adds support for device tree
+links as well
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
+diff --git a/drivers/media/platform/nxp/dwc-mipi-csi2.c b/drivers/media/platform/nxp/dwc-mipi-csi2.c
+index 68be53c4d740..29237268d952 100644
+--- a/drivers/media/platform/nxp/dwc-mipi-csi2.c
++++ b/drivers/media/platform/nxp/dwc-mipi-csi2.c
+@@ -1322,11 +1322,41 @@ static int dwc_csi_notify_bound(struct v4l2_async_notifier *notifier,
+ 	struct dwc_csi_device *csidev = notifier_to_dwc_csi_device(notifier);
+ 	struct media_pad *sink = &csidev->sd.entity.pads[DWC_CSI2RX_PAD_SINK];
+ 
+-	return v4l2_create_fwnode_links_to_pad(sd, sink, 0);
++	int ret = v4l2_create_fwnode_links_to_pad(sd, sink, 0);
++	if (ret < 0) {
++		dev_err(csidev->dev, "Couldn't link pad for subdev %s, ret: %d\n",
++			sd->name, ret);
++		return ret;
++	}
++
++	ret = media_entity_get_fwnode_pad(&sd->entity,
++							 asd->match.fwnode,
++							 MEDIA_PAD_FL_SOURCE);
++	if (ret < 0) {
++		dev_err(csidev->dev, "Couldn't find output pad for subdev %s, ret: %d\n",
++			sd->name, ret);
++		return ret;
++	}
++
++	csidev->remote_pad = ret;
++	csidev->source_sd = sd;
++
++	dev_dbg(csidev->dev, "Bound %s pad: %d\n", sd->name, csidev->remote_pad);
++
++	return 0;
++}
++
++static void dwc_csi_notify_unbound(struct v4l2_async_notifier *notifier,
++				  struct v4l2_subdev *sd,
++				  struct v4l2_async_connection *asd)
++{
++	struct dwc_csi_device *csidev = notifier_to_dwc_csi_device(notifier);
++	csidev->source_sd = NULL;
+ }
+ 
+ static const struct v4l2_async_notifier_operations dwc_csi_notify_ops = {
+ 	.bound = dwc_csi_notify_bound,
++	.unbind = dwc_csi_notify_unbound,
+ };
+ 
+ static int dwc_csi_async_register(struct dwc_csi_device *csidev)

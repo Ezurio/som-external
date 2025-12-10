@@ -66,7 +66,7 @@
 	};
 };
 
-&reg_backlight_gpio_lvds1 {
+&lvds_backlight {
 	status = "disabled";
 };
 
@@ -83,7 +83,7 @@
 
 &lcdif {
 	// 1st 2 numbers are set for your display panel (72MHz here)
-    // 7 * PIXEL_CLOCK, PIXEL_CLOCK
+	// 7 * PIXEL_CLOCK, PIXEL_CLOCK
 	assigned-clock-rates = <505400000>, <72000000>, <400000000>, <133333333>;
 	status = "okay";
 };

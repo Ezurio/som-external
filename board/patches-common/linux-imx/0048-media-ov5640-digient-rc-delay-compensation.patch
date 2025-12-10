@@ -1,3 +1,5 @@
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/media/i2c/ov5640.c
 +++ b/drivers/media/i2c/ov5640.c
 @@ -2458,9 +2458,9 @@

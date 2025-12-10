@@ -1,3 +1,5 @@
+Upstream-Status: Inappropriate No time for upstreaming  
+
 --- a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
 +++ b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
 @@ -442,7 +442,8 @@

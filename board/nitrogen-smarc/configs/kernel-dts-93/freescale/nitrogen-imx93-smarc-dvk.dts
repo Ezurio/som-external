@@ -76,28 +76,6 @@
 		enable-active-high;
 	};
 
-	reg_backlight_gpio_dsi0: regulator-backlight-gpio-dsi0 {
-		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_backlight_gpio_dsi0>;
-		regulator-name = "backlight-gpio-dsi0";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio2 22 GPIO_ACTIVE_HIGH>; /* SMARC GPIO22 */
-		enable-active-high;
-	};
-
-	reg_backlight_gpio_lvds1: regulator-backlight-gpio-lvds1 {
-		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_backlight_gpio_lvds1>;
-		regulator-name = "backlight-gpio-lvds1";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio2 23 GPIO_ACTIVE_HIGH>; /* SMARC GPIO23 */
-		enable-active-high;
-	};
-
 	reg_slow_clock: regulator-slow-clock {
 		compatible = "regulator-fixed-clock";
 
@@ -125,6 +103,20 @@
 			"IN3R", "AMIC",
 			"IN1R", "AMIC";
 		codec-master;
+	};
+};
+
+&gpio2 {
+	dsi0_backlight: dsi0-backlight {
+		gpio-hog;
+		gpios = <22 GPIO_ACTIVE_HIGH>; /* SMARC GPIO22 */
+		output-low;
+	};
+
+	lvds_backlight: lvds-backlight {
+		gpio-hog;
+		gpios = <23 GPIO_ACTIVE_HIGH>; /* SMARC GPIO23 */
+		output-low;
 	};
 };
 
