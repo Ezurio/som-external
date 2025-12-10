@@ -231,7 +231,7 @@ image_encrypt() {
 		cat $ENC_TMP_BIN  $ENC_RS_BIN > $ENC_BIN_RS_BIN
 		ENC_BIN=$BIN"-ENC"
 		if [ "$IMG_ENC" == "ENCRYPT" ];then
-			openssl aes-256-cbc -e -K "$(xxd -p -c 0 $ENC_KEY)" -iv $ENC_IV_VAL -in $ENC_BIN_RS_BIN -out $ENC_BIN -nopad
+			openssl aes-256-cbc -e -K "$(xxd -p -c 32 $ENC_KEY)" -iv $ENC_IV_VAL -in $ENC_BIN_RS_BIN -out $ENC_BIN -nopad
 		else
 			echo
 			echo "Deriving Encryption Key using HKDF2 scheme :"
