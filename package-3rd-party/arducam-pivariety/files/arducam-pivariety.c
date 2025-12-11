@@ -475,6 +475,32 @@ static int pivariety_enum_mbus_code(struct v4l2_subdev *sd,
 	return 0;
 }
 
+static int pivariety_get_frame_desc(struct v4l2_subdev *sd, unsigned int pad,
+				 struct v4l2_mbus_frame_desc *fd)
+{
+	struct pivariety *pivariety = to_pivariety(sd);
+	struct arducam_format *format;
+
+	if (pad || !fd)
+		return -EINVAL;
+
+	fd->type = V4L2_MBUS_FRAME_DESC_TYPE_CSI2;
+	fd->num_entries = 1;
+
+	memset(fd->entry, 0, sizeof(fd->entry));
+
+	mutex_lock(&pivariety->mutex);
+
+	format = &pivariety->supported_formats[pivariety->current_format_idx];
+
+	fd->entry[0].pixelcode = format->mbus_code;
+	fd->entry[0].bus.csi2.dt = format->data_type;
+
+	mutex_unlock(&pivariety->mutex);
+
+	return 0;
+}
+
 static int pivariety_enum_framesizes(struct v4l2_subdev *sd,
 				     struct v4l2_subdev_state *sd_state,
 				     struct v4l2_subdev_frame_size_enum *fse)
@@ -979,6 +1005,7 @@ static const struct v4l2_subdev_pad_ops pivariety_pad_ops = {
 	.get_fmt = pivariety_get_fmt,
 	.set_fmt = pivariety_set_fmt,
 	.enum_frame_size = pivariety_enum_framesizes,
+	.get_frame_desc = pivariety_get_frame_desc,
 	.get_selection = pivariety_get_selection,
 	.get_mbus_config = pivariety_get_mbus_config,
 };
