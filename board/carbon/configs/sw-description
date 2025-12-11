@@ -79,8 +79,9 @@ software =
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
+					path = "/prov_data.tar.zst_sign_enc.bin";
 					device = "/dev/mmcblk0p1";
-					type = "vfat";
+					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				},
@@ -174,8 +175,9 @@ software =
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
+					path = "/prov_data.tar.zst_sign_enc.bin";
 					device = "/dev/mmcblk0p4";
-					type = "vfat";
+					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				},
@@ -345,16 +347,16 @@ software =
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
+					path = "/prov_data.tar.zst_sign_enc.bin";
 					device = "/dev/mmcblk0p1";
-					type = "vfat";
-					installed-directly = true;
+					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
+					path = "/prov_data.tar.zst_sign_enc.bin";
 					device = "/dev/mmcblk0p4";
-					type = "vfat";
-					installed-directly = true;
+					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				},
 			);
