@@ -11,6 +11,8 @@
 
 / {
 	aliases {
+		can0 = &flexcan1;
+		can1 = &flexcan2;
 		ethernet0 = &eqos;
 		ethernet1 = &fec;
 		spi0 = &lpspi3;
@@ -26,7 +28,7 @@
 		#size-cells = <2>;
 		ranges;
 
-		linux,cma {
+		linux_cma: linux,cma {
 			compatible = "shared-dma-pool";
 			reusable;
 			alloc-ranges = <0 0x80000000 0 0x40000000>;
@@ -41,44 +43,53 @@
 		};
 	};
 
-	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
+	reg_vdd_5v0: regulator-vdd-5v0 {
 		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_reg_usdhc2_vmmc>;
-		regulator-name = "VSD_3V3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio3 7 GPIO_ACTIVE_HIGH>;
-		off-on-delay-us = <12000>;
-		enable-active-high;
-	};
-
-	reg_vref_5v0: regulator-vref-5v0 {
-		compatible = "regulator-fixed";
-		regulator-name = "VDD_5V0";
+		regulator-name = "reg_vdd_5v0";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 
 	reg_vdd_3v3: regulator-vdd-3v3 {
 		compatible = "regulator-fixed";
-		regulator-name = "VDD_3V3";
+		regulator-name = "reg_vdd_3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 
-	reg_vref_1v8: regulator-adc-vref {
+	reg_vdd_1v8: regulator-vdd-1v8 {
 		compatible = "regulator-fixed";
-		regulator-name = "vref_1v8";
+		regulator-name = "reg_vdd_1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_usdhc2_vmmc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_usdhc2_vmmc>;
+		gpio = <&gpio3 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
+
 		regulator-name = "reg_wifi_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		gpio = <&pcal6534 2 GPIO_ACTIVE_HIGH>; /* P0_2 -> WL_EN */
 		enable-active-high;
 	};
@@ -112,7 +123,7 @@
 };
 
 &adc1 {
-	vref-supply = <&reg_vref_1v8>;
+	vref-supply = <&reg_vdd_1v8>;
 };
 
 &ele_fw2 {
@@ -232,7 +243,7 @@
 				regulator-ramp-delay = <3125>;
 			};
 
-			buck4: BUCK4{
+			buck4: BUCK4 {
 				regulator-name = "BUCK4";
 				regulator-min-microvolt = <600000>;
 				regulator-max-microvolt = <3400000>;
@@ -240,7 +251,7 @@
 				regulator-always-on;
 			};
 
-			buck5: BUCK5{
+			buck5: BUCK5 {
 				regulator-name = "BUCK5";
 				regulator-min-microvolt = <600000>;
 				regulator-max-microvolt = <3400000>;
@@ -290,7 +301,7 @@
 		pinctrl-0 = <&pinctrl_pcal6534>;
 		reset-gpios = <&gpio2 28 GPIO_ACTIVE_LOW>; /* GPIO_IO28 */
 
-		vcc-supply = <&reg_vref_1v8>;
+		vcc-supply = <&reg_vdd_1v8>;
 
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -318,7 +329,7 @@
 					"P4_0 I2C_HUB_RESET", "P4_1 GPIO_9";
 	};
 
-	i2c_mux_som@71 {
+	i2c-mux-som@71 {
 		compatible = "nxp,pca9546";
 		reg = <0x71>;
 
@@ -327,21 +338,21 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_som_csi0: i2c-som-csi0@0 {
+		i2c_som_csi0: i2c-mux-som@0 {
 			/* CSI0 I2C */
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_som_lcd: i2c-som-lcd@1 {
+		i2c_som_lcd: i2c-mux-som@1 {
 			/* LCD I2C */
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_som_csi1: i2c-som-csi1@2 {
+		i2c_som_csi1: i2c-mux-som@2 {
 			/* CSI1 I2C */
 			reg = <2>;
 			#address-cells = <1>;
@@ -431,7 +442,7 @@
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
 	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
-	
+
 	bus-width = <8>;
 	non-removable;
 
@@ -439,7 +450,7 @@
 };
 
 &usdhc2 { /* SD card */
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
@@ -454,7 +465,7 @@
 };
 
 &usdhc3 { /* WiFi / Bluetooth */
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
 	pinctrl-0 = <&pinctrl_usdhc3>;
 	pinctrl-1 = <&pinctrl_usdhc3_100mhz>;
 	pinctrl-2 = <&pinctrl_usdhc3_200mhz>;
@@ -469,6 +480,16 @@
 
 &wdog3 {
 	status = "okay";
+};
+
+&tpm5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_tpm5>;
+};
+
+&tpm6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_tpm6>;
 };
 
 &dsi {
@@ -497,7 +518,7 @@
 			MX93_PAD_ENET1_TD3__ENET_QOS_RGMII_TD3			0x57e
 			MX93_PAD_ENET1_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x5fe
 			MX93_PAD_ENET1_TX_CTL__ENET_QOS_RGMII_TX_CTL		0x57e
-			MX93_PAD_GPIO_IO29__GPIO2_IO29				0x31e
+			MX93_PAD_GPIO_IO29__GPIO2_IO29				0x131e
 		>;
 	};
 
@@ -517,6 +538,7 @@
 			MX93_PAD_ENET1_TD3__GPIO4_IO02				0x31e
 			MX93_PAD_ENET1_TXC__GPIO4_IO07				0x31e
 			MX93_PAD_ENET1_TX_CTL__GPIO4_IO06			0x31e
+			MX93_PAD_GPIO_IO29__GPIO2_IO29				0x131e
 		>;
 	};
 
@@ -536,7 +558,7 @@
 			MX93_PAD_ENET2_TD3__ENET1_RGMII_TD3			0x57e
 			MX93_PAD_ENET2_TXC__ENET1_RGMII_TXC			0x57e
 			MX93_PAD_ENET2_TX_CTL__ENET1_RGMII_TX_CTL		0x57e
-			MX93_PAD_GPIO_IO18__GPIO2_IO18				0x31e
+			MX93_PAD_GPIO_IO18__GPIO2_IO18				0x131e
 		>;
 	};
 
@@ -556,6 +578,7 @@
 			MX93_PAD_ENET2_TD3__GPIO4_IO16				0x51e
 			MX93_PAD_ENET2_TXC__GPIO4_IO21				0x51e
 			MX93_PAD_ENET2_TX_CTL__GPIO4_IO20			0x51e
+			MX93_PAD_GPIO_IO18__GPIO2_IO18				0x131e
 		>;
 	};
 
@@ -608,11 +631,11 @@
 			MX93_PAD_GPIO_IO27__GPIO2_IO27	0x31e
 		>;
 	};
-	
+
 	pinctrl_pcal6534: pcal6534grp {
 		fsl,pins = <
 			MX93_PAD_GPIO_IO28__GPIO2_IO28				0x31e
-			MX93_PAD_GPIO_IO21__GPIO2_IO21				0x31e
+			MX93_PAD_GPIO_IO21__GPIO2_IO21				0x131e
 		>;
 	};
 
@@ -637,14 +660,14 @@
 
 	pinctrl_uart1: uart1grp {
 		fsl,pins = <
-			MX93_PAD_UART1_RXD__LPUART1_RX				0x31e
+			MX93_PAD_UART1_RXD__LPUART1_RX				0x131e
 			MX93_PAD_UART1_TXD__LPUART1_TX				0x31e
 		>;
 	};
 
 	pinctrl_uart2: uart2grp {
 		fsl,pins = <
-			MX93_PAD_UART2_RXD__LPUART2_RX				0x31e
+			MX93_PAD_UART2_RXD__LPUART2_RX				0x131e
 			MX93_PAD_UART2_TXD__LPUART2_TX				0x31e
 		>;
 	};
@@ -652,25 +675,25 @@
 	pinctrl_uart5: uart5grp {
 		fsl,pins = <
 			MX93_PAD_DAP_TDO_TRACESWO__LPUART5_TX			0x31e
-			MX93_PAD_DAP_TDI__LPUART5_RX				0x31e
-			MX93_PAD_DAP_TMS_SWDIO__LPUART5_RTS_B			0x31e
-			MX93_PAD_DAP_TCLK_SWCLK__LPUART5_CTS_B			0x31e
+			MX93_PAD_DAP_TDI__LPUART5_RX				0x131e
+			MX93_PAD_DAP_TMS_SWDIO__LPUART5_RTS_B			0x131e
+			MX93_PAD_DAP_TCLK_SWCLK__LPUART5_CTS_B			0x131e
 		>;
 	};
 
 	pinctrl_uart6: uart6grp {
 		fsl,pins = <
-			MX93_PAD_GPIO_IO05__LPUART6_RX				0x31e
+			MX93_PAD_GPIO_IO05__LPUART6_RX				0x131e
 			MX93_PAD_GPIO_IO04__LPUART6_TX				0x31e
 		>;
 	};
 
 	pinctrl_uart8: uart8grp {
 		fsl,pins = <
-			MX93_PAD_GPIO_IO13__LPUART8_RX				0x31e
+			MX93_PAD_GPIO_IO13__LPUART8_RX				0x131e
 			MX93_PAD_GPIO_IO12__LPUART8_TX				0x31e
-			MX93_PAD_GPIO_IO14__LPUART8_CTS_B			0x31e
-			MX93_PAD_GPIO_IO15__LPUART8_RTS_B			0x31e
+			MX93_PAD_GPIO_IO14__LPUART8_CTS_B			0x131e
+			MX93_PAD_GPIO_IO15__LPUART8_RTS_B			0x131e
 		>;
 	};
 
@@ -848,6 +871,18 @@
 			MX93_PAD_GPIO_IO19__SAI3_TX_DATA00			0x31e
 			MX93_PAD_GPIO_IO20__SAI3_RX_DATA00			0x31e
 			MX93_PAD_GPIO_IO26__SAI3_TX_SYNC			0x31e
+		>;
+	};
+
+	pinctrl_tpm5: pinctrl-tpm5grp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO22__TPM5_CH1     0x02
+		>;
+	};
+
+	pinctrl_tpm6: pinctrl-tpm6grp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO23__TPM6_CH1	0x02
 		>;
 	};
 };

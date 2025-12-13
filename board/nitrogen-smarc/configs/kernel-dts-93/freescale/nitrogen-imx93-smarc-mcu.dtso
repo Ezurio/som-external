@@ -8,7 +8,6 @@
 
 &{/} {
 	reserved-memory {
-
 		#address-cells = <2>;
 		#size-cells = <2>;
 
@@ -48,6 +47,10 @@
 			no-map;
 		};
 	};
+};
+
+&mu1 {
+	status = "okay";
 };
 
 &cm33 {

@@ -15,4 +15,4 @@ index d93694d80334..95c39b7149bf 100644
 +		return PTR_ERR(pavi->clk_apb);
  	}
  
- 	platform_set_drvdata(pdev, pavi);
+	pavi->reset_pai = devm_reset_control_get_optional(dev, "pai_rst");

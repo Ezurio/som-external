@@ -42,6 +42,32 @@
 	};
 };
 
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds1_out_ep: endpoint {
+				remote-endpoint = <&display_in_ep_lvds1>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
 &lpi2c1 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -71,9 +97,6 @@
 };
 
 &tpm6 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_backlight_lvds1>;
-
 	status = "okay";
 };
 
@@ -84,43 +107,11 @@
 &lcdif {
 	// 1st 2 numbers are set for your display panel (72MHz here)
 	// 7 * PIXEL_CLOCK, PIXEL_CLOCK
-	assigned-clock-rates = <505400000>, <72000000>, <400000000>, <133333333>;
-	status = "okay";
-};
-
-&ldb {
-	status = "okay";
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	lvds-channel@0 {
-		status = "okay";
-
-		#address-cells = <1>;
-		#size-cells = <0>;
-		
-		port@1 {
-			reg = <1>;
-
-			lvds1_out_ep: endpoint {
-				remote-endpoint = <&display_in_ep_lvds1>;
-			};
-		};
-	};
-};
-
-&ldb_phy {
+	assigned-clock-rates = <504000000>, <72000000>, <400000000>, <133333333>;
 	status = "okay";
 };
 
 &iomuxc {
-	pinctrl_backlight_lvds1: pinctrl-backlight-lvds1 {
-		fsl,pins = <
-			MX93_PAD_GPIO_IO23__TPM6_CH1	0x02
-		>;
-	};
-
 	pinctrl_touchscreen_lvds1: pinctrl-touchscreen-lvds1 {
 		fsl,pins = <
 			MX93_PAD_CCM_CLKO3__GPIO4_IO28	0x31e

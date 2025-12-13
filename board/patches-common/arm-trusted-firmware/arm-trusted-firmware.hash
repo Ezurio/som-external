@@ -1,2 +1,2 @@
 sha256  8f41c105846129f5275a8c6ad487af507c34f3653a82cd0fe9b2e84ba605bf05  arm-trusted-firmware-e0c4d3903b382bf34f552af53e6d955fae5283ab.tar.gz
-# $(call github,ARM-software,arm-trusted-firmware,e0c4d3903b382bf34f552af53e6d955fae5283ab)/arm-trusted-firmware-e0c4d3903b382bf34f552af53e6d955fae5283ab.tar.gz
+sha256  2d68cdaa32240904a461dc0c0e475b7148f4447780379abc64c0a51bfe54446a  imx-atf-lf-6.12.49-2.2.0.tar.gz

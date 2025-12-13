@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
 /*
- * Copyright 2024 Ezurio LLC
+ * Copyright 2025 Ezurio LLC
  */
 
 /dts-v1/;
@@ -11,6 +11,8 @@
 
 / {
 	aliases {
+		can0 = &flexcan1;
+		can1 = &flexcan2;
 		ethernet0 = &eqos;
 		ethernet1 = &fec;
 		spi0 = &lpspi3;
@@ -26,7 +28,7 @@
 		#size-cells = <2>;
 		ranges;
 
-		linux,cma {
+		linux_cma: linux,cma {
 			compatible = "shared-dma-pool";
 			reusable;
 			alloc-ranges = <0 0x80000000 0 0x40000000>;
@@ -41,44 +43,53 @@
 		};
 	};
 
-	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
+	reg_vdd_5v0: regulator-vdd-5v0 {
 		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_reg_usdhc2_vmmc>;
-		regulator-name = "VSD_3V3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio3 7 GPIO_ACTIVE_HIGH>;
-		off-on-delay-us = <12000>;
-		enable-active-high;
-	};
-
-	reg_vref_5v0: regulator-vref-5v0 {
-		compatible = "regulator-fixed";
-		regulator-name = "VDD_5V0";
+		regulator-name = "reg_vdd_5v0";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 
 	reg_vdd_3v3: regulator-vdd-3v3 {
 		compatible = "regulator-fixed";
-		regulator-name = "VDD_3V3";
+		regulator-name = "reg_vdd_3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 
-	reg_vref_1v8: regulator-adc-vref {
+	reg_vdd_1v8: regulator-vdd-1v8 {
 		compatible = "regulator-fixed";
-		regulator-name = "vref_1v8";
+		regulator-name = "reg_vdd_1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_usdhc2_vmmc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_usdhc2_vmmc>;
+		gpio = <&gpio3 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
+
 		regulator-name = "reg_wifi_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		gpio = <&pcal6534 2 GPIO_ACTIVE_HIGH>; /* P0_2 -> WL_EN */
 		enable-active-high;
 	};
@@ -112,7 +123,7 @@
 };
 
 &adc1 {
-	vref-supply = <&reg_vref_1v8>;
+	vref-supply = <&reg_vdd_1v8>;
 };
 
 &ele_fw2 {
@@ -290,7 +301,7 @@
 		pinctrl-0 = <&pinctrl_pcal6534>;
 		reset-gpios = <&gpio2 28 GPIO_ACTIVE_LOW>; /* GPIO_IO28 */
 
-		vcc-supply = <&reg_vref_1v8>;
+		vcc-supply = <&reg_vdd_1v8>;
 
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -318,7 +329,7 @@
 					"P4_0 I2C_HUB_RESET", "P4_1 GPIO_9";
 	};
 
-	i2c_mux_som@71 {
+	i2c-mux-som@71 {
 		compatible = "nxp,pca9546";
 		reg = <0x71>;
 
@@ -327,21 +338,21 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_som_csi0: i2c-som-csi0@0 {
+		i2c_som_csi0: i2c-mux-som@0 {
 			/* CSI0 I2C */
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_som_lcd: i2c-som-lcd@1 {
+		i2c_som_lcd: i2c-mux-som@1 {
 			/* LCD I2C */
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_som_csi1: i2c-som-csi1@2 {
+		i2c_som_csi1: i2c-mux-som@2 {
 			/* CSI1 I2C */
 			reg = <2>;
 			#address-cells = <1>;
@@ -443,7 +454,7 @@
 };
 
 &usdhc2 { /* SD card */
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
@@ -458,7 +469,7 @@
 };
 
 &usdhc3 { /* WiFi / Bluetooth */
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
 	pinctrl-0 = <&pinctrl_usdhc3>;
 	pinctrl-1 = <&pinctrl_usdhc3_100mhz>;
 	pinctrl-2 = <&pinctrl_usdhc3_200mhz>;
