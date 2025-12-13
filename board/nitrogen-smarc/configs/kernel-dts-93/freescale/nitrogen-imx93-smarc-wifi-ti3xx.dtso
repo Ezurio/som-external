@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2024 Ezurio
+ * SDIO TI3xx module
+ *
+ * Copyright (C) 2024 Ezurio LLC
  */
 
 /dts-v1/;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * SDIO LWBxx & IFxxx module
+ * SDIO 60 SDIO-SDIO module
  *
  * Copyright (C) 2024 Ezurio LLC
  */
@@ -10,12 +10,8 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
-&reg_slow_clock {
-	status = "okay";
-};
-
 &reg_usdhc2_vmmc {
-	vin-supply = <&reg_slow_clock>;
+	vin-supply = <&reg_slow_clock_carrier>;
 
 	startup-delay-us = <1000>;
 	off-on-delay-us = <100000>;

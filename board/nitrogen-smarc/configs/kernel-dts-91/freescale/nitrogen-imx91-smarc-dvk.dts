@@ -8,11 +8,11 @@
 #include "nitrogen-imx91-smarc.dtsi"
 
 / {
-	model = "Ezurio Nitrogen91 SMARC";
-	compatible = "fsl,nitrogen-imx91-smarc", "fsl,imx91";
+	model = "Ezurio Nitrogen i.MX91 SMARC DVK board";
+	compatible = "summit,nitrogen-imx93-smarc-dvk", "fsl,imx93";
 
 	aliases {
-		rtc0 = &rv3028;
+		rtc0 = &rv3028_carrier;
 		rtc1 = &bbnsm_rtc;
 	};
 
@@ -40,52 +40,58 @@
 
 	reg_can1_stby: regulator-can1-stby {
 		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_reg_can1_stby>;
-		regulator-name = "can1-stby";
+
+		regulator-name = "reg_can1_stby";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio3 27 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_can1_stby>;
+		gpio = <&gpio3 27 GPIO_ACTIVE_HIGH>; /* CCM_CLK02 -> GPIO1 */
 		enable-active-high;
 	};
 
 	reg_can2_stby: regulator-can2-stby {
 		compatible = "regulator-fixed";
-		regulator-name = "can2-stby";
+
+		regulator-name = "reg_can2_stby";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		gpio = <&pcal6534 15 GPIO_ACTIVE_HIGH>; /* P1_7 -> GPIO4 */
 		enable-active-high;
 	};
 
-	reg_i2c_mux_smarc_lcd: regulator-i2c-mux-smarc-lcd {
+	reg_i2c_mux_lcd: regulator-i2c-mux-lcd {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_i2c_mux_smarc_lcd";
+
+		regulator-name = "reg_i2c_mux_lcd";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		gpio = <&pcal6534 29 GPIO_ACTIVE_HIGH>; /* P3_5 / GPIO_13 */
 		enable-active-high;
 	};
 
-	reg_i2c_mux_smarc_gp: regulator-i2c-mux-smarc-gp {
+	reg_i2c_mux_gp: regulator-i2c-mux-gp {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_i2c_mux_smarc_gp";
+
+		regulator-name = "reg_i2c_mux_gp";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		gpio = <&gpio2 2 GPIO_ACTIVE_HIGH>; /* SMARC GPIO6 */
 		enable-active-high;
 	};
 
-	reg_slow_clock: regulator-slow-clock {
+	reg_slow_clock_carrier: regulator-slow-clock-carrier {
 		compatible = "regulator-fixed-clock";
 
-		regulator-name = "reg_slow_clock";
+		regulator-name = "reg_slow_clock_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		clocks = <&rv3028>;
-		clock-names = "slow_clock";
-		status = "disabled";
+		clocks = <&rv3028_carrier>;
 
 		startup-delay-us = <1000>;
 	};
@@ -117,38 +123,39 @@
 	xceiver-supply = <&reg_can2_stby>;
 };
 
-&i2c_som_lcd { /* LCD I2C */
-	i2c_mux_smarc_lcd@73 { /* On SMARC carrier */
+/* LCD I2C */
+&i2c_som_lcd {
+	i2c-mux-lcd@73 {
 		compatible = "nxp,pca9546";
 		reg = <0x73>;
 
-		vdd-supply = <&reg_i2c_mux_smarc_lcd>;
+		vdd-supply = <&reg_i2c_mux_lcd>;
 
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_smarc_lcd_exp1: i2c-smarc-lcd-exp1@0 {
+		i2c_lcd_exp1: i2c-mux-lcd@0 {
 			/* EXP1 I2C */
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_smarc_lcd_exp2: i2c-smarc-lcd-exp2@1 {
+		i2c_lcd_exp2: i2c-mux-lcd@1 {
 			/* EXP2 I2C */
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_smarc_lcd_dsi0: i2c-smarc-lcd-dsi0@2 {
+		i2c_lcd_dsi0: i2c-mux-lcd@2 {
 			/* DSI0 I2C */
 			reg = <2>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_smarc_lcd_dsi1: i2c-smarc-lcd-dsi1@3 {
+		i2c_lcd_dsi1: i2c-mux-lcd@3 {
 			/* DSI1 I2C */
 			reg = <3>;
 			#address-cells = <1>;
@@ -160,22 +167,22 @@
 &lpi2c3 { /* SM_I2C_GP */
 	status = "okay";
 
-	i2c-mux-smarc-gp@73 {
+	i2c-mux-gp@73 {
 		compatible = "nxp,pca9546";
 		reg = <0x73>;
 
-		vdd-supply = <&reg_i2c_mux_smarc_gp>;
+		vdd-supply = <&reg_i2c_mux_gp>;
 
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_smarc_gp_rtc: i2c-smarc-gp-rtc@0 {
+		i2c_gp_rtc: i2c-mux-gp@0 {
 			/* RTC */
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			rv3028: rtc@52 {
+			rv3028_carrier: rv3028-carrier@52 {
 				compatible = "microcrystal,rv3028";
 				reg = <0x52>;
 
@@ -183,13 +190,13 @@
 				#clock-cells = <0>;
 
 				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_rv3028>;
+				pinctrl-0 = <&pinctrl_rv3028_carrier>;
 				interrupts-extended = <&gpio2 24 IRQ_TYPE_LEVEL_LOW>; /* SMARC GPIO12 */
 				wakeup-source;
 			};
 		};
 
-		i2c_smarc_gp_usbc: i2c-smarc-gp-usbc@1 {
+		i2c_gp_usbc: i2c-mux-gp@1 {
 			/* USB C */
 			reg = <1>;
 			#address-cells = <1>;
@@ -202,7 +209,7 @@
 			};
 		};
 
-		i2c_smarc_gp_aud: i2c-smarc-gp-aud@2 {
+		i2c_gp_aud: i2c-mux-gp@2 {
 			/* audio */
 			reg = <2>;
 			#address-cells = <1>;
@@ -212,14 +219,14 @@
 				compatible = "wlf,wm8962";
 				reg = <0x1a>;
 				clocks = <&clk IMX91_CLK_SAI3_GATE>;
-				AVDD-supply = <&reg_vref_1v8>;
-				CPVDD-supply = <&reg_vref_1v8>;
+				AVDD-supply = <&reg_vdd_1v8>;
+				CPVDD-supply = <&reg_vdd_1v8>;
 				DBVDD-supply = <&reg_vdd_3v3>;
-				DCVDD-supply = <&reg_vref_1v8>;
+				DCVDD-supply = <&reg_vdd_1v8>;
 				MICVDD-supply = <&reg_vdd_3v3>;
-				PLLVDD-supply = <&reg_vref_1v8>;
-				SPKVDD1-supply = <&reg_vref_5v0>;
-				SPKVDD2-supply = <&reg_vref_5v0>;
+				PLLVDD-supply = <&reg_vdd_1v8>;
+				SPKVDD1-supply = <&reg_vdd_5v0>;
+				SPKVDD2-supply = <&reg_vdd_5v0>;
 				gpio-cfg = <
 					0x0000 /* n/c */
 					0x0000 /* gpio2: */
@@ -235,7 +242,7 @@
 			};
 		};
 
-		i2c_smarc_gp_pcie: i2c-smarc-gp-pcie@3 {
+		i2c_gp_pcie: i2c-mux-gp@3 {
 			/* pcie */
 			reg = <3>;
 			#address-cells = <1>;
@@ -247,13 +254,13 @@
 &lpspi1 {
 	status = "okay";
 
-	spi1dev0: spi1@0 {
+	spi1_dev0: spi1@0 {
 		reg = <0>;
 		compatible = "lwn,bk4";
 		spi-max-frequency = <1000000>;
 	};
 
-	spi1dev1: spi1@1 {
+	spi1_dev1: spi1@1 {
 		reg = <1>;
 		compatible = "lwn,bk4";
 		spi-max-frequency = <1000000>;
@@ -263,13 +270,13 @@
 &lpspi3 {
 	status = "okay";
 
-	spi0dev0: spi0@0 {
+	spi0_dev0: spi0@0 {
 		reg = <0>;
 		compatible = "lwn,bk4";
 		spi-max-frequency = <1000000>;
 	};
 
-	spi0dev1: spi0@1 {
+	spi0_dev1: spi0@1 {
 		reg = <1>;
 		compatible = "lwn,bk4";
 		spi-max-frequency = <1000000>;
@@ -288,7 +295,9 @@
 	status = "okay";
 };
 
-&sai3 { /* I2S0 */
+/* I2S0 */
+&sai3 {
+	#sound-dai-cells = <0>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sai3>;
 	assigned-clocks = <&clk IMX91_CLK_SAI3>;
@@ -299,7 +308,8 @@
 	status = "okay";
 };
 
-&usbotg1 { /* USB-C */
+/* USB-C */
+&usbotg1 {
 	dr_mode = "otg";
 	hnp-disable;
 	srp-disable;
@@ -335,7 +345,7 @@
 		>;
 	};
 
-	pinctrl_rv3028: pinctrl-rv3028 {
+	pinctrl_rv3028_carrier: pinctrl-rv3028-carrier {
 		fsl,pins = <
 			MX91_PAD_GPIO_IO24__GPIO2_IO24	0x31e
 		>;

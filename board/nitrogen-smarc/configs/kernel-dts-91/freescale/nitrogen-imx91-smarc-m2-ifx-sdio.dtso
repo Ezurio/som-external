@@ -8,14 +8,8 @@
 /dts-v1/;
 /plugin/;
 
-#include <dt-bindings/gpio/gpio.h>
-
-&reg_slow_clock {
-	status = "okay";
-};
-
 &reg_usdhc2_vmmc {
-	vin-supply = <&reg_slow_clock>;
+	vin-supply = <&reg_slow_clock_carrier>;
 
 	startup-delay-us = <250000>;
 	off-on-delay-us = <100>;
@@ -35,8 +29,9 @@
 	status = "okay";
 
 	bluetooth {
-		compatible = "infineon,cyw55572-bt";
-		vddio-supply = <&reg_vref_1v8>;
+		compatible = "brcm,bcm4329-bt";
+		vbat-supply = <&reg_slow_clock_carrier>;
+		vddio-supply = <&reg_vdd_1v8>;
 		brcm,requires-autobaud-mode;
 		max-speed = <3000000>;
 	};

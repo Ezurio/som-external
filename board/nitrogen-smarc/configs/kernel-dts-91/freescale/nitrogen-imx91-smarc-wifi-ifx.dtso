@@ -32,7 +32,7 @@
 
 	bluetooth {
 		compatible = "infineon,cyw55572-bt";
-		vddio-supply = <&reg_vref_1v8>;
+		vddio-supply = <&reg_vdd_1v8>;
 		brcm,requires-autobaud-mode;
 		max-speed = <3000000>;
 		shutdown-gpios = <&pcal6534 4 GPIO_ACTIVE_HIGH>;
