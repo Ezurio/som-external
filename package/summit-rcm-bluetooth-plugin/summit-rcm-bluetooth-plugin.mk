@@ -38,7 +38,6 @@ ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS),y)
 	HOST_SUMMIT_RCM_BLUETOOTH_PLUGIN_DEPENDENCIES += \
 		host-summit-rcm \
 		host-python3 \
-		host-python-dbus-fast \
 		host-python-falcon \
 		host-python-spectree \
 		host-python-pydantic \
