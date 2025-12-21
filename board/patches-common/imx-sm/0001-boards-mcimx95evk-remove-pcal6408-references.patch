@@ -1,0 +1,229 @@
+From 745aaa3a6df430b60d63a4062a1a4699fb15bbdf Mon Sep 17 00:00:00 2001
+From: Gary Bisson <gary.bisson@ezurio.com>
+Date: Thu, 26 Sep 2024 14:48:58 +0200
+Subject: [PATCH 1/2] boards/mcimx95evk: remove pcal6408 references
+
+Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
+---
+ boards/mcimx95evk/board.c              |   3 -
+ boards/mcimx95evk/pin_mux.c            |   4 -
+ boards/mcimx95evk/sm/brd_sm_control.c  |  23 ------
+ boards/mcimx95evk/sm/brd_sm_handlers.c | 100 -------------------------
+ boards/mcimx95evk/sm/brd_sm_handlers.h |   3 -
+ 5 files changed, 133 deletions(-)
+
+diff --git a/boards/mcimx95evk/board.c b/boards/mcimx95evk/board.c
+index d4a671f..660bce7 100755
+--- a/boards/mcimx95evk/board.c
++++ b/boards/mcimx95evk/board.c
+@@ -355,9 +355,6 @@ void BOARD_InitHandlers(void)
+     /* Enable FCCU handler */
+     NVIC_SetPriority(FCCU_INT0_IRQn, IRQ_PRIO_NOPREEMPT_CRITICAL);
+     NVIC_EnableIRQ(FCCU_INT0_IRQn);
+-
+-    /* Enable GPIO1 handler */
+-    NVIC_EnableIRQ(GPIO1_0_IRQn);
+ }
+ 
+ /*--------------------------------------------------------------------------*/
+diff --git a/boards/mcimx95evk/pin_mux.c b/boards/mcimx95evk/pin_mux.c
+index b40d897..797150c 100755
+--- a/boards/mcimx95evk/pin_mux.c
++++ b/boards/mcimx95evk/pin_mux.c
+@@ -50,9 +50,5 @@ void BOARD_InitPins(void)
+     IOMUXC_SetPinConfig(IOMUXC_PAD_I2C2_SDA__LPI2C2_SDA, IOMUXC_PAD_DSE(0xFU)
+         | IOMUXC_PAD_FSEL1(0x3U) | IOMUXC_PAD_PU(0x1U) | IOMUXC_PAD_OD(0x1U));
+ #endif
+-
+-    /* Configure GPIO1-10 (INT from the PCAL6408A) */
+-    IOMUXC_SetPinMux(IOMUXC_PAD_PDM_BIT_STREAM1__GPIO1_IO_BIT10, 0U);
+-    IOMUXC_SetPinConfig(IOMUXC_PAD_PDM_BIT_STREAM1__GPIO1_IO_BIT10, 0U);
+ }
+ 
+diff --git a/boards/mcimx95evk/sm/brd_sm_control.c b/boards/mcimx95evk/sm/brd_sm_control.c
+index 5b36c66..9982973 100755
+--- a/boards/mcimx95evk/sm/brd_sm_control.c
++++ b/boards/mcimx95evk/sm/brd_sm_control.c
+@@ -103,29 +103,6 @@ int32_t BRD_SM_ControlGet(uint32_t ctrlId, uint32_t *numRtn, uint32_t *rtn)
+         {
+             status = DEV_SM_ControlGet(ctrlId, numRtn, rtn);
+         }
+-        else if (ctrlId < BRD_SM_CTRL_TEST)
+-        {
+-            uint8_t data;
+-
+-            /* Read expander data input */
+-            if (PCAL6408A_InputGet(&g_pcal6408aDev, &data))
+-            {
+-                uint32_t shift = ctrlId - DEV_SM_NUM_CTRL;
+-
+-                /* Adjust bit position */
+-                if (shift > 0U)
+-                {
+-                    shift += 3U;
+-                }
+-
+-                *numRtn = 1U;
+-                rtn[0] = (((uint32_t) data) >> shift) & 0x1UL;
+-            }
+-            else
+-            {
+-                status = SM_ERR_HARDWARE_ERROR;
+-            }
+-        }
+         else
+         {
+             status = SM_ERR_NOT_SUPPORTED;
+diff --git a/boards/mcimx95evk/sm/brd_sm_handlers.c b/boards/mcimx95evk/sm/brd_sm_handlers.c
+index a96f6ce..a2f5710 100755
+--- a/boards/mcimx95evk/sm/brd_sm_handlers.c
++++ b/boards/mcimx95evk/sm/brd_sm_handlers.c
+@@ -64,7 +64,6 @@
+ 
+ /* Global variables */
+ 
+-PCAL6408A_Type g_pcal6408aDev;
+ PF09_Type g_pf09Dev;
+ PF53_Type g_pf5301Dev;
+ PF53_Type g_pf5302Dev;
+@@ -96,26 +95,6 @@ int32_t BRD_SM_SerialDevicesInit(void)
+ {
+     int32_t status = SM_ERR_SUCCESS;
+     LPI2C_Type *const s_i2cBases[] = LPI2C_BASE_PTRS;
+-    pcal6408a_config_t pcal6408Config;
+-
+-    /* Fill in PCAL6408A dev */
+-    g_pcal6408aDev.i2cBase = s_i2cBases[BOARD_I2C_INSTANCE];
+-    g_pcal6408aDev.devAddr = BOARD_PCAL6408A_DEV_ADDR;
+-
+-    /* Init the bus expander */
+-    PCAL6408A_GetDefaultConfig(&pcal6408Config);
+-    pcal6408Config.inputLatch = 0xFFU;
+-    if (!PCAL6408A_Init(&g_pcal6408aDev, &pcal6408Config))
+-    {
+-        status = SM_ERR_HARDWARE_ERROR;
+-    }
+-    else
+-    {
+-        if (!PCAL6408A_IntMaskSet(&g_pcal6408aDev, PCAL6408A_INITIAL_MASK))
+-        {
+-            status = SM_ERR_HARDWARE_ERROR;
+-        }
+-    }
+ 
+     if (status == SM_ERR_SUCCESS)
+     {
+@@ -254,20 +233,6 @@ int32_t BRD_SM_SerialDevicesInit(void)
+         }
+     }
+ 
+-    if (status == SM_ERR_SUCCESS)
+-    {
+-        rgpio_pin_config_t gpioConfig =
+-        {
+-            kRGPIO_DigitalInput,
+-            0U
+-        };
+-
+-        /* Init GPIO1-10 */
+-        RGPIO_PinInit(GPIO1, 10U, &gpioConfig);
+-        RGPIO_SetPinInterruptConfig(GPIO1, 10U, kRGPIO_InterruptOutput0,
+-            kRGPIO_InterruptLogicZero);
+-    }
+-
+     /* Return status */
+     return status;
+ }
+@@ -278,76 +243,11 @@ int32_t BRD_SM_SerialDevicesInit(void)
+ int32_t BRD_SM_BusExpMaskSet(uint8_t val, uint8_t mask)
+ {
+     int32_t status = SM_ERR_SUCCESS;
+-    static uint8_t cachedMask = PCAL6408A_INITIAL_MASK;
+-    uint8_t newMask = (cachedMask & ~mask);
+-
+-    newMask |= val;
+-
+-    /* Mask changed? */
+-    if (cachedMask != newMask)
+-    {
+-        if (PCAL6408A_IntMaskSet(&g_pcal6408aDev, newMask))
+-        {
+-            cachedMask = newMask;
+-        }
+-        else
+-        {
+-            status = SM_ERR_HARDWARE_ERROR;
+-        }
+-    }
+ 
+     /* Return status */
+     return status;
+ }
+ 
+-/*--------------------------------------------------------------------------*/
+-/* GPIO1 handler                                                            */
+-/*--------------------------------------------------------------------------*/
+-void GPIO1_0_IRQHandler(void)
+-{
+-    uint32_t flags;
+-    uint8_t status, val;
+-
+-    /* Get GPIO status */
+-    flags = RGPIO_GetPinsInterruptFlags(GPIO1, kRGPIO_InterruptOutput0);
+-
+-    /* Get PCAL6408A status */
+-    (void) PCAL6408A_IntStatusGet(&g_pcal6408aDev, &status);
+-
+-    /* Get value and Clear PCAL6408A interrupts */
+-    (void) PCAL6408A_InputGet(&g_pcal6408aDev, &val);
+-
+-    /* Clear GPIO interrupts */
+-    RGPIO_ClearPinsInterruptFlags(GPIO1, kRGPIO_InterruptOutput0, flags);
+-
+-    /* Handle PF09 interrupt */
+-    if ((status & BIT8(PCAL6408A_INPUT_PF09_INT)) != 0U)
+-    {
+-        /* Asserts low */
+-        if ((val & BIT8(PCAL6408A_INPUT_PF09_INT)) == 0U)
+-        {
+-            BRD_SM_Pf09Handler();
+-        }
+-    }
+-
+-    /* Handle PCA2131 interrupt */
+-    if (g_pca2131Used && ((status & BIT8(PCAL6408A_INPUT_PCA2131_INT))
+-        != 0U))
+-    {
+-        /* Asserts low */
+-        if ((val & BIT8(PCAL6408A_INPUT_PCA2131_INT)) == 0U)
+-        {
+-            BRD_SM_BbmHandler();
+-        }
+-    }
+-
+-    /* Handle controls interrupts */
+-    BRD_SM_ControlHandler(status, val);
+-
+-    /* Adjust dynamic IRQ priority */
+-    (void) DEV_SM_IrqPrioUpdate();
+-}
+-
+ /*==========================================================================*/
+ 
+ /*--------------------------------------------------------------------------*/
+diff --git a/boards/mcimx95evk/sm/brd_sm_handlers.h b/boards/mcimx95evk/sm/brd_sm_handlers.h
+index e34d52b..d467643 100755
+--- a/boards/mcimx95evk/sm/brd_sm_handlers.h
++++ b/boards/mcimx95evk/sm/brd_sm_handlers.h
+@@ -72,9 +72,6 @@
+ 
+ /* External variables */
+ 
+-/*! Handle to access PCAL6408A */
+-extern PCAL6408A_Type g_pcal6408aDev;
+-
+ /*! Handle to access PF09 */
+ extern PF09_Type g_pf09Dev;
+ 
+-- 
+2.52.0

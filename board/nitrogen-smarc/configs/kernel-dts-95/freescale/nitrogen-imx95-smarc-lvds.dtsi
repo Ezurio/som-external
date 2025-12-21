@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Ezurio LLC
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "imx95-clock.h"
+#include "imx95-pinfunc.h"
+
+#include "nitrogen-imx95-bd-panel.dtsi"
+
+&ldb {
+	status = "okay";
+
+	assigned-clocks = <&scmi_clk IMX95_CLK_LDBPLL_VCO>,
+			  <&scmi_clk IMX95_CLK_LDBPLL>;
+	// 42 * PIXEL_CLOCK, 7 * PIXEL_CLOCK
+	assigned-clock-rates = <3024000000>, <504000000>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+};
+
+&i2c_pmic {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_lvds: touchscreen-lvds@5d {
+		compatible = "goodix,gt911";
+		reg = <0x5d>;
+
+		AVDD28-supply = <&reg_vdd_3v3>; /* Real supply is on the display */
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen_lvds>;
+		interrupts-extended = <&gpio5 6 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "irq";
+		irq-gpios = <&gpio5 6 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio_sim0 0 GPIO_ACTIVE_LOW>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};
+
+&scmi_iomuxc {
+	pinctrl_touchscreen_lvds: pinctrl-touchscreen-lvds {
+		fsl,pins = <
+			IMX95_PAD_XSPI1_DATA6__GPIO5_IO_BIT6	0x137e
+		>;
+	};
+};
+
+&dpu {
+	status = "okay";
+};
+
+&pixel_interleaver {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+};
+
+&display_pixel_link {
+	status = "okay";
+};
+
+&displaymix_irqsteer {
+	status = "okay";
+};

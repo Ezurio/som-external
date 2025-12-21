@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx95-smarc-csi1.dtsi"
+
+&cam_csi1 {
+	reg = <0x3c>;
+	compatible = "ovti,ov5640";
+
+	DOVDD-supply = <&reg_vdd_3v3>;
+	AVDD-supply = <&reg_vdd_3v3>;
+	DVDD-supply = <&reg_vdd_3v3>;
+
+	reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
+	powerdown-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
+};

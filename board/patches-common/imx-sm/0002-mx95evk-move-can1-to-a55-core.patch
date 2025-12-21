@@ -1,0 +1,150 @@
+From db9043a8bc4bceb3537db9124633d4dd27c8829d Mon Sep 17 00:00:00 2001
+From: Gary Bisson <gary.bisson@ezurio.com>
+Date: Wed, 2 Oct 2024 15:20:51 +0200
+Subject: [PATCH 2/2] mx95evk: move can1 to a55 core
+
+Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
+---
+ configs/mx95evk.cfg            |  3 ++-
+ configs/mx95evk/config_bctrl.h | 14 +++++++-------
+ configs/mx95evk/config_scmi.h  |  7 ++++---
+ configs/mx95evk/config_trdc.h  |  4 ++--
+ 4 files changed, 15 insertions(+), 13 deletions(-)
+
+diff --git a/configs/mx95evk.cfg b/configs/mx95evk.cfg
+index d05e121..f2a18eb 100755
+--- a/configs/mx95evk.cfg
++++ b/configs/mx95evk.cfg
+@@ -389,7 +389,6 @@ SYS                       ALL
+ # Resources
+ 
+ M7P                 OWNER  # CPUs must be first
+-CAN_FD1             OWNER
+ FSB                 READONLY
+ IRQSTEER_M7         OWNER
+ LPIT1               OWNER
+@@ -493,6 +492,7 @@ CHANNEL             db=1, xport=smt, rpc=scmi, type=p2a_notify
+ # API
+ 
+ PERF_A55            ALL
++PERLPI_CAN1         ALL
+ PERLPI_CAN2         ALL
+ PERLPI_CAN3         ALL
+ PERLPI_CAN4         ALL
+@@ -612,6 +612,7 @@ CAMERA5             OWNER
+ CAMERA6             OWNER
+ CAMERA7             OWNER
+ CAMERA8             OWNER
++CAN_FD1             OWNER
+ CAN_FD2             OWNER
+ CAN_FD3             OWNER
+ CAN_FD4             OWNER
+diff --git a/configs/mx95evk/config_bctrl.h b/configs/mx95evk/config_bctrl.h
+index d6c3dc4..ba582d6 100755
+--- a/configs/mx95evk/config_bctrl.h
++++ b/configs/mx95evk/config_bctrl.h
+@@ -61,13 +61,13 @@
+ #define SM_BCTRL_A_CONFIG \
+     { \
+         SM_CFG_W1(0x00000008U), 0x00001804U, \
+-        SM_CFG_W1(0x0000000CU), 0x0000E56AU, \
+-        SM_CFG_W1(0x00000010U), 0x0000E56AU, \
+-        SM_CFG_W1(0x00000014U), 0x0000E56AU, \
+-        SM_CFG_W1(0x00000018U), 0x0000E56AU, \
+-        SM_CFG_W1(0x0000001CU), 0x0000E56AU, \
+-        SM_CFG_W1(0x00000020U), 0x0000E56AU, \
+-        SM_CFG_W1(0x00000024U), 0x00000291U, \
++        SM_CFG_W1(0x0000000CU), 0x0000E56BU, \
++        SM_CFG_W1(0x00000010U), 0x0000E56BU, \
++        SM_CFG_W1(0x00000014U), 0x0000E56BU, \
++        SM_CFG_W1(0x00000018U), 0x0000E56BU, \
++        SM_CFG_W1(0x0000001CU), 0x0000E56BU, \
++        SM_CFG_W1(0x00000020U), 0x0000E56BU, \
++        SM_CFG_W1(0x00000024U), 0x00000290U, \
+         SM_CFG_END \
+     }
+ 
+diff --git a/configs/mx95evk/config_scmi.h b/configs/mx95evk/config_scmi.h
+index c3e193f..ad0a452 100755
+--- a/configs/mx95evk/config_scmi.h
++++ b/configs/mx95evk/config_scmi.h
+@@ -66,7 +66,6 @@
+         .secure = 0U, \
+         .seenvId = 1U, \
+         .buttonPerms[DEV_SM_BUTTON_0] = SM_SCMI_PERM_NOTIFY, \
+-        .clkPerms[DEV_SM_CLK_CAN1] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_LPTMR1] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_LPTMR2] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_LPUART3] = SM_SCMI_PERM_ALL, \
+@@ -77,7 +76,6 @@
+         .ctrlPerms[BRD_SM_CTRL_PCA2131] = SM_SCMI_PERM_ALL, \
+         .ctrlPerms[BRD_SM_CTRL_TEST] = SM_SCMI_PERM_ALL, \
+         .ctrlPerms[BRD_SM_CTRL_TEST_A] = SM_SCMI_PERM_ALL, \
+-        .daisyPerms[DEV_SM_DAISY_CAN1_RX] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_LPTMR2_0] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_LPTMR2_1] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_LPTMR2_2] = SM_SCMI_PERM_ALL, \
+@@ -93,7 +91,6 @@
+         .lmmPerms[2] = SM_SCMI_PERM_ALL, \
+         .pdPerms[DEV_SM_PD_M7] = SM_SCMI_PERM_ALL, \
+         .perfPerms[DEV_SM_PERF_M7] = SM_SCMI_PERM_ALL, \
+-        .perlpiPerms[DEV_SM_PERLPI_CAN1] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_LPUART3] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_WDOG5] = SM_SCMI_PERM_ALL, \
+         .pinPerms[DEV_SM_PIN_GPIO_IO14] = SM_SCMI_PERM_ALL, \
+@@ -178,6 +175,7 @@
+         .faultPerms[DEV_SM_FAULT_WDOG4] = SM_SCMI_PERM_ALL, \
+         .pdPerms[DEV_SM_PD_A55P] = SM_SCMI_PERM_ALL, \
+         .perfPerms[DEV_SM_PERF_A55] = SM_SCMI_PERM_ALL, \
++        .perlpiPerms[DEV_SM_PERLPI_CAN1] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN2] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN3] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN4] = SM_SCMI_PERM_ALL, \
+@@ -232,6 +230,7 @@
+         .clkPerms[DEV_SM_CLK_AUDIOPLL2] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_AUDIOPLL2_VCO] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_AUDIOXCVR] = SM_SCMI_PERM_ALL, \
++        .clkPerms[DEV_SM_CLK_CAN1] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_CAN2] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_CAN3] = SM_SCMI_PERM_ALL, \
+         .clkPerms[DEV_SM_CLK_CAN4] = SM_SCMI_PERM_ALL, \
+@@ -321,6 +320,7 @@
+         .ctrlPerms[DEV_SM_CTRL_SAI3_MCLK] = SM_SCMI_PERM_ALL, \
+         .ctrlPerms[DEV_SM_CTRL_SAI4_MCLK] = SM_SCMI_PERM_ALL, \
+         .ctrlPerms[DEV_SM_CTRL_SAI5_MCLK] = SM_SCMI_PERM_ALL, \
++        .daisyPerms[DEV_SM_DAISY_CAN1_RX] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_CAN2_RX] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_CAN3_RX] = SM_SCMI_PERM_ALL, \
+         .daisyPerms[DEV_SM_DAISY_CAN4_RX] = SM_SCMI_PERM_ALL, \
+@@ -461,6 +461,7 @@
+         .perfPerms[DEV_SM_PERF_GPU] = SM_SCMI_PERM_ALL, \
+         .perfPerms[DEV_SM_PERF_NPU] = SM_SCMI_PERM_ALL, \
+         .perfPerms[DEV_SM_PERF_VPU] = SM_SCMI_PERM_ALL, \
++        .perlpiPerms[DEV_SM_PERLPI_CAN1] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN2] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN3] = SM_SCMI_PERM_ALL, \
+         .perlpiPerms[DEV_SM_PERLPI_CAN4] = SM_SCMI_PERM_ALL, \
+diff --git a/configs/mx95evk/config_trdc.h b/configs/mx95evk/config_trdc.h
+index e4d1da2..b49f539 100755
+--- a/configs/mx95evk/config_trdc.h
++++ b/configs/mx95evk/config_trdc.h
+@@ -124,7 +124,7 @@
+         SM_CFG_W1(0x00010650U), 0x09000309U, \
+         SM_CFG_W1(0x00010654U), 0x0000C900U, \
+         SM_CFG_W1(0x00010658U), 0x99909900U, \
+-        SM_CFG_W1(0x0001065cU), 0x00009009U, \
++        SM_CFG_W1(0x0001065cU), 0x00009909U, \
+         SM_CFG_W1(0x00010668U), 0x00009900U, \
+         SM_CFG_W1(0x0001066cU), 0x90909000U, \
+         SM_CFG_W1(0x00010670U), 0x00009000U, \
+@@ -132,7 +132,7 @@
+         SM_CFG_Z1(0x00010850U), \
+         SM_CFG_W1(0x00010854U), 0x9000C000U, \
+         SM_CFG_W1(0x00010858U), 0x00000099U, \
+-        SM_CFG_W1(0x0001085cU), 0x00000900U, \
++        SM_CFG_W1(0x0001085cU), 0x00000000U, \
+         SM_CFG_W1(0x00010870U), 0x00000090U, \
+         SM_CFG_W1(0x00010874U), 0x00000999U, \
+         SM_CFG_W1(0x00010980U), 0x900000C0U, \
+-- 
+2.52.0

@@ -396,6 +396,15 @@ case "${BUILD_TYPE}" in
 		export FDT_LOADADDRESS=0x43000000
 		;;
 
+	imx95*)
+		emmc_common_params
+
+		export UBOOT_LOADADDRESS=0x92000000
+		export UBOOT_ENTRYPOINT=0x92000000
+		export UBOOT_DTB_LOADADDRESS=0x95000000
+		export UBOOT_DTBO_LOADADDRESS=0x95080000
+		;;
+
 	imx9*)
 		emmc_common_params
 

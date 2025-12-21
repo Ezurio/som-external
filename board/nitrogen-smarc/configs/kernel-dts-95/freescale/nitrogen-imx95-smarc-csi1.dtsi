@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2025 Ezurio LLC
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include "imx95-pinfunc.h"
+
+&{/} {
+	clk_cam_csi1_int: clk-cam-csi1-int {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+};
+
+&i2c_csi1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	cam_csi1: cam-csi1 {
+		clocks = <&clk_cam_csi1_int>; /* On Camera module */
+		clock-names = "xclk";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam_csi1>;
+
+		port {
+			cam_csi1_ep: endpoint {
+				remote-endpoint = <&mipi_csi1_in_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
+};
+
+&mipi_csi1 {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			mipi_csi1_in_ep: endpoint {
+				remote-endpoint = <&cam_csi1_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			mipi_csi1_out_ep: endpoint {
+				remote-endpoint = <&formatter_1_in_ep>;
+			};
+		};
+	};
+};
+
+&csi_pixel_formatter_1 {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			formatter_1_in_ep: endpoint {
+				remote-endpoint = <&mipi_csi1_out_ep>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			formatter_1_out_ep: endpoint {
+				remote-endpoint = <&isi_in_3_ep>;
+			};
+		};
+	};
+};
+
+&isi {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@3 {
+			isi_in_3_ep: endpoint {
+				remote-endpoint = <&formatter_1_out_ep>;
+			};
+		};
+	};
+};
+
+&display_stream_csr {
+	status = "disabled";
+};
+
+&display_master_csr {
+	status = "dsabled";
+};
+
+&mipi_tx_phy_csr {
+	status = "disabled";
+};
+
+&mipi_dsi_intf {
+	status = "okay";
+};
+
+&combo_rx {
+	status = "okay";
+};
+
+&scmi_iomuxc {
+	pinctrl_cam_csi1: pinctrl-cam-csi1 {
+		fsl,pins = <
+			IMX95_PAD_GPIO_IO22__GPIO2_IO_BIT22	0x31e
+			IMX95_PAD_XSPI1_SCLK__GPIO5_IO_BIT9	0x31e
+		>;
+	};
+};
