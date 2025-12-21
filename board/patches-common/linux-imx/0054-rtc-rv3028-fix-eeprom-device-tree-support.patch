@@ -1,0 +1,14 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -1014,6 +1014,8 @@
+ 	nvmem_cfg.priv = rv3028->regmap;
+ 	devm_rtc_nvmem_register(rv3028->rtc, &nvmem_cfg);
+ 	eeprom_cfg.priv = rv3028;
++	eeprom_cfg.of_node = of_get_compatible_child(client->dev.of_node,
++		"microcrystal,rv3028-eeprom");
+ 	devm_rtc_nvmem_register(rv3028->rtc, &eeprom_cfg);
+ 
+ 	rv3028->rtc->max_user_freq = 1;

@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx95-smarc-lvds.dtsi"
+
+&{/} {
+	backlight_lvds0: backlight-lvds0 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_lvds0>;
+		enable-gpios = <&gpio5 4 GPIO_ACTIVE_HIGH>;
+
+		pwms = <&tpm4 2 30000 0>;
+	};
+
+	display_lvds0: display-lvds0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_lvds0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_lvds0_ep: endpoint {
+				remote-endpoint = <&lvds0_out_ep>;
+			};
+		};
+	};
+};
+
+&ldb {
+	channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			lvds0_out_ep: endpoint {
+				remote-endpoint = <&display_in_lvds0_ep>;
+			};
+		};
+	};
+};
+
+&ldb0_phy {
+	status = "okay";
+};
+
+&tpm4 {
+	status = "okay";
+};
+
+&scmi_iomuxc {
+	pinctrl_backlight_lvds0: pinctrl-backlight-lvds0 {
+		fsl,pins = <
+			IMX95_PAD_XSPI1_DATA4__GPIO5_IO_BIT4	0x37e
+		>;
+	};
+};

@@ -1,0 +1,34 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -811,13 +811,16 @@
+ 	struct clk *clk;
+ 	struct clk_init_data init;
+ 	struct device_node *node = client->dev.of_node;
++	char clk_name[20];
+ 
+ 	ret = regmap_update_bits(rv3028->regmap, RV3028_STATUS,
+ 				 RV3028_STATUS_CLKF, 0);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	init.name = "rv3028-clkout";
++	snprintf(clk_name, sizeof(clk_name), "rv3028-clkout%d",
++		 rv3028->rtc->id);	
++	init.name = clk_name;
+ 	init.ops = &rv3028_clkout_ops;
+ 	init.flags = 0;
+ 	init.parent_names = NULL;
+@@ -1011,8 +1011,10 @@
+ 	if (ret)
+ 		return ret;
+ 
++	nvmem_cfg.id = rv3028->rtc->id;
+ 	nvmem_cfg.priv = rv3028->regmap;
+ 	devm_rtc_nvmem_register(rv3028->rtc, &nvmem_cfg);
++	eeprom_cfg.id = rv3028->rtc->id;
+ 	eeprom_cfg.priv = rv3028;
+ 	eeprom_cfg.of_node = of_get_compatible_child(client->dev.of_node,
+ 		"microcrystal,rv3028-eeprom");

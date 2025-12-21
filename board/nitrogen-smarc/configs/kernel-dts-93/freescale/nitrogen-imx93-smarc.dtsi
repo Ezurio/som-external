@@ -17,6 +17,7 @@
 		ethernet1 = &fec;
 		spi0 = &lpspi3;
 		spi1 = &lpspi1;
+		gpio4 = &pcal6534;
 	};
 
 	chosen {

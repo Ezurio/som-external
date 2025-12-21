@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Boundary Devices
+ *
+ */
+
+#include "nitrogen-imx95-smarc-dsi0-7.dtso"
+
+&backlight_dsi0 {
+	pwms = <&tpm4 2 100000 0>;
+};
+
+&display_dsi0 {
+	width-mm = <217>;
+	height-mm = <136>;
+};
+
+&touchscreen_dsi0 {
+	compatible = "goodix,gt9271";
+};

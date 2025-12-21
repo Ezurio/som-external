@@ -1,0 +1,174 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "imx95-clock.h"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include "imx95-pinfunc.h"
+
+#include "nitrogen-imx95-bd-panel.dtsi"
+
+&{/} {
+	backlight_dsi0: backlight-dsi0 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&tpm4 2 30000 0>;
+	};
+
+	display_dsi0: display-dsi0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_dsi0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_dsi0: endpoint {
+				remote-endpoint = <&sn65dsi84_out_ep_dsi0>;
+			};
+		};
+	};
+
+	vcc_dsi0: regulator-vcc-dsi0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_dsi0";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpios = <&pcal6524 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		// This delay need to account for DSI clock startup time
+		// SN65DSI84 enables PLL on enable phase and waits for it to lock on 
+		// DSI clock, but this clock just started a moment ago, so it is not 
+		// yet stable, as such PLL cannot lock on it.
+		startup-delay-us = <30000>;
+	};
+};
+
+&mipi_dsi {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			dsi_out_ep: endpoint {
+				remote-endpoint = <&sn65dsi84_in_ep_dsi0>;
+			};
+		};
+	};
+};
+
+&i2c_lcd_dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_dsi0: touchscreen-dsi0@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&reg_vdd_3v3>; /* Real supply is on the display */
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen_dsi0>;
+		reset-gpios = <&gpio2 31 GPIO_ACTIVE_HIGH>;
+		irq-gpios = <&gpio5 4 GPIO_ACTIVE_HIGH>;
+		interrupts-extended = <&gpio5 4 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "irq";
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+
+	sn65dsi84_dsi0: sn65dsi84-dsi0@2c {
+		compatible = "ti,sn65dsi84";
+		reg = <0x2c>;
+
+		vcc-supply = <&vcc_dsi0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				sn65dsi84_in_ep_dsi0: endpoint {
+					remote-endpoint = <&dsi_out_ep>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				sn65dsi84_out_ep_dsi0: endpoint {
+					remote-endpoint = <&display_in_ep_dsi0>;
+				};
+			};
+		};
+	};
+};
+
+&tpm4 {
+	status = "okay";
+};
+
+&dpu {
+	assigned-clocks = <&scmi_clk IMX95_CLK_DISP1PIX>,
+			  <&scmi_clk IMX95_CLK_VIDEOPLL1_VCO>,
+			  <&scmi_clk IMX95_CLK_VIDEOPLL1>;
+	assigned-clock-parents = <&scmi_clk IMX95_CLK_VIDEOPLL1>;
+	// 24 * DSI_CLOCK, 3 * DSI_CLOCK
+	assigned-clock-rates = <0>, <3456000000>, <432000000>;
+	status = "okay";
+};
+
+&scmi_iomuxc {
+	pinctrl_touchscreen_dsi0: pinctrl-touchscreen-dsi0 {
+		fsl,pins = <
+			IMX95_PAD_XSPI1_DATA4__GPIO5_IO_BIT4	0x137e
+			IMX95_PAD_GPIO_IO31__GPIO2_IO_BIT31 	0x37e
+		>;
+	};
+};
+
+&pixel_interleaver {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		status = "okay";
+	};
+};
+
+&display_pixel_link {
+	status = "okay";
+};
+
+&displaymix_irqsteer {
+	status = "okay";
+};

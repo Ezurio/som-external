@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * ArduCam OV5645 5MP camera module
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx95-smarc-csi1.dtsi"
+
+&cam_csi1 {
+	reg = <0x3c>;
+	compatible = "ovti,ov5645";
+
+	vdddo-supply = <&reg_vdd_3v3>;
+	vdda-supply = <&reg_vdd_3v3>;
+	vddd-supply = <&reg_vdd_3v3>;
+
+	reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
+	enable-gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
+
+	clock-frequency = <24000000>;
+};
