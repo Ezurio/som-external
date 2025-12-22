@@ -18,8 +18,8 @@
 	vdda-supply = <&vdd_cam_a>;
 	vddd-supply = <&vdd_cam_a>;
 
-	reset-gpios = <&exp0 12 GPIO_ACTIVE_LOW>; /* CAM_A_RST */
-	enable-gpios = <&exp0 13 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
+	reset-gpios = <&main_gpio0 6 GPIO_ACTIVE_LOW>; /* CAM_A_RST */
+	enable-gpios = <&main_gpio0 0 GPIO_ACTIVE_HIGH>; /* CAM_A_PWR */
 
 	clock-frequency = <24000000>;
 };

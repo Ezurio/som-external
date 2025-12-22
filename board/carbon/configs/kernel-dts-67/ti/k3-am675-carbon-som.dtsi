@@ -17,12 +17,12 @@
 #include "k3-j722s.dtsi"
 
 / {
-	compatible = "ti,j722s";
+	compatible = "summit,carbon-am67x-som", "ti,j722s";
 	model = "Ezurio Carbon AM67x SOM";
 
 	aliases {
 		serial0 = &wkup_uart0;		/* UART_C */
-		serial2 = &main_uart2;		/* UART_CON */
+		serial2 = &main_uart0;		/* UART_CON */
 		serial3 = &main_uart1;		/* BT */
 		serial4 = &main_uart5;		/* UART_A */
 		serial5 = &mcu_uart0;		/* UART_B */
@@ -30,9 +30,8 @@
 		mmc0 = &sdhci0;			/* EMMC */
 		mmc1 = &sdhci1;			/* SDIO_A */
 		mmc2 = &sdhci2;			/* WIFI */
-		spi0 = &ospi0;			/* SPI_A */
-		spi1 = &main_spi0;		/* SPI_B */
-		spi2 = &mcu_spi0;		/* SPI_C */
+		spi0 = &main_spi0;			/* SPI_A */
+		spi1 = &mcu_spi0;		/* SPI_B */
 		ethernet0 = &cpsw_port1;	/* ETH_A */
 		ethernet1 = &cpsw_port2;	/* ETH_B */
 		can0 = &main_mcan0;		/* CAN_A */
@@ -42,7 +41,6 @@
 		gpio0 = &main_gpio0;
 		gpio1 = &main_gpio1;
 		gpio2 = &mcu_gpio0;
-		gpio3 =  &exp0;
 		rtc0 = &rv3028;
 		rtc1 = &wkup_rtc0;
 	};
@@ -156,8 +154,8 @@
 		regulator-max-microvolt = <1800000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_vpp_en_pins_default>;
-		gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&mcu_vpp_en_pins_default>;
+		gpios = <&mcu_gpio0 14 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -184,7 +182,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&vsel_mmc1_pins_default>;
-		gpios = <&main_gpio0 38 GPIO_ACTIVE_LOW>;
+		gpios = <&main_gpio0 16 GPIO_ACTIVE_LOW>;
 
 		/* initial state must be 3.3V */
 		states = <3300000 0x0>, <1800000 0x1>;
@@ -213,7 +211,7 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_a_hw";
-		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&cam_a_pwm 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	clk_cam_b_hw: clk-cam-b-hw {
@@ -222,7 +220,7 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_b_hw";
-		pwms = <&epwm2 1 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&ecap0 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	clk_cam_c_hw: clk-cam-c-hw {
@@ -231,7 +229,7 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_c_hw";
-		pwms = <&ecap1 0 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&pwm4 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	clk_cam_d_hw: clk-cam-d-hw {
@@ -243,11 +241,20 @@
 		pwms = <&epwm1 1 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	pwm2: dmtimer-mcu-pwm-0 { /* LVDS_E_BL_PWM / PWM_2 */
+	cam_a_pwm: dmtimer-main-pwm-6 { /* CAM_A_MCK */
 		compatible = "ti,omap-dmtimer-pwm";
 		#pwm-cells = <3>;
-		ti,timers = <&mcu_timer0>;
-		pinctrl-0 = <&mcu_timer0_pins_default>;
+		ti,timers = <&main_timer6>;
+		pinctrl-0 = <&main_timer6_pins_default>;
+		pinctrl-names = "default";
+		status = "disabled";
+	};
+
+	pwm4: dmtimer-main-pwm-7 { /* CAM_C_MCK / PWM_4 */
+		compatible = "ti,omap-dmtimer-pwm";
+		#pwm-cells = <3>;
+		ti,timers = <&main_timer7>;
+		pinctrl-0 = <&main_timer7_pins_default>;
 		pinctrl-names = "default";
 		status = "disabled";
 	};
@@ -333,12 +340,6 @@
 	};
 };
 
-&mcu_timer0 {
-	/* Interrupt not provided by upstream dts */
-	interrupt-parent = <&main_gpio_intr>;
-	interrupts = <170 IRQ_TYPE_EDGE_RISING>;
-};
-
 &cpsw3g {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;
@@ -376,26 +377,20 @@
 	pinctrl-0 = <&main_mdio0_pins_default>;
 };
 
-&epwm1 { /* CAM_D_MCK / PWM_5 */
+&epwm1 { /* LVDS_E_BL_PWM / PWM_2 & CAM_D_MCK / PWM_5 */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm1_pins_default>;
 };
 
-&epwm2 { /* LVDS_D_BL_PWM / PWM_1 & CAM_B_MCK / PWM_3 */
+&epwm2 { /* LVDS_D_BL_PWM / PWM_1 & DSI_A_BL_PWM / PWM_0 */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm2_pins_default>;
 };
 
-&ecap1 { /* CAM_C_MCK / PWM_4 */
-	/* ECAP1 in APWM mode */
+&ecap0 { /* CAM_B_MCK / PWM_3 */
+	/* ECAP0 in APWM mode */
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_ecap1_pins_default>;
-};
-
-&ecap2 { /* CAM_A_MCK */
-	/* ECAP2 in APWM mode */
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_ecap2_pins_default>;
+	pinctrl-0 = <&main_ecap0_pins_default>;
 };
 
 &mailbox0_cluster0 {
@@ -468,21 +463,21 @@
 
 &main_gpio0 {
 	gpio-line-names =
-		"","","","","", 				/* 0 - 4 */
-		"","","","","",
-		"","","","","",					/* 10 - 14 */
-		"SDIO_A_PWR_EN","","W_DISABLE1","W_DISABLE2","SDIO_RESET",
+		"CAM_A_PWR","","","CAM_C_PWR","CAM_C_PWR", 				/* 0 - 4 */
+		"CAM_D_PWR","CAM_A_RST","","","",
+		"","CAM_B_PWR","CAM_B_RST","","",					/* 10 - 14 */
+		"SDIO_A_PWR_EN","SDIO_A_VSEL","W_DISABLE1","W_DISABLE2","SDIO_RESET",
 		"SDIO_WAKE","BT_HOST_WAKE","RTC_INT","USB_A_ID","USB_A_OC",	/* 20 - 24 */
 		"USB_C_ID","USB_C_OC","SDIO_A_PWR_EN","DSI_A_VDD_EN","DSI_A_BL_EN",
-		"VPP_EN","","","","",				/* 30 - 34 */
-		"","ETH_A_INT","","SDIO_A_VSEL","",
+		"PCIE_PERST","","","","",				/* 30 - 34 */
+		"","ETH_A_INT","","","",
 		"ETH_A_RST","","","","",			/* 40 - 44 */
 		"USB_C_PD_RESET","GPIO_A_3","ETH_B_RST","ETH_B_INT","LVDS_E_VDD_EN",
 		"LVDS_E_BL_EN","LVDS_D_VDD_EN","LVDS_D_BL_EN","","",		/* 50 - 54 */
 		"","","","","",
 		"","","","","",					/* 60 - 64 */
 		"","","","","",
-		"","","EXP0_INT","","",				/* 70 - 74 */
+		"","GPIO_A_0","CAM_C_RST","","",				/* 70 - 74 */
 		"","","","","",
 		"","","","","",					/* 80 - 84 */
 		"","","","","",
@@ -642,32 +637,6 @@
 		regulator-boot-on;
 		regulator-always-on;
 	};
-
-	exp0: gpio@34 {
-		/* U7, TI, TCA6418E */
-		compatible = "ti,tca6418";
-		vcc-supply = <&vdd_1v8>;
-		reg = <0x34>;
-
-		#gpio-cells = <2>;
-		gpio-controller;
-
-		gpio-line-names = 
-			"CAM_B_PWR", "PCIe_A_RC_RST", "CAM_B_RST",
-			"", "CAM_C_PWR", "CAM_C_RST",
-			"CAM_D_PWR", "CAM_D_RST", "CARRIER_STBY",
-			"", "", "",
-			"CAM_A_RST/GPIO_C_7", "CAM_A_PWR/GPIO_C_6", "",
-			"", "", "";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_exp0_pins_default>;
-
-		#interrupt-cells = <2>;
-		interrupt-controller;
-		interrupts-extended = <&main_gpio0 72 IRQ_TYPE_EDGE_FALLING>;
-		interrupt-names = "irq";
-	};
 };
 
 &mcu_i2c0 {
@@ -708,20 +677,9 @@
 	///delete-property/ interrupts;
 	interrupts = <GIC_SPI 248 IRQ_TYPE_LEVEL_HIGH>;
 
-	main_ecap1_pins_default: main-ecap1-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x1c8, PIN_OUTPUT, 1) /* CAM_C_MCK/PWM_4 (F19) UART0_RXD.ECAP1_IN_APWM_OUT */
-		>;
-	};
-
-	main_ecap2_pins_default: main-ecap2-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x1cc, PIN_OUTPUT, 1) /* CAM_A_MCK (F20) UART0_TXD.ECAP2_IN_APWM_OUT */
-		>;
-	};
-
 	main_epwm1_pins_default: main-epwm1-default-pins {
 		pinctrl-single,pins = <
+			J722S_IOPAD(0x19c, PIN_OUTPUT, 6) /* LVDS_E_BL_PWM/PWM_2 (B25) MCASP0_AXR1.EHRPWM1_A */
 			J722S_IOPAD(0x1a0, PIN_OUTPUT, 6) /* CAM_D_MCK/PWM_5 (F23) MCASP0_AXR0.EHRPWM1_B */
 		>;
 	};
@@ -729,7 +687,25 @@
 	main_epwm2_pins_default: main-epwm2-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x1e8, PIN_OUTPUT, 8) /* LVDS_D_BL_PWM/PWM_1 (C24) I2C1_SCL.EHRPWM2_A */
-			J722S_IOPAD(0x1ec, PIN_OUTPUT, 8) /* CAM_B_MCK/PWM_3 (A22) I2C1_SDA.EHRPWM2_B */
+			J722S_IOPAD(0x1ec, PIN_OUTPUT, 8) /* DSI_A_BL_PWM/PWM_0 (A22) I2C1_SDA.EHRPWM2_B */
+		>;
+	};
+
+	main_ecap0_pins_default: main-ecap0-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x1f0, PIN_OUTPUT, 8) /* CAM_B_MCK/PWM_3 (A23) EXT_REFCLK1.ECAP0_IN_APWM_OUT */
+		>;
+	};
+
+	main_timer6_pins_default: main-timer6-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x1d0, PIN_OUTPUT, 4) /* CAM_A_MCK (E22) UART0_CTSN.TIMER_IO6 */
+		>;
+	};
+
+	main_timer7_pins_default: main-timer7-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x1d4, PIN_OUTPUT, 4) /* CAM_C_MCK/PWM_4 (B21) UART0_RTSN.TIMER_IO7 */
 		>;
 	};
 
@@ -751,12 +727,6 @@
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x0a8, PIN_INPUT_PULLUP, 1) /* I2C_C_SCL (R27) GPMC0_CSn0.I2C4_SCL */
 			J722S_IOPAD(0x0ac, PIN_INPUT_PULLUP, 1) /* I2C_C_SDA (P21) GPMC0_CSn1.I2C4_SDA */
-		>;
-	};
-
-	main_vpp_en_pins_default: main-vpp-en-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x1a0, PIN_OUTPUT, 7) /* (V23) GPMC0_AD15.GPIO0_30 */
 		>;
 	};
 
@@ -910,19 +880,19 @@
 		>;
 	};
 
-	main_uart2_pins_default: main-uart2-default-pins {
+	main_uart0_pins_default: main-uart0-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x1d0, PIN_INPUT_PULLUP, 3) /* UART_CON_RX (E22) UART0_CTSn.UART2_RXD */
-			J722S_IOPAD(0x1d4, PIN_OUTPUT, 3) /* UART_CON_TX (B21) UART0_RTSn.UART2_TXD */
+			J722S_IOPAD(0x1c8, PIN_INPUT_PULLUP, 0) /* UART_CON_RX (F19) UART0_RXD.UART0_RXD */
+			J722S_IOPAD(0x1cc, PIN_OUTPUT, 0) /* UART_CON_TX (F20) UART0_TXD.UART0_TXD */
 		>;
 	};
 
 	main_uart1_pins_default: main-uart1-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x194, PIN_INPUT_PULLUP, 2) /* UART_BT (A25) MCASP0_AXR3.UART1_CTSn */
-			J722S_IOPAD(0x198, PIN_OUTPUT,       2) /* UART_BT (A26) MCASP0_AXR2.UART1_RTSn */
-			J722S_IOPAD(0x1ac, PIN_INPUT_PULLUP, 2) /* UART_BT (C27) MCASP0_AFSR.UART1_RXD  */
-			J722S_IOPAD(0x1b0, PIN_OUTPUT,       2) /* UART_BT (F24) MCASP0_ACLKR.UART1_TXD */
+			J722S_IOPAD(0x194, PIN_INPUT_PULLUP, 2) /* UART_BT_CTS (A25) MCASP0_AXR3.UART1_CTSn */
+			J722S_IOPAD(0x198, PIN_OUTPUT,       2) /* UART_BT_RTS (A26) MCASP0_AXR2.UART1_RTSn */
+			J722S_IOPAD(0x1ac, PIN_INPUT_PULLUP, 2) /* UART_BT_RXD (C27) MCASP0_AFSR.UART1_RXD  */
+			J722S_IOPAD(0x1b0, PIN_OUTPUT,       2) /* UART_BT_TXD (F24) MCASP0_ACLKR.UART1_TXD */
 		>;
 	};
 
@@ -930,6 +900,8 @@
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x034, PIN_INPUT_PULLUP, 5) /* UART_A_RX (K22) OSPI0_CSN2.UART5_RXD */
 			J722S_IOPAD(0x038, PIN_OUTPUT, 5) /* UART_A_TX (J22) OSPI0_CSN3.UART5_TXD */
+			J722S_IOPAD(0x008, PIN_INPUT_PULLUP, 5) /* UART_A_CTS (L22) OSPI0_DQS.UART5_CTSn */
+			J722S_IOPAD(0x004, PIN_OUTPUT, 5) /* UART_A_RTS (L23) OSPI0_LBCLKO.UART5_RTSn */
 		>;
 	};
 
@@ -992,19 +964,13 @@
 
 	vsel_mmc1_pins_default: vsel-mmc1-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x09c, PIN_INPUT, 7) /* VSEL_SD (W26) GPMC0_WAIT1.GPIO0_38 */
+			J722S_IOPAD(0x040, PIN_INPUT, 7) /* VSEL_SD (R23) GPMC0_AD1.GPIO0_16 */
 		>;
 	};
 
 	main_mmc1_power_en_default: main-mmc1-power-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x03c, PIN_INPUT, 7) /* SDIO_A_PWR_EN (R22) GPMC0_AD0.GPIO0_15 */
-		>;
-	};
-
-	main_exp0_pins_default: main-exp0-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x128, PIN_INPUT_PULLUP, 7) /* (H21) MMC2_SDWP.GPIO0_72 */
 		>;
 	};
 
@@ -1058,9 +1024,43 @@
 		>;
 	};
 
+	main_cam_a_pins_default: main-cam-a-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x000, PIN_INPUT, 7) /* CAM_A_PWR (L24) OSPI0_CLK.GPIO0_0 */
+			J722S_IOPAD(0x018, PIN_INPUT, 7) /* CAM_A_RST (L25) OSPI0_D3.GPIO0_6 */
+		>;
+	};
+
+	main_cam_b_pins_default: main-cam-b-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x02c, PIN_INPUT, 7) /* CAM_B_PWR (K26) OSPI0_CSN0.GPIO0_11 */
+			J722S_IOPAD(0x030, PIN_INPUT, 7) /* CAM_B_RST (K23) OSPI0_CSN1.GPIO0_12 */
+		>;
+	};
+
+	main_cam_c_pins_default: main-cam-c-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x00c, PIN_INPUT, 7) /* CAM_C_PWR (K27) OSPI0_D0.GPIO0_3 */
+			J722S_IOPAD(0x010, PIN_INPUT, 7) /* CAM_C_RST (L27) OSPI0_D1.GPIO0_4 */
+		>;
+	};
+
+	main_cam_d_pins_default: main-cam-d-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x014, PIN_INPUT, 7) /* CAM_D_PWR (L26) OSPI0_D2.GPIO0_5 */
+			J722S_IOPAD(0x128, PIN_INPUT, 7) /* CAM_D_RST (H21) MMC2_SDWP.GPIO0_72 */
+		>;
+	};
+
+	main_pcie_reset_pins_default: main-pcie-reset-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x078, PIN_INPUT, 7) /* PCIE_RESET# (V23) GPMC0_AD15.GPIO0_30 */
+		>;
+	};
+
 	osm_gpio_a_0_pins_default: osm-gpio-a-0-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x1f0, PIN_INPUT, 7) /* GPIO_A_0 (A23) EXT_REFCLK1.GPIO1_30 */
+			J722S_IOPAD(0x124, PIN_INPUT, 7) /* GPIO_A_0 (F26) MMC2_SDCD.GPIO0_71 */
 		>;
 	};
 
@@ -1171,6 +1171,60 @@
 			J722S_IOPAD(0x074, PIN_INPUT, 7) /* GPIO_C_5 (V22) GPMC0_AD14.GPIO0_29 */
 		>;
 	};
+
+	osm_gpio_c_6_pins_default: osm-gpio-c-6-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x000, PIN_INPUT, 7) /* GPIO_C_6 (L24) OSPI0_CLK.GPIO0_0 */
+		>;
+	};
+
+	osm_gpio_c_7_pins_default: osm-gpio-c-7-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x018, PIN_INPUT, 7) /* GPIO_C_7 (L25) OSPI0_D3.GPIO0_6 */
+		>;
+	};
+
+	osm_gpio_d_0_pins_default: osm-gpio-d-0-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x02c, PIN_INPUT, 7) /* GPIO_D_0 (K26) OSPI0_CSN0.GPIO0_11 */
+		>;
+	};
+
+	osm_gpio_d_1_pins_default: osm-gpio-d-1-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x030, PIN_INPUT, 7) /* GPIO_D_1 (K23) OSPI0_CSN1.GPIO0_12 */
+		>;
+	};
+
+	osm_gpio_d_2_pins_default: osm-gpio-d-2-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x00c, PIN_INPUT, 7) /* GPIO_D_2 (K27) OSPI0_D0.GPIO0_3 */
+		>;
+	};
+
+	osm_gpio_d_3_pins_default: osm-gpio-d-3-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x010, PIN_INPUT, 7) /* GPIO_D_3 (L27) OSPI0_D1.GPIO0_4 */
+		>;
+	};
+
+	osm_gpio_d_4_pins_default: osm-gpio-d-4-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x014, PIN_INPUT, 7) /* GPIO_D_4 (L26) OSPI0_D2.GPIO0_5 */
+		>;
+	};
+
+	osm_gpio_d_5_pins_default: osm-gpio-d-5-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x128, PIN_INPUT, 7) /* GPIO_D_5 (H21) MMC2_SDWP.GPIO0_72 */
+		>;
+	};
+
+	osm_gpio_d_7_pins_default: osm-gpio-d-7-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x09c, PIN_INPUT, 7) /* GPIO_D_7 (W26) GPMC0_WAIT1.GPIO0_38 */
+		>;
+	};
 };
 
 &main_spi0 {
@@ -1179,14 +1233,12 @@
 	pinctrl-0 = <&main_spi0_pins_default>;
 };
 
-&main_uart2 {
+&main_uart0 {
 	/* UART_CON */
 	status = "okay";
 
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart2_pins_default>;
-	interrupts-extended = <&gic500 GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;
-	interrupt-names = "irq";
+	pinctrl-0 = <&main_uart0_pins_default>;
 };
 
 /* On-module Bluetooth */
@@ -1234,7 +1286,7 @@
 	gpio-line-names = 
 		"","WAKEUP","","","",				/* 0 - 4 */
 		"","","","","",
-		"","","","","",					/* 10 - 14 */
+		"","","VPP_EN","GPIO_D_6","",					/* 10 - 14 */
 		"","","","","",
 		"","","","";					/* 20 - 23 */
 };
@@ -1294,9 +1346,9 @@
 		>;
 	};
 
-	mcu_timer0_pins_default: mcu-timer0-default-pins {
+	mcu_vpp_en_pins_default: mcu-vpp-en-default-pins {
 		pinctrl-single,pins = <
-			J722S_MCU_IOPAD(0x038, PIN_OUTPUT, 1) /* LVDS_E_BL_PWM / PWM_2 (D8) MCU_MCAN0_RX.MCU_TIMER_IO0 */
+			J722S_MCU_IOPAD(0x038, PIN_OUTPUT, 7) /* VPP_EN (D8) MCU_MCAN0_RX.GPIO0_14 */
 		>;
 	};
 
@@ -1317,22 +1369,25 @@
 			J722S_MCU_IOPAD(0x02c, PIN_INPUT, 7) /* GPIO_B_1 (C4) WKUP_UART0_CTSn.MCU_GPIO0_11 */
 		>;
 	};
+
+	osm_gpio_d_6_pins_default: osm-gpio-d-6-default-pins {
+		pinctrl-single,pins = <
+			J722S_MCU_IOPAD(0x034, PIN_INPUT, 7) /* GPIO_D_6 (B2) MCU_MCAN0_TX.MCU_GPIO0_13 */
+		>;
+	};
 };
 
-&mcu_mcan1 {
-	/* CAN_B */
+&mcu_mcan1 { /* CAN_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_mcan1_pins_default>;
 };
 
-&mcu_uart0 {
-	/* UART_B */
+&mcu_uart0 { /* UART_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_uart0_pins_default>;
 };
 
-&mcu_spi0 {
-	/* SPI_C */
+&mcu_spi0 { /* SPI_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_spi0_pins_default>;
 };
@@ -1392,7 +1447,10 @@
 };
 
 &pcie0_rc {
-	reset-gpios = <&exp0 1 GPIO_ACTIVE_HIGH>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_pcie_reset_pins_default>;
+	reset-gpios = <&main_gpio0 30 GPIO_ACTIVE_HIGH>;
+
 	phys = <&serdes1_pcie_link>;
 	phy-names = "pcie-phy";
 };

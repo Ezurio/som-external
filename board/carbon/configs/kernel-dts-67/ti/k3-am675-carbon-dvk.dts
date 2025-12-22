@@ -175,7 +175,7 @@
 
 		led0 {
 			color = <LED_COLOR_ID_GREEN>;
-			gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
+			gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
 		};
 	};
@@ -404,52 +404,52 @@
 	};
 };
 
-&exp0 {
+&main_gpio0 {
 	cam_a_rst_hog: cam-a-rst-hog {
 		gpio-hog;
-		gpios = <12 GPIO_ACTIVE_HIGH>;
+		gpios = <6 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_a_pwr_hog: cam-a-pwr-hog {
 		gpio-hog;
-		gpios = <13 GPIO_ACTIVE_HIGH>;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_b_rst_hog: cam-b-rst-hog {
 		gpio-hog;
-		gpios = <2 GPIO_ACTIVE_HIGH>;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_b_pwr_hog: cam-b-pwr-hog {
 		gpio-hog;
-		gpios = <0 GPIO_ACTIVE_HIGH>;
+		gpios = <3 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_c_rst_hog: cam-c-rst-hog {
 		gpio-hog;
-		gpios = <5 GPIO_ACTIVE_HIGH>;
+		gpios = <6 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_c_pwr_hog: cam-c-pwr-hog {
 		gpio-hog;
-		gpios = <4 GPIO_ACTIVE_HIGH>;
+		gpios = <5 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_d_rst_hog: cam-d-rst-hog {
 		gpio-hog;
-		gpios = <7 GPIO_ACTIVE_HIGH>;
+		gpios = <72 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_d_pwr_hog: cam-d-pwr-hog {
 		gpio-hog;
-		gpios = <6 GPIO_ACTIVE_HIGH>;
+		gpios = <7 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 };
@@ -515,7 +515,7 @@
 	>;
 };
 
-&main_spi0 { /* SPI_C */
+&main_spi0 { /* SPI_A */
 	status = "okay";
 
 	spidev@0 {
@@ -525,11 +525,11 @@
 	};
 };
 
-&main_uart5 { /* UART_D */
+&main_uart5 { /* UART_A */
 	status = "okay";
 };
 
-&main_uart6 { /* UART_A */
+&main_uart6 { /* UART_D */
 	status = "okay";
 };
 

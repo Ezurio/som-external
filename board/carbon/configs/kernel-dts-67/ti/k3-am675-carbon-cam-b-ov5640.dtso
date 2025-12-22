@@ -18,6 +18,6 @@
 	AVDD-supply = <&vdd_cam_b>;
 	DVDD-supply = <&vdd_cam_b>;
 
-	reset-gpios = <&exp0 2 GPIO_ACTIVE_LOW>; /* CAM_B_RST */
-	powerdown-gpios = <&exp0 0 GPIO_ACTIVE_LOW>; /* CAM_B_PWR */
+	reset-gpios = <&main_gpio0 4 GPIO_ACTIVE_LOW>; /* CAM_B_RST */
+	powerdown-gpios = <&main_gpio0 3 GPIO_ACTIVE_LOW>; /* CAM_B_PWR */
 };
