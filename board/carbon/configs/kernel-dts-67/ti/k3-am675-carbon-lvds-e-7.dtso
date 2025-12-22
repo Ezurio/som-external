@@ -21,7 +21,7 @@
 
 		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
 		default-brightness-level = <8>;
-		pwms = <&pwm2 0 30000 0>; /* 33.3 kHz */
+		pwms = <&epwm1 0 30000 0>; /* 33.3 kHz */
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_e_backlight_en_default>;
@@ -65,11 +65,7 @@
 	};
 };
 
-&mcu_timer0 {
-	status = "okay";
-};
-
-&pwm2 {
+&epwm1 {
 	status = "okay";
 };
 

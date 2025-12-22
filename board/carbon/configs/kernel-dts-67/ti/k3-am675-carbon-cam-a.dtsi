@@ -24,6 +24,9 @@
 		clocks = <&clk_cam_a_int>; /* On Camera module */
 		clock-names = "xclk";
 
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_cam_a_pins_default>;
+
 		port {
 			cam_a_ep: endpoint {
 				remote-endpoint = <&csi2rx0_in_sensor>;
