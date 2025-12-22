@@ -8,7 +8,7 @@
 #include "k3-am675-carbon-lvds-e-7.dtso"
 
 &backlight_lvds_e {
-	pwms = <&epwm2 1 100000 0>;
+	pwms = <&pwm2 0 100000 0>;
 };
 
 &display_lvds_e {

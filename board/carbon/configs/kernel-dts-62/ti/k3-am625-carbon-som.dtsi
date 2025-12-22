@@ -354,12 +354,17 @@
 	pinctrl-0 = <&main_mdio0_pins_default>;
 };
 
-&epwm1 {
+&epwm0 { /* PWM_0 */
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_epwm0_pins_default>;
+};
+
+&epwm1 { /* PWM_1 and PWM_2 */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm1_pins_default>;
 };
 
-&ecap2 {
+&ecap2 { /* CAM_A_MCK */
 	/* ECAP in APWM mode */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_ecap2_pins_default>;
@@ -613,10 +618,16 @@
 		>;
 	};
 
+	main_epwm0_pins_default: main-epwm0-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x1b8, PIN_OUTPUT, 2) /* PWM_0 (C13) SPI0_CS1.EHRPWM0_B */
+		>;
+	};
+
 	main_epwm1_pins_default: main-epwm1-default-pins {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x19c, PIN_OUTPUT, 6) /* PWM_1 (B18) MCASP0_AXR1.EHRPWM1_A */
-			AM62X_IOPAD(0x1a0, PIN_OUTPUT, 6) /* PWM_2 (E18) MCASP0_AXR0.EHRPWM1_B */
+			AM62X_IOPAD(0x19c, PIN_OUTPUT, 6) /* LVDS_D_BL_PWM/PWM_1 (B18) MCASP0_AXR1.EHRPWM1_A */
+			AM62X_IOPAD(0x1a0, PIN_OUTPUT, 6) /* RGB_BL_PWM/LVDS_E_BL_PWM/PWM_2 (E18) MCASP0_AXR0.EHRPWM1_B */
 		>;
 	};
 

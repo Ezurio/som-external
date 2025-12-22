@@ -222,7 +222,7 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_b_hw";
-		pwms = <&ecap1 0 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&epwm2 1 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	clk_cam_c_hw: clk-cam-c-hw {
@@ -231,7 +231,7 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_c_hw";
-		pwms = <&epwm1 1 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&ecap1 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
 	clk_cam_d_hw: clk-cam-d-hw {
@@ -240,10 +240,10 @@
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 		clock-output-names = "clk_cam_d_hw";
-		pwms = <&epwm1 0 42 0>; /* 1 / 42 ns = 24 MHz */
+		pwms = <&epwm1 1 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	pwm2: dmtimer-mcu-pwm-0 {
+	pwm2: dmtimer-mcu-pwm-0 { /* LVDS_E_BL_PWM / PWM_2 */
 		compatible = "ti,omap-dmtimer-pwm";
 		#pwm-cells = <3>;
 		ti,timers = <&mcu_timer0>;
@@ -376,23 +376,23 @@
 	pinctrl-0 = <&main_mdio0_pins_default>;
 };
 
-&epwm1 {
+&epwm1 { /* CAM_D_MCK / PWM_5 */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm1_pins_default>;
 };
 
-&epwm2 {
+&epwm2 { /* LVDS_D_BL_PWM / PWM_1 & CAM_B_MCK / PWM_3 */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_epwm2_pins_default>;
 };
 
-&ecap1 {
+&ecap1 { /* CAM_C_MCK / PWM_4 */
 	/* ECAP1 in APWM mode */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_ecap1_pins_default>;
 };
 
-&ecap2 {
+&ecap2 { /* CAM_A_MCK */
 	/* ECAP2 in APWM mode */
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_ecap2_pins_default>;
@@ -710,7 +710,7 @@
 
 	main_ecap1_pins_default: main-ecap1-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x1c8, PIN_OUTPUT, 1) /* CAM_B_MCK/PWM_4 (F19) UART0_RXD.ECAP1_IN_APWM_OUT */
+			J722S_IOPAD(0x1c8, PIN_OUTPUT, 1) /* CAM_C_MCK/PWM_4 (F19) UART0_RXD.ECAP1_IN_APWM_OUT */
 		>;
 	};
 
@@ -722,15 +722,14 @@
 
 	main_epwm1_pins_default: main-epwm1-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x19c, PIN_OUTPUT, 6) /* CAM_D_MCK/GPIO_D_6 (B25) MCASP0_AXR1.EHRPWM1_A */
-			J722S_IOPAD(0x1a0, PIN_OUTPUT, 6) /* CAM_C_MCK/PWM_5 (F23) MCASP0_AXR0.EHRPWM1_B */
+			J722S_IOPAD(0x1a0, PIN_OUTPUT, 6) /* CAM_D_MCK/PWM_5 (F23) MCASP0_AXR0.EHRPWM1_B */
 		>;
 	};
 
 	main_epwm2_pins_default: main-epwm2-default-pins {
 		pinctrl-single,pins = <
-			J722S_IOPAD(0x1e8, PIN_OUTPUT, 8) /* PWM_1 (C24) I2C1_SCL.EHRPWM2_A */
-			J722S_IOPAD(0x1ec, PIN_OUTPUT, 8) /* PWM_3 (A22) I2C1_SDA.EHRPWM2_B */
+			J722S_IOPAD(0x1e8, PIN_OUTPUT, 8) /* LVDS_D_BL_PWM/PWM_1 (C24) I2C1_SCL.EHRPWM2_A */
+			J722S_IOPAD(0x1ec, PIN_OUTPUT, 8) /* CAM_B_MCK/PWM_3 (A22) I2C1_SDA.EHRPWM2_B */
 		>;
 	};
 
@@ -1297,7 +1296,7 @@
 
 	mcu_timer0_pins_default: mcu-timer0-default-pins {
 		pinctrl-single,pins = <
-			J722S_MCU_IOPAD(0x038, PIN_OUTPUT, 1) /* LVDS_D_BL_PWM / PWM2 (D8) MCU_MCAN0_RX.MCU_TIMER_IO0 */
+			J722S_MCU_IOPAD(0x038, PIN_OUTPUT, 1) /* LVDS_E_BL_PWM / PWM_2 (D8) MCU_MCAN0_RX.MCU_TIMER_IO0 */
 		>;
 	};
 
