@@ -17,6 +17,17 @@ case "${SENSOR}" in
 		;;
 esac
 
+if [ -r /sys/devices/soc0/soc_id ]; then
+    # Get the SoC ID
+    read -r soc_id < /sys/devices/soc0/soc_id
+
+	case "${soc_id}" in
+		i.MX95)
+			media-ctl -R "'crossbar' [2/0 -> 5/0 [1], 2/0 -> 6/0 [0], 2/0 -> 7/0 [0], 2/0 -> 8/0 [0], 2/0 -> 9/0 [0], 2/0 -> 10/0 [0], 2/0 -> 11/0 [0], 2/0 -> 12/0 [0]]"
+			;;
+	esac
+fi
+
 NODE_NEXT="\"${SENSOR}\":0"
 while [ -n "${NODE_NEXT}" ]; do
 	NODE="${NODE_NEXT%\"*}"

@@ -22,21 +22,29 @@ done
 FORMAT="$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/.*fmt:(.*)\/([0-9]+)x([0-9]+).*/\1 \2 \3/p')"
 CAM_DEV=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
 
-[ ! -r /sys/devices/soc0/soc_id ] || read -r soc_id < /sys/devices/soc0/soc_id
-
 format=$(v4l2-ctl -d 0 --list-formats-ext | sed -rn "s/\s+\[0\]: '([A-Z0-9]+)'.*/\1/p")
 [ "${format}" != "YUYV" ] || format=YUY2
 
 if pgrep wayland >/dev/null 2>&1; then
     SINK=waylandsink
-else
+elif [ -r /sys/devices/soc0/soc_id ]; then
+    read -r soc_id < /sys/devices/soc0/soc_id || soc_id=
+
     case "${soc_id}" in
         i.MX93)
             format="${format},framerate=5/1"
-            SINK="videoconvert !"
+            SINK="videoconvert ! kmssink can-scale=false"
+            ;;
+        i.MX95)
+            format="${format},framerate=5/1"
+            SINK="videoconvert ! fbdevsink"
+            ;;
+        *)
+            SINK="kmssink can-scale=false"
             ;;
     esac
-    SINK="${SINK} kmssink can-scale=false"
+else
+    SINK="kmssink can-scale=false"
 fi
 
 set -- ${FORMAT}
