@@ -312,7 +312,7 @@
 		// Put CLKREQ into low state to disable PCIE clock output
 		pcie-clk-req-hog {
 			gpio-hog;
-			gpios = <13 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+			gpios = <16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
 			input;
 		};
 	};
