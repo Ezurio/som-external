@@ -57,6 +57,12 @@
 	status = "okay";
 };
 
+&pixel_interleaver {
+	channel@1 {
+		status = "okay";
+	};
+};
+
 &tpm3 {
 	status = "okay";
 };
