@@ -39,7 +39,7 @@ cleanup()
 }
 
 erase_nand() {
-	atmel_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd"
+	atmel_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi:nand-controller/mtd"
 
 	[ -d "${atmel_flash}" ] || return
 
