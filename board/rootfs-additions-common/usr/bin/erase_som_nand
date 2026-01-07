@@ -1,13 +1,15 @@
 #! /bin/sh
+# SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+# Copyright (C) 2024 Ezurio
 
 if [ "${1}" = '-h' ]; then
-    echo "usage: ${0} [-f] [-h]"
-    echo "  -f  - erase everything including bad and reserved blocks (scrub)"
-    echo "  -h  - help message"
-    exit 0
+	echo "usage: ${0} [-f] [-h]"
+	echo "  -f  - erase everything including bad and reserved blocks (scrub)"
+	echo "  -h  - help message"
+	exit 0
 fi
 
-main_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi\:nand-controller/mtd"
+atmel_flash="/sys/devices/platform/ahb/10000000.ebi/10000000.ebi:nand-controller/mtd"
 
 if [ -f /sys/class/ubi/ubi0 ]; then
     ubidetach -d 0 || exit 1
@@ -15,16 +17,16 @@ fi
 
 cleanup()
 {
-    echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode
-    echo "Module must be rebooted after complete erase"
+	echo 0 > /sys/kernel/debug/mtd/expert_analysis_mode
+	echo "Module must be rebooted after complete erase"
 }
 
 if [ "${1}" = '-f' ]; then
-    trap cleanup EXIT
-    echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
+	trap cleanup EXIT
+	echo 1 > /sys/kernel/debug/mtd/expert_analysis_mode
 fi
 
-for i in "${main_flash}"/mtd[0-9]; do
-    echo "Erasing ${i##*/}"
-    flash_erase "/dev/${i##*/}" 0 0
+for i in "${atmel_flash}"/mtd[0-9]; do
+	echo "Erasing ${i##*/}"
+	flash_erase "/dev/${i##*/}" 0 0
 done
