@@ -6,6 +6,12 @@
 /dts-v1/;
 /plugin/;
 
+// CSI1 is disabled on SMARC module by default,
+// requires switching 0 Ohm resistors to enable
+
+// SMARC carrier has 1.8V camera GPIO/I2C,
+// requires camera that can tolerate that
+
 #include "nitrogen-imx95-smarc-csi1.dtsi"
 
 &cam_csi1 {

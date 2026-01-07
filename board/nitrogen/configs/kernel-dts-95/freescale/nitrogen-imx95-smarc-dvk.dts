@@ -115,6 +115,11 @@
 	};
 };
 
+&reg_usb_otg_vbus {
+	// power switch on the carrier must be controlled by open-drain GPIO
+	gpio = <&pcal6524 21 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN | GPIO_PULL_UP)>;
+};
+
 &flexcan1 {
 	status = "okay";
 	xceiver-supply = <&reg_can1_stby>;
