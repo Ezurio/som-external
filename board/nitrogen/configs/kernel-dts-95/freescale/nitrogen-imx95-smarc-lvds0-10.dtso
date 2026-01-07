@@ -4,17 +4,20 @@
  *
  */
 
-#include "nitrogen-imx95-smarc-dsi0-7.dtso"
+// LVDS0 is disabled on SMARC module by default
+// requires switching 0 Ohm resistors to enable
 
-&backlight_dsi0 {
+#include "nitrogen-imx95-smarc-lvds0-7.dtso"
+
+&backlight_lvds0 {
 	pwms = <&tpm4 2 100000 0>;
 };
 
-&display_dsi0 {
+&display_lvds0 {
 	width-mm = <217>;
 	height-mm = <136>;
 };
 
-&touchscreen_dsi0 {
+&touchscreen_lvds {
 	compatible = "goodix,gt9271";
 };

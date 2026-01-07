@@ -6,6 +6,8 @@
 /dts-v1/;
 /plugin/;
 
+// SMARC carrier has 1.8V camera GPIO/I2C, requires camera that can tolerate that
+
 #include "nitrogen-imx95-smarc-csi0.dtsi"
 
 &cam_csi0 {

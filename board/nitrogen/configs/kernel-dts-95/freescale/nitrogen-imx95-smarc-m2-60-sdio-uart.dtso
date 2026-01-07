@@ -10,6 +10,9 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
+// M.2 SDIO is disabled by default on SMARC carrier board
+// requires switching 0 Ohm resistors to enable	
+
 &reg_usdhc2_vmmc {
 	vin-supply = <&reg_slow_clock_carrier>;
 

@@ -113,6 +113,10 @@
 	};
 };
 
+&reg_usb_otg_vbus {
+	gpio = <&pcal6534 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP | GPIO_OPEN_DRAIN)>; /* P1_6 -> USB0_EN_OC */
+};
+
 &gpio2 {
 	dsi0_backlight: dsi0-backlight {
 		gpio-hog;

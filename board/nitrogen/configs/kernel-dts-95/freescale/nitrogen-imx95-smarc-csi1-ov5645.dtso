@@ -8,6 +8,9 @@
 /dts-v1/;
 /plugin/;
 
+// CSI1 is disabled on SMARC module by default,
+// requires switching 0 Ohm resistors to enable
+
 #include "nitrogen-imx95-smarc-csi1.dtsi"
 
 &cam_csi1 {

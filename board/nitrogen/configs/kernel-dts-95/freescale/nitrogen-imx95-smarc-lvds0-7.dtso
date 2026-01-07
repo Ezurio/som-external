@@ -6,6 +6,9 @@
 /dts-v1/;
 /plugin/;
 
+// LVDS0 is disabled on SMARC module by default
+// requires switching 0 Ohm resistors to enable
+
 #include "nitrogen-imx95-smarc-lvds.dtsi"
 
 &{/} {
