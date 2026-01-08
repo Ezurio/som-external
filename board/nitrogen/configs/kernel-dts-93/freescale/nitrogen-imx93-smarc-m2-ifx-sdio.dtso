@@ -19,6 +19,8 @@
 };
 
 &usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
 	#address-cells = <1>;
 	#size-cells = <0>;
 

@@ -16,6 +16,10 @@
 	off-on-delay-us = <100>;
 };
 
+&usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+};
+
 &lpuart8 {
 	status = "okay";
 

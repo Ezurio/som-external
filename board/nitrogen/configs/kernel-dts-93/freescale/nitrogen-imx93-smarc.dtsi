@@ -432,10 +432,8 @@
 
 &usbotg2 { /* USB1 */
 	vbus-supply = <&reg_usb_2_vbus>;
-	disable-over-current;
 	samsung,picophy-pre-emp-curr-control = <3>;
 	samsung,picophy-dc-vol-level-adjust = <7>;
-	status = "disabled";
 };
 
 &usdhc1 { /* eMMC */

@@ -21,6 +21,8 @@
 };
 
 &usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
 	wifi-m2 {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-sdio";

@@ -96,6 +96,16 @@
 		startup-delay-us = <1000>;
 	};
 
+	reg_usdhc2_vmmc_dummy: regulator-usdhc2-vmmc-dummy {
+		compatible = "regulator-fixed";
+
+		regulator-name = "reg_usdhc2_vmmc_dummy";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
 	sound-wm8962 {
 		compatible = "fsl,imx-audio-wm8962";
 		model = "wm8962-audio";
@@ -114,6 +124,7 @@
 };
 
 &reg_usb_otg_vbus {
+	// power switch on the carrier must be controlled by open-drain GPIO
 	gpio = <&pcal6534 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP | GPIO_OPEN_DRAIN)>; /* P1_6 -> USB0_EN_OC */
 };
 
@@ -331,13 +342,13 @@
 &usbotg2 { /* J2 */
 	dr_mode = "host";
 	disable-over-current;
-	samsung,picophy-pre-emp-curr-control = <3>;
-	samsung,picophy-dc-vol-level-adjust = <7>;
 	status = "okay";
 };
 
 &usdhc2 { /* SDIO - SDCARD */
 	status = "okay";
+
+	vmmc-supply = <&reg_usdhc2_vmmc_dummy>;
 
 	// SD card power on the carrier board is not connected to control signal, 
 	// as such SD card cannot be reset, thus disabling 1.8V

@@ -21,6 +21,8 @@
 };
 
 &usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
 	cap-power-off-card;
 
 	#address-cells = <1>;
