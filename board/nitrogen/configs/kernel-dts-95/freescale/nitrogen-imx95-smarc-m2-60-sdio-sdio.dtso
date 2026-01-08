@@ -8,10 +8,10 @@
 /dts-v1/;
 /plugin/;
 
-#include <dt-bindings/gpio/gpio.h>
-
 // M.2 SDIO is disabled by default on SMARC carrier board
 // requires switching 0 Ohm resistors to enable	
+
+#include <dt-bindings/gpio/gpio.h>
 
 &reg_usdhc2_vmmc {
 	vin-supply = <&reg_slow_clock_carrier>;
@@ -21,6 +21,8 @@
 };
 
 &usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
 	wifi-m2 {
 		compatible = "marvell,sd8997";
 		fwtype = "sdio-sdio";

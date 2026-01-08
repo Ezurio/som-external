@@ -8,6 +8,12 @@
 /dts-v1/;
 /plugin/;
 
+&reg_usdhc2_vmmc {
+	vin-supply = <&reg_slow_clock_carrier>;
+
+	startup-delay-us = <1000>;
+	off-on-delay-us = <100000>;
+};
 
 &pcie0 {
 	vpcie-supply = <&reg_usdhc2_vmmc>;

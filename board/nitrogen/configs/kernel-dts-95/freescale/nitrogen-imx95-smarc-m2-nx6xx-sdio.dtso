@@ -16,7 +16,11 @@
 	off-on-delay-us = <100>;
 };
 
-&lpuart8 {
+&usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+};
+
+&lpuart7 {
 	status = "okay";
 
 	bluetooth {
