@@ -4,7 +4,6 @@
  */
 
 #include <dt-bindings/net/ti-dp83867.h>
-#include <dt-bindings/phy/phy-imx8-pcie.h>
 #include <dt-bindings/usb/pd.h>
 
 #include "imx95.dtsi"
@@ -378,12 +377,10 @@
 };
 
 &pcie0 {
-	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_OUTPUT>;
 	reset-gpio = <&pcal6524 13 GPIO_ACTIVE_LOW>;
 };
 
 &pcie1 {
-	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_INPUT>;
 	reset-gpio = <&pcal6524 14 GPIO_ACTIVE_LOW>;
 };
 
