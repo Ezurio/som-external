@@ -419,25 +419,25 @@
 
 	cam_b_rst_hog: cam-b-rst-hog {
 		gpio-hog;
-		gpios = <4 GPIO_ACTIVE_HIGH>;
+		gpios = <12 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_b_pwr_hog: cam-b-pwr-hog {
 		gpio-hog;
-		gpios = <3 GPIO_ACTIVE_HIGH>;
+		gpios = <11 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_c_rst_hog: cam-c-rst-hog {
 		gpio-hog;
-		gpios = <6 GPIO_ACTIVE_HIGH>;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
 	cam_c_pwr_hog: cam-c-pwr-hog {
 		gpio-hog;
-		gpios = <5 GPIO_ACTIVE_HIGH>;
+		gpios = <3 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
@@ -449,7 +449,7 @@
 
 	cam_d_pwr_hog: cam-d-pwr-hog {
 		gpio-hog;
-		gpios = <7 GPIO_ACTIVE_HIGH>;
+		gpios = <5 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 };
