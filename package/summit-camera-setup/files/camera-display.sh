@@ -23,7 +23,10 @@ FORMAT="$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/.*fmt:(.*)\/([0-9]
 CAM_DEV=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
 
 format=$(v4l2-ctl -d 0 --list-formats-ext | sed -rn "s/\s+\[0\]: '([A-Z0-9]+)'.*/\1/p")
-[ "${format}" != "YUYV" ] || format=YUY2
+case "${format}" in
+    YU12) format=UYVY ;;
+    YUYV) format=YUY2 ;;
+esac
 
 if pgrep wayland >/dev/null 2>&1; then
     SINK=waylandsink

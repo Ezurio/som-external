@@ -19,5 +19,5 @@
 	DVDD-supply = <&vdd_cam_d>;
 
 	reset-gpios = <&main_gpio0 72 GPIO_ACTIVE_LOW>; /* CAM_D_RST */
-	powerdown-gpios = <&main_gpio0 7 GPIO_ACTIVE_LOW>; /* CAM_D_PWR */
+	powerdown-gpios = <&main_gpio0 5 GPIO_ACTIVE_LOW>; /* CAM_D_PWR */
 };

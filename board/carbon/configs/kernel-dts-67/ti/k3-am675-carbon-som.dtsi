@@ -511,7 +511,7 @@
 
 &main_gpio0 {
 	gpio-line-names =
-		"CAM_A_PWR","","","CAM_C_PWR","CAM_C_PWR", 				/* 0 - 4 */
+		"CAM_A_PWR","","","CAM_C_PWR","CAM_C_RST", 				/* 0 - 4 */
 		"CAM_D_PWR","CAM_A_RST","","","",
 		"","CAM_B_PWR","CAM_B_RST","","",					/* 10 - 14 */
 		"SDIO_A_PWR_EN","SDIO_A_VSEL","W_DISABLE1","W_DISABLE2","SDIO_RESET",
@@ -525,7 +525,7 @@
 		"","","","","",
 		"","","","","",					/* 60 - 64 */
 		"","","","","",
-		"","GPIO_A_0","CAM_C_RST","","",				/* 70 - 74 */
+		"","GPIO_A_0","CAM_D_RST","","",				/* 70 - 74 */
 		"","","","","",
 		"","","","","",					/* 80 - 84 */
 		"","","","","",
