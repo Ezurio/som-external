@@ -58,7 +58,8 @@ migrate_data() {
 				die "Directory Encryption.. Failed"
 		fi
 
-		cp -fa -t ${MOUNT_POINT} ${DATA_SRC}/* ||
+		# Keep copy simple for portability
+		cp -fa ${DATA_SRC}/* ${MOUNT_POINT}/ ||
 			die "Data Copying.. Failed"
 
 		rm -f ${DATA_SECRET_TARGET}/NetworkManager/system-connections/shared-usb0.nmconnection
