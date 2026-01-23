@@ -1,0 +1,9 @@
+[Unit]
+Description=Firmware Update Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/fw_update -
+StandardInput=socket
+StandardOutput=journal
+StandardError=journal

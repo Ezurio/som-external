@@ -16,11 +16,20 @@ define SUMMIT_UPDATE_INSTALL_TARGET_CMDS
 
 	$(INSTALL) -D -m 0644 -t ${TARGET_DIR}/etc/swupdate/conf.d \
 		${@D}/10-swupdate.conf
-endef 
+endef
 
+ifeq ($(BR2_PACKAGE_SUMMIT_UPDATE_STREAM_SERVICE),y)
+define SUMMIT_UPDATE_INSTALL_STREAM_SERVICE
+	$(INSTALL) -D -m 0644 -t ${TARGET_DIR}/usr/lib/systemd/system \
+		${@D}/fw_update.socket ${@D}/fw_update@.service
+endef
+endif
+ 
 define SUMMIT_UPDATE_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 0644 -t ${TARGET_DIR}/usr/lib/systemd/system/swupdate.service.d \
+	$(INSTALL) -D -m 0644 -t \
+		${TARGET_DIR}/usr/lib/systemd/system/swupdate.service.d \
 		${@D}/01-capability.conf
+	$(SUMMIT_UPDATE_INSTALL_STREAM_SERVICE)
 endef
 
 $(eval $(generic-package))
