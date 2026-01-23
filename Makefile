@@ -5,7 +5,7 @@ TARGETS_meta-som = \
 	ig60ll ig60llsd \
 	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x \
 	summitsom_imx8mp summitsom_secure_imx8mp \
-	nitrogen_imx91 nitrogen_imx93 nitrogen_imx95 nitrogen_imx95a0
+	nitrogen_imx91 nitrogen_imx93 nitrogen_imx95 nitrogen_imx8mm
 
 TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy wb45n_legacy_fips_11

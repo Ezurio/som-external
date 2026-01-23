@@ -6,7 +6,7 @@ links as well
 
 Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 
-Upstream-Status: Inappropriate No time for upstreaming 
+Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/drivers/media/platform/nxp/dwc-mipi-csi2.c b/drivers/media/platform/nxp/dwc-mipi-csi2.c
 index 68be53c4d740..29237268d952 100644

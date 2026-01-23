@@ -174,7 +174,12 @@ create_boot_partition() {
 		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		/usr/bin/mcopy -i "${BOOT_PART}" "${SRCDIR}/uboot.env" ::/
-		append_image 64 "${SRCDIR}/flash.bin"
+		if strings "${SRCDIR}/flash.bin" | grep -xq 'fsl,imx8m[mq]'; then
+			IMX_BOOT_SEEK=33
+		else
+			IMX_BOOT_SEEK=32
+		fi
+		append_image "$((IMX_BOOT_SEEK * 2))" "${SRCDIR}/flash.bin"
 	else
 		${SECURE} && EXT="cip" || EXT="bin"
 		/usr/bin/mcopy -i "${BOOT_PART}" \

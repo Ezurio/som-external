@@ -1,0 +1,48 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/drivers/media/platform/nxp/imx-mipi-csis.c
++++ b/drivers/media/platform/nxp/imx-mipi-csis.c
+@@ -1277,12 +1283,41 @@
+ {
+ 	struct mipi_csis_device *csis = mipi_notifier_to_csis_state(notifier);
+ 	struct media_pad *sink = &csis->sd.entity.pads[CSIS_PAD_SINK];
++	struct media_pad *pad;
++	int ret;
+ 
+-	return v4l2_create_fwnode_links_to_pad(sd, sink, 0);
++	ret = v4l2_create_fwnode_links_to_pad(sd, sink, MEDIA_LNK_FL_ENABLED |
++					       MEDIA_LNK_FL_IMMUTABLE);
++	if (ret < 0) {
++		dev_err(csis->dev, "Couldn't link pad for subdev %s, ret: %d\n",
++			sd->name, ret);
++		return ret;
++	}
++
++	pad = media_pad_remote_pad_first(&csis->pads[CSIS_PAD_SINK]);
++	if (!pad) {
++		dev_err(csis->dev, "Couldn't find output pad for subdev %s, ret: %d\n",
++			sd->name, ret);
++		return -EPIPE;
++	}
++	csis->source.sd = sd;
++	csis->source.pad = pad;
++
++	return 0;
+ }
+ 
++static void mipi_csis_notify_unbound(struct v4l2_async_notifier *notifier,
++				  struct v4l2_subdev *sd,
++				  struct v4l2_async_connection *asd)
++{
++	struct mipi_csis_device *csis = mipi_notifier_to_csis_state(notifier);
++	csis->source.sd = NULL;
++	csis->source.pad = NULL;
++}
++
+ static const struct v4l2_async_notifier_operations mipi_csis_notify_ops = {
+ 	.bound = mipi_csis_notify_bound,
++	.unbind = mipi_csis_notify_unbound,
+ };
+ 
+ static int mipi_csis_async_register(struct mipi_csis_device *csis)

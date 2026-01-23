@@ -1,0 +1,112 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2026 Ezurio
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "imx8mm-pinfunc.h"
+
+#include "nitrogen-imx8mm-bd-panel.dtsi"
+
+&{/} {
+	backlight_lvds0: backlight-lvds0 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&pwm1 0 30000 0>;	/* 33.3 KHz */
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lvds0_backlight>;
+		enable-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+	};
+
+	display_lvds0: display-lvds0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_lvds0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_lvds0: endpoint {
+				remote-endpoint = <&sn65dsi83_out_ep_lvds0>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	status = "okay";
+
+	touchscreen_lvds0: touchscreen-lvds0@5d {
+		compatible = "goodix,gt911";
+		reg = <0x5d>;
+
+		AVDD28-supply = <&reg_vdd_3v3>;
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen_lvds0>;
+		interrupts-extended = <&gpio3 22 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&gpio3 22 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};
+
+&iomuxc {
+	pinctrl_touchscreen_lvds0: touchscreen-lvds0grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO10_GPIO1_IO10	0x100
+			MX8MM_IOMUXC_SAI5_RXD1_GPIO3_IO22	0x1c0
+		>;
+	};
+};
+
+&{/display-subsystem} {
+	status = "okay";
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+};
+
+&sn65dsi83_lvds0 {
+	status = "okay";
+};
+
+&sn65dsi83_out_ep_lvds0 {
+	remote-endpoint = <&display_in_ep_lvds0>;
+};
+
+&pwm1 {
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};

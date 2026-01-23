@@ -34,13 +34,13 @@ elif [ -r /sys/devices/soc0/soc_id ]; then
     read -r soc_id < /sys/devices/soc0/soc_id || soc_id=
 
     case "${soc_id}" in
-        i.MX93)
-            format="${format},framerate=5/1"
-            SINK="videoconvert ! kmssink can-scale=false"
-            ;;
         i.MX95)
             format="${format},framerate=5/1"
             SINK="videoconvert ! fbdevsink"
+            ;;
+        i.MX*)
+            format="${format},framerate=5/1"
+            SINK="videoconvert ! kmssink can-scale=false"
             ;;
         *)
             SINK="kmssink can-scale=false"

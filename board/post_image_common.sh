@@ -37,6 +37,15 @@ if [ -f "${BINARIES_DIR}/sw-description" ]; then
 	EMMC_DEVICE=$(grep -oP 'BR2_SUMMIT_EMMC_DEVICE=\K[^ ]+' "${BR2_CONFIG}")
 	export EMMC_DEVICE
 
+	export EMMC_BOOT_OFFSET=0
+
+	IMX_CPU=$(sed -rn 's/BR2_PACKAGE_FREESCALE_IMX_PLATFORM="(.*)"/\1/p' "${BR2_CONFIG}")
+	case ${IMX_CPU} in
+		IMX8MM)
+			export EMMC_BOOT_OFFSET=33K
+			;;
+	esac
+
 	# Call script to generate secure SWU
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/generate_swu.sh"
 fi
