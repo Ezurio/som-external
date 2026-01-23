@@ -20,7 +20,7 @@
 	};
 
 	chosen {
-		stdout-path = &lpuart1;
+		stdout-path = "serial0:115200n8";
 	};
 
 	reserved-memory {

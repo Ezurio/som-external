@@ -219,8 +219,14 @@ create_boot_partition() {
 			cp -t "${BOOT_PART}" "${SRCDIR}/prov_data.tar.zst_sign_enc.bin"
 		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
+		if strings "${SRCDIR}/flash.bin" | grep -xq 'fsl,imx8m[mq]'; then
+			IMX_BOOT_SEEK=33
+		else
+			IMX_BOOT_SEEK=32
+		fi
 		cp -t "${BOOT_PART}" "${SRCDIR}/uboot.env"
-		/usr/bin/dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k seek=32 status=none
+		/usr/bin/dd if="${SRCDIR}/flash.bin" of="${TARGET}" bs=1k \
+			seek=${IMX_BOOT_SEEK} status=none
 	else
 		${SECURE} && EXT="cip" || EXT="bin"
 		cp -t "${BOOT_PART}" \

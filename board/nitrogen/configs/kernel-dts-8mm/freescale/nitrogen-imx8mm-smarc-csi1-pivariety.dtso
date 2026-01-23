@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx8mm-smarc-csi1.dtsi"
+
+&cam_csi1 {
+	reg = <0x0c>;
+	compatible = "arducam,arducam-pivariety";
+
+	VANA-supply = <&reg_vdd_3v3>;
+	VDIG-supply = <&reg_vdd_3v3>;
+	VDDL-supply = <&reg_vdd_3v3>;
+
+	reset-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+	enable-gpios = <&gpio4 1 GPIO_ACTIVE_HIGH>;
+};
+
+&cam_csi1_ep {
+	data-lanes = <1 2 3 4>;
+};
+
+&mipi_csi_in_ep {
+	data-lanes = <1 2 3 4>;
+};

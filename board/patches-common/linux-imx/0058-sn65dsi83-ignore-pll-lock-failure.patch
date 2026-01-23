@@ -1,0 +1,16 @@
+
+Upstream-Status: Inappropriate Fixes issue in NXP driver
+
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+@@ -477,8 +487,8 @@
+ 	if (ret) {
+ 		dev_err(ctx->dev, "failed to lock PLL, ret=%i\n", ret);
+ 		/* On failure, disable PLL again and exit. */
+-		regmap_write(ctx->regmap, REG_RC_PLL_EN, 0x00);
+-		return;
++	//	regmap_write(ctx->regmap, REG_RC_PLL_EN, 0x00);
++	//	return;
+ 	}
+ 
+ 	/* Trigger reset after CSR register update. */
