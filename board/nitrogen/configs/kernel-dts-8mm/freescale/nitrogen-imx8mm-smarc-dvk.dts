@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2023 Ezurio LLC
+ * Copyright 2026 Ezurio LLC
  */
 
 /dts-v1/;
@@ -48,16 +48,6 @@
 		clocks = <&rv3028_carrier>;
 
 		startup-delay-us = <1000>;
-	};
-
-	reg_usdhc2_vmmc_dummy: regulator-usdhc2-vmmc-dummy {
-		compatible = "regulator-fixed";
-
-		regulator-name = "reg_usdhc2_vmmc_dummy";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-boot-on;
-		regulator-always-on;
 	};
 
 	sound-wm8962 {
@@ -269,11 +259,11 @@
 &usdhc2 { /* SDIO - SDCARD */
 	status = "okay";
 
-	vmmc-supply = <&reg_usdhc2_vmmc_dummy>;
+	vmmc-supply = <&reg_vdd_3v3>;
 
 	// SD card power on the carrier board is not connected to control signal, 
 	// as such SD card cannot be reset, thus disabling 1.8V
-	//no-1-8-v;
+	no-1-8-v;
 };
 
 &vpu_g1 {

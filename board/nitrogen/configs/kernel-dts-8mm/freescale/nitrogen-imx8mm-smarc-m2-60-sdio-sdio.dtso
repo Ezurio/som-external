@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO 60 SDIO-SDIO module
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+// M.2 SDIO is disabled by default on SMARC carrier board
+// requires switching 0 Ohm resistors to enable	
+
+#include <dt-bindings/gpio/gpio.h>
+
+&reg_usdhc2_vmmc {
+	vin-supply = <&reg_slow_clock_carrier>;
+
+	startup-delay-us = <1000>;
+	off-on-delay-us = <100000>;
+};
+
+&usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
+	wifi-m2 {
+		compatible = "marvell,sd8997";
+		fwtype = "sdio-sdio";
+	};
+};
