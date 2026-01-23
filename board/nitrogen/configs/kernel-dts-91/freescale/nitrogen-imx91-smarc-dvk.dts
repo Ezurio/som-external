@@ -9,7 +9,7 @@
 
 / {
 	model = "Ezurio Nitrogen i.MX91 SMARC DVK board";
-	compatible = "summit,nitrogen-imx93-smarc-dvk", "fsl,imx93";
+	compatible = "summit,nitrogen-imx91-smarc-dvk", "fsl,imx91";
 
 	aliases {
 		rtc0 = &rv3028_carrier;
@@ -335,7 +335,7 @@
 
 	// SD card power on the carrier board is not connected to control signal, 
 	// as such SD card cannot be reset, thus disabling 1.8V
-	//no-1-8-v;
+	no-1-8-v;
 };
 
 &iomuxc {
