@@ -30,6 +30,13 @@ usage() {
     -f - Factory provision mode (default: off)
     -v - Verbose mode (default: off)
     url - URL to update package
+          Supported formats:
+            '-' - Read from standard input (stdin)
+            file:///path/to/file or /path/to/file - Local file
+            http://... or https://... - HTTP/HTTPS download
+            ftp://... - FTP download
+            ssh://[user@]host/path/to/file - SSH/SCP download
+            tcp://port or tcp://:port - Listen on TCP port for incoming data
 --EOF--
     exit 3
 }
@@ -89,9 +96,21 @@ notify updating
 ! ${o_quiet} || exec >/dev/null
 
 case "${url}" in
+'-') ;;
+
 file://*)
     url="${url#file://}"
     [ -r "${url}" ] || die "File ${url} not found"
+    ;;
+
+tcp://*)
+    tcp_url="${url#tcp://}"
+    # For listen mode, URL format can be tcp://port or tcp://:port
+    tcp_port="${tcp_url##*:}"
+    [ -z "${tcp_port}" ] && tcp_port="${tcp_url}"
+    [ -n "${tcp_port}" ] || \
+        die "Invalid TCP URL format (expected tcp://port or tcp://:port)"
+    [ -x /bin/nc ] || [ -x /usr/bin/nc ] || die "netcat (nc) not found"
     ;;
 
 *://*)
@@ -130,9 +149,23 @@ complete*)
 esac
 
 case "${url}" in
+'-')
+    # Read from standard input
+    swupdate-client -e "stable,${p_method}" ${o_verbose} - || die ""
+    ;;
+
+tcp://*)
+    # Listen on TCP port
+    { 
+        nc -l "${tcp_port}" | \
+            swupdate-client -e "stable,${p_method}" ${o_verbose} - 
+    } || die ""
+    ;;
+
 *://*)
     { 
-        ${download_cmd} | swupdate-client -e "stable,${p_method}" ${o_verbose} -
+        ${download_cmd} | \
+            swupdate-client -e "stable,${p_method}" ${o_verbose} - 
     } || die ""
     ;;
 

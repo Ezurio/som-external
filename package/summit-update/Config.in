@@ -4,3 +4,17 @@ config BR2_PACKAGE_SUMMIT_UPDATE
 	select BR2_PACKAGE_LIBCONFIG
 	help
 	  Support for software updates
+
+if BR2_PACKAGE_SUMMIT_UPDATE
+
+config BR2_PACKAGE_SUMMIT_UPDATE_STREAM_SERVICE
+	bool "Enable firmware update streaming service"
+	depends on BR2_INIT_SYSTEMD
+	default y if !BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT
+	help
+	  Enable systemd socket-activated service to accept firmware
+	  updates over TCP connections (port 9000). When enabled, the
+	  service will automatically start on incoming connections.
+	  nc 10.10.4.234 9000 < firmware_update.swu
+
+endif

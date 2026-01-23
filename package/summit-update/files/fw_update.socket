@@ -1,0 +1,10 @@
+[Unit]
+Description=Firmware Update Socket
+
+[Socket]
+ListenStream=9000
+Accept=yes
+MaxConnections=1
+
+[Install]
+WantedBy=sockets.target
