@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "imx8mp-pinfunc.h"
+
+#include "nitrogen-imx8mp-bd-panel.dtsi"
+
+&{/} {
+	backlight_dsi0: backlight-dsi0 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&pwm2 0 30000 0>;	/* 33.3 KHz */
+	};
+
+	display_dsi0: display-dsi0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_dsi0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_dsi0: endpoint {
+				remote-endpoint = <&sn65dsi84_out_ep_dsi0>;
+			};
+		};
+	};
+
+	vcc_dsi0: regulator-vcc-dsi0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_dsi0";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_vcc_dsi0>;
+		gpios = <&gpio4 3 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&i2c_lcd_c {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_dsi0: touchscreen-dsi0@5d {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&reg_vdd_3v3>;
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen_dsi0>;
+		interrupts-extended = <&gpio3 15 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&gpio3 15 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&mcp23018 7 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+
+	sn65dsi84_dsi0: sn65dsi84-dsi0@2c {
+		compatible = "ti,sn65dsi84";
+		reg = <0x2c>;
+
+		vcc-supply = <&vcc_dsi0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				sn65dsi84_in_ep_dsi0: endpoint {
+					remote-endpoint = <&dsi_out_ep>;
+					clock-lanes = <0>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				sn65dsi84_out_ep_dsi0: endpoint {
+					remote-endpoint = <&display_in_ep_dsi0>;
+				};
+			};
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_vcc_dsi0: vcc-dsi0grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI1_RXD1__GPIO4_IO03	0x100
+		>;
+	};
+
+	pinctrl_touchscreen_dsi0: touchscreen-dsi0grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_NAND_RE_B__GPIO3_IO15	0x1c0
+		>;
+	};
+
+	pinctrl_sn65dsi83_irq: sn65dsi83-irqgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06	0x1c0
+		>;
+	};
+};
+
+&{/display-subsystem} {
+	status = "okay";
+};
+
+&lcdif1 {
+	status = "okay";
+};
+
+&mipi_dsi {
+	status = "okay";
+};
+
+&dsi_out_ep {
+	remote-endpoint = <&sn65dsi84_in_ep_dsi0>;
+	attach-bridge;
+};
+
+&pwm2 {
+	status = "okay";
+};
+
+&gpu_2d {
+	status = "okay";
+};
+
+&gpu_3d {
+	status = "okay";
+};

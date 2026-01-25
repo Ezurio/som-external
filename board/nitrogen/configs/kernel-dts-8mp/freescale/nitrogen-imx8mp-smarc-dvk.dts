@@ -1,0 +1,354 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2023 Ezurio LLC
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/usb/pd.h>
+#include <dt-bindings/leds/common.h>
+
+#include "nitrogen-imx8mp-smarc.dtsi"
+
+/ {
+	led-controller {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_leds>;
+
+		led-0 {
+			label = "30BF-link-100";
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&mcp23018 5 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			linux,default-trigger = "stmmac-0:07:100Mbps";
+		};
+
+		led-1 {
+			label = "30BE-link-100";
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&gpio4 29 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			linux,default-trigger = "30be0000.ethernet-1:07:100Mbps";
+		};
+	};
+
+	reg_i2c_mux_lcd: regulator-i2c-mux-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_i2c_mux_lcd";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c_mux_lcd>;
+		gpio = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_i2c_mux_gp: regulator-i2c-mux-gp {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_i2c_mux_gp";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&mcp23018 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_can1_stby: regulator-can1-stby {
+		compatible = "regulator-fixed";
+		regulator-name = "can1-stby";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&mcp23018 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_can2_stby: regulator-can2-stby {
+		compatible = "regulator-fixed";
+		regulator-name = "can2-stby";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&mcp23018 4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_slow_clock_carrier: regulator-slow-clock-carrier {
+		compatible = "regulator-fixed-clock";
+
+		regulator-name = "reg_slow_clock_carrier";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		clocks = <&rv3028_carrier>;
+
+		startup-delay-us = <1000>;
+	};
+
+	sound-wm8962 {
+		compatible = "fsl,imx-audio-wm8962";
+		audio-codec = <&wm8962>;
+		audio-cpu = <&sai3>;
+		audio-routing =
+			"Headphone Jack", "HPOUTL",
+			"Headphone Jack", "HPOUTR",
+			"Ext Spk", "SPKOUTL",
+			"Ext Spk", "SPKOUTR",
+			"AMIC", "MICBIAS",
+			"IN1R", "AMIC",
+			"IN2R", "AMIC",
+			"IN3L", "AMIC",
+			"IN3R", "AMIC";
+		codec-master;
+		model = "wm8962-audio";
+		status = "okay";
+	};
+};
+
+&easrc {
+	fsl,asrc-rate  = <48000>;
+	status = "okay";
+};
+
+&ecspi1 {
+	status = "okay";
+
+	spidev1_0: spi@0 {
+		reg = <0>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+
+	spidev1_1: spi@1 {
+		reg = <1>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+};
+
+&ecspi2 {
+	status = "okay";
+
+	spidev2_0: spi@0 {
+		reg = <0>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+
+	spidev2_1: spi@1 {
+		reg = <1>;
+		compatible = "lwn,bk4";
+		spi-max-frequency = <1000000>;
+	};
+};
+
+&flexcan1 {
+	xceiver-supply = <&reg_can1_stby>;
+	status = "okay";
+};
+
+&flexcan2 {
+	xceiver-supply = <&reg_can2_stby>;
+	status = "okay";
+};
+
+/* I2C_GP */
+&i2c2 {
+	status = "okay";
+
+	i2c-mux-gp@73 {
+		compatible = "nxp,pca9546";
+		reg = <0x73>;
+
+		vdd-supply = <&reg_i2c_mux_gp>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_gp_a: i2c2@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			rv3028_carrier: rv3028-carrier@52 {
+				compatible = "microcrystal,rv3028";
+				reg = <0x52>;
+
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_rv3028>;
+				interrupts-extended = <&gpio3 2 IRQ_TYPE_LEVEL_LOW>;
+				interrupt-names = "irq";
+
+				wakeup-source;
+				backup-switchover-dsm;
+				#clock-cells = <0>;
+			};
+		};
+
+		i2c_gp_b: i2c2@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			typec: typec@60 {
+				compatible = "ti,tusb320";
+				reg = <0x60>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_tusb320>;
+				interrupts-extended = <&gpio4 18 IRQ_TYPE_LEVEL_LOW>;
+			};
+		};
+
+		i2c_gp_c: i2c2@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			wm8962: codec@1a {
+				#sound-dai-cells = <0>;
+				clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI3_MCLK1>;
+				compatible = "wlf,wm8962";
+				gpio-cfg = <
+					0x0000
+					0x0000
+					0x0000
+					0x0000
+					0x8081
+					0x8095
+				>;
+				reg = <0x1a>;
+			};
+		};
+
+		i2c_gp_d: i2c2@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+/* I2C_LCD */
+&i2c3 {
+	status = "okay";
+
+	i2c-mux-lcd@73 {
+		compatible = "nxp,pca9546";
+		reg = <0x73>;
+
+		vdd-supply = <&reg_i2c_mux_lcd>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c_lcd_a: i2c3@0 {
+			/* EDP0 */
+			reg = <0>;
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_lcd_b: i2c3@1 {
+			/* EDP1 */
+			reg = <1>;
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_lcd_c: i2c3@2 {
+			/* DSI0 */
+			reg = <2>;
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c_lcd_d: i2c3@3 {
+			/* DSI1 */
+			reg = <3>;
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_tusb320: tusb320grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI1_TXD6__GPIO4_IO18	0x1c0
+		>;
+	};
+
+	pinctrl_leds: ledsgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI3_RXC__GPIO4_IO29	0x100
+		>;
+	};
+
+	pinctrl_i2c_mux_lcd: i2c-mux-lcdgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO00__GPIO1_IO00	0x140
+		>;
+	};
+
+	pinctrl_rv3028: rv3028grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_NAND_CE1_B__GPIO3_IO02	0x140
+		>;
+	};
+};
+
+&usb3_phy0 {
+	status = "okay";
+};
+
+&usb3_0 {
+	status = "okay";
+};
+
+&usb_dwc3_0 {
+	usb-role-switch;
+	extcon = <&typec>;
+};
+
+&usdhc2 { /* SDIO - SDCARD */
+	status = "okay";
+
+	vmmc-supply = <&reg_vdd_3v3>;
+
+	// SD card power on the carrier board is not connected to control signal, 
+	// as such SD card cannot be reset, thus disabling 1.8V
+	no-1-8-v;
+};
+
+&vpu_g1 {
+	status = "okay";
+};
+
+&vpu_g2 {
+	status = "okay";
+};
+
+&vpu_vc8000e {
+	status = "okay";
+};
+
+&vpu_v4l2 {
+	status = "okay";
+};
+
+&xcvr {
+	#sound-dai-cells = <0>;
+	status = "okay";
+};

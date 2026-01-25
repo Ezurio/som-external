@@ -1,0 +1,147 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright 2026 Ezurio
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "imx8mp-pinfunc.h"
+
+#include "nitrogen-imx8mp-bd-panel.dtsi"
+
+&{/} {
+	backlight_lvds0: backlight-lvds0 {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&pwm2 0 30000 0>;	/* 33.3 KHz */
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_lvds0>;
+		enable-gpios = <&gpio3 15 GPIO_ACTIVE_HIGH>;
+	};
+
+	display_lvds0: display-lvds0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		backlight = <&backlight_lvds0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_lvds0: endpoint {
+				remote-endpoint = <&lvds0_out_ep>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	status = "okay";
+
+	touchscreen_lvds: touchscreen-lvds@5d {
+		compatible = "goodix,gt911";
+		reg = <0x5d>;
+
+		AVDD28-supply = <&reg_vdd_3v3>;
+		VDDIO-supply = <&reg_vdd_3v3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touchscreen_lvds>;
+		interrupts-extended = <&gpio4 2 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&gpio4 2 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&mcp23018 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};
+
+&iomuxc {
+	pinctrl_touchscreen_lvds: touchscreen-lvdsgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI1_RXD0__GPIO4_IO02	0x1c0
+		>;
+	};
+
+	pinctrl_backlight_lvds0: backlight-lvds0grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_NAND_RE_B__GPIO3_IO15	0x100
+		>;
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds0_out_ep: endpoint {
+				remote-endpoint = <&display_in_ep_lvds0>;
+			};
+		};
+	};
+};
+
+&media_blk_ctrl {
+	/* currently it is not possible to let display clocks confugure
+	 * automatically, so we need to set them manually
+	 */
+	assigned-clock-rates = <500000000>, <200000000>, <0>,
+		/* IMX8MP_CLK_MEDIA_DISP2_PIX = pixelclk of lvds panel */
+		<72000000>,
+		<500000000>,
+		/* IMX8MP_VIDEO_PLL1 = IMX8MP_CLK_MEDIA_LDB * 7 */
+		<506800000>;
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
+&{/display-subsystem} {
+	status = "okay";
+};
+
+&lcdif2 {
+	status = "okay";
+};
+
+&pwm2 {
+	status = "okay";
+};
+
+&gpu_2d {
+	status = "okay";
+};
+
+&gpu_3d {
+	status = "okay";
+};
