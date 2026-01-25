@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * BD070LIC3 and BD101LCC3 display timing
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+#define BD_PANEL_TIMING	\
+			clock-frequency = <72000000>; \
+			hactive = <1280>; \
+			vactive = <800>; \
+			hfront-porch = <148>; \
+			hsync-len = <4>; \
+			hback-porch = <4>; \
+			vfront-porch = <28>; \
+			vsync-len = <4>; \
+			vback-porch = <4>; \
+			de-active = <1>;

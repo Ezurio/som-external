@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO TI3xx module
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+// M.2 SDIO is disabled by default on SMARC carrier board
+// requires switching 0 Ohm resistors to enable	
+
+#include <dt-bindings/gpio/gpio.h>
+
+&reg_usdhc2_vmmc {
+	vin-supply = <&reg_slow_clock_carrier>;
+
+	startup-delay-us = <10000>;
+	off-on-delay-us = <100>;
+};
+
+&usdhc2 {
+	vmmc-supply = <&reg_usdhc2_vmmc>;
+
+	cap-power-off-card;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	bt@1 {
+		reg = <1>;
+		compatible = "ti,cc33xxbt";
+	};
+
+	wifi@2 {
+		reg = <2>;
+		compatible = "ti,cc33xx";
+	};
+};
+
+&uart4 {
+ 	status = "okay";
+
+	bluetooth {
+		compatible = "ti,cc33xx-bt";
+		cc33xx-supply = <&reg_usdhc2_vmmc>;
+		max-speed = <115200>;
+	};
+};

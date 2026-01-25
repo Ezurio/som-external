@@ -1,0 +1,30 @@
+
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO NX6xx module
+ *
+ * Copyright 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+&reg_wifi_en {
+	vin-supply = <&reg_vdd_3v3>;
+
+	startup-delay-us = <20000>;
+	off-on-delay-us = <100>;
+};
+
+&usdhc3 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+	};
+};

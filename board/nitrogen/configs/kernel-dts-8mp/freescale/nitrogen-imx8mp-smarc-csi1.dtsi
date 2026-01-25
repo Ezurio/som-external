@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2026 Ezurio LLC
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+#include "imx8mp-pinfunc.h"
+
+&{/} {
+	clk_cam_csi1_int: clk-cam-csi1-int {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+};
+
+&i2c6b {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	cam_csi1: cam-csi1 {
+		clocks = <&clk_cam_csi1_int>; /* On Camera module */
+		clock-names = "xclk";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam_csi1>;
+
+		port {
+			cam_csi1_ep: endpoint {
+				remote-endpoint = <&mipi_csi1_in_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
+};
+
+&mipi_csi_1 {
+	compatible = "fsl,imx8mp-mipi-csi2", "fsl,imx8mp-mipi-csi2";
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			mipi_csi1_in_ep: endpoint {
+				remote-endpoint = <&cam_csi1_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			mipi_csi1_out_ep: endpoint {
+				remote-endpoint = <&isi1_in_ep>;
+			};
+		};
+	};
+};
+
+&isi_1 {
+	status = "okay";
+
+	port {
+		isi1_in_ep: endpoint {
+			remote-endpoint = <&mipi_csi1_out_ep>;
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_cam_csi1: pinctrl-cam-csi1grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO15__GPIO1_IO15	0x140
+		>;
+	};
+};
+
+&dewarp {
+	status = "okay";
+};
+
+&cameradev {
+	status = "okay";
+};

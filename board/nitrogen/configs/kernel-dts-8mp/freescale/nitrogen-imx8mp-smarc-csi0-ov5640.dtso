@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Digient OV5640 5MP camera module
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+// SMARC carrier has 1.8V camera GPIO/I2C, requires camera that can tolerate that
+
+#include "nitrogen-imx8mp-smarc-csi0.dtsi"
+
+&cam_csi0 {
+	compatible = "ovti,ov5640";
+	reg = <0x3c>;
+
+	DOVDD-supply = <&reg_vdd_3v3>;
+	AVDD-supply = <&reg_vdd_3v3>;
+	DVDD-supply = <&reg_vdd_3v3>;
+
+	reset-gpios = <&mcp23018 0 GPIO_ACTIVE_LOW>;
+	powerdown-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
+};
