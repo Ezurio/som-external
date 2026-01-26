@@ -15,6 +15,6 @@ config BR2_PACKAGE_SUMMIT_UPDATE_STREAM_SERVICE
 	  Enable systemd socket-activated service to accept firmware
 	  updates over TCP connections (port 9000). When enabled, the
 	  service will automatically start on incoming connections.
-	  nc 10.10.4.234 9000 < firmware_update.swu
+	  nc -N 10.10.4.234 9000 < firmware_update.swu
 
 endif
