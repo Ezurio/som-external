@@ -10,6 +10,8 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
+#include "imx8mm-pinfunc.h"
+
 &reg_wifi_en {
 	startup-delay-us = <250000>;
 	off-on-delay-us = <100>;
@@ -36,6 +38,17 @@
 		vddio-supply = <&reg_vdd_1v8>;
 		brcm,requires-autobaud-mode;
 		max-speed = <3000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_bt_en>;
 		shutdown-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&iomuxc {
+	pinctrl_bt_en: bt-engrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO05_GPIO1_IO5	0x100
+		>;
 	};
 };
