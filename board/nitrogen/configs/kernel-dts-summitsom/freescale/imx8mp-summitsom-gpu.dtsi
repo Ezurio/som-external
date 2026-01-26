@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2021 Ezurio
+ * Copyright 2021 Ezurio LLC
  */
 
 &vpu_g1 {
@@ -24,14 +24,6 @@
 };
 
 &gpu_2d {
-	status = "okay";
-};
-
-&ml_vipsi {
-	status = "okay";
-};
-
-&mix_gpu_ml {
 	status = "okay";
 };
 
