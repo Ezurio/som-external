@@ -194,8 +194,8 @@
 				DCVDD-supply = <&reg_vdd_1v8>;
 				MICVDD-supply = <&reg_vdd_3v3>;
 				PLLVDD-supply = <&reg_vdd_1v8>;
-				SPKVDD1-supply = <&reg_vref_5v0>;
-				SPKVDD2-supply = <&reg_vref_5v0>;
+				SPKVDD1-supply = <&reg_vdd_5v0>;
+				SPKVDD2-supply = <&reg_vdd_5v0>;
 				clocks = <&clk IMX8MM_CLK_SAI2_ROOT>;
 				compatible = "wlf,wm8962";
 				gpio-cfg = <

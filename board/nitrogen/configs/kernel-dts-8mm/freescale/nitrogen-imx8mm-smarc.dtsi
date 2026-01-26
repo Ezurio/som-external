@@ -36,51 +36,58 @@
 
 	reg_usb_host_vbus: regulator-usb-host-vbus {
 		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_reg_usbhost_vbus>;
 		regulator-name = "usb_host_vbus";
+
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_usb_host_vbus>;
 		gpio = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
 	reg_usb_otg_vbus: regulator-usb-otg-vbus {
 		compatible = "regulator-fixed";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_reg_usbotg_vbus>;
 		regulator-name = "usb_otg_vbus";
+
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_usb_otg_vbus>;
 		gpio = <&gpio1 13 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
-	reg_vdd_1v8: regulator-vref-1v8 {
+	reg_vdd_1v8: regulator-vdd-1v8 {
 		compatible = "regulator-fixed";
-		regulator-name = "vref-1v8";
+		regulator-name = "reg_vdd_1v8";
+
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 	};
 
-	reg_vdd_3v3: regulator-vref-3v3 {
+	reg_vdd_3v3: regulator-vdd-3v3 {
 		compatible = "regulator-fixed";
-		regulator-name = "vref-3v3";
+		regulator-name = "reg_vdd_3v3";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
 
-	reg_vref_5v0: regulator-vref-5v0 {
+	reg_vdd_5v0: regulator-vdd-5v0 {
 		compatible = "regulator-fixed";
-		regulator-name = "vref-5v0";
+		regulator-name = "reg_vdd_5v0";
+
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 	};
 
 	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
 		compatible = "regulator-fixed";
-
 		regulator-name = "reg_usdhc2_vmmc";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -92,8 +99,8 @@
 
 	reg_slow_clock: regulator-slow-clock {
 		compatible = "regulator-fixed-clock";
-
 		regulator-name = "reg_slow_clock";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -108,8 +115,8 @@
 
 	reg_wifi_en: regulator-wifi-en {
 		compatible = "regulator-fixed";
-
 		regulator-name = "reg_wifi_en";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -124,6 +131,7 @@
 	vcc_lvds0: regulator-vcc-lvds0 {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_lvds0";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -131,18 +139,12 @@
 		pinctrl-0 = <&pinctrl_vcc_lvds0>;
 		gpios = <&gpio3 25 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-
-		// This delay need to account for DSI clock startup time
-		// SN65DSI84 enables PLL on enable phase and waits for it to lock on 
-		// DSI clock, but this clock just started a moment ago, so it is not 
-		// yet stable, as such PLL cannot lock on it.
-		startup-delay-us = <100000>;
 	};
 
 	reg_i2c_mux_som: regulator-i2c-mux-som {
 		compatible = "regulator-fixed";
-
 		regulator-name = "reg_i2c_mux_som";
+
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -226,7 +228,7 @@
 	clock-frequency = <400000>;
 	status = "okay";
 
-	pmic@8 {
+	pmic: pmic@8 {
 		compatible = "nxp,pf8100";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic>;
@@ -586,13 +588,13 @@
 		>;
 	};
 
-	pinctrl_reg_usbotg_vbus: usbotg-vbusgrp {
+	pinctrl_reg_usb_otg_vbus: usbotg-vbusgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_GPIO1_IO13_GPIO1_IO13	0x140
 		>;
 	};
 
-	pinctrl_reg_usbhost_vbus: usbhost-vbusgrp {
+	pinctrl_reg_usb_host_vbus: usbhost-vbusgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_GPIO1_IO08_GPIO1_IO8	0x140
 		>;
@@ -654,8 +656,6 @@
 			MX8MM_IOMUXC_ECSPI1_MOSI_UART3_DCE_TX	0x140
 			MX8MM_IOMUXC_ECSPI1_SS0_UART3_DCE_RTS_B	0x140
 			MX8MM_IOMUXC_ECSPI1_MISO_UART3_DCE_CTS_B	0x140
-			MX8MM_IOMUXC_GPIO1_IO05_GPIO1_IO5	0x100
-			MX8MM_IOMUXC_NAND_DQS_GPIO3_IO14	0x1c0
 		>;
 	};
 
@@ -965,5 +965,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_wdog>;
 	fsl,ext-reset-output;
+
 	status = "okay";
 };
