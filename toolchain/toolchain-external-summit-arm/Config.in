@@ -13,8 +13,6 @@ if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM
 
 choice
 	prompt "Toolchain Version"
-	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7 if BR2_SUMMIT_FIPS_7
-	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11 if BR2_SUMMIT_FIPS_11
 	default BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
 	help
 	  Select the version of the toolchain you wish to use.
@@ -27,35 +25,14 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
 	help
 	  GCC 13.3.0, GDB 14.2.0, glibc-2.38+, headers-6.6.0, binutils 2.41
 
-config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
-	bool "Summit 11.x (2023.02) toolchain"
-	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_1
-	select BR2_TOOLCHAIN_GCC_AT_LEAST_12
-	select BR2_TOOLCHAIN_HAS_OPENMP
-	help
-	  GCC 12.2.0, GDB 12.0.0, glibc-2.36+, headers-6.1.0, binutils 2.39
-	  For FIPS 11.x builds only
-
-config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7
-	bool "Summit 7.x (2019.02) toolchain"
-	select BR2_TOOLCHAIN_HAS_NATIVE_RPC
-	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_19
-	select BR2_TOOLCHAIN_GCC_AT_LEAST_7
-	help
-	  GCC 7.4.0, GDB 8.2.0, glibc-2.28+, headers-4.19.79, binutils 2.31.1
-	  For FIPS 7.x builds only
-
 endchoice
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_ID
 	string
-	default laird if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7 || BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
 	default summit
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_VERSION
 	string
 	default 12.0.0.59 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_12
-	default 11.0.0.264 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_11
-	default 7.0.0.518 if BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_7
 
 endif
