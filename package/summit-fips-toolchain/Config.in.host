@@ -1,0 +1,8 @@
+config BR2_PACKAGE_SUMMIT_FIPS_TOOLCHAIN_SUPPORTS
+	bool
+	default y if BR2_HOSTARCH = "x86_64"
+
+config BR2_SUMMIT_FIPS_TOOLCHAIN_PREFIX
+	string
+	default "som60" if BR2_ARM_EABIHF
+	default "wb4x" if BR2_ARM_EABI

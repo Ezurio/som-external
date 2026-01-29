@@ -105,3 +105,4 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"
 endmenu
 
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/toolchain/toolchain-external-summit-arm/Config.in.options"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-fips-toolchain/Config.in.host"
