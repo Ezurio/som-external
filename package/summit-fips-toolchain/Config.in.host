@@ -1,0 +1,10 @@
+config BR2_PACKAGE_SUMMIT_FIPS_TOOLCHAIN_SUPPORTS
+	bool
+	default y if BR2_HOSTARCH = "aarch64"
+	default y if BR2_HOSTARCH = "x86_64"
+
+config BR2_SUMMIT_FIPS_TOOLCHAIN_PREFIX
+	string
+	default "arm-eabihf" if BR2_ARM_EABIHF
+	default "arm-eabi" if BR2_ARM_EABI
+	default "aarch64" if BR2_aarch64
