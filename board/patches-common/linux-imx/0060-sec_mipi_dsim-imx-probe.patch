@@ -1,0 +1,25 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/drivers/gpu/drm/imx/sec_mipi_dsim-imx.c
++++ b/drivers/gpu/drm/imx/sec_mipi_dsim-imx.c
+@@ -403,7 +403,7 @@
+ 	ret = sec_mipi_dsim_bind(dev, master, data, encoder,
+ 				 dsim_dev->base, dsim_dev->irq, pdata);
+ 	if (ret) {
+-		dev_err(dev, "failed to bind sec dsim bridge: %d\n", ret);
++		dev_err_probe(dev, ret, "failed to bind sec dsim bridge\n");
+ 		drm_encoder_cleanup(encoder);
+ 
+ 		/* If no panel or bridge connected, just return 0
+--- a/drivers/gpu/drm/bridge/sec-dsim.c
++++ b/drivers/gpu/drm/bridge/sec-dsim.c
+@@ -2054,7 +2054,7 @@
+ 	/* attach sec dsim bridge and its next bridge if exists */
+ 	ret = drm_bridge_attach(encoder, bridge, NULL, 0);
+ 	if (ret) {
+-		dev_err(dev, "Failed to attach bridge: %s\n", dev_name(dev));
++		dev_err_probe(dev, ret, "Failed to attach bridge: %s\n", dev_name(dev));
+ 
+ 		/* no bridge exists, so defer probe to wait
+ 		 * panel driver loading

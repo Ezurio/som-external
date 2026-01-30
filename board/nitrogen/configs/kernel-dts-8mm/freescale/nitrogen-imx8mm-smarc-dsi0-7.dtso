@@ -52,12 +52,6 @@
 		pinctrl-0 = <&pinctrl_vcc_dsi0>;
 		gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-
-		// This delay need to account for DSI clock startup time
-		// SN65DSI84 enables PLL on enable phase and waits for it to lock on 
-		// DSI clock, but this clock just started a moment ago, so it is not 
-		// yet stable, as such PLL cannot lock on it.
-		startup-delay-us = <30000>;
 	};
 };
 

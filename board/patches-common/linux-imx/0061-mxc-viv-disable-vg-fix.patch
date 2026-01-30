@@ -1,0 +1,11 @@
+--- a/drivers/mxc/gpu-viv/hal/os/linux/kernel/platform/freescale/gc_hal_kernel_platform_imx.c
++++ b/drivers/mxc/gpu-viv/hal/os/linux/kernel/platform/freescale/gc_hal_kernel_platform_imx.c
+@@ -1474,7 +1474,7 @@
+         priv->imx_gpu_clks[gcvCORE_2D].clk_core = clk_core;
+         priv->imx_gpu_clks[gcvCORE_2D].clk_axi = clk_axi;
+ 
+-        clk_axi = clk_get(pdev, "openvg_axi_clk");
++        clk_axi = clk_get_optional(pdev, "openvg_axi_clk");
+ 
+         if (IS_ERR(clk_axi)) {
+             clk_axi = NULL;
