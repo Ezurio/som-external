@@ -113,6 +113,10 @@
 	};
 };
 
+&sai3 {
+	status = "okay";
+};
+
 &easrc {
 	fsl,asrc-rate  = <48000>;
 	status = "okay";
@@ -214,6 +218,14 @@
 
 			wm8962: codec@1a {
 				#sound-dai-cells = <0>;
+				AVDD-supply = <&reg_vdd_1v8>;
+				CPVDD-supply = <&reg_vdd_1v8>;
+				DBVDD-supply = <&reg_vdd_3v3>;
+				DCVDD-supply = <&reg_vdd_1v8>;
+				MICVDD-supply = <&reg_vdd_3v3>;
+				PLLVDD-supply = <&reg_vdd_1v8>;
+				SPKVDD1-supply = <&reg_vdd_5v0>;
+				SPKVDD2-supply = <&reg_vdd_5v0>;
 				clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIOMIX_SAI3_MCLK1>;
 				compatible = "wlf,wm8962";
 				gpio-cfg = <
