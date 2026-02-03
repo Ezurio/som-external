@@ -38,30 +38,20 @@
 };
 
 &mipi_csi_0 {
-	compatible = "fsl,imx8mp-mipi-csi2", "fsl,imx8mp-mipi-csi2";
 	status = "okay";
 
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
 
-		port@0 {
-			reg = <0>;
+	port@0 {
+		reg = <0>;
 
-			mipi_csi0_in_ep: endpoint {
-				remote-endpoint = <&cam_csi0_ep>;
-				bus-type = <4>;
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
-			};
-		};
-
-		port@1 {
-			reg = <1>;
-
-			mipi_csi0_out_ep: endpoint {
-				remote-endpoint = <&isi0_in_ep>;
-			};
+		mipi_csi0_in_ep: endpoint {
+			remote-endpoint = <&cam_csi0_ep>;
+			data-lanes = <2>;
+			csis-hs-settle = <13>;
+			csis-clk-settle = <2>;
+			csis-wclk;
 		};
 	};
 };
@@ -69,10 +59,12 @@
 &isi_0 {
 	status = "okay";
 
-	port {
-		isi0_in_ep: endpoint {
-			remote-endpoint = <&mipi_csi0_out_ep>;
-		};
+	cap_device {
+		status = "okay";
+	};
+
+	m2m_device {
+		status = "okay";
 	};
 };
 

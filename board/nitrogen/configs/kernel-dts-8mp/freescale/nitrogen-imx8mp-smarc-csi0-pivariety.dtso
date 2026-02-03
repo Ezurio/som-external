@@ -27,5 +27,5 @@
 };
 
 &mipi_csi0_in_ep {
-	data-lanes = <1 2 3 4>;
+	data-lanes = <4>;
 };
