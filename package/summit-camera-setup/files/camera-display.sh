@@ -22,7 +22,7 @@ done
 FORMAT="$(media-ctl -d "${ID}" -p -e "${SENSOR}" | sed -rn 's/.*fmt:(.*)\/([0-9]+)x([0-9]+).*/\1 \2 \3/p')"
 CAM_DEV=$(media-ctl -d "${ID}" -p -e "${NODE}" | sed -rn 's/\s+device node name ([^ ]+)/\1/p')
 
-format=$(v4l2-ctl -d 0 --list-formats-ext | sed -rn "s/\s+\[0\]: '([A-Z0-9]+)'.*/\1/p")
+format=$(v4l2-ctl -d "${CAM_DEV}" --list-formats-ext | sed -rn "s/\s+\[0\]: '([A-Z0-9]+)'.*/\1/p")
 case "${format}" in
     YU12) format=UYVY ;;
     YUYV) format=YUY2 ;;
@@ -35,21 +35,31 @@ elif [ -r /sys/devices/soc0/soc_id ]; then
 
     case "${soc_id}" in
         i.MX95)
-            format="${format},framerate=5/1"
+            formatstr=",format=${format},framerate=5/1"
             SINK="videoconvert ! fbdevsink"
             ;;
+        i.MX8MP)
+            formatstr=""
+            if media-ctl -d "${ID}" -p | grep -q 'pivariety'; then
+                SINK="fbdevsink"
+            else
+                SINK="kmssink can-scale=false"
+            fi
+            ;;
         i.MX*)
-            format="${format},framerate=5/1"
+            formatstr=",format=${format},framerate=5/1"
             SINK="videoconvert ! kmssink can-scale=false"
             ;;
         *)
             SINK="kmssink can-scale=false"
+            formatstr=",format=${format}"
             ;;
     esac
 else
     SINK="kmssink can-scale=false"
+    formatstr=",format=${format}"
 fi
 
 set -- ${FORMAT}
 
-gst-launch-1.0 v4l2src device="${CAM_DEV}" ! video/x-raw,width="${2}",height="${3}",format="${format}" ! ${SINK}
+gst-launch-1.0 v4l2src device="${CAM_DEV}" ! video/x-raw,width="${2}",height="${3}""${formatstr}" ! ${SINK}
