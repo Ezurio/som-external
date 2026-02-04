@@ -21,7 +21,7 @@
                 <48000>,
                 <96000>,
                 <192000>;
-        status = "okay";
+        status = "disabled";
     };
 };
 
@@ -29,37 +29,9 @@
 	status = "okay";
 };
 
-&gpu_2d {
-	status = "okay";
-};
-
-&gpu_3d {
-	status = "okay";
-};
-
 &hdmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hdmi>;
-	status = "okay";
-};
-
-&hdmiphy {
-	status = "okay";
-};
-
-&hdmi_blk_ctrl {
-	status = "okay";
-};
-
-&hdmi_pavi {
-	status = "okay";
-};
-
-&irqsteer_hdmi {
-	status = "okay";
-};
-
-&lcdif3 {
 	status = "okay";
 };
 
@@ -72,4 +44,28 @@
 			MX8MP_IOMUXC_HDMI_CEC__HDMIMIX_HDMI_CEC		0x40000019
 		>;
 	};
+};
+
+&hdmiphy {
+	status = "okay";
+};
+
+&hdmi_pavi {
+	status = "okay";
+};
+
+&{/display-subsystem} {
+	status = "okay";
+};
+
+&lcdif3 {
+	status = "okay";
+};
+
+&gpu_2d {
+	status = "okay";
+};
+
+&gpu_3d {
+	status = "okay";
 };
