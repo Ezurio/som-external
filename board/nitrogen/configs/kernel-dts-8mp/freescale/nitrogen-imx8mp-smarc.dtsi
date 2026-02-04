@@ -253,7 +253,7 @@
 
 	status = "okay";
 
-	pmic: pca9450@25 {
+	pmic: pmic@25 {
 		/* PMIC PCA9450  */
 		compatible = "nxp,pca9450c";
 		reg = <0x25>;
@@ -636,7 +636,7 @@
 		>;
 	};
 
-	pinctrl_reg_usb_otg_vbus: reg-usb-otg-vbus-rp {
+	pinctrl_reg_usb_otg_vbus: reg-usb-otg-vbus-grp {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO13__GPIO1_IO13	0x100
 		>;
@@ -920,7 +920,8 @@
 };
 
 &usb3_phy0 {
-	vbus-supply = <&reg_usb_otg_vbus>;
+	// this works correctly only in `host` mode
+	// vbus-supply = <&reg_usb_otg_vbus>;
 	fsl,phy-tx-preemp-amp-tune-microamp = <2>;
 };
 

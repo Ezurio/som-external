@@ -322,7 +322,7 @@
 
 	pinctrl_rv3028_carrier: rv3028-carrier-grp {
 		fsl,pins = <
-			MX8MP_IOMUXC_NAND_CE1_B__GPIO3_IO02	0x140
+			MX8MP_IOMUXC_NAND_CE1_B__GPIO3_IO02	0x1c0
 		>;
 	};
 };
@@ -336,8 +336,11 @@
 };
 
 &usb_dwc3_0 {
-	usb-role-switch;
-	extcon = <&typec>;
+	// currently works only in 'gadget mode', because imx phy driver enabling 
+	// vbus for for gadget mode as well as host mode
+	//usb-role-switch;
+	//extcon = <&typec>;
+	dr_mode = "peripheral";
 };
 
 &usdhc2 { /* SDIO - SDCARD */
