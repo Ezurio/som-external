@@ -166,8 +166,7 @@ getBaseHwPartNumber() {
 	SOM8MP_2GB_BASE_HW_PART_NUMBER="453-00072"
 	SOM8MP_4GB_BASE_HW_PART_NUMBER="453-00135"
 
-	ram_size=$(sed -rn 's/MemTotal:\s+([0-9]+).*/\1/p' /proc/meminfo)
-	ram_size=$((ram_size / 1024 / 1024)) # Convert to MB
+	ram_size=$(free -m | sed -rn 's/^Mem:\s+([0-9]+).*/\1/p')
 
 	getSocId
 	case "${soc_id}" in
