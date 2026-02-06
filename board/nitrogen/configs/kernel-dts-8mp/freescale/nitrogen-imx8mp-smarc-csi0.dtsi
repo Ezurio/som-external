@@ -40,6 +40,8 @@
 &mipi_csi_0 {
 	status = "okay";
 
+	mipi-phy-supply = <&reg_vdd_3v3>;
+
 	#address-cells = <1>;
 	#size-cells = <0>;
 
