@@ -13,6 +13,11 @@ config BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER
 		to use in the kernel build. The value should be a
 		space-separated list of device tree blob filenames 
 		or wildcard patterns.
+		It's similar to running 'ls' on 'images' directory 
+		and selecting desired dtb(o) files from all built.
+		For example, "am625*carbon*dvk*.dtb" would select
+		all dtb files with "am625", "carbon", and "dvk" in
+		their names.
 
 config BR2_SUMMIT_LINUX_DEFAULT_DTB
 	string "Default device tree blob"
@@ -27,10 +32,16 @@ config BR2_SUMMIT_LINUX_APPLY_DTBO_AT_BUILD
 		at build time.
 
 config BR2_SUMMIT_CONSOLE_LOGGING
-	bool "Summit Console Logging"
+	bool "Enable Console Logging"
 	default y if !BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT
 	help
-		This enables Summit Console Logging.
+		This enables Console Logging during boot.
+
+config BR2_SUMMIT_EXTRA_KERNEL_CMDS
+	string "Extra kernel command line parameters"
+	help
+		This allows you to specify extra kernel command line parameters
+		to be added to the default ones.
 
 config BR2_SUMMIT_SW_DESCRIPTION
 	string "Software Description file for swupdate"

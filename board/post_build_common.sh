@@ -30,6 +30,9 @@ grep -qF "BR2_SUMMIT_CONSOLE_LOGGING=y" "${BR2_CONFIG}" \
 	&& CONSOLE_LOGGING=true || CONSOLE_LOGGING=false
 export CONSOLE_LOGGING
 
+KERNEL_EXTRA_CMDS="$(sed -rn 's,^BR2_SUMMIT_EXTRA_KERNEL_CMDS="(.*)"$,\1,p' "${BR2_CONFIG}")"
+export KERNEL_EXTRA_CMDS
+
 # Create default firmware description file.
 # This may be overwritten by a proper release file.
 LOCRELSTR="${SUMMIT_RELEASE_STRING}"
