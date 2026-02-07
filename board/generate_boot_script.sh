@@ -30,14 +30,14 @@ EOF
 
 print_common() {
     cat << EOF
-setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
+setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside} ${LOG_LEVEL} ${KERNEL_EXTRA_CMDS}
 EOF
 }
 
 print_common_60() {
     print_common "${1}"
     cat << EOF
-ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT} ${LOG_LEVEL}
+ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT} 
 ${2}
 fips=\${fips:=0} fips_wifi=\${fips_wifi:=0}"
 EOF
@@ -46,7 +46,7 @@ EOF
 print_common_emmc() {
     print_common "${1}"
     cat << EOF
-init=/usr/sbin/${INIT} ${LOG_LEVEL}
+init=/usr/sbin/${INIT}
 ${2}"
 EOF
 }
