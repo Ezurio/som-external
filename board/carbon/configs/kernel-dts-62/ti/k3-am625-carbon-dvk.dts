@@ -148,16 +148,16 @@
 	};
 
 	transceiver1: can-phy0 {
-		compatible = "ti,tcan1042";
+		compatible = "ti,tcan1046", "ti,tcan1042";
 		#phy-cells = <0>;
-		max-bitrate = <5000000>;
+		max-bitrate = <8000000>;
 		standby-gpios = <&exp1 2 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
 	transceiver2: can-phy1 {
-		compatible = "ti,tcan1042";
+		compatible = "ti,tcan1046", "ti,tcan1042";
 		#phy-cells = <0>;
-		max-bitrate = <5000000>;
+		max-bitrate = <8000000>;
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
@@ -174,12 +174,15 @@
 	};
 
 	con_usb0: connector-usb0 {
-		compatible = "gpio-usb-b-connector", "usb-b-connector";
+		compatible = "usb-c-connector", "gpio-usb-b-connector";
+
+		label = "USB_A";
+		self-powered;
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb_a_id_pins_default>;
 		id-gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
-		label = "USB_A";
-		self-powered;
+
 		vbus-supply = <&vcc_usb0_vbus>;
 
 		port {
@@ -306,14 +309,15 @@
 		#gpio-cells = <2>;
 		gpio-controller;
 
-		gpio-line-names = "ACD_nINT", "M2_UART_WAKE",
-			"M2_SD_HOST_WAKE", "CHRGR_INTn", 
-			"VOL_UP", "VOL_DOWN",
-			"", "DSI_A_IRQ",
+		gpio-line-names =
 			"DSI_A_INT", "DSI_A_HPD",
 			"LVDS_D_INT", "LVDS_D_HPD",
 			"LVDS_E_INT", "LVDS_E_HPD",
-			"RGB_INT", "RGB_HDMI_HPD";
+			"RGB_INT", "RGB_HDMI_HPD",
+			"ACD_nINT", "M2_UART_WAKE",
+			"M2_SD_HOST_WAKE", "CHRGR_INTn",
+			"VOL_UP", "VOL_DOWN",
+			"", "DSI_A_IRQ";
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&osm_gpio_a_3_pins_default>;
@@ -324,6 +328,7 @@
 
 		interrupts-extended = <&mcu_gpio0 15 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
+		//wakeup-source;
 	};
 
 	tac5112: audio-codec@51 {

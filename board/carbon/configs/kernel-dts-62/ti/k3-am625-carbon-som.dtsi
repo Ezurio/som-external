@@ -15,7 +15,7 @@
 #include "k3-am625.dtsi"
 
 / {
-	compatible = "ti,am625";
+	compatible = "summit,am625-carbon", "ti,am625";
 	model = "Ezurio Carbon AM625 SOM";
 
 	aliases {
@@ -81,7 +81,7 @@
 		linux,cma {
 			compatible = "shared-dma-pool";
 			reusable;
-			size = <0x00 0x10000000>;
+			size = <0x00 0x20000000>;
 			linux,cma-default;
 		};
 
@@ -141,7 +141,7 @@
 		};
 	};
 
-	vsys_5v: regulator-vcc-in-5v {
+	vsys_5v: regulator-vcc-5v {
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
 		regulator-name = "vsys_5v";
@@ -151,7 +151,7 @@
 		regulator-boot-on;
 	};
 
-	vdd_3v3: regulator-u4 {
+	vdd_3v3: regulator-vdd-3v3 {
 		/* output of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_3v3";
@@ -241,7 +241,7 @@
 		startup-delay-us = <1000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&wifi_32k_clk>;
+		pinctrl-0 = <&mcu_clkout_pins_default>;
 
 		assigned-clocks = <&k3_clks 157 158>;
 		assigned-clock-parents = <&k3_clks 157 160>;
@@ -458,8 +458,6 @@
 	rv3028: rtc@52 {
 		compatible = "microcrystal,rv3028";
 		reg = <0x52>;
-
-		backup-switchover-dsm;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&mcu_rtc_pins_default>;
@@ -1182,7 +1180,7 @@
 		>;
 	};
 
-	wifi_32k_clk: mcu-clk-out-default-pins {
+	mcu_clkout_pins_default: main-clkout-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x084, PIN_OUTPUT, 0) /* (A12) WKUP_CLKOUT0 */
 		>;
@@ -1254,7 +1252,6 @@
 	/* CAN_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_mcan0_pins_default>;
-	/delete-property/ wakeup-source;
 };
 
 &mcu_uart0 {
