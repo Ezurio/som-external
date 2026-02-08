@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-# 24.2.6643903
-TI_ROGUE_KM_VERSION = 8eaff654a8871118c08cfafe53795f57e3b6b396
+# 25.2.6850647
+TI_ROGUE_KM_VERSION = 72723eea0cab47c20e5734c1c7b9a441ed2d74c2
 TI_ROGUE_KM_SITE = $(call github,TexasInstruments,ti-img-rogue-driver,$(TI_ROGUE_KM_VERSION))
 TI_ROGUE_KM_LICENSE = MIT or GPL-2.0
 TI_ROGUE_KM_LICENSE_FILES = README
