@@ -135,9 +135,9 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen_lvds_e: touchscreen-lvds-e@5d {
+	touchscreen_lvds_e: touchscreen-lvds-e@14 {
 		compatible = "goodix,gt911";
-		reg = <0x5d>;
+		reg = <0x14>;
 
 		AVDD28-supply = <&vcc_lvds_e>;
 		VDDIO-supply = <&vcc_lvds_e>;

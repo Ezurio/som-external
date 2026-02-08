@@ -693,7 +693,7 @@
 			AM62X_IOPAD(0x22c, PIN_INPUT_PULLUP, 0) /* SDIO_A_D1 (B21) MMC1_DAT1 */
 			AM62X_IOPAD(0x228, PIN_INPUT_PULLUP, 0) /* SDIO_A_D2 (C21) MMC1_DAT2 */
 			AM62X_IOPAD(0x224, PIN_INPUT_PULLUP, 0) /* SDIO_A_D3 (D22) MMC1_DAT3 */
-			AM62X_IOPAD(0x240, PIN_INPUT_PULLUP, 0) /* SDIO_A_CD# (D17) MMC1_SDCD */
+			AM62X_IOPAD(0x240, PIN_INPUT_PULLUP, 7) /* SDIO_A_CD# (D17) MMC1_SDCD.GPIO1_48 */
 			AM62X_IOPAD(0x238, PIN_INPUT, 0) /* (#N/A) MMC1_CLKLB */
 		>;
 	};
@@ -1295,6 +1295,9 @@
 
 	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
 	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
+
+	cd-gpios = <&main_gpio1 48 GPIO_ACTIVE_LOW>;
+	ti,fails-without-test-cd;
 
 	disable-wp;
 	ti,driver-strength-ohm = <50>;

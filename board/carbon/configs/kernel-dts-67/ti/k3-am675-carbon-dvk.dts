@@ -181,16 +181,16 @@
 	};
 
 	transceiver1: can-phy0 {
-		compatible = "ti,tcan1042";
+		compatible = "ti,tcan1046", "ti,tcan1042";
 		#phy-cells = <0>;
-		max-bitrate = <5000000>;
+		max-bitrate = <8000000>;
 		standby-gpios = <&exp1 2 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
 	transceiver2: can-phy1 {
-		compatible = "ti,tcan1042";
+		compatible = "ti,tcan1046", "ti,tcan1042";
 		#phy-cells = <0>;
-		max-bitrate = <5000000>;
+		max-bitrate = <8000000>;
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
@@ -373,9 +373,8 @@
 		interrupt-controller;
 		microchip,irq-mirror;
 
-		interrupts-extended = <&main_gpio0 46 IRQ_TYPE_EDGE_FALLING>,
-			<&main_pmx0 0x0bc>;
-		interrupt-names = "irq", "wakeup";
+		interrupts-extended = <&main_gpio0 46 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
 	};
 
 	tac5112: audio-codec@51 {
