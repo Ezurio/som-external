@@ -357,14 +357,15 @@
 		#gpio-cells = <2>;
 		gpio-controller;
 
-		gpio-line-names = "ACD_nINT", "M2_UART_WAKE",
-			"M2_SD_HOST_WAKE", "CHRGR_INTn", 
-			"VOL_UP", "VOL_DOWN",
-			"", "DSI_A_IRQ",
+		gpio-line-names =
 			"DSI_A_INT", "DSI_A_HPD",
 			"LVDS_D_INT", "LVDS_D_HPD",
 			"LVDS_E_INT", "LVDS_E_HPD",
-			"RGB_INT", "RGB_HDMI_HPD";
+			"RGB_INT", "RGB_HDMI_HPD",
+			"ACD_nINT", "M2_UART_WAKE",
+			"M2_SD_HOST_WAKE", "CHRGR_INTn",
+			"VOL_UP", "VOL_DOWN",
+			"", "DSI_A_IRQ";
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&osm_gpio_a_3_pins_default>;
@@ -375,6 +376,7 @@
 
 		interrupts-extended = <&main_gpio0 46 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
+		//wakeup-source;
 	};
 
 	tac5112: audio-codec@51 {
