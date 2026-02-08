@@ -17,7 +17,7 @@
 #include "k3-j722s.dtsi"
 
 / {
-	compatible = "summit,carbon-am67x-som", "ti,j722s";
+	compatible = "summit,carbon-am67x", "ti,j722s";
 	model = "Ezurio Carbon AM67x SOM";
 
 	aliases {
@@ -556,8 +556,6 @@
 		compatible = "microcrystal,rv3028";
 		reg = <0x52>;
 
-		backup-switchover-dsm;
-
 		pinctrl-names = "default";
 		pinctrl-0 = <&rtc_pins_default>;
 		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>;
@@ -995,18 +993,6 @@
 		>;
 	};
 
-	ospi0_pins_default: ospi0-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x000, PIN_OUTPUT, 0) /* SPI_A_SCK (H24) OSPI0_CLK */
-			J722S_IOPAD(0x02c, PIN_OUTPUT, 0) /* SPI_A_CS0 (K26) OSPI0_CSN0 */
-			J722S_IOPAD(0x030, PIN_OUTPUT, 0) /* SPI_A_CS1 (K23) OSPI0_CSN1 */
-			J722S_IOPAD(0x00c, PIN_INPUT, 0) /* SPI_A_(SDI)IO0 (K27) OSPI0_D0 */
-			J722S_IOPAD(0x010, PIN_INPUT, 0) /* SPI_A_(SDO)IO1 (L27) OSPI0_D1 */
-			J722S_IOPAD(0x014, PIN_INPUT, 0) /* SPI_A_IO2 (L26) OSPI0_D2 */
-			J722S_IOPAD(0x018, PIN_INPUT, 0) /* SPI_A_IO3 (L25) OSPI0_D3 */
-		>;
-	};
-
 	vsel_mmc1_pins_default: vsel-mmc1-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x040, PIN_INPUT, 7) /* VSEL_SD (R23) GPMC0_AD1.GPIO0_16 */
@@ -1435,12 +1421,6 @@
 &mcu_spi0 { /* SPI_B */
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_spi0_pins_default>;
-};
-
-&ospi0 {
-	/* SPI_A Only 4 bits are routed out */
-	pinctrl-names = "default";
-	pinctrl-0 = <&ospi0_pins_default>;
 };
 
 &sdhci0 { /* eMMC */
