@@ -306,8 +306,8 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_32k_clk>;
 
-		assigned-clocks = <&k3_clks 157 158>;
-		assigned-clock-parents = <&k3_clks 157 160>;
+		assigned-clocks = <&k3_clks 157 174>;
+		assigned-clock-parents = <&k3_clks 157 175>;
 	};
 
 	reg_wifi_en: regulator-wifi-en {
@@ -341,9 +341,8 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&main_gpio0 20 IRQ_TYPE_EDGE_FALLING>,
-				<&main_pmx0 0x050>;
-			interrupt-names = "irq", "wakeup";
+			interrupts-extended = <&main_gpio0 20 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "irq";
 
 			//gpios = <&main_gpio0 20 GPIO_ACTIVE_LOW>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
@@ -354,9 +353,8 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&main_gpio0 21 IRQ_TYPE_EDGE_FALLING>,
-				<&main_pmx0 0x054>;
-			interrupt-names = "irq", "wakeup";
+			interrupts-extended = <&main_gpio0 21 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "irq";
 
 			//gpios = <&main_gpio0 21 GPIO_ACTIVE_LOW>;
 			//wakeup-event-action = <EV_ACT_ASSERTED>;
@@ -562,9 +560,8 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&rtc_pins_default>;
-		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>,
-			<&main_pmx0 0x058>;
-		interrupt-names = "irq", "wakeup";
+		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
 		wakeup-source;
 
 		#clock-cells = <0>;
@@ -792,7 +789,7 @@
 			J722S_IOPAD(0x22c, PIN_INPUT_PULLUP, 0) /* SDIO_A_D1 (H20) MMC1_DAT1 */
 			J722S_IOPAD(0x228, PIN_INPUT_PULLUP, 0) /* SDIO_A_D2 (J23) MMC1_DAT2 */
 			J722S_IOPAD(0x224, PIN_INPUT_PULLUP, 0) /* SDIO_A_D3 (H25) MMC1_DAT3 */
-			J722S_IOPAD(0x240, PIN_INPUT_PULLUP, 0) /* SDIO_A_CD# (B24) MMC1_SDCD */
+			J722S_IOPAD(0x240, PIN_INPUT_PULLUP, 7) /* SDIO_A_CD# (B24) MMC1_SDCD.GPIO1_48 */
 			J722S_IOPAD(0x238, PIN_INPUT, 0) /* (#N/A) MMC1_CLKLB */
 		>;
 	};
@@ -1462,6 +1459,9 @@
 
 	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
 	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
+
+	cd-gpios = <&main_gpio1 48 GPIO_ACTIVE_LOW>;
+	ti,fails-without-test-cd;
 
 	disable-wp;
 	ti,driver-strength-ohm = <50>;
