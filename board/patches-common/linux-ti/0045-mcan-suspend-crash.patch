@@ -12,7 +12,7 @@ index 23b854322a37..fdc0ce275004 100644
  
  	if (ret)
 @@ -2614,7 +2614,7 @@ int m_can_class_suspend(struct device *dev)
- 		m_can_clk_stop(cdev);
+ 		cdev->can.state = CAN_STATE_SLEEPING;
  	}
  
 -	if (device_may_wakeup(dev) && !IS_ERR(cdev->pinctrl_state_wakeup))
