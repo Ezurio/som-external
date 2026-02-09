@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-ifeq($(BR2_SUMMIT_FIPS_7),y)
+ifeq ($(BR2_SUMMIT_FIPS_7),y)
 SUMMIT_FIPS_TOOLCHAIN_VERSION = 7.0.0.518
 else
 SUMMIT_FIPS_TOOLCHAIN_VERSION = 11.0.0.264
