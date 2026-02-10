@@ -11,13 +11,13 @@
 #include <dt-bindings/input/gpio-keys.h>
 
 &{/} {
-	vcc_wifi_m2: regulator-wifi-m2 {
+	reg_wifi_m2: regulator-wifi-m2 {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_wifi_m2";
+		regulator-name = "reg_wifi_m2";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
 		enable-active-high;
@@ -32,7 +32,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vcc_wifi_m2>;
+		vin-supply = <&reg_wifi_m2>;
 
 		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
 		enable-active-high;
@@ -82,7 +82,7 @@
 	status = "okay";
 
 	vmmc-supply = <&reg_wifi_en_m2>;
-	vqmmc-supply = <&vdd_1v8_carrier>;
+	vqmmc-supply = <&reg_1v8_carrier>;
 
 	non-removable;
 	ti,fails-without-test-cd;

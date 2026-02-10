@@ -25,13 +25,13 @@
 		};
 	};
 
-	vcc_dsi_a: regulator-vcc-dsi-a {
+	vcc_dsi_a: regulator-dsi-a {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_dsi_a";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_dsi_a_power_default>;
@@ -107,11 +107,11 @@
 		adi,dsi-lanes = <4>;
 		v3p3-supply = <&vcc_dsi_a>;
 
-		avdd-supply = <&vdd_3v3_carrier>;
-		dvdd-supply = <&vdd_3v3_carrier>;
-		pvdd-supply = <&vdd_3v3_carrier>;
-		a2vdd-supply = <&vdd_3v3_carrier>;
-		v1p2-supply = <&vdd_3v3_carrier>;
+		areg-supply = <&reg_3v3_carrier>;
+		dreg-supply = <&reg_3v3_carrier>;
+		preg-supply = <&reg_3v3_carrier>;
+		a2reg-supply = <&reg_3v3_carrier>;
+		v1p2-supply = <&reg_3v3_carrier>;
 
 		ports {
 			#address-cells = <1>;

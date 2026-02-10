@@ -28,13 +28,13 @@
 		enable-gpios = <&main_gpio0 52 GPIO_ACTIVE_HIGH>;
 	};
 
-	vcc_lvds_d: regulator-vcc-lvds-d {
+	vcc_lvds_d: regulator-lvds-d {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_lvds-d";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_d_power_default>;

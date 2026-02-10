@@ -8,7 +8,7 @@
 
 &reg_wifi_en {
 	startup-delay-us = <20000>;
-	vin-supply = <&vdd_3v3>;
+	vin-supply = <&reg_3v3>;
 };
 
 &sdhci2 { /* SDIO_B  WIFI */

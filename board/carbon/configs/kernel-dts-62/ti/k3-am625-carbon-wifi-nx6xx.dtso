@@ -7,7 +7,7 @@
 /plugin/;
 
 &reg_wifi_en {
-	vin-supply = <&vdd_3v3>;
+	vin-supply = <&reg_3v3>;
 
 	startup-delay-us = <20000>;
 	off-on-delay-us = <100>;
