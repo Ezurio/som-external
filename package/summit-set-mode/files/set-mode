@@ -50,7 +50,6 @@ case "${1}" in
         echo '  <mode> is one or multiple of:'
         echo '  default - remove all overlays'
         echo '  status - print active overlays'
-        echo '  regdomain - set regulatory domain for IFX radios'
         echo
         echo 'Available modes/overlays:'
         echo "${params}" | sed 's/^/  /'
@@ -68,15 +67,6 @@ case "${1}" in
     status)
         # Print current configuration
         print_overlays
-        exit 0
-        ;;
-
-    regdomain)
-        if [ -n "${2}" ]; then
-            fw_setenv 'RegDomain' "${2}"
-        else
-            print_regdomain
-        fi
         exit 0
         ;;
 
