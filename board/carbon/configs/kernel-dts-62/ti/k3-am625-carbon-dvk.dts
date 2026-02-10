@@ -166,7 +166,7 @@
 		compatible = "regulator-fixed";
 		vin-supply = <&reg_5v0>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb0_pins_default>;
+		pinctrl-0 = <&main_usb0_en_pins_default>;
 		enable-active-high;
 		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
@@ -181,8 +181,8 @@
 		self-powered;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb_a_id_pins_default>;
-		id-gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&main_usb0_id_pins_default>;
+		id-gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
 
 		vbus-supply = <&reg_usb0_vbus>;
 
@@ -407,7 +407,7 @@
 	phys = <&transceiver1>;
 };
 
-&main_usb0_pins_default {
+&main_usb0_en_pins_default {
 	pinctrl-single,pins = <
 		AM62X_IOPAD(0x254, PIN_INPUT, 7) /* USB_A_EN (C20) USB0_DRVVBUS.GPIO1_50 */
 	>;
@@ -514,5 +514,5 @@
 
 &usb1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_pins_default>;
+	pinctrl-0 = <&main_usb1_en_pins_default>;
 };
