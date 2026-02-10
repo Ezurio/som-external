@@ -7,41 +7,43 @@
 /dts-v1/;
 
 #include <dt-bindings/leds/common.h>
+#include <dt-bindings/phy/phy.h>
+#include <dt-bindings/net/ti-dp83867.h>
 
 #include "k3-am675-carbon-som.dtsi"
 
 / {
 	model = "Summit Carbon AM675 OSM Carrier Board";
-	compatible = "summit,am675-dev", "ti,j722s";
+	compatible = "summit,carbon-am67x-dvk", "summit,carbon-am67x", "ti,j722s";
 
 	aliases {
 		gpio4 = &exp1;
 		gpio5 = &exp2;
 	};
 
-	vdd_3v3_carrier: vdd-3v3-carrier {
+	reg_3v3_carrier: regulator-3v3-carrier {
 		/* output 2 of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_3v3_carrier";
+		regulator-name = "reg_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_1v8_carrier: vdd-1v8-carrier {
+	reg_1v8_carrier: regulator-1v8-carrier {
 		/* output 3 of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_1v8_carrier";
+		regulator-name = "reg_1v8_carrier";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_aud_3v3_carrier: vdd-aud-3v3-carrier {
+	reg_aud_3v3_carrier: regulator-aud-3v3-carrier {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_aud_3v3_carrier";
+		regulator-name = "reg_aud_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -49,10 +51,10 @@
 		regulator-always-on;
 	};
 
-	vdd_cam_a: vdd-cam-a {
+	reg_cam_a: regulator-cam-a {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_cam_a";
-		vin-supply = <&vdd_3v3_carrier>;
+		regulator-name = "reg_cam_a";
+		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -60,10 +62,10 @@
 		startup-delay-us = <50000>;
 	};
 
-	vdd_cam_b: vdd-cam-b {
+	reg_cam_b: regulator-cam-b {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_cam_b";
-		vin-supply = <&vdd_3v3_carrier>;
+		regulator-name = "reg_cam_b";
+		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -71,10 +73,10 @@
 		startup-delay-us = <50000>;
 	};
 
-	vdd_cam_c: vdd-cam-c {
+	reg_cam_c: regulator-cam-c {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_cam_c";
-		vin-supply = <&vdd_3v3_carrier>;
+		regulator-name = "reg_cam_c";
+		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -82,10 +84,10 @@
 		startup-delay-us = <50000>;
 	};
 
-	vdd_cam_d: vdd-cam-d {
+	reg_cam_d: regulator-cam-d {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_cam_d";
-		vin-supply = <&vdd_3v3_carrier>;
+		regulator-name = "reg_cam_d";
+		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -194,21 +196,21 @@
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
-	vcc_usb0_vbus: regulator-usb0-vbus {
+	reg_usb0_vbus: regulator-usb0-vbus {
 		compatible = "regulator-fixed";
-		vin-supply = <&vsys_5v>;
+		vin-supply = <&reg_5v0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_pins_default>;
 		enable-active-high;
 		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
-		regulator-name = "vcc_usb0_vbus";
+		regulator-name = "reg_usb0_vbus";
 	};
 
 	reg_usb1_oe: regulator-usb1-oe {
 		compatible = "regulator-fixed";
-		vin-supply = <&vsys_5v>;
+		vin-supply = <&reg_5v0>;
 		gpios = <&exp1 0 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
@@ -216,26 +218,26 @@
 		regulator-always-on;
 	};
 
-	vcc_usb1_vbus: regulator-usb1-vbus {
+	reg_usb1_vbus: regulator-usb1-vbus {
 		compatible = "regulator-fixed";
-		vin-supply = <&vsys_5v>;
+		vin-supply = <&reg_5v0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb1_pins_default>;
 		enable-active-high;
 		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
-		regulator-name = "vcc_usb1_vbus";
+		regulator-name = "reg_usb1_vbus";
 	};
 
 	con_usb0: connector-usb0 {
 		compatible = "gpio-usb-b-connector", "usb-b-connector";
 		pinctrl-names = "default";
-		pinctrl-0 = <&usb_a_id_pins_default>;
+		pinctrl-0 = <&main_usb_a_id_pins_default>;
 		id-gpios = <&main_gpio0 23 GPIO_ACTIVE_HIGH>;
 		label = "USB_A";
 		self-powered;
-		vbus-supply = <&vcc_usb0_vbus>;
+		vbus-supply = <&reg_usb0_vbus>;
 
 		port {
 			usb0_dr_connector: endpoint {
@@ -247,11 +249,11 @@
 	con_usb1: connector-usb1 {
 		compatible = "gpio-usb-b-connector", "usb-c-connector";
 		pinctrl-names = "default";
-		pinctrl-0 = <&usb_c_id_pins_default>;
+		pinctrl-0 = <&main_usb_c_id_pins_default>;
 		id-gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
 		label = "USB_C";
 		self-powered;
-		vbus-supply = <&vcc_usb1_vbus>;
+		vbus-supply = <&reg_usb1_vbus>;
 
 		port {
 			usb1_dr_connector: endpoint {
@@ -314,14 +316,14 @@
 	power-sensor-5v@40 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x40>;
-		vs-supply = <&vdd_3v3_carrier>;
+		vs-supply = <&reg_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
 	power-sensor-3v3@41 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x41>;
-		vs-supply = <&vdd_3v3_carrier>;
+		vs-supply = <&reg_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
@@ -329,13 +331,13 @@
 		/* U53, Giantec, GT24C256C-2GLI-TR */
 		compatible = "atmel,24c256";
 		reg = <0x54>;
-		vcc-supply = <&vdd_1v8_carrier>;
+		vcc-supply = <&reg_1v8_carrier>;
 	};
 
 	exp1: gpio@74 {
 		/* U35, TI, TCAL9539RTWR */
 		compatible = "ti,tcal9539", "nxp,pcal9535";
-		vcc-supply = <&vdd_1v8_carrier>;
+		vcc-supply = <&reg_1v8_carrier>;
 		reg = <0x74>;
 
 		#gpio-cells = <2>;
@@ -390,8 +392,8 @@
 		ti,gpios-func = <0>, <0>, <0>; /* GPIOx - Disable */
 		ti,gpi1-func = <0>;
 
-		avdd-supply = <&vdd_aud_3v3_carrier>;
-		iovdd-supply = <&vdd_1v8_carrier>;
+		avdd-supply = <&reg_aud_3v3_carrier>;
+		iovdd-supply = <&reg_1v8_carrier>;
 	};
 
 	headset: ts3a227e@3b {
@@ -469,7 +471,7 @@
 	i2c-mux@73 {
 		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
 		reg = <0x73>;
-		vdd-supply = <&vdd_1v8_carrier>;
+		vdd-supply = <&reg_1v8_carrier>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -537,14 +539,13 @@
 &mcu_mcan1 { /* CAN_B */
 	status = "okay";
 	phys = <&transceiver2>;
-	/delete-property/ wakeup-source;
 };
 
-&vsel_mmc1 {
+&reg_vsel_mmc1 {
 	status = "okay";
 };
 
-&vdd_mmc1 {
+&reg_mmc1 {
 	status = "okay";
 };
 
@@ -559,7 +560,7 @@
 		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
 		reg = <0x72>;
 
-		vdd-supply = <&vdd_1v8>;
+		vdd-supply = <&reg_1v8_carrier>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 

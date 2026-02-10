@@ -10,13 +10,12 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/input/gpio-keys.h>
-#include <dt-bindings/net/ti-dp83867.h>
 
 #include "k3-am625.dtsi"
 
 / {
-	compatible = "summit,am625-carbon", "ti,am625";
-	model = "Ezurio Carbon AM625 SOM";
+	compatible = "summit,carbon-am62x", "ti,am625";
+	model = "Ezurio Carbon AM62x SOM";
 
 	aliases {
 		serial0 = &wkup_uart0;		/* UART_C */
@@ -141,32 +140,32 @@
 		};
 	};
 
-	vsys_5v: regulator-vcc-5v {
+	reg_5v0: regulator-5v0 {
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
-		regulator-name = "vsys_5v";
+		regulator-name = "reg_5v0";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_3v3: regulator-vdd-3v3 {
+	reg_3v3: regulator-3v3 {
 		/* output of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_3v3";
-		vin-supply = <&vsys_5v>;
+		regulator-name = "reg_3v3";
+		vin-supply = <&reg_3v3>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vpp: regulator-vpp {
+	reg_vpp: regulator-vpp {
 		/* TCK107AG,LF U5 */
 		compatible = "regulator-fixed";
-		regulator-name = "vpp";
-		vin-supply = <&vdd_1v8>;
+		regulator-name = "reg_vpp";
+		vin-supply = <&reg_1v8>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 
@@ -176,13 +175,13 @@
 		enable-active-high;
 	};
 
-	vsel_mmc1: regulator-vsel-mmc1 {
+	reg_vsel_mmc1: regulator-vsel-mmc1 {
 		/* Output of U3 TPS6521920WRHBRQ1 VLDO1 */
 		compatible = "regulator-gpio";
 
-		vin-supply = <&vdd_sd_pmic>;
+		vin-supply = <&reg_sd_pmic>;
 
-		regulator-name = "vsel_mmc1";
+		regulator-name = "reg_vsel_mmc1";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -195,10 +194,10 @@
 		status = "disabled";
 	};
 
-	vdd_mmc1: regulator-vdd-mmc1 {
+	reg_mmc1: regulator-mmc1 {
 		compatible = "regulator-fixed";
 
-		regulator-name = "vdd_mmc1";
+		regulator-name = "reg_mmc1";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -235,7 +234,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3>;
+		vin-supply = <&reg_3v3>;
 		clocks = <&k3_clks 157 158>;
 
 		startup-delay-us = <1000>;
@@ -493,16 +492,16 @@
 	tps65219: pmic@30 {
 		compatible = "ti,tps65219";
 		reg = <0x30>;
-		buck1-supply = <&vsys_5v>;
-		buck2-supply = <&vsys_5v>;
-		buck3-supply = <&vsys_5v>;
-		ldo1-supply = <&vdd_3v3>;
-		ldo2-supply = <&vdd_1v8>;
-		ldo3-supply = <&vdd_3v3>;
-		ldo4-supply = <&vdd_3v3>;
+		buck1-supply = <&reg_5v0>;
+		buck2-supply = <&reg_5v0>;
+		buck3-supply = <&reg_5v0>;
+		ldo1-supply = <&reg_3v3>;
+		ldo2-supply = <&reg_1v8>;
+		ldo3-supply = <&reg_3v3>;
+		ldo4-supply = <&reg_3v3>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&pmic_irq_pins_default>;
+		pinctrl-0 = <&main_pmic_irq_pins_default>;
 
 		interrupts-extended = <&gic500 GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -510,37 +509,37 @@
 		ti,power-button;
 
 		regulators {
-			vdd_core: buck1 {
-				regulator-name = "vdd_core";
+			reg_core: buck1 {
+				regulator-name = "reg_core";
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <850000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_1v8: buck2 {
-				regulator-name = "vdd_1v8";
+			reg_1v8: buck2 {
+				regulator-name = "reg_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_1v1: buck3 {
-				regulator-name = "vdd_1v1";
+			reg_1v1: buck3 {
+				regulator-name = "reg_1v1";
 				regulator-min-microvolt = <1100000>;
 				regulator-max-microvolt = <1100000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_sd_pmic: ldo1 {
+			reg_sd_pmic: ldo1 {
 				/*
 				 * Regulator is left as is unused, vdd_sd
 				 * is controlled via GPIO with bypass config
 				 * as per the NVM configuration
 				 */
-				regulator-name = "vdd_sd_pmic";
+				regulator-name = "reg_sd_pmic";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-allow-bypass;
@@ -548,24 +547,24 @@
 				regulator-always-on;
 			};
 
-			vdda_0v85: ldo2 {
-				regulator-name = "vdda_0v85";
+			rega_0v85: ldo2 {
+				regulator-name = "rega_0v85";
 				regulator-min-microvolt = <850000>;
 				regulator-max-microvolt = <850000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdda_1v8: regulator-u3-ldo3 {
-				regulator-name = "vdda_1v8";
+			rega_1v8: regulator-u3-ldo3 {
+				regulator-name = "rega_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_1v2: ldo4 {
-				regulator-name = "vdd_1v2";
+			reg_1v2: ldo4 {
+				regulator-name = "reg_1v2";
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
 				regulator-boot-on;
@@ -912,7 +911,7 @@
 		>;
 	};
 
-	pmic_irq_pins_default: pmic-irq-default-pins {
+	main_pmic_irq_pins_default: main-pmic-irq-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x1f4, PIN_INPUT, 0) /* (D16) EXTINTn */
 		>;
@@ -1180,7 +1179,7 @@
 		>;
 	};
 
-	mcu_clkout_pins_default: main-clkout-default-pins {
+	mcu_clkout_pins_default: mcu-clkout-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x084, PIN_OUTPUT, 0) /* (A12) WKUP_CLKOUT0 */
 		>;
@@ -1293,8 +1292,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
 
-	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
-	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
+	vmmc-supply = <&reg_mmc1>; /* SDIO_A_PWR_EN */
+	vqmmc-supply = <&reg_vsel_mmc1>; /* VSEL_SDI0_A */
 
 	cd-gpios = <&main_gpio1 48 GPIO_ACTIVE_LOW>;
 	ti,fails-without-test-cd;
@@ -1309,7 +1308,7 @@
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
 	vmmc-supply = <&reg_wifi_en>;
-	vqmmc-supply = <&vdd_1v8>;
+	vqmmc-supply = <&reg_1v8>;
 
 	disable-wp;
 	non-removable;

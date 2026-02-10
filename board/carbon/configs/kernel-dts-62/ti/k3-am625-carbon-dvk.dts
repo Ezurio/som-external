@@ -7,41 +7,42 @@
 /dts-v1/;
 
 #include <dt-bindings/leds/common.h>
+#include <dt-bindings/net/ti-dp83867.h>
 
 #include "k3-am625-carbon-som.dtsi"
 
 / {
 	model = "Summit Carbon AM625 OSM Carrier Board";
-	compatible = "summit,am62-dev", "ti,am625";
+	compatible = "summit,carbon-am62x-dvk", "summit,carbon-am62x", "ti,am625";
 
 	aliases {
 		gpio3 = &exp1;
 		gpio4 = &exp2;
 	};
 
-	vdd_3v3_carrier: vdd-3v3-carrier {
+	reg_3v3_carrier: regulator-3v3-carrier {
 		/* output 2 of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_3v3_carrier";
+		regulator-name = "reg_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_1v8_carrier: vdd-1v8-carrier {
+	reg_1v8_carrier: regulator-1v8-carrier {
 		/* output 3 of U4 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_1v8_carrier";
+		regulator-name = "reg_1v8_carrier";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_aud_3v3_carrier: vdd-aud-3v3-carrier {
+	reg_aud_3v3_carrier: regulator-aud-3v3-carrier {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_aud_3v3_carrier";
+		regulator-name = "reg_aud_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -49,10 +50,10 @@
 		regulator-always-on;
 	};
 
-	vdd_cam_a: vdd-cam-a {
+	reg_cam_a: regulator-cam-a {
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_cam_a";
-		vin-supply = <&vdd_3v3_carrier>;
+		regulator-name = "reg_cam_a";
+		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		enable-active-high;
@@ -163,7 +164,7 @@
 
 	vcc_usb0_vbus: regulator-usb0-vbus {
 		compatible = "regulator-fixed";
-		vin-supply = <&vsys_5v>;
+		vin-supply = <&reg_5v0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_pins_default>;
 		enable-active-high;
@@ -266,14 +267,14 @@
 	power-sensor-5v@40 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x40>;
-		vs-supply = <&vdd_3v3_carrier>;
+		vs-supply = <&reg_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
 	power-sensor-3v3@41 {
 		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
 		reg = <0x41>;
-		vs-supply = <&vdd_3v3_carrier>;
+		vs-supply = <&reg_3v3_carrier>;
 		shunt-resistor = <33000>; /* 0.033 Ohms */
 	};
 
@@ -281,13 +282,13 @@
 		/* U53, Giantec, GT24C256C-2GLI-TR */
 		compatible = "atmel,24c256";
 		reg = <0x54>;
-		vcc-supply = <&vdd_1v8_carrier>;
+		vcc-supply = <&reg_1v8_carrier>;
 	};
 
 	exp1: gpio@74 {
 		/* U35, TI, TCAL9539RTWR */
 		compatible = "ti,tcal9539", "nxp,pcal9535";
-		vcc-supply = <&vdd_1v8_carrier>;
+		vcc-supply = <&reg_1v8_carrier>;
 		reg = <0x74>;
 
 		#gpio-cells = <2>;
@@ -342,8 +343,8 @@
 		ti,gpios-func = <0>, <0>, <0>; /* GPIOx - Disable */
 		ti,gpi1-func = <0>;
 
-		avdd-supply = <&vdd_aud_3v3_carrier>;
-		iovdd-supply = <&vdd_1v8_carrier>;
+		avdd-supply = <&reg_aud_3v3_carrier>;
+		iovdd-supply = <&reg_1v8_carrier>;
 	};
 
 	headset: ts3a227e@3b {
@@ -371,7 +372,7 @@
 	i2c-mux@73 {
 		compatible = "nxp,pca9546"; /* U34 TCA9546APWR */
 		reg = <0x73>;
-		vdd-supply = <&vdd_1v8_carrier>;
+		vdd-supply = <&reg_1v8_carrier>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -442,11 +443,11 @@
 	/delete-property/ wakeup-source;
 };
 
-&vsel_mmc1 {
+&reg_vsel_mmc1 {
 	status = "okay";
 };
 
-&vdd_mmc1 {
+&reg_mmc1 {
 	status = "okay";
 };
 
@@ -461,7 +462,7 @@
 		compatible = "nxp,pca9546"; /* U22 TCA9546APWR */
 		reg = <0x72>;
 
-		vdd-supply = <&vdd_1v8>;
+		vdd-supply = <&reg_1v8_carrier>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 

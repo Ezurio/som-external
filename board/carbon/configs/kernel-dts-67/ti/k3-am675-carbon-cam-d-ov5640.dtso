@@ -14,9 +14,9 @@
 	compatible = "ovti,ov5640";
 	reg = <0x3c>;
 
-	DOVDD-supply = <&vdd_cam_d>;
-	AVDD-supply = <&vdd_cam_d>;
-	DVDD-supply = <&vdd_cam_d>;
+	DOVDD-supply = <&reg_cam_d>;
+	AVDD-supply = <&reg_cam_d>;
+	DVDD-supply = <&reg_cam_d>;
 
 	reset-gpios = <&main_gpio0 72 GPIO_ACTIVE_LOW>; /* CAM_D_RST */
 	powerdown-gpios = <&main_gpio0 5 GPIO_ACTIVE_LOW>; /* CAM_D_PWR */

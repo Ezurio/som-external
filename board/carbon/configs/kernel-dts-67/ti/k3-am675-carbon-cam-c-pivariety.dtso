@@ -10,7 +10,7 @@
 
 #include "k3-am675-carbon-cam-c.dtsi"
 
-&vdd_cam_c {
+&reg_cam_c {
 	startup-delay-us = <4000000>;
 	regulator-always-on;
 };
@@ -19,9 +19,9 @@
 	reg = <0x0c>;
 	compatible = "arducam,arducam-pivariety";
 
-	VANA-supply = <&vdd_cam_c>;
-	VDIG-supply = <&vdd_cam_c>;
-	VDDL-supply = <&vdd_cam_c>;
+	VANA-supply = <&reg_cam_c>;
+	VDIG-supply = <&reg_cam_c>;
+	VDDL-supply = <&reg_cam_c>;
 
 	reset-gpios = <&main_gpio0 4 GPIO_ACTIVE_HIGH>; /* CAM_C_RST */
 	enable-gpios = <&main_gpio0 3 GPIO_ACTIVE_HIGH>; /* CAM_C_PWR */

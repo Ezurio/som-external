@@ -10,8 +10,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/input/gpio-keys.h>
-#include <dt-bindings/net/ti-dp83867.h>
-#include <dt-bindings/phy/phy.h>
+
 #include "k3-serdes.h"
 
 #include "k3-j722s.dtsi"
@@ -30,7 +29,7 @@
 		mmc0 = &sdhci0;			/* EMMC */
 		mmc1 = &sdhci1;			/* SDIO_A */
 		mmc2 = &sdhci2;			/* WIFI */
-		spi0 = &main_spi0;			/* SPI_A */
+		spi0 = &main_spi0;		/* SPI_A */
 		spi1 = &mcu_spi0;		/* SPI_B */
 		ethernet0 = &cpsw_port1;	/* ETH_A */
 		ethernet1 = &cpsw_port2;	/* ETH_B */
@@ -148,32 +147,32 @@
 		};
 	};
 
-	vsys_5v: regulator-vcc-in-5v {
+	reg_5v0: regulator-5v0 {
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
-		regulator-name = "vsys_5v";
+		regulator-name = "reg_5v0";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vdd_ram: regulator-vdd-ram {
+	reg_ram: regulator-ram {
 		/* TLV62595 U10 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_ram";
-		vin-supply = <&vsys_5v>;
+		regulator-name = "reg_ram";
+		vin-supply = <&reg_5v0>;
 		regulator-min-microvolt = <850000>;
 		regulator-max-microvolt = <850000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vpp: regulator-vpp {
+	reg_vpp: regulator-vpp {
 		/* TPS22916 U11 */
 		compatible = "regulator-fixed";
-		regulator-name = "vpp";
-		vin-supply = <&vdd_1v8>;
+		regulator-name = "reg_vpp";
+		vin-supply = <&reg_1v8>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 
@@ -183,29 +182,29 @@
 		enable-active-high;
 	};
 
-	vdd_ram_1v1: regulator-vdd-ram-1v1 {
+	reg_ram_1v1: regulator-ram-1v1 {
 		/* TPS22916 U11 */
 		compatible = "regulator-fixed";
-		regulator-name = "vdd_ram_1v1";
-		vin-supply = <&vdd_1v1>;
+		regulator-name = "reg_ram_1v1";
+		vin-supply = <&reg_1v1>;
 		regulator-min-microvolt = <1100000>;
 		regulator-max-microvolt = <1100000>;
 		regulator-always-on;
 		regulator-boot-on;
 	};
 
-	vsel_mmc1: regulator-vsel-mmc1 {
+	reg_vsel_mmc1: regulator-vsel-mmc1 {
 		/* Output of U4 TPS6521920WRHBRQ1 VLDO1 */
 		compatible = "regulator-gpio";
 
-		vin-supply = <&vdd_sd_pmic>;
+		vin-supply = <&reg_sd_pmic>;
 
-		regulator-name = "vsel_mmc1";
+		regulator-name = "reg_vsel_mmc1";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&vsel_mmc1_pins_default>;
+		pinctrl-0 = <&main_vsel_mmc1_pins_default>;
 		gpios = <&main_gpio0 16 GPIO_ACTIVE_LOW>;
 
 		/* initial state must be 3.3V */
@@ -213,10 +212,10 @@
 		status = "disabled";
 	};
 
-	vdd_mmc1: regulator-vdd-mmc1 {
+	reg_mmc1: regulator-mmc1 {
 		compatible = "regulator-fixed";
 
-		regulator-name = "vdd_mmc1";
+		regulator-name = "reg_mmc1";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -298,13 +297,13 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3>;
+		vin-supply = <&reg_3v3>;
 		clocks = <&k3_clks 157 174>;
 
 		startup-delay-us = <1000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&wifi_32k_clk>;
+		pinctrl-0 = <&mcu_clkout_pins_default>;
 
 		assigned-clocks = <&k3_clks 157 174>;
 		assigned-clock-parents = <&k3_clks 157 175>;
@@ -590,16 +589,16 @@
 	tps65219: pmic@30 {
 		compatible = "ti,tps65219";
 		reg = <0x30>;
-		buck1-supply = <&vsys_5v>;
-		buck2-supply = <&vsys_5v>;
-		buck3-supply = <&vsys_5v>;
-		ldo1-supply = <&vdd_3v3>;
-		ldo2-supply = <&vdd_1v8>;
-		ldo3-supply = <&vdd_3v3>;
-		ldo4-supply = <&vdd_3v3>;
+		buck1-supply = <&reg_5v0>;
+		buck2-supply = <&reg_5v0>;
+		buck3-supply = <&reg_5v0>;
+		ldo1-supply = <&reg_3v3>;
+		ldo2-supply = <&reg_1v8>;
+		ldo3-supply = <&reg_3v3>;
+		ldo4-supply = <&reg_3v3>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&pmic_irq_pins_default>;
+		pinctrl-0 = <&main_pmic_irq_pins_default>;
 
 		interrupts-extended = <&gic500 GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -607,37 +606,37 @@
 		ti,power-button;
 
 		regulators {
-			vdd_3v3: buck1 {
-				regulator-name = "vdd_3v3";
+			reg_3v3: buck1 {
+				regulator-name = "reg_3v3";
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_1v8: buck2 {
-				regulator-name = "vdd_1v8";
+			reg_1v8: buck2 {
+				regulator-name = "reg_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_1v1: buck3 {
-				regulator-name = "vdd_1v1";
+			reg_1v1: buck3 {
+				regulator-name = "reg_1v1";
 				regulator-min-microvolt = <1100000>;
 				regulator-max-microvolt = <1100000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_sd_pmic: ldo1 {
+			reg_sd_pmic: ldo1 {
 				/*
 				 * Regulator is left as is unused, vdd_sd
 				 * is controlled via GPIO with bypass config
 				 * as per the NVM configuration
 				 */
-				regulator-name = "vdd_sd_pmic";
+				regulator-name = "reg_sd_pmic";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-allow-bypass;
@@ -645,24 +644,24 @@
 				regulator-always-on;
 			};
 
-			vdd_1v2: ldo2 {
-				regulator-name = "vdd_1v2";
+			reg_1v2: ldo2 {
+				regulator-name = "reg_1v2";
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_phy_1v8: regulator-u3-ldo3 {
-				regulator-name = "vdd_phy_1v8";
+			reg_phy_1v8: regulator-u3-ldo3 {
+				regulator-name = "reg_phy_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			vdd_pll_1v8: ldo4 {
-				regulator-name = "vdd_pll_1v8";
+			reg_pll_1v8: ldo4 {
+				regulator-name = "reg_pll_1v8";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-boot-on;
@@ -671,10 +670,10 @@
 		};
 	};
 
-	vdd_core: regulator@44 {
+	reg_core: regulator@44 {
 		compatible = "ti,tps62875";
 		reg = <0x44>;
-		regulator-name = "vdd_core";
+		regulator-name = "reg_core";
 		regulator-min-microvolt = <850000>;
 		regulator-max-microvolt = <850000>;
 		regulator-boot-on;
@@ -987,13 +986,13 @@
 		>;
 	};
 
-	pmic_irq_pins_default: pmic-irq-default-pins {
+	main_pmic_irq_pins_default: main-pmic-irq-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x1f4, PIN_INPUT, 0) /* (B26) EXTINTn */
 		>;
 	};
 
-	vsel_mmc1_pins_default: vsel-mmc1-default-pins {
+	main_vsel_mmc1_pins_default: main-vsel-mmc1-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x040, PIN_INPUT, 7) /* VSEL_SD (R23) GPMC0_AD1.GPIO0_16 */
 		>;
@@ -1005,14 +1004,14 @@
 		>;
 	};
 
-	usb_a_id_pins_default: usb-a-id-default-pins {
+	main_usb_a_id_pins_default: main-usb-a-id-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x05c, PIN_INPUT_PULLUP, 7) /* USB_A_ID (U27) GPMC0_AD8.GPIO0_23 */
 			J722S_IOPAD(0x060, PIN_INPUT_PULLUP, 7) /* USB_A_OC# (U26) GPMC0_AD9.GPIO0_24 */
 		>;
 	};
 
-	usb_c_id_pins_default: usb-c-id-default-pins {
+	main_usb_c_id_pins_default: main-usb-c-id-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
 			J722S_IOPAD(0x068, PIN_INPUT_PULLUP, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
@@ -1371,7 +1370,7 @@
 		>;
 	};
 
-	wifi_32k_clk: mcu-clk-out-default-pins {
+	mcu_clkout_pins_default: mcu-clkout-default-pins {
 		pinctrl-single,pins = <
 			J722S_MCU_IOPAD(0x084, PIN_OUTPUT, 0) /* (F12) WKUP_CLKOUT0 */
 		>;
@@ -1437,8 +1436,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mmc1_pins_default>;
 
-	vmmc-supply = <&vdd_mmc1>; /* SDIO_A_PWR_EN */
-	vqmmc-supply = <&vsel_mmc1>; /* VSEL_SDI0_A */
+	vmmc-supply = <&reg_mmc1>; /* SDIO_A_PWR_EN */
+	vqmmc-supply = <&reg_vsel_mmc1>; /* VSEL_SDI0_A */
 
 	cd-gpios = <&main_gpio1 48 GPIO_ACTIVE_LOW>;
 	ti,fails-without-test-cd;
@@ -1452,7 +1451,7 @@
 	pinctrl-0 = <&main_mmc2_pins_default>;
 
 	vmmc-supply = <&reg_wifi_en>;
-	vqmmc-supply = <&vdd_1v8>;
+	vqmmc-supply = <&reg_1v8>;
 
 	disable-wp;
 	non-removable;

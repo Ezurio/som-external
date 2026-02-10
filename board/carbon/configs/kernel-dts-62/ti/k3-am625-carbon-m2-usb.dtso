@@ -11,13 +11,13 @@
 /plugin/;
 
 &{/} {
-	vcc_wifi_m2: regulator-wifi-m2 {
+	reg_wifi_m2: regulator-wifi-m2 {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_wifi_m2";
+		regulator-name = "reg_wifi_m2";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		gpios = <&exp1 12 GPIO_ACTIVE_HIGH>;  /* M2_POWER_EN */
 		enable-active-high;

@@ -14,9 +14,9 @@
 	compatible = "ovti,ov5645";
 	reg = <0x3c>;
 
-	vdddo-supply = <&vdd_cam_c>;
-	vdda-supply = <&vdd_cam_c>;
-	vddd-supply = <&vdd_cam_c>;
+	vdddo-supply = <&reg_cam_c>;
+	vdda-supply = <&reg_cam_c>;
+	vddd-supply = <&reg_cam_c>;
 
 	reset-gpios = <&main_gpio0 4 GPIO_ACTIVE_LOW>; /* CAM_C_RST */
 	enable-gpios = <&main_gpio0 3 GPIO_ACTIVE_HIGH>; /* CAM_C_PWR */

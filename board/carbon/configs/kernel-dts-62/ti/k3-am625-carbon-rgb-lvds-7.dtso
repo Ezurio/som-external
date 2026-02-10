@@ -28,13 +28,13 @@
 		enable-gpios = <&main_gpio0 71 GPIO_ACTIVE_HIGH>;
 	};
 
-	vcc_rgb: regulator-vcc-rgb {
+	reg_rgb: regulator-rgb {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_rgb";
+		regulator-name = "reg_rgb";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_power_default>;
@@ -47,7 +47,7 @@
 		compatible = "panel-lvds";
 		data-mapping = "vesa-24";
 
-		power-supply = <&vcc_rgb>;
+		power-supply = <&reg_rgb>;
 		backlight = <&backlight_rgb>;
 
 		width-mm = <150>;
@@ -127,8 +127,8 @@
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 
-		AVDD28-supply = <&vcc_rgb>;
-		VDDIO-supply = <&vcc_rgb>;
+		AVDD28-supply = <&reg_rgb>;
+		VDDIO-supply = <&reg_rgb>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_rgb_reset_default>;

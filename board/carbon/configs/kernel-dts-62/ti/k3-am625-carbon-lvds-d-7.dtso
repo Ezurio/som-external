@@ -28,13 +28,13 @@
 		enable-gpios = <&main_gpio0 33 GPIO_ACTIVE_HIGH>;
 	};
 
-	vcc_lvds_d: regulator-vcc-lvds-d {
+	reg_lvds_d: regulator-lvds-d {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_lvds-d";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&vdd_3v3_carrier>;
+		vin-supply = <&reg_3v3_carrier>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_d_power_default>;
@@ -47,7 +47,7 @@
 		compatible = "panel-lvds";
 		data-mapping = "vesa-24";
 
-		power-supply = <&vcc_lvds_d>;
+		power-supply = <&reg_lvds_d>;
 		backlight = <&backlight_lvds_d>;
 
 		width-mm = <150>;
@@ -127,8 +127,8 @@
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 
-		AVDD28-supply = <&vcc_lvds_d>;
-		VDDIO-supply = <&vcc_lvds_d>;
+		AVDD28-supply = <&reg_lvds_d>;
+		VDDIO-supply = <&reg_lvds_d>;
 
 		interrupts-extended = <&exp2 2 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
