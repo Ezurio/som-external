@@ -884,15 +884,29 @@
 		>;
 	};
 
-	main_usb0_pins_default: main-usb0-default-pins {
+	main_usb0_en_pins_default: main-usb0-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x254, PIN_OUTPUT, 0) /* USB_A_VBUS (E25) USB0_DRVVBUS */
 		>;
 	};
 
-	main_usb1_pins_default: main-usb1-default-pins {
+	main_usb1_en_pins_default: main-usb1-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_VBUS (B27) USB1_DRVVBUS */
+		>;
+	};
+
+	main_usb0_id_pins_default: main-usb0-id-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x05c, PIN_INPUT_PULLUP, 7) /* USB_A_ID (U27) GPMC0_AD8.GPIO0_23 */
+			J722S_IOPAD(0x060, PIN_INPUT_PULLUP, 7) /* USB_A_OC# (U26) GPMC0_AD9.GPIO0_24 */
+		>;
+	};
+
+	main_usb1_id_pins_default: main-usb1-id-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
+			J722S_IOPAD(0x068, PIN_INPUT_PULLUP, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
 		>;
 	};
 
@@ -1001,20 +1015,6 @@
 	main_mmc1_power_en_default: main-mmc1-power-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x03c, PIN_INPUT, 7) /* SDIO_A_PWR_EN (R22) GPMC0_AD0.GPIO0_15 */
-		>;
-	};
-
-	main_usb_a_id_pins_default: main-usb-a-id-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x05c, PIN_INPUT_PULLUP, 7) /* USB_A_ID (U27) GPMC0_AD8.GPIO0_23 */
-			J722S_IOPAD(0x060, PIN_INPUT_PULLUP, 7) /* USB_A_OC# (U26) GPMC0_AD9.GPIO0_24 */
-		>;
-	};
-
-	main_usb_c_id_pins_default: main-usb-c-id-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
-			J722S_IOPAD(0x068, PIN_INPUT_PULLUP, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
 		>;
 	};
 
