@@ -28,9 +28,9 @@
 		enable-gpios = <&main_gpio0 29 GPIO_ACTIVE_HIGH>;
 	};
 
-	vcc_dsi_a: regulator-dsi-a {
+	reg_dsi_a: regulator-dsi-a {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_dsi_a";
+		regulator-name = "reg_dsi_a";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -47,7 +47,7 @@
 		compatible = "panel-lvds";
 		data-mapping = "vesa-24";
 
-		power-supply = <&vcc_dsi_a>;
+		power-supply = <&reg_dsi_a>;
 		backlight = <&backlight_dsi_a>;
 
 		width-mm = <150>;
@@ -130,7 +130,7 @@
 	dsi0_sn65dsi84: bridge@2c {
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
-		vcc-supply = <&vcc_dsi_a>;
+		vcc-supply = <&reg_dsi_a>;
 
 		ports {
 			#address-cells = <1>;
@@ -159,8 +159,8 @@
 		compatible = "goodix,gt911";
 		reg = <0x14>;
 
-		AVDD28-supply = <&vcc_dsi_a>;
-		VDDIO-supply = <&vcc_dsi_a>;
+		AVDD28-supply = <&reg_dsi_a>;
+		VDDIO-supply = <&reg_dsi_a>;
 
 		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
