@@ -162,7 +162,7 @@
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
-	vcc_usb0_vbus: regulator-usb0-vbus {
+	reg_usb0_vbus: regulator-usb0-vbus {
 		compatible = "regulator-fixed";
 		vin-supply = <&reg_5v0>;
 		pinctrl-names = "default";
@@ -171,7 +171,7 @@
 		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
 		regulator-max-microvolt = <5000000>;
 		regulator-min-microvolt = <5000000>;
-		regulator-name = "vcc_usb0_vbus";
+		regulator-name = "reg_usb0_vbus";
 	};
 
 	con_usb0: connector-usb0 {
@@ -184,7 +184,7 @@
 		pinctrl-0 = <&main_usb_a_id_pins_default>;
 		id-gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
 
-		vbus-supply = <&vcc_usb0_vbus>;
+		vbus-supply = <&reg_usb0_vbus>;
 
 		port {
 			usb0_dr_connector: endpoint {

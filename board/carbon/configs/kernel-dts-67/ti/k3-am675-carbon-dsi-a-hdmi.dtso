@@ -25,9 +25,9 @@
 		};
 	};
 
-	vcc_dsi_a: regulator-dsi-a {
+	reg_dsi_a: regulator-dsi-a {
 		compatible = "regulator-fixed";
-		regulator-name = "vcc_dsi_a";
+		regulator-name = "reg_dsi_a";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -105,7 +105,7 @@
 		reg = <0x3d>;
 		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
 		adi,dsi-lanes = <4>;
-		v3p3-supply = <&vcc_dsi_a>;
+		v3p3-supply = <&reg_dsi_a>;
 
 		areg-supply = <&reg_3v3_carrier>;
 		dreg-supply = <&reg_3v3_carrier>;
