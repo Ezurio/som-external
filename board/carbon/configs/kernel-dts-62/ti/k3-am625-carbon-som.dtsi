@@ -154,7 +154,7 @@
 		/* output of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_3v3";
-		vin-supply = <&reg_3v3>;
+		vin-supply = <&reg_5v0>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
