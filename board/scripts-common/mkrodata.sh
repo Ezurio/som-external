@@ -48,6 +48,25 @@ die_with_cleanup() {
   exit 1
 }
 
+#
+# Extracts all certificates from the input cert/bundle and returns fingerprints and validity period
+#
+cert_info() {
+  CERT_FILE="$1"
+  csplit -f "${WORKING_DIR}"/tmpcert_ -q "$CERT_FILE" '/-----BEGIN CERTIFICATE-----/' '{*}' 2>/dev/null || true
+  CERT_NUM=0
+  for tmpcert in "${WORKING_DIR}"/tmpcert_*; do
+    if [ -s "$tmpcert" ] && grep -q -- "-----BEGIN CERTIFICATE-----" "$tmpcert" 2>/dev/null; then
+      echo "cert_info $1_$CERT_NUM"
+      openssl x509 -in "$tmpcert" -noout -fingerprint -sha1 2>/dev/null
+      openssl x509 -in "$tmpcert" -noout -fingerprint -sha256 2>/dev/null
+      openssl x509 -in "$tmpcert" -noout -fingerprint -md5 -dates 2>/dev/null
+      CERT_NUM=$((CERT_NUM + 1))
+    fi
+  done
+  rm -f "${WORKING_DIR}"/tmpcert_*
+}
+
 if [ ! -f "${KEY_BIN}" ] && [ -z "${KEY_BIN}" ] ; then
   die "Missing encryption key"
 fi
@@ -94,6 +113,9 @@ fi
 #
 [ -f "${WORKING_DIR}/rodata_manifest.txt" ] && rm -f "${WORKING_DIR}/rodata_manifest.txt"
 find "${RODATA_MNT_DIR}" -type f -exec md5sum "{}" \; >> "${WORKING_DIR}/rodata_manifest.txt"
+find "${RODATA_MNT_DIR}" -type f -name "*.crt" | while read -r cert_file; do
+  cert_info "$cert_file" >> "${WORKING_DIR}/rodata_manifest.txt"
+done
 
 #
 # Create the SquashFS image
