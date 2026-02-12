@@ -30,10 +30,26 @@ fi
 
 if pgrep wayland >/dev/null 2>&1; then
     SINK=waylandsink
-elif [ -r /sys/devices/soc0/soc_id ]; then
-    read -r soc_id < /sys/devices/soc0/soc_id || soc_id=
+else
+	if [ -f /sys/devices/soc0/soc_id ]; then
+		# Get the SoC ID
+		read -r soc_id < /sys/devices/soc0/soc_id
+	elif [ -f /sys/devices/soc0/family ]; then
+		# Get the SoC family
+		read -r soc_id < /sys/devices/soc0/family
+	else
+		soc_id="unknown"
+	fi
 
     case "${soc_id}" in
+        AM6*|J722S)
+            if media-ctl -d "${ID}" -p | grep -q 'pivariety'; then
+                SINK="kmssink can-scale=false"
+            else
+                SINK="kmssink"
+            fi
+            formatstr=",format=UYVY"
+            ;;
         i.MX95)
             formatstr=",format=${format},framerate=5/1"
             SINK="videoconvert ! fbdevsink"
@@ -55,9 +71,6 @@ elif [ -r /sys/devices/soc0/soc_id ]; then
             formatstr=",format=${format}"
             ;;
     esac
-else
-    SINK="kmssink can-scale=false"
-    formatstr=",format=${format}"
 fi
 
 set -- ${FORMAT}
