@@ -42,9 +42,9 @@ die() {
 die_with_cleanup() {
   echo "${1}" >&2
   /usr/sbin/dmsetup remove rodata_enc
-  rm -f ${RODATA_IMG} ${RODATA_SQUASHFS}
+  rm -f "${RODATA_IMG}" "${RODATA_SQUASHFS}"
   losetup -d "${LOOP_DEVICE}" || true
-  rm -rf ${RODATA_MNT_DIR}
+  rm -rf "${RODATA_MNT_DIR}"
   exit 1
 }
 
@@ -59,28 +59,28 @@ fi
 #
 # Create encrypted directory
 #
-mkdir -p ${SECRET_DIR} || die "Failed to create ${SECRET_DIR}"
+mkdir -p "${SECRET_DIR}" || die "Failed to create ${SECRET_DIR}"
 
 #
 # Create and populate REST server certificate and key under encrypted directory
 #
-mkdir -p ${REST_SERVER_SSL_DIR} || die "Failed to create ${REST_SERVER_SSL_DIR}"
-cp "${REST_SERVER_CERT}" ${REST_SERVER_CERT_DEST} || die "Failed to populate REST server certficate"
-cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_KEY_DEST} || die "Failed to populate REST server key"
-cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_CERT_CHAIN_DEST} || die "Failed to populate REST server certificate chain"
+mkdir -p "${REST_SERVER_SSL_DIR}" || die "Failed to create ${REST_SERVER_SSL_DIR}"
+cp "${REST_SERVER_CERT}" "${REST_SERVER_CERT_DEST}" || die "Failed to populate REST server certficate"
+cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_KEY_DEST}" || die "Failed to populate REST server key"
+cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_CERT_CHAIN_DEST}" || die "Failed to populate REST server certificate chain"
 
 #
 # Populate REST server provisioning certificates and key under encrypted directory
 #
-cp "${REST_SERVER_CERT}" ${REST_SERVER_PROVISIONING_CERT_DEST} || die "Failed to populate REST server provisioning certficate"
-cp "${REST_SERVER_PRIV_KEY}" ${REST_SERVER_PROVISIONING_KEY_DEST} || die "Failed to populate REST server provisioning key"
-cp "${REST_SERVER_CERT_CHAIN}" ${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST} || die "Failed to populate REST server provisioning certificate chain"
+cp "${REST_SERVER_CERT}" "${REST_SERVER_PROVISIONING_CERT_DEST}" || die "Failed to populate REST server provisioning certficate"
+cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_PROVISIONING_KEY_DEST}" || die "Failed to populate REST server provisioning key"
+cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST}" || die "Failed to populate REST server provisioning certificate chain"
 
 #
 # Create and populate update public certificate
 #
-mkdir -p ${UPDATE_CERT_DIR} || die "Failed to create ${UPDATE_CERT_DIR}"
-openssl x509 -in "${UPDATE_PUB_CERT}" -pubkey -noout -outform pem -out ${UPDATE_CERT_DEST} || die "Failed to generate update certificate"
+mkdir -p "${UPDATE_CERT_DIR}" || die "Failed to create ${UPDATE_CERT_DIR}"
+openssl x509 -in "${UPDATE_PUB_CERT}" -pubkey -noout -outform pem -out "${UPDATE_CERT_DEST}" || die "Failed to generate update certificate"
 
 #
 # Copy in optional customer data
@@ -93,21 +93,21 @@ fi
 # Generate the manifest file
 #
 [ -f "${WORKING_DIR}/rodata_manifest.txt" ] && rm -f "${WORKING_DIR}/rodata_manifest.txt"
-find ${RODATA_MNT_DIR} -type f -exec md5sum {} \; >> "${WORKING_DIR}/rodata_manifest.txt"
+find "${RODATA_MNT_DIR}" -type f -exec md5sum "{}" \; >> "${WORKING_DIR}/rodata_manifest.txt"
 
 #
 # Create the SquashFS image
 #
-mksquashfs ${RODATA_MNT_DIR} ${RODATA_SQUASHFS} || die_with_cleanup "Failed to create SquashFS image"
+mksquashfs "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}" || die_with_cleanup "Failed to create SquashFS image"
 
 #
 # Create a block image for the read-only data
 #
-RODATA_SIZE=$(stat -c %b ${RODATA_SQUASHFS})
+RODATA_SIZE=$(stat -c %b "${RODATA_SQUASHFS}")
 RODATA_SIZE=$(((RODATA_SIZE + 1) * 512)) # Round up to the next 512-byte block and convert to bytes
-fallocate -l ${RODATA_SIZE} ${RODATA_IMG} || die_with_cleanup "Creation of block image failed"
+fallocate -l "${RODATA_SIZE}" "${RODATA_IMG}" || die_with_cleanup "Creation of block image failed"
 LOOP_DEVICE=$(losetup -f) || die_with_cleanup "Failed to find free loop device"
-losetup "${LOOP_DEVICE}" ${RODATA_IMG} || die_with_cleanup "Failed to associate loop device with image"
+losetup "${LOOP_DEVICE}" "${RODATA_IMG}" || die_with_cleanup "Failed to associate loop device with image"
 sync
 
 #
@@ -123,15 +123,15 @@ fi
 #
 # dd the SquashFS image to the dm-crypt device
 #
-dd if=${RODATA_SQUASHFS} of=/dev/mapper/rodata_enc bs=512 conv=fsync || die_with_cleanup "Failed to dd SquashFS image to dm-crypt device"
+dd if="${RODATA_SQUASHFS}" of=/dev/mapper/rodata_enc bs=512 conv=fsync || die_with_cleanup "Failed to dd SquashFS image to dm-crypt device"
 
 #
 # Clean up
 #
 sync
 /usr/sbin/dmsetup remove rodata_enc || die_with_cleanup "Failed to remove dm-crypt device"
-rm -f ${RODATA_SQUASHFS} || die_with_cleanup "Failed to remove SquashFS image"
+rm -f "${RODATA_SQUASHFS}" || die_with_cleanup "Failed to remove SquashFS image"
 losetup -d "${LOOP_DEVICE}" || die_with_cleanup "Failed to detach loop device"
-rm -rf ${RODATA_MNT_DIR} || die_with_cleanup "Failed to clean up mount directory"
+rm -rf "${RODATA_MNT_DIR}" || die_with_cleanup "Failed to clean up mount directory"
 
 echo "Successfully created factory data in ${RODATA_IMG}"
