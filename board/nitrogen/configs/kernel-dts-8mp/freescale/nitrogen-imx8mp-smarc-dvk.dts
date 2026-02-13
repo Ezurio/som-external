@@ -332,8 +332,6 @@
 };
 
 &usb3_0 {
-	vbus-supply = <&reg_vdd_5v0>;
-
 	status = "okay";
 };
 

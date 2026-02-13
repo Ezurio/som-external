@@ -8,6 +8,8 @@ PROD-21983
  security/loadpin/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/security/loadpin/Kconfig b/security/loadpin/Kconfig
 index 848f8b4a60190..d82bcdb34cc8a 100644
 --- a/security/loadpin/Kconfig
@@ -23,4 +25,3 @@ index 848f8b4a60190..d82bcdb34cc8a 100644
  	  selected, it can be enabled at boot with the kernel parameter
 -- 
 2.51.0
-

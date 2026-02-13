@@ -319,6 +319,8 @@ Tested-by: Tommaso Merciai <tomm.merciai@gmail.com>
  drivers/media/i2c/ov5645.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+Upstream-Status: Pending
+
 diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
 index bcbf3239d3ea..d344d3447a95 100644
 --- a/drivers/media/i2c/ov5645.c

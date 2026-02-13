@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -352,25 +361,30 @@

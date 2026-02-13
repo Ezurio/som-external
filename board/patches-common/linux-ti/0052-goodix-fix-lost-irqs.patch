@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
 @@ -465,7 +470,7 @@

@@ -17,6 +17,8 @@ Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
  drivers/input/touchscreen/goodix.c | 50 ++++++++++++++++++++++++++----
  1 file changed, 44 insertions(+), 6 deletions(-)
 
+Upstream-Status: Backport
+
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
 index a3e8a51c9144..252dcae039f8 100644
 --- a/drivers/input/touchscreen/goodix.c
@@ -121,4 +123,3 @@ index a3e8a51c9144..252dcae039f8 100644
  
 -- 
 2.51.0
-

@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/net/ethernet/ti/davinci_mdio.c
 +++ b/drivers/net/ethernet/ti/davinci_mdio.c
 @@ -517,6 +517,11 @@

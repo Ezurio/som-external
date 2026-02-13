@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/sound/soc/codecs/ts3a227e.c
 +++ b/sound/soc/codecs/ts3a227e.c
 @@ -376,7 +376,7 @@

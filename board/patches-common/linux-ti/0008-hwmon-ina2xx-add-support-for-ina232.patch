@@ -12,6 +12,8 @@ Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
  drivers/hwmon/ina2xx.c         | 19 ++++++++++++++++++-
  2 files changed, 30 insertions(+), 3 deletions(-)
 
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/Documentation/hwmon/ina2xx.rst b/Documentation/hwmon/ina2xx.rst
 index 7f1939b40f74f..5e985fe7d5246 100644
 --- a/Documentation/hwmon/ina2xx.rst
@@ -111,4 +113,3 @@ index f0fa6d073627f..65e20c1cc77e7 100644
  MODULE_DEVICE_TABLE(of, ina2xx_of_match);
 -- 
 2.34.1
-

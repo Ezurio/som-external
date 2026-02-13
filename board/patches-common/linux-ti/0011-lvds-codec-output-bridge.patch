@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/gpu/drm/bridge/lvds-codec.c
 +++ b/drivers/gpu/drm/bridge/lvds-codec.c
 @@ -110,9 +110,8 @@

@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/sound/soc/generic/simple-card.c
 +++ b/sound/soc/generic/simple-card.c
 @@ -16,6 +16,7 @@

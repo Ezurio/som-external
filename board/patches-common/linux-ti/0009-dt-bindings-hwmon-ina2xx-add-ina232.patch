@@ -8,6 +8,8 @@ Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
  Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml | 1 +
  1 file changed, 1 insertion(+)
 
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml b/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml
 index 8648877d2d01..c693a653d6ed 100644
 --- a/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml
@@ -22,4 +24,3 @@ index 8648877d2d01..c693a653d6ed 100644
        - ti,ina260
 -- 
 2.47.1
-
