@@ -6,7 +6,6 @@
  */
 
 #include <dt-bindings/gpio/gpio.h>
-#include "k3-pinctrl.h"
 
 &{/} {
 	/* On Camera module oscillator */
@@ -26,7 +25,7 @@
 		clock-names = "xclk";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_cam_a_default>;
+		pinctrl-0 = <&main_cam_a_pins_default>;
 
 		port {
 			cam_a_ep: endpoint {
