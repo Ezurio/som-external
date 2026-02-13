@@ -1,0 +1,42 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -3097,8 +3097,8 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 		port->slave.ifphy = devm_of_phy_get(dev, port_np, NULL);
+ 		if (IS_ERR(port->slave.ifphy)) {
+ 			ret = PTR_ERR(port->slave.ifphy);
+-			dev_err(dev, "%pOF error retrieving port phy: %d\n",
+-				port_np, ret);
++			dev_err_probe(dev, ret, "%pOF error retrieving port phy\n",
++				port_np);
+ 			goto of_node_put;
+ 		}
+ 
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -1304,8 +1304,8 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
+ 		if (!IS_ENABLED(CONFIG_TI_CPSW_PHY_SEL) &&
+ 		    IS_ERR(slave_data->ifphy)) {
+ 			ret = PTR_ERR(slave_data->ifphy);
+-			dev_err(&pdev->dev,
+-				"%d: Error retrieving port phy: %d\n", i, ret);
++			dev_err_probe(&pdev->dev, ret,
++				"%d: Error retrieving port phy\n", i);
+ 			goto err_node_put;
+ 		}
+ 
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -1284,8 +1284,8 @@ static int cpsw_probe_dt(struct cpsw_common *cpsw)
+ 		slave_data->ifphy = devm_of_phy_get(dev, port_np, NULL);
+ 		if (IS_ERR(slave_data->ifphy)) {
+ 			ret = PTR_ERR(slave_data->ifphy);
+-			dev_err(dev, "%pOF: Error retrieving port phy: %d\n",
+-				port_np, ret);
++			dev_err_probe(dev, ret, "%pOF: Error retrieving port phy\n",
++				port_np);
+ 			goto err_node_put;
+ 		}
+ 

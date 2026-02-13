@@ -1,0 +1,391 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Wed, 12 Feb 2026 00:00:00 +0000
+Subject: [PATCH] drm/bridge: Add simple format bridge driver
+
+Add a simple DRM display bridge that advertises media bus format
+capabilities without performing actual data conversion. This bridge
+acts as a pass-through device that declares format capabilities in
+the display pipeline.
+
+The bridge supports configuring the media bus format via device tree
+using the standard "data-mapping" property. If not specified, the
+bridge defaults to RGB888 (MEDIA_BUS_FMT_RGB888_1X24).
+
+Supported formats include RGB, BGR, and YUV variants commonly used
+in embedded display systems.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+---
+ .../bridge/linux,display-format-bridge.yaml   |  91 +++++++++++
+ drivers/gpu/drm/bridge/Kconfig                |   9 ++
+ drivers/gpu/drm/bridge/Makefile               |   1 +
+ drivers/gpu/drm/bridge/format-bridge.c        | 215 ++++++++++++++++++++++
+ 4 files changed, 316 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/display/bridge/linux,display-format-bridge.yaml
+ create mode 100644 drivers/gpu/drm/bridge/format-bridge.c
+
+--- /dev/null
++++ b/Documentation/devicetree/bindings/display/bridge/linux,display-format-bridge.yaml
+@@ -0,0 +1,91 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/display/bridge/linux,display-format-bridge.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Display Format Bridge
++
++maintainers:
++  - Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
++
++description: |
++  Simple display bridge that advertises supported media bus formats
++  without performing actual format conversion. Some format conversions could be
++  accomplished by the hardware wiring or board traces, and the purpose of
++  this bridge is to accommodate that.
++
++properties:
++  compatible:
++    const: linux,display-format-bridge
++
++  ports:
++    $ref: /schemas/graph.yaml#/properties/ports
++
++    patternProperties:
++      "^port@[0-1]$":
++        $ref: /schemas/graph.yaml#/properties/port
++        description: Input (port@0) or output (port@1) port
++
++        properties:
++          data-mapping:
++            $ref: /schemas/types.yaml#/definitions/string
++            description: |
++              String specifying the media bus format.
++              For port@0 (input), if not specified, defaults to "rgb888-1x24".
++              For port@1 (output), if not specified, the bridge will not
++              advertise output format and let the DRM framework handle
++              format negotiation.
++
++              Supported format names:
++                - rgb888-1x24: MEDIA_BUS_FMT_RGB888_1X24 (default for input)
++                - rgb565-1x16: MEDIA_BUS_FMT_RGB565_1X16
++                - rgb666-1x18: MEDIA_BUS_FMT_RGB666_1X18
++                - bgr565-2x8-be: MEDIA_BUS_FMT_BGR565_2X8_BE
++                - bgr666-1x18: MEDIA_BUS_FMT_BGR666_1X18
++                - bgr888-1x24: MEDIA_BUS_FMT_BGR888_1X24
++                - yuyv8-1x16: MEDIA_BUS_FMT_YUYV8_1X16
++                - uyvy8-1x16: MEDIA_BUS_FMT_UYVY8_1X16
++                - jeida-18: MEDIA_BUS_FMT_RGB666_1X7X3_SPWG
++                - jeida-24: MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA
++
++    required:
++      - port@0
++      - port@1
++
++required:
++  - compatible
++  - ports
++
++additionalProperties: false
++
++examples:
++  - |
++    display-format-bridge {
++        compatible = "linux,display-format-bridge";
++
++        ports {
++            #address-cells = <1>;
++            #size-cells = <0>;
++
++            port@0 {
++                reg = <0>;
++                data-mapping = "rgb888-1x24";
++
++                bridge_in: endpoint {
++                    remote-endpoint = <&dpi_out>;
++                };
++            };
++
++            port@1 {
++                reg = <1>;
++                data-mapping = "rgb565-1x16";
++
++                bridge_out: endpoint {
++                    remote-endpoint = <&panel_in>;
++                };
++            };
++        };
++    };
++
++...
++
+--- a/drivers/gpu/drm/bridge/Kconfig
++++ b/drivers/gpu/drm/bridge/Kconfig
+@@ -286,6 +286,16 @@ config DRM_DISPLAY_CONNECTOR
+ 	  It is an I2C driver, that detects connection of MHL bridge
+ 	  and starts encapsulation of HDMI signal.
+ 
++config DRM_DISPLAY_FORMAT_BRIDGE
++	tristate "Display Format Bridge support"
++	depends on OF
++	help
++	  Simple display bridge that advertises supported media bus formats
++	  without performing actual format conversion. Used to declare format
++	  capabilities in the display pipeline.
++
++	  If unsure, say N.
++
+ config DRM_SIMPLE_BRIDGE
+ 	tristate "Simple DRM bridge support"
+ 	depends on OF
+--- a/drivers/gpu/drm/bridge/Makefile
++++ b/drivers/gpu/drm/bridge/Makefile
+@@ -21,6 +21,7 @@
+ obj-$(CONFIG_DRM_SIL_SII8620) += sil-sii8620.o
+ obj-$(CONFIG_DRM_SII902X) += sii902x.o
+ obj-$(CONFIG_DRM_SII9234) += sii9234.o
++obj-$(CONFIG_DRM_DISPLAY_FORMAT_BRIDGE) += format-bridge.o
+ obj-$(CONFIG_DRM_SIMPLE_BRIDGE) += simple-bridge.o
+ obj-$(CONFIG_DRM_THINE_THC63LVD1024) += thc63lvd1024.o
+ obj-$(CONFIG_DRM_TOSHIBA_TC358762) += tc358762.o
+--- /dev/null
++++ b/drivers/gpu/drm/bridge/format-bridge.c
+@@ -0,0 +1,237 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Simple DRM display format bridge driver
++ * Advertises formats like rgb565, rgb666, rgb888 without conversion
++ */
++
++#include <linux/media-bus-format.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_graph.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++
++#include <drm/drm_atomic_helper.h>
++#include <drm/drm_bridge.h>
++#include <drm/drm_of.h>
++
++struct format_bridge {
++	struct drm_bridge bridge;
++	struct drm_bridge *next_bridge;
++	u32 input_format;
++	u32 output_format;
++};
++
++static const u32 default_format = MEDIA_BUS_FMT_RGB888_1X24;
++
++struct format_mapping {
++	const char *name;
++	u32 format;
++};
++
++static const struct format_mapping format_map[] = {
++	{ "rgb565-1x16", MEDIA_BUS_FMT_RGB565_1X16 },
++	{ "rgb666-1x18", MEDIA_BUS_FMT_RGB666_1X18 },
++	{ "rgb888-1x24", MEDIA_BUS_FMT_RGB888_1X24 },
++	{ "bgr565-2x8-be", MEDIA_BUS_FMT_BGR565_2X8_BE },
++	{ "bgr666-1x18", MEDIA_BUS_FMT_BGR666_1X18 },
++	{ "bgr888-1x24", MEDIA_BUS_FMT_BGR888_1X24 },
++	{ "yuyv8-1x16", MEDIA_BUS_FMT_YUYV8_1X16 },
++	{ "uyvy8-1x16", MEDIA_BUS_FMT_UYVY8_1X16 },
++	{ "jeida-18", MEDIA_BUS_FMT_RGB666_1X7X3_SPWG },
++	{ "jeida-24", MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA },
++};
++
++static u32 format_name_to_code(const char *name)
++{
++	unsigned int i;
++
++	for (i = 0; i < ARRAY_SIZE(format_map); i++) {
++		if (strcasecmp(format_map[i].name, name) == 0)
++			return format_map[i].format;
++	}
++
++	return 0;
++}
++
++static int format_bridge_get_port_format(struct device *dev, u32 port_id,
++					  u32 *format)
++{
++	struct device_node *port;
++	const char *format_name;
++	int ret;
++
++	port = of_graph_get_port_by_id(dev->of_node, port_id);
++	if (!port)
++		return 0;	/* Port not found, use default */
++
++	ret = of_property_read_string(port, "data-mapping", &format_name);
++	of_node_put(port);
++
++	if (ret)
++		return 0;	/* Property not found, use default */
++
++	*format = format_name_to_code(format_name);
++	if (!*format) {
++		dev_err(dev, "unsupported format: %s\n", format_name);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static inline struct format_bridge *
++to_format_bridge(struct drm_bridge *bridge)
++{
++	return container_of(bridge, struct format_bridge, bridge);
++}
++
++static int format_bridge_attach(struct drm_bridge *bridge,
++				enum drm_bridge_attach_flags flags)
++{
++	struct format_bridge *fmt_bridge = to_format_bridge(bridge);
++
++	if (!(flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR))
++		return -EINVAL;
++
++	if (fmt_bridge->next_bridge)
++		return drm_bridge_attach(bridge->encoder,
++					 fmt_bridge->next_bridge,
++					 bridge, flags);
++
++	return 0;
++}
++
++static u32 *
++format_bridge_atomic_get_input_bus_fmts(struct drm_bridge *bridge,
++					struct drm_bridge_state *bridge_state,
++					struct drm_crtc_state *crtc_state,
++					struct drm_connector_state *conn_state,
++					u32 output_fmt,
++					unsigned int *num_input_fmts)
++{
++	struct format_bridge *fmt_bridge = to_format_bridge(bridge);
++	u32 *input_fmts;
++
++	*num_input_fmts = 1;
++	input_fmts = kmalloc(sizeof(*input_fmts), GFP_KERNEL);
++	if (!input_fmts)
++		return NULL;
++
++	input_fmts[0] = fmt_bridge->input_format;
++
++	return input_fmts;
++}
++
++static u32 *
++format_bridge_atomic_get_output_bus_fmts(struct drm_bridge *bridge,
++					 struct drm_bridge_state *bridge_state,
++					 struct drm_crtc_state *crtc_state,
++					 struct drm_connector_state *conn_state,
++					 unsigned int *num_output_fmts)
++{
++	struct format_bridge *fmt_bridge = to_format_bridge(bridge);
++	u32 *output_fmts;
++
++	/* If no output format specified, let framework handle it */
++	if (!fmt_bridge->output_format)
++		return NULL;
++
++	*num_output_fmts = 1;
++	output_fmts = kmalloc(sizeof(*output_fmts), GFP_KERNEL);
++	if (!output_fmts)
++		return NULL;
++
++	output_fmts[0] = fmt_bridge->output_format;
++
++	return output_fmts;
++}
++
++static const struct drm_bridge_funcs format_bridge_funcs = {
++	.attach			= format_bridge_attach,
++	.atomic_duplicate_state	= drm_atomic_helper_bridge_duplicate_state,
++	.atomic_destroy_state	= drm_atomic_helper_bridge_destroy_state,
++	.atomic_reset		= drm_atomic_helper_bridge_reset,
++	.atomic_get_input_bus_fmts =
++		format_bridge_atomic_get_input_bus_fmts,
++	.atomic_get_output_bus_fmts =
++		format_bridge_atomic_get_output_bus_fmts,
++};
++
++static int format_bridge_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct format_bridge *fmt_bridge;
++	int ret;
++
++	fmt_bridge = devm_kzalloc(dev, sizeof(*fmt_bridge), GFP_KERNEL);
++	if (!fmt_bridge)
++		return -ENOMEM;
++
++	/* Set default formats */
++	fmt_bridge->input_format = default_format;
++
++	/* Parse input format from port 0 */
++	ret = format_bridge_get_port_format(dev, 0,
++					    &fmt_bridge->input_format);
++	if (ret)
++		return ret;
++
++	/* Parse output format from port 1 */
++	ret = format_bridge_get_port_format(dev, 1,
++					    &fmt_bridge->output_format);
++	if (ret)
++		return ret;
++
++	/* Look for next bridge in DT */
++	ret = drm_of_find_panel_or_bridge(dev->of_node, 1, -1, NULL,
++					   &fmt_bridge->next_bridge);
++	if (ret && ret != -ENODEV)
++		return ret;
++
++	platform_set_drvdata(pdev, fmt_bridge);
++
++	fmt_bridge->bridge.funcs = &format_bridge_funcs;
++	fmt_bridge->bridge.of_node = dev->of_node;
++
++	drm_bridge_add(&fmt_bridge->bridge);
++
++	if (fmt_bridge->output_format)
++		dev_info(dev, "registered with input 0x%04x output 0x%04x\n",
++			 fmt_bridge->input_format,
++			 fmt_bridge->output_format);
++	else
++		dev_info(dev, "registered with input 0x%04x\n",
++			 fmt_bridge->input_format);
++
++	return 0;
++}
++
++static void format_bridge_remove(struct platform_device *pdev)
++{
++	struct format_bridge *fmt_bridge = platform_get_drvdata(pdev);
++
++	drm_bridge_remove(&fmt_bridge->bridge);
++}
++
++static const struct of_device_id format_bridge_of_match[] = {
++	{ .compatible = "linux,display-format-bridge" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, format_bridge_of_match);
++
++static struct platform_driver format_bridge_driver = {
++	.probe = format_bridge_probe,
++	.remove = format_bridge_remove,
++	.driver = {
++		.name = "display-format-bridge",
++		.of_match_table = format_bridge_of_match,
++	},
++};
++
++module_platform_driver(format_bridge_driver);
++
++MODULE_DESCRIPTION("DRM Display Format Bridge Driver");
++MODULE_AUTHOR("Boris Krasnovskiy");
++MODULE_LICENSE("GPL");
