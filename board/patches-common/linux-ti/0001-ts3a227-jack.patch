@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/sound/soc/codecs/ts3a227e.c b/sound/soc/codecs/ts3a227e.c
 index 6d9166d9116a..730ac997c883 100644
 --- a/sound/soc/codecs/ts3a227e.c

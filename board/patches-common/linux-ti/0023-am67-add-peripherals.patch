@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
 index 13dba104ae3b..03bf4790de6a 100644
 --- a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi

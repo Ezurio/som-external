@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/drivers/md/dm-init.c b/drivers/md/dm-init.c
 index c5220547ea54..915ac9e2a473 100644
 --- a/drivers/md/dm-init.c

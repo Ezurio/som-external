@@ -8,6 +8,8 @@ Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
  drivers/phy/freescale/phy-fsl-imx8mq-usb.c | 22 ++++++++++++++++------
  1 file changed, 16 insertions(+), 6 deletions(-)
 
+Upstream-Status: Inappropriate No time for upstreaming 
+
 diff --git a/drivers/phy/freescale/phy-fsl-imx8mq-usb.c b/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
 index 257e8f3f3c7e..72ae1a99e83b 100644
 --- a/drivers/phy/freescale/phy-fsl-imx8mq-usb.c

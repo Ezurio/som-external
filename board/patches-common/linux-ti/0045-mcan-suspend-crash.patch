@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
 index 23b854322a37..fdc0ce275004 100644
 --- a/drivers/net/can/m_can/m_can.c

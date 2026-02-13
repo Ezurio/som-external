@@ -9,6 +9,8 @@ Acked-by: Conor Dooley <conor.dooley@microchip.com>
  Documentation/devicetree/bindings/gpio/gpio-pca95xx.yaml | 1 +
  1 file changed, 1 insertion(+)
 
+Upstream-Status: Backport
+
 diff --git a/Documentation/devicetree/bindings/gpio/gpio-pca95xx.yaml b/Documentation/devicetree/bindings/gpio/gpio-pca95xx.yaml
 index 4d3f52f8d1b8..12134c737ad8 100644
 --- a/Documentation/devicetree/bindings/gpio/gpio-pca95xx.yaml

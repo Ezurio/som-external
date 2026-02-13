@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
 --- a/drivers/mxc/gpu-viv/hal/os/linux/kernel/platform/freescale/gc_hal_kernel_platform_imx.c
 +++ b/drivers/mxc/gpu-viv/hal/os/linux/kernel/platform/freescale/gc_hal_kernel_platform_imx.c
 @@ -1474,7 +1474,7 @@

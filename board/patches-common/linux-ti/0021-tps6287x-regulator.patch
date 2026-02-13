@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/regulator/tps6287x-regulator.c
 +++ b/drivers/regulator/tps6287x-regulator.c
 @@ -48,6 +48,20 @@
