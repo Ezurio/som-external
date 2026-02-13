@@ -16,17 +16,17 @@
 		gpio6 = &codec;
 	};
 
-   gpio-sim {
-        compatible = "gpio-simulator";
+	gpio-sim {
+		compatible = "gpio-simulator";
 
-        gpio_sim0: bank0 {
-            gpio-controller;
-            #gpio-cells = <2>;
-            ngpios = <8>;
-            gpio-sim,label = "sim-bank0";
-            gpio-line-names = "gt911-reset";
-        };
-    };
+		gpio_sim0: bank0 {
+			gpio-controller;
+			#gpio-cells = <2>;
+			ngpios = <8>;
+			gpio-sim,label = "sim-bank0";
+			gpio-line-names = "gt911-reset";
+		};
+	};
 
 	reg_can1_stby: regulator-can1-stby {
 		compatible = "regulator-fixed";

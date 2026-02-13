@@ -167,6 +167,16 @@
 		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
 	};
+
+	mdio_gpio_fanout: mdio-gpio-fanout {
+		compatible = "gpio-fanout";
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ethphy0_reset>, <&pinctrl_ethphy1_reset>;
+		gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>, <&gpio2 18 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &neutron_core {
@@ -351,12 +361,17 @@
 	pinctrl-0 = <&pinctrl_emdio>;
 	status = "okay";
 
+	reset-gpios = <&mdio_gpio_fanout 0 GPIO_ACTIVE_LOW>;
+	reset-delay-us = <150>;
+	reset-post-delay-us = <300>;
+
 	ethphy0: ethernet-phy@7 {
 		reg = <7>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ethphy0_irq>;
 		interrupts-extended = <&gpio4 28 IRQ_TYPE_LEVEL_LOW>;
-		reset-gpios = <&gpio5 1 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <150>;
-		reset-deassert-us = <300>;
+
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
@@ -365,10 +380,11 @@
 
 	ethphy1: ethernet-phy@3 {
 		reg = <3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ethphy1_irq>;
 		interrupts-extended = <&gpio5 2 IRQ_TYPE_LEVEL_LOW>;
-		reset-gpios = <&gpio2 18 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <150>;
-		reset-deassert-us = <300>;
+
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
@@ -549,14 +565,26 @@
 };
 
 &scmi_iomuxc {
+	pinctrl_ethphy0_reset: ethphy0-reset {
+		fsl,pins = <IMX95_PAD_XSPI1_DATA1__GPIO5_IO_BIT1 0x31e>;
+	};
+
+	pinctrl_ethphy1_reset: ethphy1-reset {
+		fsl,pins = <IMX95_PAD_GPIO_IO18__GPIO2_IO_BIT18 0x31e>;
+	};
+
+	pinctrl_ethphy0_irq: ethphy0-irq {
+		fsl,pins = <IMX95_PAD_CCM_CLKO3__GPIO4_IO_BIT28 0x131e>;
+	};
+
+	pinctrl_ethphy1_irq: ethphy1-irq {
+		fsl,pins = <IMX95_PAD_XSPI1_DATA2__GPIO5_IO_BIT2 0x131e>;
+	};
+
 	pinctrl_emdio: emdiogrp {
 		fsl,pins = <
 			IMX95_PAD_ENET1_MDC__NETCMIX_TOP_NETC_MDC	0x57e
 			IMX95_PAD_ENET1_MDIO__NETCMIX_TOP_NETC_MDIO	0x97e
-			IMX95_PAD_CCM_CLKO3__GPIO4_IO_BIT28			0x131e
-			IMX95_PAD_XSPI1_DATA2__GPIO5_IO_BIT2		0x131e
-			IMX95_PAD_XSPI1_DATA1__GPIO5_IO_BIT1		0x31e
-			IMX95_PAD_GPIO_IO18__GPIO2_IO_BIT18			0x31e
 		>;
 	};
 

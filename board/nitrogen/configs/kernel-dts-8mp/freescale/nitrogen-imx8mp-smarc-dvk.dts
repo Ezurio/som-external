@@ -338,11 +338,8 @@
 };
 
 &usb_dwc3_0 {
-	// currently works only in 'gadget mode', because imx phy driver enabling 
-	// vbus for for gadget mode as well as host mode
-	//usb-role-switch;
-	//extcon = <&typec>;
-	dr_mode = "peripheral";
+	usb-role-switch;
+	extcon = <&typec>;
 };
 
 &usdhc2 { /* SDIO - SDCARD */

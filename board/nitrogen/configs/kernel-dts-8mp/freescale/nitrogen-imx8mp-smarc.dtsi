@@ -920,8 +920,7 @@
 };
 
 &usb3_phy0 {
-	// this works correctly only in `host` mode
-	// vbus-supply = <&reg_usb_otg_vbus>;
+	vbus-supply = <&reg_usb_otg_vbus>;
 	fsl,phy-tx-preemp-amp-tune-microamp = <2>;
 };
 
