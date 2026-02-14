@@ -186,7 +186,7 @@
 		regulator-max-microvolt = <3300000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&vsel_mmc1_pins_default>;
+		pinctrl-0 = <&main_vsel_mmc1_pins_default>;
 		gpios = <&main_gpio0 31 GPIO_ACTIVE_LOW>;
 
 		/* initial state must be 3.3V */
@@ -929,7 +929,7 @@
 		>;
 	};
 
-	ospi0_pins_default: ospi0-default-pins {
+	main_ospi0_pins_default: main-ospi0-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x000, PIN_OUTPUT, 0) /* SPI_A_SCK (H24) OSPI0_CLK */
 			AM62X_IOPAD(0x02c, PIN_OUTPUT, 0) /* SPI_A_CS0 (F23) OSPI0_CSn0 */
@@ -941,7 +941,7 @@
 		>;
 	};
 
-	vsel_mmc1_pins_default: vsel-mmc1-default-pins {
+	main_vsel_mmc1_pins_default: main-vsel-mmc1-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x07c, PIN_INPUT, 7) /* VSEL_SD (P25) GPMC0_CLK.GPIO0_31 */
 		>;
@@ -1268,7 +1268,7 @@
 &ospi0 {
 	/* SPI_A Only 4 bits are routed out */
 	pinctrl-names = "default";
-	pinctrl-0 = <&ospi0_pins_default>;
+	pinctrl-0 = <&main_ospi0_pins_default>;
 };
 
 &sdhci0 {

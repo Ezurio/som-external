@@ -10,6 +10,9 @@
 #include "imx93.dtsi"
 
 / {
+	model = "Ezurio i.MX93 Nitrogen SMARC board";
+	compatible = "summit,imx93-nitrogen-smarc", "fsl,imx93";
+
 	aliases {
 		can0 = &flexcan1;
 		can1 = &flexcan2;
