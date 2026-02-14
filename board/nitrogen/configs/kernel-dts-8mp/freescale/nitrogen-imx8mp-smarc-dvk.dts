@@ -336,7 +336,6 @@
 };
 
 &usb_dwc3_0 {
-	usb-role-switch;
 	extcon = <&typec>;
 };
 
