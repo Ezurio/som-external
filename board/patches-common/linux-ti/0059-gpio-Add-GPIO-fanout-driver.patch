@@ -36,6 +36,8 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
  3 files changed, 350 insertions(+)
  create mode 100644 drivers/gpio/gpio-fanout.c
 
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
 @@ -1896,6 +1896,17 @@ config GPIO_SIM

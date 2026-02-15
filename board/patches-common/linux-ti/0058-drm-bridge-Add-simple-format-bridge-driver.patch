@@ -25,6 +25,8 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
  create mode 100644 Documentation/devicetree/bindings/display/bridge/linux,display-format-bridge.yaml
  create mode 100644 drivers/gpu/drm/bridge/format-bridge.c
 
+Upstream-Status: Inappropriate No time for upstreaming 
+
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/display/bridge/linux,display-format-bridge.yaml
 @@ -0,0 +1,91 @@
