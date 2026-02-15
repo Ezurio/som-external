@@ -900,6 +900,11 @@
 	main_usb0_id_pins_default: main-usb0-id-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x05c, PIN_INPUT_PULLUP, 7) /* USB_A_ID (U27) GPMC0_AD8.GPIO0_23 */
+		>;
+	};
+
+	main_usb0_oc_pins_default: main-usb0-oc-default-pins {
+		pinctrl-single,pins = <
 			J722S_IOPAD(0x060, PIN_INPUT_PULLUP, 7) /* USB_A_OC# (U26) GPMC0_AD9.GPIO0_24 */
 		>;
 	};
@@ -907,6 +912,11 @@
 	main_usb1_id_pins_default: main-usb1-id-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
+		>;
+	};
+
+	main_usb1_oc_pins_default: main-usb1-oc-default-pins {
+		pinctrl-single,pins = <
 			J722S_IOPAD(0x068, PIN_INPUT_PULLUP, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
 		>;
 	};

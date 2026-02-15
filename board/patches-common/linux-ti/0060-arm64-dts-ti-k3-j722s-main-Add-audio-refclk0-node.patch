@@ -1,0 +1,37 @@
+From a947e57796894f5557183dc1c106804239e30212 Mon Sep 17 00:00:00 2001
+From: Michael Walle <mwalle@kernel.org>
+Date: Wed, 18 Jun 2025 11:07:24 +0200
+Subject: [PATCH] arm64: dts: ti: k3-j722s-main: Add audio-refclk0 node
+
+Add the node for the AUDIO_EXT_REFCLK0 clock output.
+
+Signed-off-by: Michael Walle <mwalle@kernel.org>
+Link: https://lore.kernel.org/r/20250618090724.1917731-1-mwalle@kernel.org
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
+ arch/arm64/boot/dts/ti/k3-j722s-main.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+index 78d7e800b311..5cfa7bf36641 100644
+--- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
+@@ -418,6 +418,15 @@ serdes_ln_ctrl: mux-controller@4080 {
+ 				<0x10 0x3>; /* SERDES1 lane0 select */
+ 	};
+ 
++	audio_refclk0: clock@82e0 {
++		compatible = "ti,am62-audio-refclk";
++		reg = <0x82e0 0x4>;
++		clocks = <&k3_clks 157 0>;
++		assigned-clocks = <&k3_clks 157 0>;
++		assigned-clock-parents = <&k3_clks 157 15>;
++		#clock-cells = <0>;
++	};
++
+ 	audio_refclk1: clock@82e4 {
+ 		compatible = "ti,am62-audio-refclk";
+ 		reg = <0x82e4 0x4>;
+-- 
+2.53.0
+
