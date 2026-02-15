@@ -4,7 +4,6 @@
 
 UDC_DIR=/sys/class/udc
 GADGET_DIR=/sys/kernel/config/usb_gadget
-UDC_NAME=${2}
 
 counter=0
 
@@ -63,8 +62,12 @@ create_acm() {
 }
 
 create_gadget() {
-		mkdir -p ${GADGET_DIR}/g0
-		cd ${GADGET_DIR}/g0 || die "Unable start gadget"
+		if [ -d ${GADGET_DIR}/"${1}" ]; then
+			return
+		fi
+
+		{ mkdir -p ${GADGET_DIR}/"${1}" && cd ${GADGET_DIR}/"${1}"; } || \
+			die "Unable to create gadget ${1}"
 
 		echo "${USB_GADGET_VENDOR_ID}"  > idVendor
 		echo "${USB_GADGET_PRODUCT_ID}" > idProduct
@@ -105,6 +108,24 @@ create_gadget() {
 		echo "${1}" > UDC
 }
 
+destroy_gadget() {
+	gadget="${GADGET_DIR}/${1}"
+
+	[ -e "${gadget}" ] || return
+
+	[ -z "$(cat "${gadget}"/UDC)" ] || echo > "${gadget}"/UDC
+
+	rm -f "${gadget}"/os_desc/c.1
+
+	rm -f "${gadget}"/configs/c.1/*.usb*
+	rmdir "${gadget}"/configs/c.1/strings/0x409
+	rmdir "${gadget}"/configs/c.1
+
+	rmdir "${gadget}"/functions/*.usb*
+	rmdir "${gadget}"/strings/0x409
+	rmdir "${gadget}"
+}
+
 create_gadgets() {
 	# shellcheck source=/dev/null
 	[ -r /etc/default/usb-gadget ] && . /etc/default/usb-gadget
@@ -116,9 +137,6 @@ create_gadgets() {
 	if [ -f /sys/devices/soc0/soc_id ]; then
 		# Get the SoC ID
 		read -r soc_id < /sys/devices/soc0/soc_id
-	elif [ -f /sys/devices/soc0/family ]; then
-		# Get the SoC family
-		read -r soc_id < /sys/devices/soc0/family
 	else
 		soc_id="unknown"
 	fi
@@ -139,44 +157,44 @@ create_gadgets() {
 		[ -d "${GADGET_DIR}" ] || die "ConfigFS not found"
 	fi
 
-	if [ -n "${UDC_NAME}" ]; then
-		create_gadget "${UDC_NAME}"
+	if [ -n "${1}" ]; then
+		create_gadget "${1}"
 	else
-		for udc_name in "${UDC_DIR}/"*; do
-			[ -e "${udc_name}" ] || continue
-			create_gadget "${udc_name##*/}"
-			break
+		for udc_name in "${UDC_DIR}"/*; do
+			if [ -e "${udc_name}" ]; then
+				create_gadget "${udc_name##*/}"
+				break
+			fi
 		done
 	fi
 }
 
 destroy_gadgets() {
-	gadget="${GADGET_DIR}/g0"
-
-	[ -e ${gadget} ] || return
-
-	[ -z "$(cat ${gadget}/UDC)" ] || echo > ${gadget}/UDC
-
-	rm -f ${gadget}/os_desc/c.1
-
-	rm -f ${gadget}/configs/c.1/*.usb*
-	rmdir ${gadget}/configs/c.1/strings/0x409
-	rmdir ${gadget}/configs/c.1
-
-	rmdir ${gadget}/functions/*.usb*
-	rmdir ${gadget}/strings/0x409
-	rmdir ${gadget}
+	if [ -n "${1}" ]; then
+		destroy_gadget "${1}"
+	else
+		for udc_name in "${GADGET_DIR}"/*; do
+			if [ -e "${udc_name}" ]; then
+				destroy_gadget "${udc_name##*/}"
+			fi
+		done
+	fi
 }
 
 case "${1}" in
 	start)
-		create_gadgets
+		create_gadgets "${2}"
 		;;
 
 	stop)
-		destroy_gadgets
+		destroy_gadgets "${2}"
+		;;
+
+	restart|reload)
+		destroy_gadgets "${2}"
+		create_gadgets "${2}"
 		;;
 
 	*)
-		die "Usage: ${0} <start|stop> [port name]"
+		die "Usage: ${0} <start|stop|restart|reload> [port name]"
 esac
