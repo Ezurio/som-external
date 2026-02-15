@@ -20,6 +20,8 @@ Reviewed-by: Kendall Willis <k-willis@ti.com>
  arch/arm64/boot/dts/ti/k3-am62x-sk-lpm-wkup-sources.dtso        | 2 ++
  5 files changed, 4 insertions(+), 6 deletions(-)
 
+Upstream-Status: Backport
+
 diff --git a/arch/arm64/boot/dts/ti/k3-am62-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am62-mcu.dtsi
 index cc693be47df08..68e906796aefe 100644
 --- a/arch/arm64/boot/dts/ti/k3-am62-mcu.dtsi

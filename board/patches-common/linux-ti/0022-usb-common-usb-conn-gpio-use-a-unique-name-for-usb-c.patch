@@ -19,6 +19,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  drivers/usb/common/usb-conn-gpio.c | 25 ++++++++++++++++++++++---
  1 file changed, 22 insertions(+), 3 deletions(-)
 
+Upstream-Status: Backport
+
 diff --git a/drivers/usb/common/usb-conn-gpio.c b/drivers/usb/common/usb-conn-gpio.c
 index 1e36be2a28fd..421c3af38e06 100644
 --- a/drivers/usb/common/usb-conn-gpio.c
