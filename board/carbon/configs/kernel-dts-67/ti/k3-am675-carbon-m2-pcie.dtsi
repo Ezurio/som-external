@@ -8,9 +8,9 @@
 #include <dt-bindings/gpio/gpio.h>
 
 &{/} {
-	reg_wifi_m2: regulator-wifi-m2 {
+	reg_m2_power_en: regulator-m2-power-en {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_wifi_m2";
+		regulator-name = "reg_m2_power_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -20,6 +20,13 @@
 		enable-active-high;
 
 		regulator-always-on;
+	};
+
+	rfkill-wifi-m2 {
+		compatible = "rfkill-gpio";
+		label = "rfkill-wifi-m2";
+		radio-type = "wlan";
+		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>; /* M2_WDISABLE1# */
 	};
 };
 
@@ -35,11 +42,16 @@
 	status = "okay";
 };
 
-&{/} {
-	rfkill-wifi-m2 {
-		compatible = "rfkill-gpio";
-		label = "rfkill-wifi-m2";
-		radio-type = "wlan";
-		shutdown-gpios = <&exp1 4 GPIO_ACTIVE_HIGH>; /* M2_WDISABLE1# */
+&mcu_uart0 {
+	status = "okay";
+
+	uart-has-rtscts;
+};
+
+&exp1 {
+	uart_b_sel_hog {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
 	};
 };

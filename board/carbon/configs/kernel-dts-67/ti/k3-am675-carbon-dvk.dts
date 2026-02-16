@@ -46,8 +46,8 @@
 		regulator-name = "reg_aud_3v3_carrier";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		enable-active-high;
 		gpios = <&exp1 8 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 		regulator-always-on;
 	};
 
@@ -65,11 +65,11 @@
 	reg_cam_b: regulator-cam-b {
 		compatible = "regulator-fixed";
 		regulator-name = "reg_cam_b";
-		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		enable-active-high;
+		vin-supply = <&reg_3v3_carrier>;
 		gpios = <&exp1 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 		startup-delay-us = <50000>;
 	};
 
@@ -93,6 +93,40 @@
 		enable-active-high;
 		gpios = <&exp1 13 GPIO_ACTIVE_HIGH>;
 		startup-delay-us = <50000>;
+	};
+
+	reg_usb0_vbus: regulator-usb0-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_usb0_vbus";
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		vin-supply = <&reg_5v0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb0_en_pins_default>;
+		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_usb1_vbus: regulator-usb1-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_usb1_vbus";
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		vin-supply = <&reg_5v0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_usb1_en_pins_default>;
+		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_usb1_oe: regulator-usb1-oe {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_usb1_oe";
+		vin-supply = <&reg_5v0>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		gpios = <&exp1 0 GPIO_ACTIVE_HIGH>;
+		regulator-always-on;
 	};
 
 	codec_audio: sound {
@@ -196,47 +230,16 @@
 		standby-gpios = <&exp1 3 GPIO_ACTIVE_HIGH>; /* TCAN1046 STB is active HIGH */
 	};
 
-	reg_usb0_vbus: regulator-usb0-vbus {
-		compatible = "regulator-fixed";
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb0_en_pins_default>;
-		enable-active-high;
-		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		regulator-name = "reg_usb0_vbus";
-	};
-
-	reg_usb1_oe: regulator-usb1-oe {
-		compatible = "regulator-fixed";
-		vin-supply = <&reg_5v0>;
-		gpios = <&exp1 0 GPIO_ACTIVE_HIGH>;
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		regulator-name = "reg_usb1_oe";
-		regulator-always-on;
-	};
-
-	reg_usb1_vbus: regulator-usb1-vbus {
-		compatible = "regulator-fixed";
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb1_en_pins_default>;
-		enable-active-high;
-		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		regulator-name = "reg_usb1_vbus";
-	};
-
 	con_usb0: connector-usb0 {
 		compatible = "gpio-usb-b-connector", "usb-c-connector";
+
+		label = "USB_A";
+		self-powered;
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_id_pins_default>;
 		id-gpios = <&main_gpio0 23 GPIO_ACTIVE_HIGH>;
-		label = "USB_A";
-		self-powered;
+
 		vbus-supply = <&reg_usb0_vbus>;
 
 		port {
@@ -248,11 +251,14 @@
 
 	con_usb1: connector-usb1 {
 		compatible = "gpio-usb-b-connector", "usb-c-connector";
+
+		label = "USB_C";
+		self-powered;
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb1_id_pins_default>;
 		id-gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
-		label = "USB_C";
-		self-powered;
+
 		vbus-supply = <&reg_usb1_vbus>;
 
 		port {
@@ -260,6 +266,18 @@
 				remote-endpoint = <&usb1_ep>;
 			};
 		};
+	};
+
+	mdio_gpio_fanout: mdio-gpio-fanout {
+		compatible = "gpio-fanout";
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgmii_phy0_rst_pins_default>,
+		            <&main_rgmii_phy1_rst_pins_default>;
+		gpios = <&main_gpio0 40 GPIO_ACTIVE_HIGH>,
+		        <&main_gpio0 47 GPIO_ACTIVE_HIGH>;
 	};
 };
 
@@ -278,18 +296,19 @@
 };
 
 &cpsw3g_mdio {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_mdio0_pins_default>, <&main_rgmii_phy0_gpio>,
-		<&main_rgmii_phy1_gpio>;
-
 	status = "okay";
+
+	reset-gpios = <&mdio_gpio_fanout 0 GPIO_ACTIVE_LOW>;
+	reset-delay-us = <150>;
+	reset-post-delay-us = <300>;
 
 	cpsw3g_phy0: ethernet-phy@3 {
 		reg = <3>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgmii_phy0_irq_pins_default>;
 		interrupts-extended = <&main_gpio0 36 IRQ_TYPE_EDGE_FALLING>;
-		reset-gpios = <&main_gpio0 40 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <150>;
-		reset-deassert-us = <300>;
+
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
@@ -298,10 +317,11 @@
 
 	cpsw3g_phy1: ethernet-phy@1 {
 		reg = <1>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_rgmii_phy1_irq_pins_default>;
 		interrupts-extended = <&main_gpio0 48 IRQ_TYPE_EDGE_FALLING>;
-		reset-gpios = <&main_gpio0 47 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <150>;
-		reset-deassert-us = <300>;
+
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		rx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
