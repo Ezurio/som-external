@@ -9,7 +9,7 @@
 
 #include "k3-am625-carbon-m2-sdio.dtsi"
 
-&reg_wifi_en_m2 {
+&reg_m2_wifi_en {
 	startup-delay-us = <20000>;
 };
 
