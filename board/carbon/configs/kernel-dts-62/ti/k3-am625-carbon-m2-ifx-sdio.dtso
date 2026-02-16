@@ -11,11 +11,6 @@
 #include "k3-am625-carbon-m2-sdio.dtsi"
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
-	vmmc-supply = <&reg_wifi_en_m2>;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-
 	wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";
@@ -25,11 +20,10 @@
 &mcu_uart0 {
 	bluetooth {
 		compatible = "brcm,bcm4329-bt";
-		vbat-supply = <&reg_wifi_m2>;
+		vbat-supply = <&reg_m2_power_en>;
 		vddio-supply = <&reg_1v8_carrier>;
 		brcm,requires-autobaud-mode;
 		max-speed = <3000000>;
 		shutdown-gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;
-		device-wakeup-gpios = <&exp1 7 GPIO_ACTIVE_HIGH>;
 	};
 };

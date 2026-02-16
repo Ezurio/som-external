@@ -56,7 +56,7 @@
 		};
 	};
 
-	memory@80000000 {
+	memory: memory@80000000 {
 		device_type = "memory";
 		/* 2G RAM */
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
@@ -77,7 +77,7 @@
 		};
 
 		/* global cma region */
-		linux,cma {
+		cma: linux,cma {
 			compatible = "shared-dma-pool";
 			reusable;
 			size = <0x00 0x20000000>;
@@ -144,8 +144,10 @@
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_5v0";
+
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+
 		regulator-always-on;
 		regulator-boot-on;
 	};
@@ -154,9 +156,11 @@
 		/* output of U4 */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_3v3";
+
 		vin-supply = <&reg_5v0>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
+
 		regulator-always-on;
 		regulator-boot-on;
 	};
@@ -165,6 +169,7 @@
 		/* TCK107AG,LF U5 */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_vpp";
+
 		vin-supply = <&reg_1v8>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
@@ -196,16 +201,17 @@
 
 	reg_mmc1: regulator-mmc1 {
 		compatible = "regulator-fixed";
-
 		regulator-name = "reg_mmc1";
+
+		vin-supply = <&reg_3v3>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_mmc1_power_en_default>;
+		pinctrl-0 = <&main_mmc1_power_en_pins_default>;
 		gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
-
 		enable-active-high;
+
 		startup-delay-us = <5000>;
 		status = "disabled";
 	};
@@ -219,11 +225,11 @@
 		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	mmc0_pwrseq: pwrseq {
+	mmc0_pwrseq: mmc0-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_mmc0_reset_pins_default>;
-
-		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&main_gpio0 15 GPIO_ACTIVE_LOW>;
 	};
 
@@ -776,16 +782,26 @@
 		>;
 	};
 
-	main_rgmii_phy0_gpio: main-rgmii-phy0-gpio-default-pins {
+	main_rgmii_phy0_rst_pins_default: main-rgmii-phy0-rst-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x008, PIN_INPUT, 7) /* ETH_A_RST (J24) OSPI0_DQS.GPIO0_2 */
+		>;
+	};
+
+	main_rgmii_phy0_irq_pins_default: main-rgmii-phy0-irq-default-pins {
+		pinctrl-single,pins = <
 			AM62X_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (G25) OSPI0_LBCLKO.GPIO0_1 */
 		>;
 	};
 
-	main_rgmii_phy1_gpio: main-rgmii-phy1-gpio-default-pins {
+	main_rgmii_phy1_rst_pins_default: main-rgmii-phy1-rst-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x0a0, PIN_INPUT, 7) /* ETH_B_RST (K25) GPMC0_WPn.GPIO0_39 */
+		>;
+	};
+
+	main_rgmii_phy1_irq_pins_default: main-rgmii-phy1-irq-default-pins {
+		pinctrl-single,pins = <
 			AM62X_IOPAD(0x0a8, PIN_INPUT_PULLUP, 7) /* ETH_B_INT (M21) GPMC0_CSn0.GPIO0_41 */
 		>;
 	};
@@ -796,15 +812,15 @@
 		>;
 	};
 
-	main_usb1_en_pins_default: main-usb1-en-default-pins {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_EN (F18) USB1_DRVVBUS */
-		>;
-	};
-
 	main_usb0_id_pins_default: main-usb0-id-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x1f0, PIN_INPUT_PULLUP, 7) /* USB_A_ID (A18) EXT_REFCLK1.GPIO1_30 */
+		>;
+	};
+
+	main_usb1_en_pins_default: main-usb1-en-default-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_EN (F18) USB1_DRVVBUS */
 		>;
 	};
 
@@ -947,7 +963,7 @@
 		>;
 	};
 
-	main_mmc1_power_en_default: main-mmc1-power-en-default-pins {
+	main_mmc1_power_en_pins_default: main-mmc1-power-en-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* SDIO_A_PWR_EN (T25) GPMC0_AD10.GPIO0_25 */
 		>;
@@ -1195,6 +1211,12 @@
 	mcu_rtc_pins_default: mcu-rtc-default-pins {
 		pinctrl-single,pins = <
 			AM62X_MCU_IOPAD(0x040, PIN_INPUT_PULLUP, 7) /* RTC_INT (D4) MCU_MCAN1_RX.MCU_GPIO0_16 */
+		>;
+	};
+
+	mcu_usb0_pd_reset_pins_default: mcu-usb0-pd-reset-default-pins {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x03c, PIN_INPUT, 7) /* GPIO_A_3 (E5) MCU_MCAN1_TX.GPIO0_15 */
 		>;
 	};
 

@@ -11,9 +11,9 @@
 #include <dt-bindings/input/gpio-keys.h>
 
 &{/} {
-	reg_wifi_m2: regulator-wifi-m2 {
+	reg_m2_power_en: regulator-m2-power-en {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_wifi_m2";
+		regulator-name = "reg_m2_power_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -25,14 +25,14 @@
 		regulator-always-on;
 	};
 
-	reg_wifi_en_m2: regulator-wifi-en-m2 {
+	reg_m2_wifi_en: regulator-m2-wifi-en {
 		compatible = "regulator-fixed";
 
-		regulator-name = "reg_wifi_en_m2";
+		regulator-name = "reg_m2_wifi_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
-		vin-supply = <&reg_wifi_m2>;
+		vin-supply = <&reg_m2_power_en>;
 
 		gpios = <&exp1 4 GPIO_ACTIVE_HIGH>;   /* M2_WDISABLE1# */
 		enable-active-high;
@@ -76,15 +76,24 @@
 		output-high;
 		gpios = <14 GPIO_ACTIVE_HIGH>;
 	};
+
+	uart_b_sel_hog {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &sdhci1 { /* SDIO_A uSD / M.2_SDIO */
 	status = "okay";
 
-	vmmc-supply = <&reg_wifi_en_m2>;
+	vmmc-supply = <&reg_m2_wifi_en>;
 	vqmmc-supply = <&reg_1v8_carrier>;
 
 	non-removable;
 	ti,fails-without-test-cd;
 	keep-power-in-suspend;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
 };

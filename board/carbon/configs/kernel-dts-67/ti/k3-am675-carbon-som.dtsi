@@ -152,8 +152,10 @@
 		/* VCC_IN_5V */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_5v0";
+
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+
 		regulator-always-on;
 		regulator-boot-on;
 	};
@@ -162,9 +164,11 @@
 		/* TLV62595 U10 */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_ram";
+
 		vin-supply = <&reg_5v0>;
 		regulator-min-microvolt = <850000>;
 		regulator-max-microvolt = <850000>;
+
 		regulator-always-on;
 		regulator-boot-on;
 	};
@@ -173,6 +177,7 @@
 		/* TPS22916 U11 */
 		compatible = "regulator-fixed";
 		regulator-name = "reg_vpp";
+
 		vin-supply = <&reg_1v8>;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
@@ -215,16 +220,17 @@
 
 	reg_mmc1: regulator-mmc1 {
 		compatible = "regulator-fixed";
-
 		regulator-name = "reg_mmc1";
+
+		vin-supply = <&reg_3v3>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_mmc1_power_en_default>;
 		gpios = <&main_gpio0 15 GPIO_ACTIVE_HIGH>;
-
 		enable-active-high;
+
 		startup-delay-us = <5000>;
 		status = "disabled";
 	};
@@ -267,27 +273,27 @@
 
 	cam_a_pwm: dmtimer-main-pwm-6 { /* CAM_A_MCK */
 		compatible = "ti,omap-dmtimer-pwm";
+		status = "disabled";
 		#pwm-cells = <3>;
 		ti,timers = <&main_timer6>;
-		pinctrl-0 = <&main_timer6_pins_default>;
 		pinctrl-names = "default";
-		status = "disabled";
+		pinctrl-0 = <&main_timer6_pins_default>;
 	};
 
 	pwm4: dmtimer-main-pwm-7 { /* CAM_C_MCK / PWM_4 */
 		compatible = "ti,omap-dmtimer-pwm";
+		status = "disabled";
 		#pwm-cells = <3>;
 		ti,timers = <&main_timer7>;
-		pinctrl-0 = <&main_timer7_pins_default>;
 		pinctrl-names = "default";
-		status = "disabled";
+		pinctrl-0 = <&main_timer7_pins_default>;
 	};
 
-	mmc0_pwrseq: pwrseq {
+	mmc0_pwrseq: mmc0-pwrseq {
+		compatible = "mmc-pwrseq-emmc";
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_mmc0_reset_pins_default>;
-
-		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&main_gpio1 12 GPIO_ACTIVE_LOW>;
 	};
 
@@ -871,16 +877,26 @@
 		>;
 	};
 
-	main_rgmii_phy0_gpio: main-rgmii-phy0-gpio-default-pins {
+	main_rgmii_phy0_rst_pins_default: main-rgmii-phy0-rst-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x0a4, PIN_INPUT, 7) /* ETH_A_RST (N25) GPMC0_DIR.GPIO0_40 */
+		>;
+	};
+
+	main_rgmii_phy0_irq_pins_default: main-rgmii-phy0-irq-default-pins {
+		pinctrl-single,pins = <
 			J722S_IOPAD(0x094, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (P26) GPMC0_BE1N.GPIO0_36 */
 		>;
 	};
 
-	main_rgmii_phy1_gpio: main-rgmii-phy1-gpio-default-pins {
+	main_rgmii_phy1_rst_pins_default: main-rgmii-phy1-rst-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x0c0, PIN_INPUT, 7) /* ETH_B_RST (W24) VOUT0_DATA2.GPIO0_47 */
+		>;
+	};
+
+	main_rgmii_phy1_irq_pins_default: main-rgmii-phy1-irq-default-pins {
+		pinctrl-single,pins = <
 			J722S_IOPAD(0x0c4, PIN_INPUT_PULLUP, 7) /* ETH_B_INT (W23) VOUT0_DATA3.GPIO0_48 */
 		>;
 	};
@@ -888,12 +904,6 @@
 	main_usb0_en_pins_default: main-usb0-en-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x254, PIN_OUTPUT, 0) /* USB_A_VBUS (E25) USB0_DRVVBUS */
-		>;
-	};
-
-	main_usb1_en_pins_default: main-usb1-en-default-pins {
-		pinctrl-single,pins = <
-			J722S_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_VBUS (B27) USB1_DRVVBUS */
 		>;
 	};
 
@@ -909,6 +919,18 @@
 		>;
 	};
 
+	main_usb0_pd_reset_pins_default: main-usb0-pd-reset-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0bc, PIN_INPUT, 7) /* USB_A_PD_RST (W25) VOUT0_DATA1.GPIO0_46 */
+		>;
+	};
+
+	main_usb1_en_pins_default: main-usb1-en-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x258, PIN_OUTPUT, 0) /* USB_B_VBUS (B27) USB1_DRVVBUS */
+		>;
+	};
+
 	main_usb1_id_pins_default: main-usb1-id-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x064, PIN_INPUT_PULLUP, 7) /* USB_C_ID (V27) GPMC0_AD10.GPIO0_25 */
@@ -918,6 +940,12 @@
 	main_usb1_oc_pins_default: main-usb1-oc-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x068, PIN_INPUT_PULLUP, 7) /* USB_C_OC# (V25) GPMC0_AD11.GPIO0_26 */
+		>;
+	};
+
+	main_usb1_pd_reset_pins_default: main-usb1-pd-reset-default-pins {
+		pinctrl-single,pins = <
+			J722S_IOPAD(0x0b8, PIN_INPUT, 7) /* USB_C_PD_RST (W27) VOUT0_DATA0.GPIO0_45 */
 		>;
 	};
 

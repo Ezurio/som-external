@@ -46,3 +46,17 @@
 &usb1 {
 	dr_mode = "host";
 };
+
+&mcu_uart0 {
+	status = "okay";
+
+	uart-has-rtscts;
+};
+
+&exp1 {
+	uart_b_sel_hog {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+	};
+};
