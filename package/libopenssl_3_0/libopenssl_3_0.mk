@@ -7,7 +7,7 @@
 ifeq ($(BR2_PACKAGE_LIBOPENSSL_ENABLE_FIPS),y)
 LIBOPENSSL_3_0_VERSION = 3.2.0
 else
-LIBOPENSSL_3_0_VERSION = 3.5.4
+LIBOPENSSL_3_0_VERSION = 3.5.5
 endif
 LIBOPENSSL_3_0_SITE = https://github.com/openssl/openssl/releases/download/openssl-$(LIBOPENSSL_3_0_VERSION)
 LIBOPENSSL_3_0_SOURCE = openssl-$(LIBOPENSSL_3_0_VERSION).tar.gz

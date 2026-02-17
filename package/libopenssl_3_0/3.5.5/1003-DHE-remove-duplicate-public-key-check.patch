@@ -16,11 +16,11 @@ diff --git a/ssl/statem/statem_clnt.c b/ssl/statem/statem_clnt.c
 index b59eddae33..21aa738c8a 100644
 --- a/ssl/statem/statem_clnt.c
 +++ b/ssl/statem/statem_clnt.c
-@@ -2324,7 +2324,7 @@ static int tls_process_ske_dhe(SSL *s, PACKET *pkt, EVP_PKEY **pkey)
-              * EVP_PKEY_param_check_quick() skips the safe prime check.
-              */
-             || EVP_PKEY_param_check_quick(pctx) != 1
--            || EVP_PKEY_public_check(pctx) != 1) {
+@@ -2343,7 +2343,7 @@ static int tls_process_ske_dhe(SSL *s, PACKET *pkt, EVP_PKEY **pkey)
+          * EVP_PKEY_param_check_quick() skips the safe prime check.
+          */
+         || EVP_PKEY_param_check_quick(pctx) != 1
+-        || EVP_PKEY_public_check(pctx) != 1) {
 +        ) {
          SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_R_BAD_DH_VALUE);
          goto err;
