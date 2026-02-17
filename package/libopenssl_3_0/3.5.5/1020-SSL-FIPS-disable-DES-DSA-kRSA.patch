@@ -1,0 +1,284 @@
+From fa647f2ad3123677aadb5d73f6953d8bb946fd8a Mon Sep 17 00:00:00 2001
+From: Doug Smith <doug.smith@ezurio.com>
+Date: Tue, 6 Feb 2024 19:08:42 -0500
+Subject: [PATCH 19/80] SSL: FIPS disable DES/DSA/kRSA
+
+For FIPS disable TLS ciphers using
+DES, DSA, and kRSA.
+---
+ ssl/s3_lib.c   | 87 ++++++++++++++++++++++++++++++--------------------
+ ssl/ssl_ciph.c | 10 ++++--
+ ssl/t1_trce.c  |  5 +++
+ 3 files changed, 66 insertions(+), 36 deletions(-)
+
+diff --git a/ssl/s3_lib.c b/ssl/s3_lib.c
+index e8ec98c221..5edf03f082 100644
+--- a/ssl/s3_lib.c
++++ b/ssl/s3_lib.c
+@@ -23,6 +23,19 @@
+ #include "internal/cryptlib.h"
+ #include "internal/ssl_unwrap.h"
+ 
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_kRSA
++#define SSL_FIPS_kRSA SSL_FIPS
++#else
++// do not allow RSA key-exchange methods
++#define SSL_FIPS_kRSA 0
++#endif
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_aDSS
++#define SSL_FIPS_aDSS SSL_FIPS
++#else
++// do not allow DSS
++#define SSL_FIPS_aDSS 0
++#endif
++
+ #define TLS13_NUM_CIPHERS OSSL_NELEM(tls13_ciphers)
+ #define SSL3_NUM_CIPHERS OSSL_NELEM(ssl3_ciphers)
+ #define SSL3_NUM_SCSVS OSSL_NELEM(ssl3_scsvs)
+@@ -210,7 +223,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_STRONG_NONE | SSL_FIPS,
++        SSL_STRONG_NONE | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         0,
+         0,
+@@ -303,7 +316,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -321,7 +334,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS,
++        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS_aDSS,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -375,7 +388,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         256,
+         256,
+@@ -393,7 +406,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS,
++        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS_aDSS,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         256,
+         256,
+@@ -448,7 +461,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_STRONG_NONE | SSL_FIPS,
++        SSL_STRONG_NONE | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         0,
+         0,
+@@ -467,7 +480,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -485,7 +498,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         256,
+         256,
+@@ -503,7 +516,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS,
++        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS_aDSS,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -611,7 +624,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA256 | TLS1_PRF_SHA256,
+         128,
+         128,
+@@ -629,7 +642,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA384 | TLS1_PRF_SHA384,
+         256,
+         256,
+@@ -683,7 +696,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS,
++        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS_aDSS,
+         SSL_HANDSHAKE_MAC_SHA256 | TLS1_PRF_SHA256,
+         128,
+         128,
+@@ -701,7 +714,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS,
++        SSL_NOT_DEFAULT | SSL_HIGH | SSL_FIPS_aDSS,
+         SSL_HANDSHAKE_MAC_SHA384 | TLS1_PRF_SHA384,
+         256,
+         256,
+@@ -1524,7 +1537,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_STRONG_NONE | SSL_FIPS,
++        SSL_STRONG_NONE | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         0,
+         0,
+@@ -1675,7 +1688,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -1693,7 +1706,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         256,
+         256,
+@@ -1783,7 +1796,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA256 | TLS1_PRF_SHA256,
+         128,
+         128,
+@@ -1801,7 +1814,7 @@
+         TLS1_2_VERSION,
+         DTLS1_2_VERSION,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA384 | TLS1_PRF_SHA384,
+         256,
+         256,
+@@ -1967,7 +1980,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         128,
+         128,
+@@ -1985,7 +1998,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_HIGH | SSL_FIPS,
++        SSL_HIGH | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA384 | TLS1_PRF_SHA384,
+         256,
+         256,
+@@ -2004,7 +2017,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_STRONG_NONE | SSL_FIPS,
++        SSL_STRONG_NONE | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+         0,
+         0,
+@@ -2022,7 +2035,7 @@
+         TLS1_2_VERSION,
+         DTLS1_BAD_VER,
+         DTLS1_2_VERSION,
+-        SSL_STRONG_NONE | SSL_FIPS,
++        SSL_STRONG_NONE | SSL_FIPS_kRSA,
+         SSL_HANDSHAKE_MAC_SHA384 | TLS1_PRF_SHA384,
+         0,
+         0,
+diff --git a/ssl/ssl_ciph.c b/ssl/ssl_ciph.c
+index 8360991ce4..b8df6b4710 100644
+--- a/ssl/ssl_ciph.c
++++ b/ssl/ssl_ciph.c
+@@ -24,6 +24,12 @@
+ #include "internal/comp.h"
+ #include "internal/ssl_unwrap.h"
+ 
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_DES
++#define SSL_FIPS_DES SSL_FIPS
++#else
++#define SSL_FIPS_DES 0
++#endif
++
+ /* NB: make sure indices in these tables match values above */
+ 
+ typedef struct {
+@@ -269,9 +275,9 @@
+ 
+     /* "EDH-" aliases to "DHE-" labels (for backward compatibility) */
+     { 0, SSL3_TXT_EDH_DSS_DES_192_CBC3_SHA, NULL, 0,
+-        SSL_kDHE, SSL_aDSS, SSL_3DES, SSL_SHA1, 0, 0, 0, 0, SSL_HIGH | SSL_FIPS },
++        SSL_kDHE, SSL_aDSS, SSL_3DES, SSL_SHA1, 0, 0, 0, 0, SSL_HIGH | SSL_FIPS_DES },
+     { 0, SSL3_TXT_EDH_RSA_DES_192_CBC3_SHA, NULL, 0,
+-        SSL_kDHE, SSL_aRSA, SSL_3DES, SSL_SHA1, 0, 0, 0, 0, SSL_HIGH | SSL_FIPS },
++        SSL_kDHE, SSL_aRSA, SSL_3DES, SSL_SHA1, 0, 0, 0, 0, SSL_HIGH | SSL_FIPS_DES },
+ 
+ };
+ 
+diff --git a/ssl/t1_trce.c b/ssl/t1_trce.c
+index b05012f74f..2bdd5abceb 100644
+--- a/ssl/t1_trce.c
++++ b/ssl/t1_trce.c
+@@ -444,8 +444,13 @@ static const ssl_trace_tbl ssl_ciphers_tbl[] = {
+     { 0x1303, "TLS_CHACHA20_POLY1305_SHA256" },
+     { 0x1304, "TLS_AES_128_CCM_SHA256" },
+     { 0x1305, "TLS_AES_128_CCM_8_SHA256" },
++#ifdef SUMMIT_OPENSSL_FIPS_KEEP_DES
+     { 0xFEFE, "SSL_RSA_FIPS_WITH_DES_CBC_SHA" },
+     { 0xFEFF, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
++#else
++    { 0xFEFE, "SSL_RSA_WITH_DES_CBC_SHA" },
++    { 0xFEFF, "SSL_RSA_WITH_3DES_EDE_CBC_SHA" },
++#endif
+     { 0xFF85, "LEGACY-GOST2012-GOST8912-GOST8912" },
+     { 0xFF87, "GOST2012-NULL-GOST12" },
+     { 0xC0B4, "TLS_SHA256_SHA256" },
+-- 
+2.34.1
