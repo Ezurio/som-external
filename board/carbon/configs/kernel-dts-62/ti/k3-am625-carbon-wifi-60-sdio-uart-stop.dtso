@@ -6,7 +6,7 @@
  * Copyright (C) 2024 Ezurio LLC
  */
 
-#include "k3-am625-carbon-wifi-60.dtso"
+#include "k3-am625-carbon-wifi-60-sdio-uart.dtso"
 
 &sdhci1 {
 	keep-power-in-suspend = <0>;
