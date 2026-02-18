@@ -158,3 +158,11 @@
 &gpu_3d {
 	status = "okay";
 };
+
+&mix_gpu_ml {
+	status = "okay";
+};
+
+&ml_vipsi {
+	status = "okay";
+};
