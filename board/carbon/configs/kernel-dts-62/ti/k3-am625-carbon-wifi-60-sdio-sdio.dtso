@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO Summit/Sterling 60 in SDIO-SDIO mode
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+#include "k3-am625-carbon-wifi-60-sdio-uart.dtso"
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&wifi {
+	fwtype = "sdio-sdio";
+};
+
+&main_uart1 {
+	status = "disabled";
+};
+
+&bt_boot_strap {
+	output-high; // BT SDIO
+};
