@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * SDIO Summit/Sterling 60 in SDIO-UART mode
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	reg_wifi_pdn: regulator-wifi-pdn {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_wifi_pdn";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_wifi_en>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_bt_en_pins_default>;
+		gpio = <&main_gpio0 21 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&reg_wifi_en {
+	startup-delay-us = <1000>;
+	off-on-delay-us = <100000>;
+};
+
+&sdhci2 {
+	status = "okay";
+
+	vmmc-supply = <&reg_wifi_pdn>;
+
+	wifi: wifi {
+		compatible = "marvell,sd8997";
+		fwtype = "sdio-uart";
+	};
+};
+
+&main_uart1 {
+	status = "okay";
+};
+
+&wifi_wakeup {
+	status = "okay";
+};
