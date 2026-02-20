@@ -28,8 +28,9 @@ else
     format=YUY2
 fi
 
-if pgrep wayland >/dev/null 2>&1; then
+if [ -n "${WAYLAND_DISPLAY}" ] || pgrep weston >/dev/null 2>&1; then
     SINK=waylandsink
+    formatstr=",format=${format}"
 else
 	if [ -f /sys/devices/soc0/soc_id ]; then
 		# Get the SoC ID
