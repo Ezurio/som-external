@@ -2,6 +2,7 @@
 Description=Create USB Ethernet Gadget
 Requires=sys-kernel-config.mount
 After=sys-kernel-config.mount
+ConditionPathExists=/sys/class/udc/%I
 
 [Service]
 Type=oneshot
