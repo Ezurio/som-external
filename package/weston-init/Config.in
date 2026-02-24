@@ -1,0 +1,24 @@
+config BR2_PACKAGE_WESTON_INIT
+	bool "weston-init"
+	depends on BR2_PACKAGE_WESTON
+	help
+	  Startup script and systemd unit files for the Weston Wayland
+	  compositor. Installs a SysV init script, systemd service and
+	  socket units, a default weston.ini configuration, and the
+	  weston-start helper script.
+
+	  https://wayland.freedesktop.org/
+
+if BR2_PACKAGE_WESTON_INIT
+
+config BR2_PACKAGE_WESTON_INIT_AUTOLOGIN
+	bool "PAM autologin support"
+	select BR2_PACKAGE_LINUX_PAM 
+	select BR2_PACKAGE_SEATD
+	select BR2_PACKAGE_SEATD_DAEMON
+	help
+	  Install the weston-autologin PAM configuration to
+	  /etc/pam.d/weston-autologin. Required for automatic login
+	  via the systemd weston.socket service.
+
+endif
