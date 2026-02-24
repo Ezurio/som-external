@@ -1,0 +1,20 @@
+Upstream-Status: Inappropriate No time to dig
+
+diff --git a/psplash-fb.c b/psplash-fb.c
+index 2babb5f..98423ff 100644
+--- a/psplash-fb.c
++++ b/psplash-fb.c
+@@ -206,7 +206,7 @@ psplash_fb_new (int angle, int fbdev_id)
+     } else {
+       fb_var.yres_virtual = fb_var.yres * 2;
+       if (ioctl(fb->fd, FBIOPUT_VSCREENINFO, &fb_var) == -1) {
+-        fprintf(stderr, "warning: FBIOPUT_VSCREENINFO failed, "
++        DBG("warning: FBIOPUT_VSCREENINFO failed, "
+                         "double buffering disabled\n");
+       } else {
+         if (ioctl(fb->fd, FBIOGET_FSCREENINFO, &fb_fix) == -1) {
+@@ -622,4 +622,3 @@ psplash_fb_draw_text (PSplashFB         *fb,
+       dx += w;
+     }
+ }
+-
