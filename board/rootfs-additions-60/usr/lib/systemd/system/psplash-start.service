@@ -1,0 +1,16 @@
+[Unit]
+Description=Starts Psplash Boot screen
+DefaultDependencies=no
+RequiresMountsFor=/run
+Before=systemd-journald.service local-fs-pre.target systemd-udevd.service
+ConditionFileIsExecutable=/usr/bin/psplash
+ConditionPathExists=!/run/psplash_fifo
+ConditionPathExists=/dev/fb0
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/psplash -n
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
