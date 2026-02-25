@@ -43,14 +43,16 @@ Upstream-Status: Inappropriate No time for upstreaming
  
  	return 0;
  }
-@@ -1131,6 +1131,21 @@ static int imx8mq_phy_set_mode(struct phy *phy, enum phy_mode mode,
+@@ -1131,6 +1131,25 @@ static int imx8mq_phy_set_mode(struct phy *phy, enum phy_mode mode,
  {
  	struct imx8mq_usb_phy *imx_phy = phy_get_drvdata(phy);
  
 +	switch (mode) {
 +	case PHY_MODE_USB_HOST:
 +		if (!imx_phy->vbus_enabled) {
-+			regulator_enable(imx_phy->vbus);
++			int ret = regulator_enable(imx_phy->vbus);
++			if (ret)
++				dev_err(&imx_phy->phy->dev, "failed to enable vbus %d\n", ret);
 +			imx_phy->vbus_enabled = true;
 +		}
 +		break;
@@ -59,6 +61,8 @@ Upstream-Status: Inappropriate No time for upstreaming
 +			regulator_disable(imx_phy->vbus);
 +			imx_phy->vbus_enabled = false;
 +		}
++		break;
++	default:
 +		break;
 +	}
 +
