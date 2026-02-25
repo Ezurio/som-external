@@ -3,7 +3,6 @@ From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 Date: Tue, 7 May 2024 14:22:36 +0200
 Subject: [PATCH] phy: freescale: imx8mq-usb: set vbus depending on mode
 
-Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
 Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 ---
  drivers/phy/freescale/phy-fsl-imx8mq-usb.c | 22 ++++++++++++++++------
@@ -13,7 +12,15 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
 +++ b/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
-@@ -864,10 +864,6 @@
+@@ -157,6 +157,7 @@ struct imx8mq_usb_phy {
+ 	struct dentry *debugfs;
+ 	u16	cr_access_base;
+ 	u16	cr_read_count;
++	bool	vbus_enabled;
+ };
+ 
+ static void tca_blk_orientation_set(struct tca_blk *tca,
+@@ -864,10 +865,6 @@ static int imx8mq_phy_power_on(struct phy *phy)
  	u32 value;
  	int ret;
  
@@ -24,28 +31,34 @@ Upstream-Status: Inappropriate No time for upstreaming
  	ret = clk_prepare_enable(imx_phy->clk);
  	if (ret)
  		return ret;
-@@ -898,7 +894,8 @@
+@@ -898,7 +895,10 @@ static int imx8mq_phy_power_off(struct phy *phy)
  
  	clk_disable_unprepare(imx_phy->alt_clk);
  	clk_disable_unprepare(imx_phy->clk);
 -	regulator_disable(imx_phy->vbus);
-+	if (regulator_is_enabled(imx_phy->vbus))
++	if (imx_phy->vbus_enabled) {
 +		regulator_disable(imx_phy->vbus);
++		imx_phy->vbus_enabled = false;
++	}
  
  	return 0;
  }
-@@ -1131,6 +1128,17 @@
+@@ -1131,6 +1131,21 @@ static int imx8mq_phy_set_mode(struct phy *phy, enum phy_mode mode,
  {
  	struct imx8mq_usb_phy *imx_phy = phy_get_drvdata(phy);
  
 +	switch (mode) {
 +	case PHY_MODE_USB_HOST:
-+		if (!regulator_is_enabled(imx_phy->vbus))
++		if (!imx_phy->vbus_enabled) {
 +			regulator_enable(imx_phy->vbus);
++			imx_phy->vbus_enabled = true;
++		}
 +		break;
 +	case PHY_MODE_USB_DEVICE:
-+		if (regulator_is_enabled(imx_phy->vbus))
++		if (imx_phy->vbus_enabled) {
 +			regulator_disable(imx_phy->vbus);
++			imx_phy->vbus_enabled = false;
++		}
 +		break;
 +	}
 +
