@@ -23,6 +23,11 @@ if ${STANDALONE}; then
 	. /usr/sbin/boot-rootfs.sh || die
 fi
 
+if [ -x /usr/bin/psplash ] && [ -e /dev/fb0 ]; then
+	mount /run 2> /dev/null || mount -t tmpfs tmpfs /run -o mode=0755,nodev,nosuid
+	/usr/bin/psplash -n &
+fi
+
 PERM_DEVICE=/dev/$(getPart perm)
 
 # Use custom perm mount options, if present

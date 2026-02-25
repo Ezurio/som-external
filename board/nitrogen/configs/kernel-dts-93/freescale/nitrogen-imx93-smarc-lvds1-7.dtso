@@ -72,9 +72,11 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	touchscreen_lvds1: touchscreen-lvds1@5d {
+	status = "okay";
+
+	touchscreen_lvds1: touchscreen-lvds1@14 {
 		compatible = "goodix,gt911";
-		reg = <0x5d>;
+		reg = <0x14>;
 
 		AVDD28-supply = <&reg_vdd_3v3>; /* Real supply is on the display */
 		VDDIO-supply = <&reg_vdd_3v3>;
