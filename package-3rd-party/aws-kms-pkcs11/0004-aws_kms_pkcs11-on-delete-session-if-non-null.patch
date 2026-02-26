@@ -1,6 +1,6 @@
---- a/aws_kms_pkcs11.cpp	2026-02-06 10:22:49.940896965 -0500
-+++ b/aws_kms_pkcs11.cpp	2026-02-06 13:55:04.501821983 -0500
-@@ -405,11 +405,13 @@
+--- a/aws_kms_pkcs11.cpp	2026-02-26 12:47:00.568868972 -0500
++++ b/aws_kms_pkcs11.cpp	2026-02-26 12:49:17.975506165 -0500
+@@ -404,11 +404,13 @@
      if (session == NULL) {
          return CKR_SESSION_HANDLE_INVALID;
      }
@@ -10,11 +10,11 @@
 -        } else {
 -            it++;
 +    if (active_sessions != NULL) {
-+        for (auto it = active_sessions->begin(); it != active_sessions->end(); ) {
-+            if (*it == session) {
-+                active_sessions->erase(it);
-+            } else {
-+                it++;
++        if (!active_sessions->empty()) {
++            for (int i = active_sessions->size() - 1; i >= 0; i--) {
++                if (active_sessions->at(i) == session) {
++                    active_sessions->erase(active_sessions->begin() + i);
++                }
 +            }
          }
      }
