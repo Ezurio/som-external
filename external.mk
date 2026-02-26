@@ -18,12 +18,10 @@ endif
 
 ifneq ($(AWS_KMS_SIGNING),)
 KEY_PATH = $(HOST_DIR)/dev_pkcs11.pem
-else
-ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
+else ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
 KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys/dev.key
 else
 KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/dev.key
-endif
 endif
 endif
 
@@ -35,9 +33,6 @@ KEYS_DIR = $(dir $(KEY_PATH))
 else
 ifeq ($(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH),)
 $(error AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH is not set for AWS_KMS_SIGNING=y)
-endif
-ifeq ($(wildcard $(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH)),)
-$(error Public certificate file not found: $(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH))
 endif
 KEYS_DIR = $(dir $(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH))
 endif
