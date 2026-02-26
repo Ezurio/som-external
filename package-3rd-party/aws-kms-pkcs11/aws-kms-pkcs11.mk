@@ -57,6 +57,10 @@ define HOST_AWS_KMS_PKCS11_INSTALL_CMDS
 		$(HOST_DIR)/aws-kms-pkcs11-config.json
 	$(SED) 's|@@AWS_REGION@@|$(AWS_KMS_PKCS11_AWS_REGION)|g' \
 		$(HOST_DIR)/aws-kms-pkcs11-config.json
+	
+	$(SED) '/^pkcs11-module-path/d' $(HOST_DIR)/host_pkcs11config.cnf
+	$(SED) '/\[pkcs11_sect\]/a pkcs11-module-path = \
+		$(HOST_DIR)\/lib\/pkcs11\/aws_kms_pkcs11.so.$(AWS_KMS_PKCS11_VERSION_MAJOR)' $(HOST_DIR)/host_pkcs11config.cnf
 
 	python3 $(HOST_DIR)/opt/pkcs11-provider/uri2pem.py --bypass --out "$(KEY_PATH)" "pkcs11:token=$(AWS_KMS_PKCS11_SLOT_LABEL);type=private"
 endef
