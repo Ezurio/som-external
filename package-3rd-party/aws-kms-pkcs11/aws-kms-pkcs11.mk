@@ -1,12 +1,14 @@
 ################################################################################
 # aws-kms-pkcs11
 ################################################################################
-AWS_KMS_PKCS11_VERSION = v0.0.17
+AWS_KMS_PKCS11_VERSION_MAJOR = 0
+AWS_KMS_PKCS11_VERSION_MINOR = 0
+AWS_KMS_PKCS11_VERSION_PATCH = 17
+AWS_KMS_PKCS11_VERSION = v$(AWS_KMS_PKCS11_VERSION_MAJOR).$(AWS_KMS_PKCS11_VERSION_MINOR).$(AWS_KMS_PKCS11_VERSION_PATCH)
 AWS_KMS_PKCS11_SITE_METHOD = git
 AWS_KMS_PKCS11_SITE = https://github.com/JackOfMostTrades/aws-kms-pkcs11.git
 HOST_AWS_KMS_PKCS11_DEPENDENCIES += \
 	host-aws-sdk-cpp \
-	host-cmake \
 	host-openssl \
 	host-p11-kit \
 	host-json-c \
@@ -27,6 +29,9 @@ HOST_AWS_KMS_PKCS11_ENV += \
 
 define HOST_AWS_KMS_PKCS11_BUILD_CMDS
 	$(HOST_MAKE_ENV) $(HOST_AWS_KMS_PKCS11_ENV) $(MAKE) -C $(@D) $(HOST_CONFIGURE_OPTS)
+	mv $(@D)/aws_kms_pkcs11.so $(@D)/aws_kms_pkcs11.so.$(AWS_KMS_PKCS11_VERSION_MAJOR).$(AWS_KMS_PKCS11_VERSION_MINOR).$(AWS_KMS_PKCS11_VERSION_PATCH)
+	ln -s aws_kms_pkcs11.so.$(AWS_KMS_PKCS11_VERSION_MAJOR).$(AWS_KMS_PKCS11_VERSION_MINOR).$(AWS_KMS_PKCS11_VERSION_PATCH) $(@D)/aws_kms_pkcs11.so.$(AWS_KMS_PKCS11_VERSION_MAJOR)
+	ln -s aws_kms_pkcs11.so.$(AWS_KMS_PKCS11_VERSION_MAJOR) $(@D)/aws_kms_pkcs11.so
 endef
 
 ifeq ($(AWS_KMS_SIGNING),y)
@@ -42,7 +47,7 @@ endif
 endif
 
 define HOST_AWS_KMS_PKCS11_INSTALL_CMDS
-	$(INSTALL) -D -m 0644 -t $(HOST_DIR)/lib/pkcs11 $(@D)/aws_kms_pkcs11.so
+	cp -P $(@D)/aws_kms_pkcs11.so* $(HOST_DIR)/lib/pkcs11/
 
 	$(INSTALL) -m 0644 -t $(HOST_DIR) \
 		$(HOST_AWS_KMS_PKCS11_PKGDIR)/aws-kms-pkcs11-config.json
