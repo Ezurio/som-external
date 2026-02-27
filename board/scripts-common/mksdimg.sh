@@ -57,7 +57,7 @@ set -e
 
 # Specify partition sizes in MiB
 PART_SIZE=1
-BOOT_SIZE=${BOOT_SIZE:-48}
+BOOT_SIZE=${BOOT_SIZE:-64}
 SWAP_SIZE=${SWAP_SIZE:-256}
 PERM_SIZE=${PERM_SIZE:-256}
 
