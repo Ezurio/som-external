@@ -1,6 +1,6 @@
---- a/aws_kms_pkcs11.cpp	2026-02-26 12:47:00.568868972 -0500
-+++ b/aws_kms_pkcs11.cpp	2026-02-26 12:49:17.975506165 -0500
-@@ -404,11 +404,13 @@
+--- a/aws_kms_pkcs11.cpp	2026-02-26 19:14:56.131136884 -0500
++++ b/aws_kms_pkcs11.cpp	2026-02-26 19:17:50.683431254 -0500
+@@ -404,11 +404,16 @@
      if (session == NULL) {
          return CKR_SESSION_HANDLE_INVALID;
      }
@@ -11,11 +11,38 @@
 -            it++;
 +    if (active_sessions != NULL) {
 +        if (!active_sessions->empty()) {
-+            for (int i = active_sessions->size() - 1; i >= 0; i--) {
-+                if (active_sessions->at(i) == session) {
-+                    active_sessions->erase(active_sessions->begin() + i);
-+                }
-+            }
++            active_sessions->erase(
++                std::remove_if(
++                    active_sessions->begin(),
++                    active_sessions->end(),
++                    [session](CkSession* s) { return s == session; }
++                ),
++                active_sessions->end()
++            );
          }
      }
      free(session);
+@@ -416,13 +421,16 @@
+ }
+ 
+ CK_RV C_CloseAllSessions(CK_SLOT_ID slotID) {
+-    for (auto it = active_sessions->begin(); it != active_sessions->end(); ) {
+-        CkSession *session = *it;
+-        if (session->slot_id == slotID) {
+-            free(session);
+-            active_sessions->erase(it);
+-        } else {
+-            it++;
++    if (active_sessions != NULL) {
++        if (!active_sessions->empty()) {
++            active_sessions->erase(
++                std::remove_if(
++                    active_sessions->begin(),
++                    active_sessions->end(),
++                    [slotID](CkSession* s) { return s->slot_id == slotID; }
++                ),
++                active_sessions->end()
++            );
+         }
+     }
+     return CKR_FUNCTION_FAILED;
