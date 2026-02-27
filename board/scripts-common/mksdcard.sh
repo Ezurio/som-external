@@ -76,7 +76,7 @@ check_present sfdisk lsblk mkfs.ext4 mkfs.vfat mkswap dd mount umount
 set -e
 
 # Specify partition sizes in MiB
-BOOT_SIZE=${BOOT_SIZE:-48}
+BOOT_SIZE=${BOOT_SIZE:-64}
 SWAP_SIZE=${SWAP_SIZE:-256}
 PERM_SIZE=${PERM_SIZE:-256}
 
