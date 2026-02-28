@@ -13,7 +13,12 @@
 	compatible = "summit,imx8mp-summitsom", "fsl,imx8mp";
 
 	chosen {
-		stdout-path = &uart2;
+		stdout-path = "serial1:115200n8";
+	};
+
+	aliases {
+		can0 = &flexcan1;
+		can1 = &flexcan2;
 		ethernet0 = &fec;
 		ethernet1 = &eqos;
 	};

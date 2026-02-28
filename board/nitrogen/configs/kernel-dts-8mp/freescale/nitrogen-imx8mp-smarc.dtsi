@@ -12,6 +12,8 @@
 	compatible = "summit,imx8mp-nitrogen-smarc", "fsl,imx8mp";
 
 	aliases {
+		can0 = &flexcan1;
+		can1 = &flexcan2;
 		ethernet0 = &eqos;
 		ethernet1 = &fec;
 	};
