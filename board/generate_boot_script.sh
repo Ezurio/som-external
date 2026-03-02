@@ -16,7 +16,7 @@ else
     DM='dm-mod.create=\"${dm_table}\" dm-mod.waitfor=${boot_dev}'
 fi
 
-${ENCRYPTED_TOOLKIT} && INIT="pre-systemd-init.sh" || INIT="overlayRoot.sh"
+${ENCRYPTED_TOOLKIT} && INITTYPE='' || INITTYPE="inittype=overlay"
 
 ${CONSOLE_LOGGING} || LOG_LEVEL=quiet
 
@@ -30,25 +30,15 @@ EOF
 
 print_common() {
     cat << EOF
-setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside} ${LOG_LEVEL} ${KERNEL_EXTRA_CMDS}
+setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
+init=/usr/sbin/pre-systemd-init.sh ${INITTYPE}
+fips=\${fips:=0} fips_wifi=\${fips_wifi:=0} ${2}
+${LOG_LEVEL} ${KERNEL_EXTRA_CMDS}"
 EOF
 }
 
 print_common_60() {
-    print_common "${1}"
-    cat << EOF
-ubi.fm_autoconvert=1 init=/usr/sbin/fipsInit.sh initlrd=/usr/sbin/${INIT} 
-${2}
-fips=\${fips:=0} fips_wifi=\${fips_wifi:=0}"
-EOF
-}
-
-print_common_emmc() {
-    print_common "${1}"
-    cat << EOF
-init=/usr/sbin/${INIT}
-${2}"
-EOF
+    print_common "${1}" "ubi.fm_autoconvert=1 ${2}"
 }
 
 case ${BUILD_TYPE} in
@@ -79,9 +69,9 @@ case ${BUILD_TYPE} in
         echo "boot_dev=/dev/mmcblk\${mmcdev}p\${rootvol}"
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_emmc "/dev/dm-0" "${DM}"
+            print_common "/dev/dm-0" "${DM}"
         else
-            print_common_emmc "\${boot_dev}" "\${bootargs}"
+            print_common "\${boot_dev}" "\${bootargs}"
         fi
         ;;
 esac
