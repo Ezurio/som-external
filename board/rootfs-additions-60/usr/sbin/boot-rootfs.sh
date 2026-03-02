@@ -120,6 +120,8 @@ getPart() {
 }
 
 getSide() {
+	[ -z "${bootside}" ] || return 0
+
 	bootside=$(sed -rn 's,.*bootside=([ab]).*,\1,p' /proc/cmdline)
 	[ -z "${bootside}" ] || return 0
 
