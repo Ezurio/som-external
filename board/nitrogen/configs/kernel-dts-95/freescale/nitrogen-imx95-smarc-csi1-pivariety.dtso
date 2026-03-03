@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2024 Ezurio LLC
+ * ArduCam Pivariety camera module
+ *
+ * Copyright (C) 2025 Ezurio LLC
  */
 
 /dts-v1/;
@@ -19,8 +21,8 @@
 	VDIG-supply = <&reg_vdd_3v3>;
 	VDDL-supply = <&reg_vdd_3v3>;
 
-	reset-gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
-	enable-gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpio3 26 GPIO_ACTIVE_HIGH>;
+	enable-gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
 };
 
 &cam_csi1_ep {
