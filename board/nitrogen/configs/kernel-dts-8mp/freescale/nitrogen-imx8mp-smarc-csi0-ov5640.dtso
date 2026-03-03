@@ -20,6 +20,6 @@
 	AVDD-supply = <&reg_vdd_3v3>;
 	DVDD-supply = <&reg_vdd_3v3>;
 
-	reset-gpios = <&mcp23018 0 GPIO_ACTIVE_LOW>;
-	powerdown-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
+	reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
+	powerdown-gpios = <&mcp23018 0 GPIO_ACTIVE_LOW>;
 };

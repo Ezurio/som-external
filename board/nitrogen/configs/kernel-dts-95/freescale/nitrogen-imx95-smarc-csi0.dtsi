@@ -112,7 +112,7 @@
 	pinctrl_cam_csi0: pinctrl-cam-csi0 {
 		fsl,pins = <
 			IMX95_PAD_GPIO_IO19__GPIO2_IO_BIT19	0x37e
-			IMX95_PAD_GPIO_IO23__GPIO2_IO_BIT23	0x37e
+			IMX95_PAD_XSPI1_DATA7__GPIO5_IO_BIT7	0x37e
 		>;
 	};
 };
