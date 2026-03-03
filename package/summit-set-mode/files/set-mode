@@ -46,10 +46,13 @@ print_regdomain() {
 
 case "${1}" in
     '')
-        echo "Usage: $0 <mode> [<mode> ...]"
+        echo "Usage: $0 <mode> [<overlays> ...]"
         echo '  <mode> is one or multiple of:'
         echo '  default - remove all overlays'
         echo '  status - print active overlays'
+        echo '  add or '+' - add one or multiple overlays'
+        echo '  remove or '-' - remove one or multiple overlays'
+        echo '  set - set (or empty) one or multiple overlays (removing all others)'
         echo
         echo 'Available modes/overlays:'
         echo "${params}" | sed 's/^/  /'
@@ -62,6 +65,7 @@ case "${1}" in
 
     default)
         # Remove all overlays
+        conf=
         ;;
 
     status)
@@ -70,11 +74,34 @@ case "${1}" in
         exit 0
         ;;
 
+    remove|-)
+        # If no parameters are found, exit
+        [ -n "${params}" ] || die 'No overlays found'
+
+        shift
+
+        # Verify that all parameters are valid and remove them from
+        # configuration string
+        conf="${cconf}"
+        for i in "${@}" ; do
+            echo "${params}" | grep -qFx "${i}" || die "Invalid mode ${i}"
+            conf=$(echo "${conf}" | sed "s/#${prefix}-${i}\.dtbo//g")
+        done
+        ;;
+
     *)
         # If no parameters are found, exit
         [ -n "${params}" ] || die 'No overlays found'
 
         . /usr/sbin/boot-rootfs.sh
+
+        case "${1}" in
+             set) shift ;;
+             add|+)
+                conf=$(echo "${cconf}" | sed -rn "s/^#${default}//p")
+                shift
+                ;;
+        esac
 
         # Verify that all parameters are valid and add them into
         # configuration string
