@@ -46,119 +46,6 @@
 		};
 	};
 
-	gpio_charger {
-		compatible = "gpio-of-helper";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_bq25790_misc>;
-
-		charge_enable {
-			gpio-name = "charge_enable";
-			gpio = <&gpio1 14 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-	};
-
-	gpio {
-		compatible = "gpio-of-helper";
-
-		bt_boot_status {
-			gpio-name = "bt_boot_status";
-			gpio = <&max14830 13 GPIO_ACTIVE_HIGH>;
-			input;
-		};
-
-		bt_nautorun {
-			gpio-name = "bt_nautorun";
-			gpio = <&max14830 12 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		bt_reset {
-			gpio-name = "bt_reset";
-			gpio = <&max14830 11 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		ser_rs485_hd {
-			gpio-name = "ser_rs485_hd";
-			gpio = <&max14830 9 GPIO_ACTIVE_HIGH>;
-			output;
-			init-high;
-		};
-
-		ser_nrs232 {
-			gpio-name = "ser_nrs232";
-			gpio = <&max14830 7 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		ser_term {
-			gpio-name = "ser_term";
-			gpio = <&max14830 6 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		ser_nreset {
-			gpio-name = "ser_nreset";
-			gpio = <&max14830 8 GPIO_ACTIVE_HIGH>;
-			output;
-			init-high;
-		};
-
-		lte_power {
-			gpio-name = "lte_power";
-			gpio = <&max14830 1 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		lte_on {
-			gpio-name = "lte_on";
-			gpio = <&pca6416 3 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		lte_reset {
-			gpio-name = "lte_reset";
-			gpio = <&pca6416 4 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		lte_airplane {
-			gpio-name = "lte_airplane";
-			gpio = <&pca6416 5 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		lte_wakeup {
-			gpio-name = "lte_wakeup";
-			gpio = <&pca6416 6 GPIO_ACTIVE_HIGH>;
-			output;
-			init-low;
-		};
-
-		poe_type4_det {
-			gpio-name = "poe_type4_det";
-			gpio = <&pca6416 1 GPIO_ACTIVE_HIGH>;
-			input;
-		};
-
-		poe_type2_det {
-			gpio-name = "poe_type2_det";
-			gpio = <&pca6416 2 GPIO_ACTIVE_HIGH>;
-			input;
-		};
-	};
-
 	system_wakeup {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
@@ -303,6 +190,7 @@
 
 	max14830: max14830@0 {
 		reg = <0>;
+		spi-max-frequency = <26000000>;
 
 		compatible = "maxim,max14830";
 
@@ -317,7 +205,23 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 
-		spi-max-frequency = <26000000>;
+		gpio-line-names =
+			"",                   // 0
+			"lte_power",          // 1
+			"",                   // 2
+			"reg_btm",            // 3
+			"",                   // 4
+			"",                   // 5
+			"ser_term",           // 6
+			"ser_nrs232",         // 7
+			"ser_nreset",         // 8
+			"ser_rs485_hd",       // 9
+			"",                   // 10
+			"bt_reset",           // 11
+			"bt_nautorun",        // 12
+			"bt_boot_status",     // 13
+			"",                   // 14
+			"";                   // 15
 	};
 };
 
@@ -492,6 +396,24 @@
 
 		interrupts-extended = <&gpio1 12 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
+
+		gpio-line-names =
+			"usb_hub_reset",      // 0
+			"poe_type4_det",      // 1
+			"poe_type2_det",      // 2
+			"lte_on",             // 3
+			"lte_reset",          // 4
+			"lte_airplane",       // 5
+			"lte_wakeup",         // 6
+			"",                   // 7
+			"status_led",         // 8
+			"red_led",            // 9
+			"blue_led",           // 10
+			"can1_stby",          // 11
+			"can2_stby",          // 12
+			"usb_hub_vbus_det",   // 13
+			"",                   // 14
+			"";                   // 15
 	};
 
 	pac193x@10 {
@@ -585,6 +507,37 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_audpwr>;
 
+	gpio-line-names =
+		"fec_reset",          // 0
+		"",                   // 1
+		"fec_reset_phy",      // 2
+		"ethphy1_interrupt",  // 3
+		"",                   // 4
+		"",                   // 5
+		"",                   // 6
+		"",                   // 7
+		"",                   // 8
+		"",                   // 9
+		"",                   // 10
+		"",                   // 11
+		"",                   // 12
+		"",                   // 13
+		"",                   // 14
+		"",                   // 15
+		"",                   // 16
+		"",                   // 17
+		"typec_interrupt",    // 18
+		"",                   // 19
+		"typec_mux",          // 20
+		"ethphy0_interrupt",  // 21
+		"eqos_reset",         // 22
+		"",                   // 23-28
+		"",
+		"",
+		"",
+		"",
+		"AUDIO_PWR_EN";       // 29
+
 	/* workaround for i2c bus lockup */
 	audpwr-hog {
 		gpio-hog;
@@ -592,6 +545,160 @@
 		output-high;
 		line-name = "AUDIO_PWR_EN";
 	};
+};
+
+&gpio1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_bq25790_misc>;
+
+	gpio-line-names =
+		"",                   // 0
+		"",                   // 1
+		"",                   // 2
+		"",                   // 3
+		"",                   // 4
+		"",                   // 5
+		"",                   // 6
+		"max14830_interrupt", // 7
+		"",                   // 8
+		"",                   // 9
+		"",                   // 10
+		"",                   // 11
+		"pca6416_interrupt",  // 12
+		"",                   // 13
+		"charge_enable",      // 14
+		"",                   // 15
+		"",                   // 16
+		"",                   // 17
+		"",                   // 18
+		"",                   // 19
+		"",                   // 20
+		"",                   // 21
+		"",                   // 22
+		"",                   // 23
+		"",                   // 24
+		"",                   // 25
+		"",                   // 26
+		"",                   // 27
+		"",                   // 28
+		"",                   // 29
+		"",                   // 30
+		"";                   // 31
+
+	charge_enable-hog {
+		gpio-hog;
+		gpios = <14 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "charge_enable";
+	};
+};
+
+&gpio2 {
+	gpio-line-names =
+		"",                   // 0
+		"",                   // 1
+		"",                   // 2
+		"",                   // 3
+		"",                   // 4
+		"",                   // 5
+		"",                   // 6
+		"",                   // 7
+		"",                   // 8
+		"",                   // 9
+		"",                   // 10
+		"",                   // 11
+		"usdhc2_cd",          // 12
+		"",                   // 13
+		"",                   // 14
+		"",                   // 15
+		"",                   // 16
+		"",                   // 17
+		"",                   // 18
+		"",                   // 19
+		"",                   // 20
+		"",                   // 21
+		"",                   // 22
+		"",                   // 23
+		"",                   // 24
+		"",                   // 25
+		"",                   // 26
+		"",                   // 27
+		"",                   // 28
+		"",                   // 29
+		"",                   // 30
+		"";                   // 31
+};
+
+&gpio3 {
+	gpio-line-names =
+		"",                   // 0
+		"",                   // 1
+		"",                   // 2
+		"",                   // 3
+		"",                   // 4
+		"",                   // 5
+		"",                   // 6
+		"",                   // 7
+		"",                   // 8
+		"",                   // 9
+		"",                   // 10
+		"",                   // 11
+		"",                   // 12
+		"",                   // 13
+		"",                   // 14
+		"",                   // 15
+		"bq25790_interrupt",  // 16
+		"",                   // 17
+		"",                   // 18
+		"",                   // 19
+		"",                   // 20
+		"",                   // 21
+		"",                   // 22
+		"",                   // 23
+		"",                   // 24
+		"system_wakeup",      // 25
+		"",                   // 26
+		"",                   // 27
+		"",                   // 28
+		"",                   // 29
+		"",                   // 30
+		"";                   // 31
+};
+
+&gpio5 {
+	gpio-line-names =
+		"",                   // 0
+		"",                   // 1
+		"",                   // 2
+		"",                   // 3
+		"",                   // 4
+		"",                   // 5
+		"",                   // 6
+		"",                   // 7
+		"",                   // 8
+		"",                   // 9
+		"",                   // 10
+		"",                   // 11
+		"",                   // 12
+		"ecspi2_cs",          // 13
+		"",                   // 14
+		"",                   // 15
+		"i2c2_scl",           // 16
+		"i2c2_sda",           // 17
+		"i2c3_scl",           // 18
+		"i2c3_sda",           // 19
+		"",                   // 20
+		"",                   // 21
+		"",                   // 22
+		"",                   // 23
+		"",                   // 24
+		"",                   // 25
+		"",                   // 26
+		"",                   // 27
+		"",                   // 28
+		"",                   // 29
+		"",                   // 30
+		"";                   // 31
 };
 
 
