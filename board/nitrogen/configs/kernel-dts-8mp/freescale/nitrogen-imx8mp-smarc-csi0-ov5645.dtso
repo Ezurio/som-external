@@ -18,8 +18,8 @@
 	vdda-supply = <&reg_vdd_3v3>;
 	vddd-supply = <&reg_vdd_3v3>;
 
-	reset-gpios = <&mcp23018 0 GPIO_ACTIVE_LOW>;
-	enable-gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
+	enable-gpios = <&mcp23018 0 GPIO_ACTIVE_HIGH>;
 
 	clock-frequency = <24000000>;
 };

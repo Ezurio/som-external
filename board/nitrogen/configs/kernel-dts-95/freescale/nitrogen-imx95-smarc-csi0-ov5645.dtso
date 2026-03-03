@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
  * ArduCam OV5645 5MP camera module
  *
@@ -18,7 +18,7 @@
 	vdda-supply = <&reg_vdd_3v3>;
 	vddd-supply = <&reg_vdd_3v3>;
 
-	reset-gpios = <&gpio2 23 GPIO_ACTIVE_LOW>;
+	reset-gpios = <&gpio5 7 GPIO_ACTIVE_LOW>;
 	enable-gpios = <&gpio2 19 GPIO_ACTIVE_HIGH>;
 
 	clock-frequency = <24000000>;

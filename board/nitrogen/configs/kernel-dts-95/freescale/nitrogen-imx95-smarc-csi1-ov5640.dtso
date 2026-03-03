@@ -22,6 +22,6 @@
 	AVDD-supply = <&reg_vdd_3v3>;
 	DVDD-supply = <&reg_vdd_3v3>;
 
-	reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
-	powerdown-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
+	reset-gpios = <&gpio3 26 GPIO_ACTIVE_LOW>;
+	powerdown-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
 };
