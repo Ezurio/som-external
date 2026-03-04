@@ -40,6 +40,10 @@
 			};
 		};
 	};
+
+	display-subsystem {
+		status = "okay";
+	};
 };
 
 &ldb {

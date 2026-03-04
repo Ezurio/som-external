@@ -56,6 +56,10 @@
 		// yet stable, as such PLL cannot lock on it.
 		startup-delay-us = <30000>;
 	};
+
+	display-subsystem {
+		status = "okay";
+	};
 };
 
 &dsi_out_ep {

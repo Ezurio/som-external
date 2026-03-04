@@ -124,6 +124,10 @@
 		gpio = <&pcal6534 32 GPIO_ACTIVE_HIGH>; /* P4_0 -> I2C_HUB_RESET */
 		enable-active-high;
 	};
+
+	display-subsystem {
+		status = "disabled";
+	};
 };
 
 &adc1 {
