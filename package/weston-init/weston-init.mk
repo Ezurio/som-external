@@ -22,7 +22,7 @@ define WESTON_INIT_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc/xdg/weston \
 		$(WESTON_INIT_PKGDIR)/weston.ini
 
-	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc \
+	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/usr/share/backgrounds \
 		$(WESTON_INIT_PKGDIR)/Ezurio_logo-White_Red.png
 
 	$(WESTON_INIT_PAM_INSTALL)
