@@ -28,20 +28,32 @@ else
     format=YUY2
 fi
 
-if [ -n "${WAYLAND_DISPLAY}" ] || pgrep weston >/dev/null 2>&1; then
+if [ -f /sys/devices/soc0/soc_id ]; then
+    # Get the SoC ID
+    read -r soc_id < /sys/devices/soc0/soc_id
+elif [ -f /sys/devices/soc0/family ]; then
+    # Get the SoC family
+    read -r soc_id < /sys/devices/soc0/family
+else
+    soc_id="unknown"
+fi
+
+if pgrep weston >/dev/null 2>&1; then
     SINK=waylandsink
     formatstr=",format=${format}"
-else
-	if [ -f /sys/devices/soc0/soc_id ]; then
-		# Get the SoC ID
-		read -r soc_id < /sys/devices/soc0/soc_id
-	elif [ -f /sys/devices/soc0/family ]; then
-		# Get the SoC family
-		read -r soc_id < /sys/devices/soc0/family
-	else
-		soc_id="unknown"
-	fi
 
+    case "${soc_id}" in
+        AM6*|J722S)
+            SINK="videoconvert ! waylandsink sync=false"
+            ;;
+        i.MX93)
+            if ! grep -q 'use-g2d=true' /etc/xdg/weston/weston.conf 2>/dev/null; then
+                #formatstr=",format=${format},framerate=3/1"
+                SINK="waylandsink sync=false"
+            fi
+            ;;
+    esac
+else
     case "${soc_id}" in
         AM6*|J722S)
             if media-ctl -d "${ID}" -p | grep -q 'pivariety'; then
