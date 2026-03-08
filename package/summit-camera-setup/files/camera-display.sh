@@ -43,13 +43,9 @@ if pgrep weston >/dev/null 2>&1; then
     formatstr=",format=${format}"
 
     case "${soc_id}" in
-        AM6*|J722S)
-            SINK="videoconvert ! waylandsink sync=false"
-            ;;
         i.MX93)
             if ! grep -q 'use-g2d=true' /etc/xdg/weston/weston.conf 2>/dev/null; then
-                #formatstr=",format=${format},framerate=3/1"
-                SINK="waylandsink sync=false"
+                SINK="videoconvert ! waylandsink sync=false"
             fi
             ;;
     esac
