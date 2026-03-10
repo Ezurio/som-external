@@ -50,9 +50,9 @@
 		regulator-always-on;
 	};
 
-	reg_cam_a: regulator-cam-a {
+	reg_csi_a: regulator-csi-a {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_cam_a";
+		regulator-name = "reg_csi_a";
 		vin-supply = <&reg_3v3_carrier>;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -208,13 +208,13 @@
 };
 
 &main_gpio0 {
-	cam_a_rst_hog: cam-a-rst-hog {
+	csi_a_rst_hog: csi-a-rst-hog {
 		gpio-hog;
 		gpios = <29 GPIO_ACTIVE_HIGH>;
 		output-low;
 	};
 
-	cam_a_pwr_hog: cam-a-pwr-hog {
+	csi_a_pwr_hog: csi-a-pwr-hog {
 		gpio-hog;
 		gpios = <72 GPIO_ACTIVE_HIGH>;
 		output-low;
@@ -393,25 +393,25 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		i2c_cam_a: i2c-cam-a@0 {
+		i2c_csi_a: i2c-csi-a@0 {
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_b: i2c-cam-b@1 {
+		i2c_csi_b: i2c-csi-b@1 {
 			reg = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_c: i2c-cam-c@2 {
+		i2c_csi_c: i2c-csi-c@2 {
 			reg = <2>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
-		i2c_cam_d: i2c-cam-d@3 {
+		i2c_csi_d: i2c-csi-d@3 {
 			reg = <3>;
 			#address-cells = <1>;
 			#size-cells = <0>;

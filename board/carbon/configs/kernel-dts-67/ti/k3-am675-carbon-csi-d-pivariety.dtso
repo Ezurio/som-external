@@ -8,26 +8,26 @@
 /dts-v1/;
 /plugin/;
 
-#include "k3-am675-carbon-cam-d.dtsi"
+#include "k3-am675-carbon-csi-d.dtsi"
 
-&reg_cam_d {
+&reg_csi_d {
 	startup-delay-us = <4000000>;
 	regulator-always-on;
 };
 
-&cam_d {
+&camera_d {
 	reg = <0x0c>;
-	compatible = "arducam,arducam-pivariety";
+	compatible = "arducam,arducsi-pivariety";
 
-	VANA-supply = <&reg_cam_d>;
-	VDIG-supply = <&reg_cam_d>;
-	VDDL-supply = <&reg_cam_d>;
+	VANA-supply = <&reg_csi_d>;
+	VDIG-supply = <&reg_csi_d>;
+	VDDL-supply = <&reg_csi_d>;
 
 	reset-gpios = <&main_gpio0 72 GPIO_ACTIVE_HIGH>; /* CAM_D_RST */
 	enable-gpios = <&main_gpio0 5 GPIO_ACTIVE_HIGH>; /* CAM_D_PWR */
 };
 
-&cam_d_ep {
+&camera_d_ep {
 	data-lanes = <1 2 3 4>;
 };
 

@@ -8,15 +8,15 @@
 /dts-v1/;
 /plugin/;
 
-#include "k3-am675-carbon-cam-a.dtsi"
+#include "k3-am675-carbon-csi-a.dtsi"
 
-&cam_a {
+&camera_a {
 	compatible = "ovti,ov5640";
 	reg = <0x3c>;
 
-	DOVDD-supply = <&reg_cam_a>;
-	AVDD-supply = <&reg_cam_a>;
-	DVDD-supply = <&reg_cam_a>;
+	DOVDD-supply = <&reg_csi_a>;
+	AVDD-supply = <&reg_csi_a>;
+	DVDD-supply = <&reg_csi_a>;
 
 	reset-gpios = <&main_gpio0 6 GPIO_ACTIVE_LOW>; /* CAM_A_RST */
 	powerdown-gpios = <&main_gpio0 0 GPIO_ACTIVE_LOW>; /* CAM_A_PWR */
