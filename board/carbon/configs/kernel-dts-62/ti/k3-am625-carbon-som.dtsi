@@ -217,12 +217,12 @@
 		status = "disabled";
 	};
 
-	clk_cam_a_hw: clk-cam-a-hw {
+	clk_csi_a_hw: clk-csi-a-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "clk_cam_a_hw";
+		clock-output-names = "clk_csi_a_hw";
 		pwms = <&ecap2 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
@@ -989,7 +989,7 @@
 		>;
 	};
 
-	main_cam_a_pins_default: main-cam-a-default-pins {
+	main_csi_a_pins_default: main-csi-a-default-pins {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x128, PIN_INPUT, 7) /* CAM_A_PWR (B23) MMC2_SDWP.GPIO0_72 */
 			AM62X_IOPAD(0x074, PIN_INPUT, 7) /* CAM_A_RST# (U25) GPMC0_AD14.GPIO0_29 */

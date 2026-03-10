@@ -2,33 +2,33 @@
 /*
  * Digilent Pcam 5C 5MP OV5640 camera module
  *
- * Copyright (C) 2025 Ezurio LLC
+ * Copyright (C) 2024 Ezurio LLC
  */
 
 #include <dt-bindings/gpio/gpio.h>
 
 &{/} {
 	/* On Camera module oscillator */
-	clk_cam_a_int: clk-cam-a-int {
+	clk_csi_a_int: clk-csi-a-int {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 	};
 };
 
-&i2c_cam_a {
+&i2c_csi_a {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	cam_a: cam-a {
-		clocks = <&clk_cam_a_int>; /* On Camera module */
+	camera_a: camera-a {
+		clocks = <&clk_csi_a_int>; /* On Camera module */
 		clock-names = "xclk";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_cam_a_pins_default>;
+		pinctrl-0 = <&main_csi_a_pins_default>;
 
 		port {
-			cam_a_ep: endpoint {
+			camera_a_ep: endpoint {
 				remote-endpoint = <&csi2rx0_in_sensor>;
 				clock-lanes = <0>;
 				data-lanes = <1 2>;
@@ -41,7 +41,7 @@
 	status = "okay";
 
 	csi2rx0_in_sensor: endpoint {
-		remote-endpoint = <&cam_a_ep>;
+		remote-endpoint = <&camera_a_ep>;
 		bus-type = <4>; /* CSI2 DPHY. */
 		clock-lanes = <0>;
 		data-lanes = <1 2>;
@@ -56,10 +56,10 @@
 	status = "okay";
 };
 
-&cam_a_rst_hog {
+&csi_a_rst_hog {
 	status = "disabled";
 };
 
-&cam_a_pwr_hog {
+&csi_a_pwr_hog {
 	status = "disabled";
 };

@@ -235,43 +235,43 @@
 		status = "disabled";
 	};
 
-	clk_cam_a_hw: clk-cam-a-hw {
+	clk_csi_a_hw: clk-csi-a-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "clk_cam_a_hw";
-		pwms = <&cam_a_pwm 0 42 0>; /* 1 / 42 ns = 24 MHz */
+		clock-output-names = "clk_csi_a_hw";
+		pwms = <&csi_a_pwm 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	clk_cam_b_hw: clk-cam-b-hw {
+	clk_csi_b_hw: clk-csi-b-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "clk_cam_b_hw";
+		clock-output-names = "clk_csi_b_hw";
 		pwms = <&ecap0 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	clk_cam_c_hw: clk-cam-c-hw {
+	clk_csi_c_hw: clk-csi-c-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "clk_cam_c_hw";
+		clock-output-names = "clk_csi_c_hw";
 		pwms = <&pwm4 0 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	clk_cam_d_hw: clk-cam-d-hw {
+	clk_csi_d_hw: clk-csi-d-hw {
 		compatible = "pwm-clock";
 		status = "disabled";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
-		clock-output-names = "clk_cam_d_hw";
+		clock-output-names = "clk_csi_d_hw";
 		pwms = <&epwm1 1 42 0>; /* 1 / 42 ns = 24 MHz */
 	};
 
-	cam_a_pwm: dmtimer-main-pwm-6 { /* CAM_A_MCK */
+	csi_a_pwm: dmtimer-main-pwm-6 { /* CAM_A_MCK */
 		compatible = "ti,omap-dmtimer-pwm";
 		status = "disabled";
 		#pwm-cells = <3>;
@@ -1093,28 +1093,28 @@
 		>;
 	};
 
-	main_cam_a_pins_default: main-cam-a-default-pins {
+	main_csi_a_pins_default: main-csi-a-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x000, PIN_INPUT, 7) /* CAM_A_PWR (L24) OSPI0_CLK.GPIO0_0 */
 			J722S_IOPAD(0x018, PIN_INPUT, 7) /* CAM_A_RST (L25) OSPI0_D3.GPIO0_6 */
 		>;
 	};
 
-	main_cam_b_pins_default: main-cam-b-default-pins {
+	main_csi_b_pins_default: main-csi-b-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x02c, PIN_INPUT, 7) /* CAM_B_PWR (K26) OSPI0_CSN0.GPIO0_11 */
 			J722S_IOPAD(0x030, PIN_INPUT, 7) /* CAM_B_RST (K23) OSPI0_CSN1.GPIO0_12 */
 		>;
 	};
 
-	main_cam_c_pins_default: main-cam-c-default-pins {
+	main_csi_c_pins_default: main-csi-c-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x00c, PIN_INPUT, 7) /* CAM_C_PWR (K27) OSPI0_D0.GPIO0_3 */
 			J722S_IOPAD(0x010, PIN_INPUT, 7) /* CAM_C_RST (L27) OSPI0_D1.GPIO0_4 */
 		>;
 	};
 
-	main_cam_d_pins_default: main-cam-d-default-pins {
+	main_csi_d_pins_default: main-csi-d-default-pins {
 		pinctrl-single,pins = <
 			J722S_IOPAD(0x014, PIN_INPUT, 7) /* CAM_D_PWR (L26) OSPI0_D2.GPIO0_5 */
 			J722S_IOPAD(0x128, PIN_INPUT, 7) /* CAM_D_RST (H21) MMC2_SDWP.GPIO0_72 */

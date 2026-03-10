@@ -9,26 +9,26 @@
 
 &{/} {
 	/* On Camera module oscillator */
-	clk_cam_d_int: clk-cam-d-int {
+	clk_csi_d_int: clk-csi-d-int {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <24000000>;
 	};
 };
 
-&i2c_cam_d {
+&i2c_csi_d {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	cam_d: cam-d {
-		clocks = <&clk_cam_d_int>; /* On Camera module */
+	camera_d: camera-d {
+		clocks = <&clk_csi_d_int>; /* On Camera module */
 		clock-names = "xclk";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_cam_d_pins_default>;
+		pinctrl-0 = <&main_csi_d_pins_default>;
 
 		port {
-			cam_d_ep: endpoint {
+			camera_d_ep: endpoint {
 				remote-endpoint = <&csi2rx3_in_sensor>;
 				clock-lanes = <0>;
 				data-lanes = <1 2>;
@@ -41,7 +41,7 @@
 	status = "okay";
 
 	csi2rx3_in_sensor: endpoint {
-		remote-endpoint = <&cam_d_ep>;
+		remote-endpoint = <&camera_d_ep>;
 		bus-type = <4>; /* CSI2 DPHY. */
 		clock-lanes = <0>;
 		data-lanes = <1 2>;
@@ -56,10 +56,10 @@
 	status = "okay";
 };
 
-&cam_d_rst_hog {
+&csi_d_rst_hog {
 	status = "disabled";
 };
 
-&cam_d_pwr_hog {
+&csi_d_pwr_hog {
 	status = "disabled";
 };
