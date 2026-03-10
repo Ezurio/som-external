@@ -41,7 +41,8 @@ case "${BUILD_TYPE}" in
         else
             # If not a secure target build, encrypt the prov_data.tar.zst using SMEK and inject the SMEK
             # and IV into the summit-prov.sh script using sed (for decryption during provisioning)
-            KEY=$(xxd -p -c 0 "${smek_path}")
+            KEY_SIZE=$(stat -c%s "${smek_path}")
+            KEY=$(xxd -p -c "${KEY_SIZE}" "${smek_path}")
             IV=$(openssl rand -hex 16)
             openssl enc -aes-256-cbc -in "${BINARIES_DIR}/prov_data.tar.zst" -out "${BINARIES_DIR}/prov_data.tar.zst_sign_enc.bin" -K "${KEY}" -iv "${IV}"
 
