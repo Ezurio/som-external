@@ -23,6 +23,6 @@ software =
 					sha256 = "$swupdate_get_sha256(u-boot.bin)";
 				}
 			);
-		}
-	}
-}
+		};
+	};
+};

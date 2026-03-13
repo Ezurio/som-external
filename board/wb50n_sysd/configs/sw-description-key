@@ -39,7 +39,7 @@ software =
 						installed-directly = true;
 						name = "rootfs";
 						sha256 = "$swupdate_get_sha256(rootfs.bin)";
-					},
+					}
 				);
 			};
 				
@@ -75,7 +75,7 @@ software =
 						installed-directly = true;
 						name = "rootfs";
 						sha256 = "$swupdate_get_sha256(rootfs.bin)";
-					},
+					}
 				);
 			};
 		};
@@ -136,7 +136,7 @@ software =
 					installed-directly = true;
 					name = "rootfs";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -188,7 +188,7 @@ software =
 					installed-directly = true;
 					name = "rootfs";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -240,7 +240,7 @@ software =
 					installed-directly = true;
 					name = "rootfs";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -271,7 +271,7 @@ software =
 					data = "static";
 					properties: {
 						skip-check = "true";
-					}
+					};
 				},
 				{
 					name = "rootfs_a";
@@ -281,7 +281,7 @@ software =
 					data = "static";
 					properties: {
 						skip-check = "true";
-					}
+					};
 				},
 				{
 					name = "rootfs_data_a";
@@ -297,7 +297,7 @@ software =
 					data = "static";
 					properties: {
 						skip-check = "true";
-					}
+					};
 				},
 				{
 					name = "rootfs_b";
@@ -307,7 +307,7 @@ software =
 					data = "static";
 					properties: {
 						skip-check = "true";
-					}
+					};
 				},
 				{
 					name = "rootfs_data_b";

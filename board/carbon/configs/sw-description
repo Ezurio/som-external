@@ -65,7 +65,7 @@ software =
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			files: (
@@ -84,7 +84,7 @@ software =
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -161,7 +161,7 @@ software =
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			files: (
@@ -180,7 +180,7 @@ software =
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -257,7 +257,7 @@ software =
 					properties: {
 						fstype = "ext4";
 						force = "true";
-					}
+					};
 				}
 			);
 
@@ -327,7 +327,7 @@ software =
 					device = "/dev/mmcblk0p5";
 					type = "raw";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
+				}
 			);
 
 			files: (
@@ -358,7 +358,7 @@ software =
 					device = "/dev/mmcblk0p4";
 					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
-				},
+				}
 			);
 
 			scripts: (
@@ -367,6 +367,6 @@ software =
 					device = "/dev/mmcblk0boot0";
 				}
 			);
-		}
-	}
-}
+		};
+	};
+};
