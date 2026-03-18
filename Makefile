@@ -1,6 +1,6 @@
 TARGETS_meta-som = \
 	wb50n_sysd wb50nsd_sysd wb50n_sysd_fips_11 \
-	som60 som60sd som60sd_sdcsdk_nm \
+	som60 som60_dev som60sd som60sd_sdcsdk_nm \
 	som60_fips_11 som60sd_fips_11 \
 	ig60ll ig60llsd \
 	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x \
