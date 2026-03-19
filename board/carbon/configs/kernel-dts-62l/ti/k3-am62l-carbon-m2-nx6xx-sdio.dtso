@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO NX6xx module
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-am62l-carbon-m2-sdio.dtsi"
+
+&reg_wifi_en_m2 {
+	startup-delay-us = <20000>;
+};
+
+&main_uart2 {
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+	};
+};
+
+&wifi_wakeup_m2 {
+	status = "okay";
+};
+
+&exp2 {
+	wakeup-source;
+};

@@ -4,6 +4,7 @@ TARGETS_meta-som = \
 	som60_fips_11 som60sd_fips_11 \
 	ig60ll ig60llsd \
 	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x \
+	carbon_am62lx carbon_am62lx_emmc \
 	summitsom_imx8mp summitsom_secure_imx8mp \
 	nitrogen_imx91 nitrogen_imx93 nitrogen_imx95 \
 	nitrogen_imx8mm_1g nitrogen_imx8mm_2g nitrogen_imx8mm_4g \

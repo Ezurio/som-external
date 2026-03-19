@@ -13,6 +13,9 @@ flash_scrub()
 		sama5d3*)
 			main_flash=/sys/devices/platform/ahb/10000000.ebi/10000000.ebi:nand-controller/mtd
 			;;
+		AM62LX)
+			main_flash=/sys/devices/platform/bus@f0000/3b000000.memory-controller/51000000.nand/mtd
+			;;
 		*)
 			return 1
 			;;

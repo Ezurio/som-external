@@ -422,6 +422,10 @@ case "${BUILD_TYPE}" in
 	am6*)
 		emmc_common_params
 
+		if grep -qF "BR2_PACKAGE_MTD=y" "${BR2_CONFIG}"; then
+			create_fw_env_flash
+		fi
+
 		export UBOOT_LOADADDRESS=0x82000000
 		export UBOOT_ENTRYPOINT=0x82000000
 		export UBOOT_DTB_LOADADDRESS=0x88000000

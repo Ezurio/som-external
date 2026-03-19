@@ -1,0 +1,133 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * DSI A to DSI Expansion Board with BD070LIC3 display for Carbon AM62l
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pwm/pwm.h>
+#include "k3-pinctrl.h"
+
+#include "k3-am62l-carbon-bd-panel.dtsi"
+
+&{/} {
+	backlight_dsi_a: backlight-dsi-a {
+		compatible = "pwm-backlight";
+
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		default-brightness-level = <8>;
+		pwms = <&epwm1 0 30000 0>; /* 33.3 kHz */
+
+		enable-gpios = <&exp0 15 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_dsi_a: regulator-dsi-a {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_dsi_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3_carrier>;
+
+		gpios = <&exp0 14 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <20000>;
+	};
+
+	display_dsi_a: display-dsi-a {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		power-supply = <&reg_dsi_a>;
+		backlight = <&backlight_dsi_a>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			lcd_a_in: endpoint {
+				remote-endpoint = <&sn65dsi84_out>;
+			};
+		};
+	};
+};
+
+&epwm1 {
+	status = "okay";
+};
+
+&dss {
+	status = "okay";
+};
+
+&dphy_tx0 {
+	status = "okay";
+};
+
+&dsi0_out {
+	remote-endpoint = <&sn65dsi84_in>;
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	dsi0_sn65dsi84: bridge@2c {
+		compatible = "ti,sn65dsi84";
+		reg = <0x2c>;
+		vcc-supply = <&reg_dsi_a>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				sn65dsi84_in: endpoint {
+					remote-endpoint = <&dsi0_out>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				sn65dsi84_out: endpoint {
+					remote-endpoint = <&lcd_a_in>;
+				};
+			};
+		};
+	};
+
+	touchscreen_dsi_a: touchscreen-dsi-a@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&reg_dsi_a>;
+		VDDIO-supply = <&reg_dsi_a>;
+
+		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&exp2 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};

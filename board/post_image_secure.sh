@@ -115,11 +115,14 @@ esac
 if ${SECURE_BOOT} ; then
     if [ -n "${AWS_KMS_SIGNING}" ] ; then
         cp "${AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH}" "keys/dev_pkcs11.pub"
+        #shellcheck disable=SC2086
         ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -g "dev_pkcs11" -r kernel.itb
     else
+        #shellcheck disable=SC2086
         ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
     fi
 else
+    #shellcheck disable=SC2086
     ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its kernel.itb
 fi
 
@@ -178,9 +181,11 @@ som60*|ig60*|wb50n*)
         fi
 
         # Create U-Boot FIT image (encrypted), and store key, IV and signature in SPL
+        #shellcheck disable=SC2086
         ${mkimage} -E ${MKIMAGE_OPT} -f u-boot.its -F -K u-boot-spl.dtb -k keys -r u-boot.itb
     else
         # Create U-Boot FIT image (unencrypted)
+        #shellcheck disable=SC2086
         ${mkimage} -E ${MKIMAGE_OPT} -f u-boot.its u-boot.itb
     fi
 

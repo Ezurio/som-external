@@ -1,0 +1,400 @@
+software =
+{
+	version = "0.1.0";
+	bootloader_transaction_marker = false;
+	bootloader_state_marker = false;
+
+	stable = {
+		main-a: {
+			images: (
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "a";
+				}
+			);
+		};
+
+		main-b: {
+			images: (
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_b";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "b";
+				}
+			);
+		};
+
+		full-a: {
+			images: (
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3.backup";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl.backup";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot.backup";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "a";
+				}
+			);
+		};
+
+		full-b: {
+			images: (
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3.backup";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl.backup";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot.backup";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					installed-directly = true;
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_b";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				}
+			);
+
+			bootenv: (
+				{
+					name = "bootside";
+					value = "b";
+				}
+			);
+		};
+
+		complete: {
+			/* partitions tag is used to resize UBI partitions */
+			partitions: (
+				{
+					name = "kernel_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 50331648; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					};
+				},
+				{
+					name = "rootfs_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 268435456; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					};
+				},
+				{
+					name = "rootfs_data_a";
+					device = "ubi";
+					type = "ubipartition";
+					size = 50331648; /* in bytes */
+				},
+				{
+					name = "kernel_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 50331648; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					};
+				},
+				{
+					name = "rootfs_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 268435456; /* in bytes */
+					data = "static";
+					properties: {
+						skip-check = "true";
+					};
+				},
+				{
+					name = "rootfs_data_b";
+					device = "ubi";
+					type = "ubipartition";
+					size = 50331648; /* in bytes */
+				},
+				{
+					name = "perm";
+					device = "ubi";
+					type = "ubipartition";
+					size = 283115520; /* in bytes */
+				}
+			);
+
+			images: (
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tiboot3.bin";
+					mtdname = "tiboot3.backup";
+					type = "flash";
+					name = "tiboot3";
+					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "tispl.bin";
+					mtdname = "tispl.backup";
+					type = "flash";
+					name = "tispl";
+					sha256 = "$swupdate_get_sha256(tispl.bin)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "u-boot.img";
+					mtdname = "u-boot.backup";
+					type = "flash";
+					name = "u-boot";
+					sha256 = "$swupdate_get_sha256(u-boot.img)";
+				},
+				{
+					filename = "uboot.env";
+					mtdname = "u-boot-env-a";
+					type = "flash";
+					name = "u-boot-env";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "uboot.env";
+					mtdname = "u-boot-env-b";
+					type = "flash";
+					name = "u-boot-env";
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_a";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "kernel.itb";
+					volume = "kernel_b";
+					type = "ubivol";
+					name = "kernel";
+					sha256 = "$swupdate_get_sha256(kernel.itb)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_a";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				},
+				{
+					filename = "rootfs.bin";
+					volume = "rootfs_b";
+					type = "ubivol";
+					name = "rootfs";
+					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a rootfs_data_b perm";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+				}
+			);
+		};
+	};
+};

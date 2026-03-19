@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2026 Ezurio LLC
+ *
+ */
+
+#include "k3-am62l-carbon-dvk.dts"
+
+&mmc0_pwrseq {
+	status = "okay";
+};
+
+&reg_mmc0 {
+	status = "okay";
+	regulator-always-on;
+};
+
+&sdhci0 { /* SDIO_B eMMC */
+	status = "okay";  
+};
+
+&elm0 {
+	status = "disabled";
+};
+
+&gpmc0 {
+	status = "disabled";
+};

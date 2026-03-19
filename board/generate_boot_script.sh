@@ -30,43 +30,43 @@ EOF
 
 print_common() {
     cat << EOF
+if test "\${boot_src}" = "nand" -o -z "\${boot_src}"; then
+    boot_dev="/dev/ubiblock0_\${bootvol}"
+    UBI_ARGS="ubi.fm_autoconvert=1 ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol}"
+else
+    boot_dev="/dev/mmcblk\${mmcdev}p\${rootvol}"
+    UBI_ARGS="ubi.fm_autoconvert=1"
+fi
 setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
-init=/usr/sbin/pre-systemd-init.sh ${INITTYPE}
+init=/usr/sbin/pre-systemd-init.sh ${INITTYPE} \${UBI_ARGS}
 fips=\${fips:=0} fips_wifi=\${fips_wifi:=0} ${2}
 ${LOG_LEVEL} ${KERNEL_EXTRA_CMDS}"
 EOF
 }
 
-print_common_60() {
-    print_common "${1}" "ubi.fm_autoconvert=1 ${2}"
-}
-
 case ${BUILD_TYPE} in
     som60|ig60|ig60ll|wb50n)
-        echo "boot_dev=/dev/ubiblock0_\${bootvol}"
+        echo "boot_src=nand"
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_60 "/dev/dm-0" \
-            "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} ${DM}"
+            print_common "/dev/dm-0" "${DM}"
         else
-            print_common_60 "\${boot_dev}" \
-            "ubi.mtd=ubi,0,0,0${MTD_SUFFIX} ubi.block=0,\${bootvol} \${bootargs}"
+            print_common "\${boot_dev}" "\${bootargs}"
         fi
         ;;
 
     som60sd|ig60llsd|wb50nsd)
-        echo 'boot_dev=/dev/mmcblk0p5'
+        echo 'boot_src=sd;mmcdev=0;rootvol=5'
         if ${SECURE_BOOT}; then
             print_verity
-            print_common_60 "/dev/dm-0" "${DM}"
+            print_common "/dev/dm-0" "${DM}"
         else
-            print_common_60 "\${boot_dev}" \
+            print_common "\${boot_dev}" \
             "resume=/dev/mmcblk0p2 resumewait=5 \${bootargs}"
         fi
         ;;
 
     am6*|imx*)
-        echo "boot_dev=/dev/mmcblk\${mmcdev}p\${rootvol}"
         if ${SECURE_BOOT}; then
             print_verity
             print_common "/dev/dm-0" "${DM}"

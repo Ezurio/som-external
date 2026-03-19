@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * DSI A to DSI Expansion Board with BD101LCC3 display for Carbon AM67x
+ *
+ * Copyright (C) 2025 Ezurio LLC
+ */
+
+#include "k3-am62l-carbon-dsi-a-7.dtso"
+
+&backlight_dsi_a {
+	pwms = <&epwm1 0 100000 0>;
+};
+
+&display_dsi_a {
+	width-mm = <217>;
+	height-mm = <136>;
+};
+
+&touchscreen_dsi_a {
+	compatible = "goodix,gt9271";
+};
