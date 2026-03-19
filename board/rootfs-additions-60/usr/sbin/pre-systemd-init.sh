@@ -77,6 +77,7 @@ fi
 
 mount --bind ${PERM_MOUNT}/etc/machine-id /etc/machine-id
 
-mkdir -p ${PERM_MOUNT}/log/journal
+[ ! -e /lib/systemd/systemd ] ||
+	mkdir -p ${PERM_MOUNT}/log/journal
 
 exec /usr/sbin/init
