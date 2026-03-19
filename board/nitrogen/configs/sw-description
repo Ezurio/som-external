@@ -165,7 +165,7 @@ software =
 						partition-4 = ["size=64M",  "name=kernel_b",      "type=BC13C2FF-59E6-4262-A352-B275FD6F7172"];
 						partition-5 = ["size=512M", "name=rootfs_b",      "type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE"];
 						partition-6 = ["size=256M", "name=rootfs_data_b", "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
-						partition-7 = ["size=6G",   "name=perm",          "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
+						partition-7 = ["size=5G",   "name=perm",          "type=0FC63DAF-8483-4772-8E79-3D69D8477DE4"];
 					};
 				},
 				{
