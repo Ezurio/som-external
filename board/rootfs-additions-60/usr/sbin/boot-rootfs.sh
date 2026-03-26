@@ -180,11 +180,11 @@ getBaseHwPartNumber() {
 	sama5d36*)
 		# SOM60
 		if [ "${ram_size}" -le 128 ]; then
-			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
+			[ -f /sys/bus/i2c/devices/0-0050/eeprom ] &&
 			echo "${SOM60v2x1_BASE_HW_PART_NUMBER}" ||
 			echo "${SOM60x1_BASE_HW_PART_NUMBER}"
 		elif [ "${ram_size}" -le 256 ]; then
-			[ -f /sys/bus/nvmem/devices/0-00500/nvmem ] &&
+			[ -f /sys/bus/i2c/devices/0-0050/eeprom ] &&
 			echo "${SOM60v2x2_BASE_HW_PART_NUMBER}" ||
 			echo "${SOM60x2_BASE_HW_PART_NUMBER}"
 		else
