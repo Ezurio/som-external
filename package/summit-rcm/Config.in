@@ -114,6 +114,29 @@ config BR2_PACKAGE_SUMMIT_RCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
 	help
 		Disable verification of a client certificate's expiry during mutual authentication
 
+config BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_PAIRING
+	bool "Enable client certificate pairing"
+	depends on BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN
+	help
+		Enable client certificate pairing support. When enabled, the device
+		accepts a client certificate upload in the PARTIALLY_PROVISIONED state
+		and rebuilds the TLS trust store dynamically.
+
+config BR2_PACKAGE_SUMMIT_RCM_PAIRED_CLIENT_CERT_PATH
+	string "Paired client certificate path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_PAIRING
+	default ""
+	help
+		Filesystem path where the uploaded paired client certificate is saved
+
+config BR2_PACKAGE_SUMMIT_RCM_RODATA_CA_CERT_PATH
+	string "Read-only CA certificate path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_PAIRING
+	default ""
+	help
+		Path to the immutable CA certificate in rodata used as the trust
+		anchor when rebuilding the TLS trust store
+
 config BR2_PACKAGE_SUMMIT_RCM_REST_API_DOCS
 	bool "Live REST API docs"
 	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
