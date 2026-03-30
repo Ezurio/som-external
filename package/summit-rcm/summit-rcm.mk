@@ -98,6 +98,16 @@ define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(SED) '/\[summit-rcm\]/a disable_certificate_expiry_verification: \
 		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
 
+	$(SED) '/^enable_client_pairing/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a enable_client_pairing: \
+		$(if $(findstring y,$(BR2_PACKAGE_SUMMIT_RCM_ENABLE_CLIENT_PAIRING)),True,False)' $(TARGET_DIR)/etc/summit-rcm.ini
+
+	$(SED) '/^paired_client_cert_path/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a paired_client_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_PAIRED_CLIENT_CERT_PATH)' $(TARGET_DIR)/etc/summit-rcm.ini
+
+	$(SED) '/^rodata_ca_cert_path/d' $(TARGET_DIR)/etc/summit-rcm.ini
+	$(SED) '/\[summit-rcm\]/a rodata_ca_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_RODATA_CA_CERT_PATH)' $(TARGET_DIR)/etc/summit-rcm.ini
+
 	$(SED) '/\[summit-rcm\]/a serial_port: \"$(SUMMIT_RCM_SERIAL_PORT)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_BAUD_RATE)' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a socket_port: $(BR2_PACKAGE_SUMMIT_RCM_HTTPS_PORT)' $(TARGET_DIR)/etc/summit-rcm.ini
