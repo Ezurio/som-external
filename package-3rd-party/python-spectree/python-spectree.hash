@@ -1,4 +1,4 @@
 # sha256 from https://pypi.org/pypi/spectree/json
-sha256  9e72585d960cd83ac75542df4d2a4674b4be6fc95fbb49cff1047bdcecf4e98f  spectree-1.4.5.tar.gz
+sha256  280dd6beb10a9c5f023254650d3d8f4494077d556f7de92c1fbebd1203efe39c  spectree-2.0.1.tar.gz
 # Locally computed sha256 checksums
 sha256  d6b71c237264d8cfd9d6514b545bd1d4b7d3628fa7529d45db883d0419eb1c9b  LICENSE

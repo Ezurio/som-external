@@ -1,4 +1,4 @@
 # sha256 from https://pypi.org/pypi/transitions/json
-sha256  2f8490dbdbd419366cef1516032ab06d07ccb5839ef54905e842a472692d4204  transitions-0.9.2.tar.gz
+sha256  881fb75bb1654ed55d86060bb067f2c716f8e155f57bb73fd444e53713aafec8  transitions-0.9.3.tar.gz
 # Locally computed sha256 checksums
 sha256  fd7115fc5517d1d2d042a80a33d92033532236830a9c25866112299fe33c036b  LICENSE

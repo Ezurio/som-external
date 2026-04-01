@@ -55,7 +55,7 @@ sed -i "s,XXXX,${size}," "${FWUSI}"
 
 echo "creating installer"
 tar -cvzf "${FWUSI}.tar.gz" -C "${TARGET_DIR:-rootfs-additions-common}" \
-	usr/sbin/fw_update usr/sbin/fw_select
+	usr/bin/fw_update usr/bin/fw_select
 
 cat "${FWUSI}.tar.gz" >> "${FWUSI}"
 rm "${FWUSI}.tar.gz"

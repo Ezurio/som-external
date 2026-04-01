@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FBIDA_VERSION = 3db896c0f3d60372cbd20467a4debb5a3620ad20
+FBIDA_VERSION = a0d75fbab3ea01bf5b36f813f0ec0d1bfa2db745
 FBIDA_SITE = $(call github,kraxel,fbida,$(FBIDA_VERSION))
 FBIDA_LICENSE = GPL-2.0
 FBIDA_LICENSE_FILES = COPYING
