@@ -132,7 +132,6 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-kms-pkcs11/Config.in
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-sdk-cpp/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fbida/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/lt9611uxd/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/mesa-pvr/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/minehunt/Config.in"
