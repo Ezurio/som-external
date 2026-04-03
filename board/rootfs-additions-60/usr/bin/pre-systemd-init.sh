@@ -75,9 +75,9 @@ if [ ! -f "${PERM_MOUNT}/etc/machine-id" ]; then
 	/usr/bin/hexdump -n 16 -e '1/1 "%02x"' /dev/urandom > "${PERM_MOUNT}/etc/machine-id"
 fi
 
-mount --bind ${PERM_MOUNT}/etc/machine-id /etc/machine-id
+/usr/bin/mount --bind "${PERM_MOUNT}/etc/machine-id" /etc/machine-id
 
 [ ! -e /lib/systemd/systemd ] ||
-	mkdir -p ${PERM_MOUNT}/log/journal
+	mkdir -p "${PERM_MOUNT}/log/journal"
 
 exec /usr/sbin/init
