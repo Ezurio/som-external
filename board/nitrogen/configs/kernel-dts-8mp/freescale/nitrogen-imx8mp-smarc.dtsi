@@ -107,7 +107,7 @@
 
 		clocks = <&clk IMX8MP_CLK_CLKOUT1>;
 
-		startup-delay-us = <1000>;
+		startup-delay-us = <10000>;
 	};
 
 	reg_wifi_en: regulator-wifi-en {

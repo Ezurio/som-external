@@ -28,4 +28,7 @@
 
 &mipi_csi0_in_ep {
 	data-lanes = <4>;
+	csis-hs-settle = <30>;
+	csis-clk-settle = <2>;
+	csis-wclk;
 };
