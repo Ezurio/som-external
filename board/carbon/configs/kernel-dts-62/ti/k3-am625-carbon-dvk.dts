@@ -182,8 +182,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_id_pins_default>;
-		id-gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
-		//id-gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
+		id-gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
 
 		vbus-supply = <&reg_usb0_vbus>;
 
