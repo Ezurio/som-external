@@ -17,7 +17,7 @@
 
 &camera_c {
 	reg = <0x0c>;
-	compatible = "arducam,arducsi-pivariety";
+	compatible = "arducam,arducam-pivariety";
 
 	VANA-supply = <&reg_csi_c>;
 	VDIG-supply = <&reg_csi_c>;
