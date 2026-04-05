@@ -207,7 +207,7 @@ new file mode 100644
 index 00000000000..bd48b19683e
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,229 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -219,6 +219,10 @@ index 00000000000..bd48b19683e
 +	aliases {
 +		mmc0 = &sdhci0;
 +		mmc1 = &sdhci1;
++	};
++
++	config {
++		u-boot,mmc-env-offset = <0x380000>;
 +	};
 +};
 +
