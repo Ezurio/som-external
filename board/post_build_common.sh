@@ -303,7 +303,7 @@ ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VE
 ENV_OFFSET=$(sed -rn 's,^CONFIG_ENV_OFFSET=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 TEXT_BASE=$(sed -rn 's,^CONFIG_TEXT_BASE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 
-ENV_OFFSET_EMMC=$(fdtget "${BUILD_DIR}/uboot-${UBOOT_VER}/u-boot.dtb" /config u-boot,mmc-env-offset)
+ENV_OFFSET_EMMC=$(fdtget "${BUILD_DIR}/uboot-${UBOOT_VER}/u-boot.dtb" /config u-boot,mmc-env-offset 2>/dev/null || true)
 if [ -n "${ENV_OFFSET_EMMC}" ] ; then
 	ENV_OFFSET_EMMC=$(printf '0x%x' "${ENV_OFFSET_EMMC}")
 else
