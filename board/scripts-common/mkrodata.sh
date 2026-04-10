@@ -4,13 +4,10 @@
 #
 # usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>
 #
-# This script must be run as root!
-#
 # The optional customer data should be a directory containing anything a customer may require in rodata.
 # This provides a way to copy in data living in a custom br2-external.
 
 [ $# -lt 6 ] && echo "usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
-[ "$(id -u)" -ne 0 ] && echo "Please run as root" && exit 1
 
 WORKING_DIR="${1:-.}"
 KEY_BIN="${2}"
@@ -39,15 +36,6 @@ die() {
   echo "${1}" >&2; exit 1
 }
 
-die_with_cleanup() {
-  echo "${1}" >&2
-  /usr/sbin/dmsetup remove rodata_enc
-  rm -f "${RODATA_IMG}" "${RODATA_SQUASHFS}"
-  losetup -d "${LOOP_DEVICE}" || true
-  rm -rf "${RODATA_MNT_DIR}"
-  exit 1
-}
-
 #
 # Extracts all certificates from the input cert/bundle and returns fingerprints and validity period
 #
@@ -67,9 +55,18 @@ cert_info() {
   rm -f "${WORKING_DIR}"/tmpcert_*
 }
 
-if [ ! -f "${KEY_BIN}" ] && [ -z "${KEY_BIN}" ] ; then
+if [ -z "${KEY_BIN}" ] ; then
   die "Missing encryption key"
 fi
+# Select how to pass the key to dmcrypt_image:
+# - existing file  → pass as raw binary with -K (no conversion needed)
+# - literal string → convert to hex inline with --key-hex (no temp file)
+if [ -f "${KEY_BIN}" ] ; then
+  KEY_ARG="-K ${KEY_BIN}"
+else
+  KEY_ARG="--key-hex $(printf '%s' "${KEY_BIN}" | xxd -p | tr -d '\n')"
+fi
+
 [ -f "${UPDATE_PUB_CERT}" ] || die "Missing update public key"
 [ -f "${REST_SERVER_CERT}" ] || die "Missing REST server certificate"
 [ -f "${REST_SERVER_PRIV_KEY}" ] || die "Missing REST server private key"
@@ -125,35 +122,13 @@ mksquashfs "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}" || die_with_cleanup "Failed 
 #
 # Create a block image for the read-only data
 #
-RODATA_SIZE=$(stat -c %b "${RODATA_SQUASHFS}")
-RODATA_SIZE=$(((RODATA_SIZE + 1) * 512)) # Round up to the next 512-byte block and convert to bytes
-fallocate -l "${RODATA_SIZE}" "${RODATA_IMG}" || die_with_cleanup "Creation of block image failed"
-LOOP_DEVICE=$(losetup -f) || die_with_cleanup "Failed to find free loop device"
-losetup "${LOOP_DEVICE}" "${RODATA_IMG}" || die_with_cleanup "Failed to associate loop device with image"
-sync
+# shellcheck disable=SC2086
+dmcrypt_image \
+  --input  "${RODATA_SQUASHFS}" \
+  --output "${RODATA_IMG}"      \
+  ${KEY_ARG}                    \
+  || die "Failed to create encrypted image"
 
-#
-# Setup dm-crypt
-#
-if [ -f "${KEY_BIN}" ] ; then
-  KEY_ASCII_HEX=$(xxd -p < "${KEY_BIN}" | tr -d '\n')
-else
-  KEY_ASCII_HEX=$(echo "${KEY_BIN}" | xxd -p | tr -d '\n')
-fi
-/usr/sbin/dmsetup create rodata_enc --table "0 $((RODATA_SIZE / 512)) crypt aes-xts-plain64 ${KEY_ASCII_HEX} 0 ${LOOP_DEVICE} 0 1 sector_size:512" || die_with_cleanup "Failed to create dm-crypt device"
-
-#
-# dd the SquashFS image to the dm-crypt device
-#
-dd if="${RODATA_SQUASHFS}" of=/dev/mapper/rodata_enc bs=512 conv=fsync || die_with_cleanup "Failed to dd SquashFS image to dm-crypt device"
-
-#
-# Clean up
-#
-sync
-/usr/sbin/dmsetup remove rodata_enc || die_with_cleanup "Failed to remove dm-crypt device"
-rm -f "${RODATA_SQUASHFS}" || die_with_cleanup "Failed to remove SquashFS image"
-losetup -d "${LOOP_DEVICE}" || die_with_cleanup "Failed to detach loop device"
-rm -rf "${RODATA_MNT_DIR}" || die_with_cleanup "Failed to clean up mount directory"
+rm -rf "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}"
 
 echo "Successfully created factory data in ${RODATA_IMG}"
