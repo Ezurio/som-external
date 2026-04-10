@@ -56,6 +56,9 @@ generate_custom_encrypted_filesystem() {
 
     [ -f "${RODATA_DIR}/rodata_manifest.txt" ] || \
         die "Failed to generate encrypted filesystem manifest"
+
+    mv -f "${RODATA_DIR}/rodata_manifest.txt" \
+        "${BINARIES_DIR}/rodata_manifest.txt"
 }
 
 write_encrypted_filesystem_key() {
