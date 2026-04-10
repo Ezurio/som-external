@@ -1,0 +1,14 @@
+config BR2_PACKAGE_SUMMIT_DMCRYPT_IMAGE
+	bool "summit-dmcrypt-image"
+	select BR2_PACKAGE_OPENSSL
+	help
+	  Offline dm-crypt image creation tool (C, links against libcrypto).
+	  Encrypts a binary image using AES-XTS-plain64 (or AES-CBC-ESSIV)
+	  without requiring losetup, dmsetup, or root access.
+
+config BR2_PACKAGE_HOST_SUMMIT_DMCRYPT_IMAGE
+	bool "host summit-dmcrypt-image"
+	help
+	  Offline dm-crypt image creation tool (C, host variant).
+	  Encrypts a binary image using AES-XTS-plain64 (or AES-CBC-ESSIV)
+	  without requiring losetup, dmsetup, or root access.
