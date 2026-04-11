@@ -44,9 +44,11 @@ PROVISIONING_DATA_DIR="/data/prov"
 DECRYPT_KEY=""
 DECRYPT_IV=""
 
+# shellcheck disable=SC2329
 exit_on_error() {
     rm -rf "${WORKDIR_TMP}"
 }
+
 trap exit_on_error EXIT
 
 import_cert() {
@@ -135,13 +137,13 @@ if [ -n "${DECRYPT_KEY}" ]; then
     use_ti_sci=0
 
     # Import decryption key to kernel keyring
-    echo -n "${DECRYPT_KEY}" | keyctl padd -x user summit_prov_decrypt_key @s > /dev/null || {
+    printf "%s" "${DECRYPT_KEY}" | keyctl padd -x user summit_prov_decrypt_key @s > /dev/null || {
         echo "Failed to add decryption key to kernel keyring!"
         exit 1
     }
 
     # Import decryption IV to kernel keyring
-    echo -n "${DECRYPT_IV}" | keyctl padd -x user summit_prov_decrypt_iv @s > /dev/null || {
+    printf "%s" "${DECRYPT_IV}" | keyctl padd -x user summit_prov_decrypt_iv @s > /dev/null || {
         echo "Failed to add decryption IV to kernel keyring!"
         exit 1
     }
