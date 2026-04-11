@@ -9,8 +9,8 @@ PartOf=etc-fw_env.config.mount
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/gen_fw_env.sh start
-ExecStop=/usr/sbin/gen_fw_env.sh stop
+ExecStart=/usr/bin/gen_fw_env.sh start
+ExecStop=/usr/bin/gen_fw_env.sh stop
 
 [Install]
 WantedBy=local-fs-pre.target

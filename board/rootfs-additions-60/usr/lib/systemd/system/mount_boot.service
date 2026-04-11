@@ -9,8 +9,8 @@ PartOf=boot.mount
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/mount_boot.sh start
-ExecStop=/usr/sbin/mount_boot.sh stop
+ExecStart=/usr/bin/mount_boot.sh start
+ExecStop=/usr/bin/mount_boot.sh stop
 CapabilityBoundingSet=CAP_SYS_ADMIN
 
 [Install]

@@ -50,7 +50,7 @@ case "${BUILD_TYPE}" in
             sed -i -r \
                 -e "s/^(DECRYPT_KEY=).*/\1\"${KEY}\"/" \
                 -e "s/^(DECRYPT_IV=).*/\1\"${IV}\"/" \
-                "${TARGET_DIR}/usr/sbin/summit-prov.sh"
+                "${TARGET_DIR}/usr/bin/summit-prov.sh"
         fi
         shred -zn 0 "${BINARIES_DIR}/prov_data.tar.zst"
 

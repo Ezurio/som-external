@@ -9,6 +9,6 @@ PartOf=data.mount
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/mount_data.sh start
-ExecStop=/usr/sbin/mount_data.sh stop
+ExecStart=/usr/bin/mount_data.sh start
+ExecStop=/usr/bin/mount_data.sh stop
 KeyringMode=inherit

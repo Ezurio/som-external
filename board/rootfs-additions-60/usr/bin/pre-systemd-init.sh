@@ -18,7 +18,7 @@ die() {
 }
 
 # shellcheck source=/dev/null
-. /usr/sbin/boot-rootfs.sh || die
+. /usr/bin/boot-rootfs.sh || die
 
 if [ "${1}" != "restart" ]; then
 	mount /run 2> /dev/null || mount -t tmpfs tmpfs /run -o mode=0755,nodev,nosuid
@@ -40,18 +40,18 @@ if [ "${1}" != "restart" ]; then
 		esac
 	fi
 
-	if ${overlay} && [ -x /usr/sbin/init-overlay.sh ]; then
+	if ${overlay} && [ -x /usr/bin/init-overlay.sh ]; then
 		# shellcheck source=/dev/null
-		. /usr/sbin/init-overlay.sh
+		. /usr/bin/init-overlay.sh
 		exit 0
 	fi
 fi
 
 FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled || true)
 
-if [ "${FIPS_ENABLED:-0}" -eq 1 ] && [ -x /usr/sbin/init-fips.sh ]; then
+if [ "${FIPS_ENABLED:-0}" -eq 1 ] && [ -x /usr/bin/init-fips.sh ]; then
 	# shellcheck source=/dev/null
-	. /usr/sbin/init-fips.sh
+	. /usr/bin/init-fips.sh
 fi
 
 if [ -x /usr/bin/psplash ] && [ -e /dev/fb0 ]; then

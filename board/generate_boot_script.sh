@@ -38,7 +38,7 @@ else
     UBI_ARGS="ubi.fm_autoconvert=1"
 fi
 setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
-init=/usr/sbin/pre-systemd-init.sh ${INITTYPE} \${UBI_ARGS}
+init=/usr/bin/pre-systemd-init.sh ${INITTYPE} \${UBI_ARGS}
 fips=\${fips:=0} fips_wifi=\${fips_wifi:=0} ${2}
 ${LOG_LEVEL} ${KERNEL_EXTRA_CMDS}"
 EOF

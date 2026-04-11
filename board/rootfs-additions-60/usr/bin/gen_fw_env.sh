@@ -7,7 +7,7 @@ set -e
 case "${1}" in
 start)
 	# shellcheck source=/dev/null
-	. /usr/sbin/boot-rootfs.sh
+	. /usr/bin/boot-rootfs.sh
 
 	case "${rootDevType:?}" in
 	MMC)

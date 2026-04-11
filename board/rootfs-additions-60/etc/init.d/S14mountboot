@@ -1,3 +1,3 @@
 #! /bin/sh
 
-. /sbin/mount_boot.sh
+. /bin/mount_boot.sh

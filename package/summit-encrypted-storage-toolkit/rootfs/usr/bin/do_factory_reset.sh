@@ -33,7 +33,7 @@ do_check_and_reset() {
 		fi
 
 		# Run factory reset hooks for external components
-		for hook_sh in /usr/sbin/factory_reset_*.sh; do
+		for hook_sh in /usr/bin/factory_reset_*.sh; do
 			# shellcheck source=/dev/null
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
@@ -41,9 +41,9 @@ do_check_and_reset() {
 	elif [ -d "${USER_SETTINGS_SECRET_TARGET}/NetworkManager" ]; then
 		# Create directories needed during software upgrade
 		[ -x /usr/libexec/bluetooth/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
-		[ -x /usr/sbin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
+		[ -x /usr/bin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
 
-		for hook_sh in /usr/sbin/factory_powerup_*.sh; do
+		for hook_sh in /usr/bin/factory_powerup_*.sh; do
 			# shellcheck source=/dev/null
 			[ ! -x "${hook_sh}" ] || . "${hook_sh}"
 		done
@@ -53,7 +53,7 @@ do_check_and_reset() {
 	fi
 
 	[ -x /usr/libexec/bluetooth/bluetoothd ] && mkdir -p ${BLUETOOTH_STATE_DIR}
-	[ -x /usr/sbin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
+	[ -x /usr/bin/dropbear ] && mkdir -p ${DROPBEAR_DIR}
 
 	cp -ar ${FACTORY_SETTING_SECRET_SOURCE}/* ${USER_SETTINGS_SECRET_TARGET} || \
 		exit_on_error "Copying factory default files failed"

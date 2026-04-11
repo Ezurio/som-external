@@ -93,7 +93,7 @@ anymount() {
 }
 
 # shellcheck source=/dev/null
-. /usr/sbin/boot-rootfs.sh
+. /usr/bin/boot-rootfs.sh
 
 getSocId
 
@@ -103,7 +103,7 @@ start)
 
 	anymount 'mount'
 
-	/usr/sbin/do_factory_reset.sh check || { anymount 'umount' ; exit 1; }
+	/usr/bin/do_factory_reset.sh check || { anymount 'umount' ; exit 1; }
 
 	echo "Secure Boot Cycle Complete" >/dev/console
 	;;

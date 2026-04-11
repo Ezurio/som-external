@@ -5,7 +5,7 @@ Requires=mount_boot.service
 
 [Service]
 RemainAfterExit=yes
-ExecStart=/usr/sbin/summit-prov.sh
+ExecStart=/usr/bin/summit-prov.sh
 
 [Install]
 WantedBy=multi-user.target

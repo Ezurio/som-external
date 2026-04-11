@@ -10,5 +10,5 @@ ConditionPathExists=/etc/rodata/rodata.img
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/mount_rodata.sh start
-ExecStop=/usr/sbin/mount_rodata.sh stop
+ExecStart=/usr/bin/mount_rodata.sh start
+ExecStop=/usr/bin/mount_rodata.sh stop

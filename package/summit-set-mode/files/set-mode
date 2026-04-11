@@ -92,7 +92,7 @@ case "${1}" in
         [ -n "${params}" ] || die 'No overlays found'
 
         # shellcheck disable=SC1091
-        . /usr/sbin/boot-rootfs.sh
+        . /usr/bin/boot-rootfs.sh
 
         # Start from current conf, skipping stale overlays
         overlay_names=$(echo "${cconf_names}" | grep -Fx "${params}")
