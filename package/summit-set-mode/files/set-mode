@@ -26,15 +26,20 @@ prefix=$(echo "${default}" | sed -r 's/-[^-]+\.dtb//')
 # Find all parameters
 params=$(echo "${confs}" | sed -rn "s/.*${prefix}-(.*)\.dtbo.*/\1/p" | sort -u)
 
-conf=
 cconf=$(fw_printenv -n conf)
+# Parse current conf into list of overlay names
+cconf_names=$(echo "${cconf}" | tr '#' '\n' | sed -rn "s/${prefix}-(.*)\.dtbo/\1/p")
+
+overlay_names=
 
 print_overlays() {
     echo 'Currently set modes/overlays:'
-    if [ -z "${cconf}" ]; then
+    if [ -z "${cconf_names}" ]; then
         echo '  No overlays set'
     else
-        echo "${cconf}" | tr '#' "\n" | sed -rn "s/${prefix}-(.*)\.dtbo/  \1/p"
+
+        # shellcheck disable=SC2086
+        printf '  %s\n' ${cconf_names}
     fi
 }
 
@@ -44,18 +49,27 @@ print_regdomain() {
         die '  No regulatory domain set'
 }
 
+overlay_append() {
+    overlay_names="${overlay_names}${overlay_names:+
+}${1}"
+}
+
+overlay_remove() {
+    overlay_names=$(echo "${overlay_names}" | sed "/^${1}$/d")
+}
+
 case "${1}" in
     '')
         echo "Usage: $0 <mode> [<overlays> ...]"
         echo '  <mode> is one or multiple of:'
         echo '  default - remove all overlays'
         echo '  status - print active overlays'
-        echo '  add or '+' - add one or multiple overlays'
-        echo '  remove or '-' - remove one or multiple overlays'
-        echo '  set - set (or empty) one or multiple overlays (removing all others)'
+        echo '  <overlay> [<overlay> ...] - set exact list of overlays'
+        echo '  +<overlay> - add overlay, -<overlay> - remove overlay (can be mixed)'
         echo
         echo 'Available modes/overlays:'
-        echo "${params}" | sed 's/^/  /'
+        # shellcheck disable=SC2086
+        printf '  %s\n' ${params}
         echo
         print_regdomain
         echo
@@ -64,8 +78,7 @@ case "${1}" in
         ;;
 
     default)
-        # Remove all overlays
-        conf=
+        # overlay_names stays empty - remove all overlays
         ;;
 
     status)
@@ -74,67 +87,62 @@ case "${1}" in
         exit 0
         ;;
 
-    remove|-)
-        # If no parameters are found, exit
-        [ -n "${params}" ] || die 'No overlays found'
-
-        shift
-
-        # Verify that all parameters are valid and remove them from
-        # configuration string
-        conf="${cconf}"
-        for i in "${@}" ; do
-            echo "${params}" | grep -qFx "${i}" || die "Invalid mode ${i}"
-            conf=$(echo "${conf}" | sed "s/#${prefix}-${i}\.dtbo//g")
-        done
-        ;;
-
     *)
         # If no parameters are found, exit
         [ -n "${params}" ] || die 'No overlays found'
 
-        . /usr/sbin/boot-rootfs.sh
+        # shellcheck disable=SC1091
+        . /usr/bin/boot-rootfs.sh
 
-        case "${1}" in
-             set) shift ;;
-             add|+)
-                conf=$(echo "${cconf}" | sed -rn "s/^#${default}//p")
-                shift
-                ;;
-        esac
+        # Start from current conf, skipping stale overlays
+        overlay_names=$(echo "${cconf_names}" | grep -Fx "${params}")
+        _cleared=false
 
         # Verify that all parameters are valid and add them into
         # configuration string
-        for i in "${@}" ; do
-            echo "${params}" | grep -qFx "${i}" || die "Invalid mode ${i}"
+        # Validate all names at once
+        _invalid=$(printf '%s\n' "${@}" | grep -oE '[^+-].*' | grep -vFx "${params}")
+        [ -z "${_invalid}" ] || die "Invalid mode: $(echo "${_invalid}" | head -1)"
 
+        for i in "${@}" ; do
             case "${i}" in
+                -*) overlay_remove "${i#-}"; continue ;;
+                +*) name="${i#+}" ;;
+                *)  ${_cleared} || { overlay_names=; _cleared=true; }
+                    name="${i}" ;;
+            esac
+
+            case "${name}" in
                 *ifx*)
                     [ -n "$(fw_printenv -n 'RegDomain')" ] || \
                         die 'Regulatory Domain not set for IFX overlay'
                     ;;
             esac
 
-            case "${i}" in
+            case "${name}" in
                 m2*sdio*)
                     [ "${rootDevType:?}" != 'SD' ] || \
                         die 'M.2 SDIO cannot be used when booting from SD card'
                     ;;
             esac
 
-            conf="${conf}#${prefix}-${i}.dtbo"
+            overlay_append "${name}"
         done
-
-        # Add main configuration
-        [ -z "${conf}" ] || conf="#${default}${conf}"
         ;;
 esac
+
+# Reconstruct conf from overlay_names
+conf=
+for _n in ${overlay_names} ; do
+    conf="${conf}#${prefix}-${_n}.dtbo"
+done
+[ -z "${conf}" ] || conf="#${default}${conf}"
 
 # Verify that requested configuration is different from current one
 [ "${cconf}" != "${conf}" ] || die 'Configuration already set'
 
 # Set new configuration
-fw_setenv 'conf' "${conf}"
+fw_setenv 'conf' "${conf}" || die 'Failed to set new configuration'
 
 # Reboot to apply new configuration
 reboot
