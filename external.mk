@@ -1,5 +1,5 @@
 # Summit branch number, update for every branch
-export BR2_SUMMIT_BRANCH := 0
+export BR2_SUMMIT_BRANCH := 14
 
 export BR2_SUMMIT_BUILD_VERSION = $(if $(VERSION),$(VERSION),0.$(BR2_SUMMIT_BRANCH).0.0)
 export SUMMIT_SOM_SW_DESCRIPTION = $(call qstrip,$(BR2_SUMMIT_SW_DESCRIPTION))
