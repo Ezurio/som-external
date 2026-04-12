@@ -9,7 +9,7 @@
 
 #include "k3-am62l-carbon-m2-sdio.dtsi"
 
-&reg_wifi_en_m2 {
+&reg_m2_wifi_en {
 	startup-delay-us = <20000>;
 };
 
@@ -17,6 +17,7 @@
 	bluetooth {
 		compatible = "nxp,88w8987-bt";
 		fw-init-baudrate = <3000000>;
+		vcc-supply = <&reg_3v3_carrier>;
 	};
 };
 

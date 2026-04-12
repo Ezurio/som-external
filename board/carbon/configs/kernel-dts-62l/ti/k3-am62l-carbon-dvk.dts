@@ -199,8 +199,8 @@
 
 	reset-gpios = <&mdio_gpio_fanout 0 GPIO_ACTIVE_LOW>;
 	/* longer to wait for io expander */
-	reset-delay-us = <300>;
-	reset-post-delay-us = <800>;
+	reset-delay-us = <10000>;
+	reset-post-delay-us = <20000>;
 
 	cpsw3g_phy0: ethernet-phy@3 {
 		reg = <3>;

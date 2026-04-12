@@ -11,9 +11,9 @@
 /plugin/;
 
 &{/} {
-	reg_vcc_wifi_m2: regulator-wifi-m2 {
+	reg_m2_power_en: regulator-m2-power-en {
 		compatible = "regulator-fixed";
-		regulator-name = "reg_vcc_wifi_m2";
+		regulator-name = "reg_m2_power_en";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 
@@ -45,4 +45,18 @@
 
 &usb1 {
 	dr_mode = "host";
+};
+
+&main_uart2 {
+	status = "okay";
+
+	uart-has-rtscts;
+};
+
+&exp1 {
+	uart_b_sel_hog {
+		gpio-hog;
+		output-high;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+	};
 };
