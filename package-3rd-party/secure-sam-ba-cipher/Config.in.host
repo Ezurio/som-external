@@ -1,4 +1,10 @@
+config BR2_ENABLE_HOST_SECURE_SAM_BA_CIPHER
+    bool
+    option env="ENABLE_HOST_SECURE_SAM_BA_CIPHER"
+
 config BR2_PACKAGE_HOST_SECURE_SAM_BA_CIPHER
     bool "host secure sam-ba cipher tool"
+    default y if BR2_ENABLE_HOST_SECURE_SAM_BA_CIPHER
     help
         Secure SAM-BA Cipher Tool
+        Optionally enabled via env variable at build time
