@@ -1,0 +1,159 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Tue, 22 Apr 2026 00:00:00 +0000
+Subject: [PATCH] pinctrl: mcp23s08: add wakeup support for GPIO pins
+
+Add the ability for individual GPIO pins of the MCP23S08/MCP23S17/
+MCP23S18 IO expander to act as system wakeup sources.
+
+Implement irq_set_wake() in the irq_chip to track per-pin wakeup
+requests in a new irq_wake bitmask. When the first wakeup-capable pin
+is enabled, enable_irq_wake() is called on the shared parent IRQ; when
+the last one is disabled, disable_irq_wake() is called, keeping the
+enable/disable calls balanced.
+
+Register the device as a PM wakeup source via device_init_wakeup()
+whenever a parent IRQ is present, so the PM framework keeps the power
+domain active during suspend when wakeup pins are armed.
+
+Add suspend/resume PM callbacks that narrow MCP_GPINTEN to only the
+intersection of irq_en and irq_wake on suspend, suppressing interrupts
+from non-wakeup pins that would otherwise cause spurious system wakeups.
+The callbacks are no-ops when no wakeup pins are configured, preserving
+backwards compatibility. Export mcp23s08_pm_ops so bus-specific drivers
+(I2C, SPI) can wire it into their driver structs.
+
+Wire up the PM ops in the I2C driver.
+
+Upstream-Status: Pending
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+---
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
+index 60fcd53830a7..ed3818a9553e 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -590,12 +590,33 @@
+ 	seq_printf(p, dev_name(mcp->dev));
+ }
+ 
++static int mcp23s08_irq_set_wake(struct irq_data *data, unsigned int on)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct mcp23s08 *mcp = gpiochip_get_data(gc);
++	unsigned int pin = irqd_to_hwirq(data);
++	u16 was_wake = mcp->irq_wake;
++
++	if (on)
++		mcp->irq_wake |= BIT(pin);
++	else
++		mcp->irq_wake &= ~BIT(pin);
++
++	if (!was_wake && mcp->irq_wake)
++		enable_irq_wake(mcp->irq);
++	else if (was_wake && !mcp->irq_wake)
++		disable_irq_wake(mcp->irq);
++
++	return 0;
++}
++
+ static const struct irq_chip mcp23s08_irq_chip = {
+ 	.irq_mask = mcp23s08_irq_mask,
+ 	.irq_unmask = mcp23s08_irq_unmask,
+ 	.irq_set_type = mcp23s08_irq_set_type,
+ 	.irq_bus_lock = mcp23s08_irq_bus_lock,
+ 	.irq_bus_sync_unlock = mcp23s08_irq_bus_unlock,
++	.irq_set_wake = mcp23s08_irq_set_wake,
+ 	.irq_print_chip = mcp23s08_irq_print_chip,
+ 	.flags = IRQCHIP_IMMUTABLE,
+ 	GPIOCHIP_IRQ_RESOURCE_HELPERS,
+@@ -603,6 +624,42 @@
+ 
+ /*----------------------------------------------------------------------*/
+ 
++static int mcp23s08_suspend(struct device *dev)
++{
++	struct mcp23s08 *mcp = dev_get_drvdata(dev);
++
++	if (!mcp->irq_controller || !mcp->irq_wake)
++		return 0;
++
++	mutex_lock(&mcp->lock);
++	regcache_cache_bypass(mcp->regmap, true);
++	mcp_write(mcp, MCP_GPINTEN, mcp->irq_wake);
++	regcache_cache_bypass(mcp->regmap, false);
++	mutex_unlock(&mcp->lock);
++
++	return 0;
++}
++
++static int mcp23s08_resume(struct device *dev)
++{
++	struct mcp23s08 *mcp = dev_get_drvdata(dev);
++
++	if (!mcp->irq_controller || !mcp->irq_wake)
++		return 0;
++
++	mutex_lock(&mcp->lock);
++	regcache_mark_dirty(mcp->regmap);
++	regcache_sync(mcp->regmap);
++	mutex_unlock(&mcp->lock);
++
++	return 0;
++}
++
++const struct dev_pm_ops mcp23s08_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(mcp23s08_suspend, mcp23s08_resume)
++};
++EXPORT_SYMBOL_GPL(mcp23s08_pm_ops);
++
+ int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
+ 		       unsigned int addr, unsigned int type, unsigned int base)
+ {
+@@ -614,6 +671,7 @@
+ 
+ 	mcp->dev = dev;
+ 	mcp->addr = addr;
++	dev_set_drvdata(dev, mcp);
+ 
+ 	mcp->irq_active_high = false;
+ 
+@@ -713,6 +771,7 @@
+ 		return dev_err_probe(dev, PTR_ERR(mcp->pctldev), "can't register controller\n");
+ 
+ 	if (mcp->irq) {
++		device_init_wakeup(dev, true);
+ 		ret = mcp23s08_irq_setup(mcp);
+ 		if (ret)
+ 			return dev_err_probe(dev, ret, "can't setup IRQ\n");
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.h b/drivers/pinctrl/pinctrl-mcp23s08.h
+index 105bce9e0f50..47f6640c3df4 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.h
++++ b/drivers/pinctrl/pinctrl-mcp23s08.h
+@@ -37,6 +37,7 @@
+ 
+ 	u16			irq_rise;
+ 	u16			irq_fall;
++	u16			irq_wake;
+ 	int			irq;
+ 	bool			irq_controller;
+ 	int			cached_gpio;
+@@ -55,6 +56,7 @@
+ 
+ extern const struct regmap_config mcp23x08_regmap;
+ extern const struct regmap_config mcp23x17_regmap;
++extern const struct dev_pm_ops mcp23s08_pm_ops;
+ 
+ int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
+ 		       unsigned int addr, unsigned int type, unsigned int base);
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08_i2c.c b/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
+index 94e1add6ddd7..ed3b05d0aace 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
+@@ -89,6 +89,7 @@
+ 	.driver = {
+ 		.name	= "mcp230xx",
+ 		.of_match_table = mcp23s08_i2c_of_match,
++		.pm	= &mcp23s08_pm_ops,
+ 	},
+ 	.probe		= mcp230xx_probe,
+ 	.id_table	= mcp230xx_id,
