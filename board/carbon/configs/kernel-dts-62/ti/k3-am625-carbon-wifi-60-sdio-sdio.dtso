@@ -16,5 +16,6 @@
 };
 
 &bt_boot_strap {
+	/delete-property/ output-low;
 	output-high; // BT SDIO
 };
