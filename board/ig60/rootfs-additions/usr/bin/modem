@@ -1,15 +1,15 @@
 #! /bin/sh
 
 press_on() {
-	echo 0 > /sys/devices/platform/gpio/lte_on/value
+	gpioset -t0 lte_on=0
 	sleep 1
-	echo 1 > /sys/devices/platform/gpio/lte_on/value
+	gpioset -t0 lte_on=1
 }
 
 press_off() {
-	echo 0 > /sys/devices/platform/gpio/lte_fast_shdn/value
+	gpioset -t0 lte_fast_shdn=0
 	sleep 1
-	echo 1 > /sys/devices/platform/gpio/lte_fast_shdn/value
+	gpioset -t0 lte_fast_shdn=1
 }
 
 case "${1}" in
