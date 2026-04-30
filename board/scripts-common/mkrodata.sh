@@ -8,6 +8,11 @@
 #
 # The optional customer data should be a directory containing anything a customer may require in rodata.
 # This provides a way to copy in data living in a custom br2-external.
+#
+# If the optional customer data contains secret/rest-server/ssl/, that subtree is treated as
+# authoritative and will be copied as-is into rodata. Otherwise the default rest_server_cert,
+# rest_server_priv_key, and rest_server_certificate_chain arguments are used to seed both the
+# runtime and provisioning SSL files.
 
 [ $# -lt 6 ] && echo "usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
 [ "$(id -u)" -ne 0 ] && echo "Please run as root" && exit 1
@@ -19,6 +24,7 @@ REST_SERVER_CERT="${4}"
 REST_SERVER_PRIV_KEY="${5}"
 REST_SERVER_CERT_CHAIN="${6}"
 CUSTOMER_DIR="${7}"
+CUSTOMER_SSL_DIR="${CUSTOMER_DIR%/}/secret/rest-server/ssl"
 
 RODATA_MNT_DIR="${WORKING_DIR}/mnt/rodata"
 SECRET_DIR="${RODATA_MNT_DIR}/secret"
@@ -48,6 +54,27 @@ die_with_cleanup() {
   exit 1
 }
 
+populate_default_rest_server_ssl() {
+  [ -f "${REST_SERVER_CERT}" ] || die "Missing REST server certificate"
+  [ -f "${REST_SERVER_PRIV_KEY}" ] || die "Missing REST server private key"
+  [ -f "${REST_SERVER_CERT_CHAIN}" ] || die "Missing REST server certificate chain"
+
+  mkdir -p "${REST_SERVER_SSL_DIR}" || die "Failed to create ${REST_SERVER_SSL_DIR}"
+  cp "${REST_SERVER_CERT}" "${REST_SERVER_CERT_DEST}" || die "Failed to populate REST server certificate"
+  cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_KEY_DEST}" || die "Failed to populate REST server key"
+  cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_CERT_CHAIN_DEST}" || die "Failed to populate REST server certificate chain"
+
+  cp "${REST_SERVER_CERT}" "${REST_SERVER_PROVISIONING_CERT_DEST}" || die "Failed to populate REST server provisioning certificate"
+  cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_PROVISIONING_KEY_DEST}" || die "Failed to populate REST server provisioning key"
+  cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST}" || die "Failed to populate REST server provisioning certificate chain"
+}
+
+populate_customer_rest_server_ssl() {
+  mkdir -p "${REST_SERVER_SSL_DIR}" || die "Failed to create ${REST_SERVER_SSL_DIR}"
+  rsync -rlpDWK --no-perms --exclude=.empty "${CUSTOMER_SSL_DIR}/" "${REST_SERVER_SSL_DIR}/" || \
+    die "Failed to populate customer REST server SSL directory"
+}
+
 #
 # Extracts all certificates from the input cert/bundle and returns fingerprints and validity period
 #
@@ -71,9 +98,6 @@ if [ ! -f "${KEY_BIN}" ] && [ -z "${KEY_BIN}" ] ; then
   die "Missing encryption key"
 fi
 [ -f "${UPDATE_PUB_CERT}" ] || die "Missing update public key"
-[ -f "${REST_SERVER_CERT}" ] || die "Missing REST server certificate"
-[ -f "${REST_SERVER_PRIV_KEY}" ] || die "Missing REST server private key"
-[ -f "${REST_SERVER_CERT_CHAIN}" ] || die "Missing REST server certificate chain"
 
 #
 # Create encrypted directory
@@ -81,19 +105,14 @@ fi
 mkdir -p "${SECRET_DIR}" || die "Failed to create ${SECRET_DIR}"
 
 #
-# Create and populate REST server certificate and key under encrypted directory
+# Populate REST server SSL data under the encrypted directory. A customer-provided
+# secret/rest-server/ssl tree overrides the stock defaults entirely.
 #
-mkdir -p "${REST_SERVER_SSL_DIR}" || die "Failed to create ${REST_SERVER_SSL_DIR}"
-cp "${REST_SERVER_CERT}" "${REST_SERVER_CERT_DEST}" || die "Failed to populate REST server certficate"
-cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_KEY_DEST}" || die "Failed to populate REST server key"
-cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_CERT_CHAIN_DEST}" || die "Failed to populate REST server certificate chain"
-
-#
-# Populate REST server provisioning certificates and key under encrypted directory
-#
-cp "${REST_SERVER_CERT}" "${REST_SERVER_PROVISIONING_CERT_DEST}" || die "Failed to populate REST server provisioning certficate"
-cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_PROVISIONING_KEY_DEST}" || die "Failed to populate REST server provisioning key"
-cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST}" || die "Failed to populate REST server provisioning certificate chain"
+if [ -n "${CUSTOMER_DIR}" ] && [ -d "${CUSTOMER_SSL_DIR}" ]; then
+  populate_customer_rest_server_ssl
+else
+  populate_default_rest_server_ssl
+fi
 
 #
 # Create and populate update public certificate
@@ -105,7 +124,7 @@ openssl x509 -in "${UPDATE_PUB_CERT}" -pubkey -noout -outform pem -out "${UPDATE
 # Copy in optional customer data
 #
 if [ -d "${CUSTOMER_DIR}" ];then
-  rsync -rlpDWK --no-perms --exclude=.empty  "${CUSTOMER_DIR}" "${RODATA_MNT_DIR}"/
+  rsync -rlpDWK --no-perms --exclude=.empty --exclude=/secret/rest-server/ssl "${CUSTOMER_DIR}" "${RODATA_MNT_DIR}"/
 fi
 
 #
