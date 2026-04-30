@@ -42,6 +42,14 @@ die() {
   echo "${1}" >&2; exit 1
 }
 
+cleanup_temp_rodata() {
+  rm -f "${RODATA_SQUASHFS}"
+  rm -rf "${RODATA_MNT_DIR}"
+}
+
+# Clean up temporary rodata files on script exit, for both success and normal failure paths.
+trap cleanup_temp_rodata EXIT
+
 populate_default_rest_server_ssl() {
   [ -f "${REST_SERVER_CERT}" ] || die "Missing REST server certificate"
   [ -f "${REST_SERVER_PRIV_KEY}" ] || die "Missing REST server private key"
@@ -136,7 +144,7 @@ done
 #
 # Create the SquashFS image
 #
-mksquashfs "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}" || die_with_cleanup "Failed to create SquashFS image"
+mksquashfs "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}" || die "Failed to create SquashFS image"
 
 #
 # Create a block image for the read-only data
@@ -147,7 +155,5 @@ dmcrypt_image \
   --output "${RODATA_IMG}"      \
   ${KEY_ARG}                    \
   || die "Failed to create encrypted image"
-
-rm -rf "${RODATA_MNT_DIR}" "${RODATA_SQUASHFS}"
 
 echo "Successfully created factory data in ${RODATA_IMG}"
