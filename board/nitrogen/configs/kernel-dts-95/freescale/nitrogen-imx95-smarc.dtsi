@@ -282,7 +282,6 @@
 				compatible = "microcrystal,rv3028";
 				reg = <0x52>;
 
-				backup-switchover-dsm;
 				#clock-cells = <0>;
 
 				pinctrl-names = "default";
@@ -543,9 +542,9 @@
 
 &usdhc3 { /* WiFi / Bluetooth */
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
-	pinctrl-0 = <&pinctrl_usdhc3>, <&pinctrl_usdhc3_gpio>;
-	pinctrl-1 = <&pinctrl_usdhc3_100mhz>, <&pinctrl_usdhc3_gpio>;
-	pinctrl-2 = <&pinctrl_usdhc3_200mhz>, <&pinctrl_usdhc3_gpio>;
+	pinctrl-0 = <&pinctrl_usdhc3>;
+	pinctrl-1 = <&pinctrl_usdhc3_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc3_200mhz>;
 
 	vmmc-supply = <&reg_wifi_en>;
 
@@ -818,13 +817,6 @@
 			IMX95_PAD_SD2_DATA2__USDHC2_DATA2		0x138e
 			IMX95_PAD_SD2_DATA3__USDHC2_DATA3		0x138e
 			IMX95_PAD_SD2_VSELECT__USDHC2_VSELECT		0x51e
-		>;
-	};
-
-	pinctrl_usdhc3_gpio: usdhc3gpiogrp {
-		fsl,pins = <
-			IMX95_PAD_XSPI1_DATA5__GPIO5_IO_BIT5		0x31e
-			IMX95_PAD_CCM_CLKO4__CCMSRCGPCMIX_TOP_CLKO_4	0x31e
 		>;
 	};
 
