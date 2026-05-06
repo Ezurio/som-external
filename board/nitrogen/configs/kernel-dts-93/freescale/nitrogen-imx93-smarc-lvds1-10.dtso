@@ -17,6 +17,6 @@
 	height-mm = <136>;
 };
 
-&touchscreen_lvds1 {
+&touchscreen_lvds {
 	compatible = "goodix,gt9271";
 };

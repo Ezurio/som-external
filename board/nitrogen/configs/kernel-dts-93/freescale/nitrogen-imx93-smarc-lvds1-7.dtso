@@ -78,9 +78,9 @@
 
 	status = "okay";
 
-	touchscreen_lvds1: touchscreen-lvds1@14 {
+	touchscreen_lvds: touchscreen-lvds@5d {
 		compatible = "goodix,gt911";
-		reg = <0x14>;
+		reg = <0x5d>;
 
 		AVDD28-supply = <&reg_vdd_3v3>; /* Real supply is on the display */
 		VDDIO-supply = <&reg_vdd_3v3>;
@@ -115,12 +115,4 @@
 	// 7 * PIXEL_CLOCK, PIXEL_CLOCK
 	assigned-clock-rates = <504000000>, <72000000>, <400000000>, <133333333>;
 	status = "okay";
-};
-
-&iomuxc {
-	pinctrl_touchscreen_lvds1: pinctrl-touchscreen-lvds1 {
-		fsl,pins = <
-			MX93_PAD_CCM_CLKO3__GPIO4_IO28	0x31e
-		>;
-	};
 };
