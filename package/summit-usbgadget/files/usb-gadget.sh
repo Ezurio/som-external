@@ -12,6 +12,56 @@ die() {
 	exit 1
 }
 
+normalize_serial_number() {
+	printf '%s' "${1}" | tr '[:upper:]' '[:lower:]' | tr -d ':'
+}
+
+get_serial_number_auto() {
+	if [ -f /etc/wifi_mac ]; then
+		cat /etc/wifi_mac
+	elif [ -e /sys/devices/soc0/soc_uid ]; then
+		cat /sys/devices/soc0/soc_uid
+	elif [ -f /sys/class/net/eth1/address ]; then
+		sed 's/://g' /sys/class/net/eth1/address
+	elif [ -f /sys/class/net/eth0/address ]; then
+		sed 's/://g' /sys/class/net/eth0/address
+	else
+		echo "deadbeefdeadbeef"
+	fi
+}
+
+get_serial_number_from_env() {
+	serial_number="$(fw_printenv -n "${1}" 2>/dev/null || true)"
+	[ -n "${serial_number}" ] || return 1
+	normalize_serial_number "${serial_number}"
+}
+
+get_serial_number() {
+	case "${USB_GADGET_SERIAL_SOURCE:-auto}" in
+	uboot_ethaddr)
+		get_serial_number_from_env ethaddr || \
+			die "USB_GADGET_SERIAL_SOURCE=uboot_ethaddr but ethaddr is not set"
+		;;
+	uboot_eth1addr)
+		get_serial_number_from_env eth1addr || \
+			die "USB_GADGET_SERIAL_SOURCE=uboot_eth1addr but eth1addr is not set"
+		;;
+	custom)
+		if [ -n "${USB_GADGET_SERIAL_NUMBER}" ]; then
+			printf '%s\n' "${USB_GADGET_SERIAL_NUMBER}"
+		else
+			die "custom USB_GADGET_SERIAL_SOURCE requires USB_GADGET_SERIAL_NUMBER"
+		fi
+		;;
+	auto)
+		get_serial_number_auto
+		;;
+	*)
+		die "Invalid USB_GADGET_SERIAL_SOURCE: ${USB_GADGET_SERIAL_SOURCE}"
+		;;
+	esac
+}
+
 create_ether() {
 	func=functions/${USB_GADGET_ETHER}.usb${counter}
 
@@ -66,6 +116,8 @@ create_gadget() {
 			return
 		fi
 
+		serial_number="$(get_serial_number)" || return 1
+
 		{ mkdir -p ${GADGET_DIR}/"${1}" && cd ${GADGET_DIR}/"${1}"; } || \
 			die "Unable to create gadget ${1}"
 
@@ -73,17 +125,7 @@ create_gadget() {
 		echo "${USB_GADGET_PRODUCT_ID}" > idProduct
 
 		mkdir -p strings/0x409
-		if [ -f /etc/wifi_mac ]; then
-			cat /etc/wifi_mac > strings/0x409/serialnumber
-		elif [ -e /sys/devices/soc0/soc_uid ]; then
-			cat /sys/devices/soc0/soc_uid > strings/0x409/serialnumber
-		elif [ -f /sys/class/net/eth1/address ]; then
-			sed 's/://g' /sys/class/net/eth1/address > strings/0x409/serialnumber
-		elif [ -f /sys/class/net/eth0/address ]; then
-			sed 's/://g' /sys/class/net/eth0/address > strings/0x409/serialnumber
-		else
-			echo "deadbeefdeadbeef" > strings/0x409/serialnumber
-		fi
+		echo "${serial_number}" > strings/0x409/serialnumber
 
 		echo "Ezurio" > strings/0x409/manufacturer
 		read -r model < /sys/firmware/devicetree/base/model
@@ -158,11 +200,11 @@ create_gadgets() {
 	fi
 
 	if [ -n "${1}" ]; then
-		create_gadget "${1}"
+		create_gadget "${1}" || return 1
 	else
 		for udc_name in "${UDC_DIR}"/*; do
 			if [ -e "${udc_name}" ]; then
-				create_gadget "${udc_name##*/}"
+				create_gadget "${udc_name##*/}" || return 1
 				break
 			fi
 		done
