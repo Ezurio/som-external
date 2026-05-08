@@ -22,6 +22,51 @@ config BR2_PACKAGE_SUMMIT_USBGADGET_PRODUCT_ID
 	help
 	  USB Gadget Product ID
 
+choice BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE
+	prompt "USB Gadget serial number source"
+	default BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_AUTO
+	help
+	  Select how the USB gadget serial number is derived at runtime.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_AUTO
+	bool "Automatic fallback"
+	help
+	  Use the existing runtime fallback order.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_UBOOT_ETHADDR
+	bool "U-Boot ethaddr"
+	help
+	  Derive the USB gadget serial number from U-Boot ethaddr.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_UBOOT_ETH1ADDR
+	bool "U-Boot eth1addr"
+	help
+	  Derive the USB gadget serial number from U-Boot eth1addr.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_CUSTOM
+	bool "Custom serial value or expression"
+	help
+	  Use the custom USB gadget serial value or shell expression below.
+
+endchoice
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_STRING
+	string
+	default "auto" if BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_AUTO
+	default "uboot_ethaddr" if BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_UBOOT_ETHADDR
+	default "uboot_eth1addr" if BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_UBOOT_ETH1ADDR
+	default "custom" if BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_CUSTOM
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_NUMBER
+	string "USB Gadget serial value or expression"
+	depends on BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_CUSTOM
+	help
+	  Custom USB gadget serial value or shell expression.
+	  This value is written into /etc/default/usb-gadget and sourced
+	  at runtime, so shell expressions such as command substitution may
+	  be used to derive a serial number.
+	  Required when the custom serial source is selected.
+
 config BR2_PACKAGE_SUMMIT_USBGADGET_ETHERNET_PORTS
 	int "USB Gadget Ethernet ports"
 	default 1
