@@ -16,7 +16,8 @@ endif
 
 SUMMIT_RCM_UNAUTHENTICATED_PLUGIN_EXTRA_PACKAGES = \
 	summit_rcm_unauthenticated \
-	summit_rcm_unauthenticated/services
+	summit_rcm_unauthenticated/services \
+	summit_rcm_unauthenticated/middleware
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES),y)
     SUMMIT_RCM_UNAUTHENTICATED_PLUGIN_EXTRA_PACKAGES += summit_rcm_unauthenticated/rest_api/v2/system
