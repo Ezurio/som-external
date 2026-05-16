@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * M.2 SDIO NX6xx Wi-Fi/BT
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx91-osm-s-m2-sdio.dtsi"
+
+&reg_m2_wifi_en {
+	startup-delay-us = <20000>;
+};
+
+&lpuart6 {
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+		vcc-supply = <&reg_3v3>;
+	};
+};
+
+&wifi_wakeup_m2 {
+	status = "okay";
+};
+
+&exp2 {
+	wakeup-source;
+};

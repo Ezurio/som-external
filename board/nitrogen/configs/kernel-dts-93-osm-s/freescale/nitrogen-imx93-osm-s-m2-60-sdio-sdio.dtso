@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * M.2 SDIO 60-series SDIO-SDIO module
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+#include "nitrogen-imx93-osm-s-m2-60-sdio-uart.dtso"
+
+&usdhc2 {
+	wifi-m2 {
+		compatible = "marvell,sd8997";
+		fwtype = "sdio-sdio";
+	};
+};
+
+&lpuart6 {
+	status = "disabled";
+};

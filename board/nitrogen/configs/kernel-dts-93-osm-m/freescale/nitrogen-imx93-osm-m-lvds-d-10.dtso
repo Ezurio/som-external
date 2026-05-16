@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D expansion board with BD101LCC3 display for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx93-osm-m-lvds-d-7.dtso"
+
+&backlight_lvds_d {
+	pwms = <&tpm6 1 100000 0>;
+};
+
+&display_lvds_d {
+	width-mm = <217>;
+	height-mm = <136>;
+};
+
+&touchscreen_lvds_d {
+	compatible = "goodix,gt9271";
+};

@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * M.2 SDIO Infineon Wi-Fi/BT
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx93-osm-s-m2-sdio.dtsi"
+
+&usdhc2 {
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+	};
+};
+
+&lpuart6 {
+	bluetooth {
+		compatible = "brcm,bcm4329-bt";
+		vbat-supply = <&reg_m2_power_en>;
+		vddio-supply = <&reg_1v8>;
+		brcm,requires-autobaud-mode;
+		max-speed = <3000000>;
+		shutdown-gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;
+		device-wakeup-gpios = <&exp1 7 GPIO_ACTIVE_HIGH>;
+	};
+};

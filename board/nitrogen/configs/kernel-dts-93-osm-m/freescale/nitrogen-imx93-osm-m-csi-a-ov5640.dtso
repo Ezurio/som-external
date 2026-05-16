@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Digilent Pcam 5C 5MP OV5640 camera module on CSI_A for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "nitrogen-imx93-osm-m-csi-a.dtsi"
+
+&cam_csi_a {
+	compatible = "ovti,ov5640";
+	reg = <0x3c>;
+
+	DOVDD-supply = <&reg_csi_a>;
+	AVDD-supply = <&reg_csi_a>;
+	DVDD-supply = <&reg_csi_a>;
+
+	reset-gpios = <&exp0 26 GPIO_ACTIVE_LOW>; /* GPIO_C_7 -> CAM_A_RST# */
+	powerdown-gpios = <&exp0 25 GPIO_ACTIVE_LOW>; /* GPIO_C_6 -> CAM_A_PWR */
+};

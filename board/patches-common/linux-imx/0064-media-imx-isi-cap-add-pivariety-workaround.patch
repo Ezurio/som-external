@@ -6,6 +6,8 @@ Subject: [PATCH 1/2] media: imx: isi-cap: add pivariety workaround
 Per arducam, their sensor must be turned on after the CSI controller.
 
 Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
 ---
  drivers/staging/media/imx/imx8-isi-cap.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)

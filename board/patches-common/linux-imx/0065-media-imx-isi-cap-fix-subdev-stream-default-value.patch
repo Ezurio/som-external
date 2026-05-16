@@ -7,6 +7,8 @@ Issue reported by Arducam where this parameter can be wrongly set to a
 value other than 0 which makes the pipeline fail.
 
 Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
 ---
  drivers/staging/media/imx/imx8-isi-cap.c | 1 +
  1 file changed, 1 insertion(+)
@@ -25,4 +27,3 @@ index 0ca095866b2c..4fcac5e8acc1 100644
  		v4l2_err(&isi_cap->sd, "set remote fmt fail!\n");
 -- 
 2.53.0
-

@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * On-SOM SDIO LWBxx & IFxxx (Infineon CYW55572) Wi-Fi/BT
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&reg_wifi_en {
+	startup-delay-us = <350000>;
+	off-on-delay-us = <10000>;
+};
+
+&usdhc3 { /* On-SOM Wi-Fi */
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+	};
+};
+
+&lpuart5 { /* On-SOM BT HCI */
+	status = "okay";
+
+	bluetooth {
+		compatible = "infineon,cyw55572-bt";
+		vddio-supply = <&reg_1v8>;
+		brcm,requires-autobaud-mode;
+		max-speed = <3000000>;
+		shutdown-gpios = <&exp0 2 GPIO_ACTIVE_HIGH>;	/* BT_EN */
+	};
+};

@@ -1,0 +1,123 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D display expansion board with BD070LIC3 display for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "nitrogen-imx93-bd-panel.dtsi"
+
+&{/} {
+	backlight_lvds_d: backlight-lvds-d {
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		compatible = "pwm-backlight";
+		default-brightness-level = <8>;
+
+		pwms = <&tpm6 1 30000 0>; /* 33.3 kHz */
+	};
+
+	reg_lvds_d: regulator-lvds-d {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_lvds_d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3>;
+		gpio = <&exp0 20 GPIO_ACTIVE_HIGH>; /* GPIO_B_6 / LVDS_D_VDD_EN */
+		enable-active-high;
+		startup-delay-us = <10000>;
+	};
+
+	display_lvds_d: panel-lvds-d {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+
+		power-supply = <&reg_lvds_d>;
+		backlight = <&backlight_lvds_d>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_lvds_d: endpoint {
+				remote-endpoint = <&lvds_d_out_ep>;
+			};
+		};
+	};
+
+	display-subsystem {
+		status = "okay";
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds_d_out_ep: endpoint {
+				remote-endpoint = <&display_in_ep_lvds_d>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
+&tpm6 {
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&lcdif {
+	assigned-clock-rates = <504000000>, <72000000>, <400000000>, <133333333>;
+	status = "okay";
+};
+
+&i2c_port_d {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_lvds_d: touchscreen-lvds-d@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&reg_lvds_d>;
+		VDDIO-supply = <&reg_lvds_d>;
+
+		interrupts-extended = <&exp2 2 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&exp2 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+		reset-gpios = <&exp2 3 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+};

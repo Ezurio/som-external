@@ -1,0 +1,135 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * DSI0 display expansion board with BD070LIC3 display for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "nitrogen-imx93-bd-panel.dtsi"
+
+&{/} {
+	backlight_dsi0: backlight-dsi0 {
+		compatible = "pwm-backlight";
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9 10>;
+		default-brightness-level = <8>;
+		pwms = <&tpm5 1 30000 0>; /* 33.3 kHz */
+		enable-gpios = <&exp0 30 GPIO_ACTIVE_HIGH>; /* DSI_A_BL_EN / GPIO_C_5 */
+	};
+
+	vcc_dsi0: regulator-vcc-dsi0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_dsi0";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&reg_3v3>;
+		gpio = <&exp0 28 GPIO_ACTIVE_HIGH>; /* DSI_A_VDD_EN / GPIO_C_4 */
+		enable-active-high;
+		startup-delay-us = <30000>;
+	};
+
+	display_dsi0: display-dsi0 {
+		compatible = "panel-lvds";
+		data-mapping = "vesa-24";
+		power-supply = <&vcc_dsi0>;
+		backlight = <&backlight_dsi0>;
+
+		width-mm = <150>;
+		height-mm = <94>;
+
+		panel-timing {
+			BD_PANEL_TIMING
+		};
+
+		port {
+			display_in_ep_dsi0: endpoint {
+				remote-endpoint = <&sn65dsi84_out_ep_dsi0>;
+			};
+		};
+	};
+
+	display-subsystem {
+		status = "okay";
+	};
+};
+
+&dsi_out_ep {
+	remote-endpoint = <&sn65dsi84_in_ep_dsi0>;
+};
+
+&i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	touchscreen_dsi0: touchscreen-dsi0@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+
+		AVDD28-supply = <&vcc_dsi0>;
+		VDDIO-supply = <&vcc_dsi0>;
+
+		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+		irq-gpios = <&exp2 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_HIGH>;
+
+		touchscreen-min-x = <0>;
+		touchscreen-min-y = <0>;
+		touchscreen-size-x = <1280>;
+		touchscreen-size-y = <800>;
+	};
+
+	sn65dsi84_dsi0: sn65dsi84-dsi0@2c {
+		compatible = "ti,sn65dsi84";
+		reg = <0x2c>;
+		vcc-supply = <&vcc_dsi0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				sn65dsi84_in_ep_dsi0: endpoint {
+					remote-endpoint = <&dsi_out_ep>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				sn65dsi84_out_ep_dsi0: endpoint {
+					remote-endpoint = <&display_in_ep_dsi0>;
+				};
+			};
+		};
+	};
+};
+
+&tpm5 { /* DSI / DISP_PWM0 backlight */
+	status = "okay";
+};
+
+&lcdif {
+	assigned-clock-rates = <576000000>, <144000000>, <400000000>, <133333333>;
+	status = "okay";
+};
+
+&dphy {
+	status = "okay";
+};
+
+&dsi {
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};

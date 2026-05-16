@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * CSI_A common camera graph for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	/* On-camera module oscillator */
+	clk_cam_csi_a_int: clk-cam-csi-a-int {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+	};
+};
+
+&i2c_csi_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	cam_csi_a: cam-csi-a {
+		clocks = <&clk_cam_csi_a_int>;
+		clock-names = "xclk";
+
+		port {
+			cam_csi_a_ep: endpoint {
+				remote-endpoint = <&mipi_csi_in_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
+};
+
+&mipi_csi {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			mipi_csi_in_ep: endpoint {
+				remote-endpoint = <&cam_csi_a_ep>;
+				bus-type = <4>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			mipi_csi_out: endpoint {
+				remote-endpoint = <&isi_in>;
+			};
+		};
+	};
+};
+
+&isi {
+	status = "okay";
+
+	port {
+		isi_in: endpoint {
+			remote-endpoint = <&mipi_csi_out>;
+		};
+	};
+};
+
+&dphy_rx {
+	status = "okay";
+};

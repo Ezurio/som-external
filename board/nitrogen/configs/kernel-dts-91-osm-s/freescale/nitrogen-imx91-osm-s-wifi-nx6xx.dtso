@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * On-SOM SDIO NX6xx Wi-Fi/BT
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+&reg_wifi_en {
+	startup-delay-us = <20000>;
+	off-on-delay-us = <100>;
+};
+
+&usdhc3 { /* On-SOM Wi-Fi */
+	status = "okay";
+};
+
+&lpuart5 { /* On-SOM BT HCI */
+	status = "okay";
+
+	bluetooth {
+		compatible = "nxp,88w8987-bt";
+		fw-init-baudrate = <3000000>;
+		vcc-supply = <&reg_3v3>;
+	};
+};
+
+&wifi_wakeup {
+	status = "okay";
+};

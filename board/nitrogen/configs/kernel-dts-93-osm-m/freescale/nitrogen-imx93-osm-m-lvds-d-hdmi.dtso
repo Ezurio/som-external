@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D to HDMI expansion board for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	hdmi_connector_d: hdmi-connector-d {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+		digital;
+
+		ddc-i2c-bus = <&i2c_port_d>;
+		hpd-gpios = <&exp2 3 GPIO_ACTIVE_HIGH>;
+
+		port {
+			hdmi_connector_d_in: endpoint {
+				remote-endpoint = <&tfp410_d_out>;
+			};
+		};
+	};
+
+	bridge_lvds_d: bridge-lvds-d {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "ti,tfp410";
+
+		powerdown-gpios = <&exp0 20 GPIO_ACTIVE_LOW>; /* LVDS_D_VDD_EN -> TFP410 PWDN# */
+
+		port@0 {
+			reg = <0>;
+
+			tfp410_d_in: endpoint {
+				remote-endpoint = <&lvds_d_out>;
+				pclk-sample = <1>;
+				bus-width = <24>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			tfp410_d_out: endpoint {
+				remote-endpoint = <&hdmi_connector_d_in>;
+			};
+		};
+	};
+
+	lvds_decoder_d: lvds-decoder-d {
+		compatible = "ti,ds90cf386", "lvds-decoder";
+		power-supply = <&reg_3v3>;
+
+		max-frequency = <85000000>;
+		min-frequency = <20000000>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				lvds_d_in: endpoint {
+					data-mapping = "jeida-24";
+					remote-endpoint = <&lvds_d_out_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				lvds_d_out: endpoint {
+					remote-endpoint = <&tfp410_d_in>;
+				};
+			};
+		};
+	};
+
+	display-subsystem {
+		status = "okay";
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds_d_out_ep: endpoint {
+				remote-endpoint = <&lvds_d_in>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&lcdif {
+	assigned-clock-rates = <504000000>, <72000000>, <400000000>, <133333333>;
+	status = "okay";
+};
