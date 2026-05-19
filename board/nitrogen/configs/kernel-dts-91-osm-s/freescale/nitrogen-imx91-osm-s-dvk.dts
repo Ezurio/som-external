@@ -31,6 +31,37 @@
 		gpios = <&exp1 2 GPIO_ACTIVE_HIGH>;	/* CAN_A_STB (HIGH=standby on TCAN1046) */
 		enable-active-low;
 	};
+
+	dvk_keys {
+		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_osm_gpio_a_7>;
+
+		wakeup {
+			label = "Wakeup";
+			interrupts-extended = <&gpio1 10 IRQ_TYPE_LEVEL_LOW>;
+			interrupt-names = "irq";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			//gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_osm_gpio_a_0>;
+
+		led0 {
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&gpio2 12 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
 };
 
 &eqos { /* ETH_A */

@@ -159,7 +159,7 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 8 IRQ_TYPE_EDGE_FALLING>;	/* GPIO_IO08 - SDIO_HOST_WAKE# */
+			interrupts-extended = <&gpio2 8 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO08 - SDIO_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 
@@ -168,7 +168,7 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 2 IRQ_TYPE_EDGE_FALLING>;	/* GPIO_IO02 - UART_HOST_WAKE# */
+			interrupts-extended = <&gpio2 2 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO02 - UART_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 	};
@@ -777,55 +777,55 @@
 	/* ----- Per-OSM-signal pinctrl groups (carrier overrides as needed) ----- */
 	pinctrl_osm_gpio_a_0: osm-gpio-a-0-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO12__GPIO2_IO12				0x31e	/* GPIO_A_0 (F14) */
+			MX91_PAD_GPIO_IO12__GPIO2_IO12				0x131e	/* GPIO_A_0 (F14) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_1: osm-gpio-a-1-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO13__GPIO2_IO13				0x31e	/* GPIO_A_1 (G17) */
+			MX91_PAD_GPIO_IO13__GPIO2_IO13				0x131e	/* GPIO_A_1 (G17) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_2: osm-gpio-a-2-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO14__GPIO2_IO14				0x31e	/* GPIO_A_2 (H16) */
+			MX91_PAD_GPIO_IO14__GPIO2_IO14				0x131e	/* GPIO_A_2 (H16) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_3: osm-gpio-a-3-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO15__GPIO2_IO15				0x31e	/* GPIO_A_3 (H17) */
+			MX91_PAD_GPIO_IO15__GPIO2_IO15				0x131e	/* GPIO_A_3 (H17) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_4: osm-gpio-a-4-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO16__GPIO2_IO16				0x31e	/* GPIO_A_4 (J16) */
+			MX91_PAD_GPIO_IO16__GPIO2_IO16				0x131e	/* GPIO_A_4 (J16) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_5: osm-gpio-a-5-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO17__GPIO2_IO17				0x31e	/* GPIO_A_5 (K15) */
+			MX91_PAD_GPIO_IO17__GPIO2_IO17				0x131e	/* GPIO_A_5 (K15) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_6: osm-gpio-a-6-grp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO09__GPIO2_IO9				0x31e	/* GPIO_A_6 (F16) */
+			MX91_PAD_GPIO_IO09__GPIO2_IO9				0x131e	/* GPIO_A_6 (F16) */
 		>;
 	};
 
 	pinctrl_osm_gpio_a_7: osm-gpio-a-7-grp {
 		fsl,pins = <
-			MX91_PAD_PDM_BIT_STREAM1__GPIO1_IO10			0x31e	/* GPIO_A_7 (B10) */
+			MX91_PAD_PDM_BIT_STREAM1__GPIO1_IO10			0x131e	/* GPIO_A_7 (B10) */
 		>;
 	};
 
 	pinctrl_osm_gpio_b_0: osm-gpio-b-0-grp {
 		fsl,pins = <
-			MX91_PAD_SAI1_RXD0__GPIO1_IO14				0x31e	/* GPIO_B_0 (B14) */
+			MX91_PAD_SAI1_RXD0__GPIO1_IO14				0x131e	/* GPIO_B_0 (B14) */
 		>;
 	};
 

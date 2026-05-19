@@ -173,6 +173,24 @@
 		};
 	};
 
+	dvk_keys {
+		compatible = "gpio-keys";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_osm_gpio_a_7>;
+
+		wakeup {
+			label = "Wakeup";
+			interrupts-extended = <&gpio1 10 IRQ_TYPE_LEVEL_LOW>;
+			interrupt-names = "irq";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			//gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
+			//wakeup-event-action = <EV_ACT_ASSERTED>;
+		};
+	};
+
 	usdhc1_pwrseq: usdhc1-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
 
