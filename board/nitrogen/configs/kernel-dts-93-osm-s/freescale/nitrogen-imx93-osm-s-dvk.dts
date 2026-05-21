@@ -99,8 +99,29 @@
 	xceiver-supply = <&reg_can1_stby>;
 };
 
-&lpi2c2 { /* I2C_B */
+&lpi2c2 { /* I2C_A */
 	status = "okay";
+
+	power-sensor-5v@40 {
+		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
+		reg = <0x40>;
+		vs-supply = <&reg_3v3>;
+		shunt-resistor = <33000>; /* 0.033 Ohms */
+	};
+
+	power-sensor-3v3@41 {
+		compatible = "ti,ina232"; /* TI, INA232AIDDFR */
+		reg = <0x41>;
+		vs-supply = <&reg_3v3>;
+		shunt-resistor = <33000>; /* 0.033 Ohms */
+	};
+
+	eeprom@54 {
+		/* U53, Giantec, GT24C256C-2GLI-TR */
+		compatible = "atmel,24c256";
+		reg = <0x54>;
+		vcc-supply = <&reg_1v8>;
+	};
 
 	exp1: gpio@74 {
 		/* U35, TI, TCAL9539RTWR */

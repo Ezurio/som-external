@@ -29,8 +29,8 @@
 		serial2 = &lpuart5;		/* On-SOM BT HCI */
 		serial3 = &lpuart6;		/* UART_B */
 		ethernet0 = &eqos;		/* ETH_A */
-		i2c0 = &lpi2c1;			/* I2C_A (also PMIC/RTC) */
-		i2c1 = &lpi2c2;			/* I2C_B / I2C_C */
+		i2c0 = &lpi2c1;			/* I2C_B (also PMIC/RTC) */
+		i2c1 = &lpi2c2;			/* I2C_A */
 		spi0 = &lpspi4;			/* SPI_A */
 		can0 = &flexcan1;		/* CAN_A */
 		usb0 = &usbotg1;		/* USB_A */
@@ -231,7 +231,7 @@
 };
 
 &lpi2c1 {
-	/* I2C_A (also PMIC + on-SOM RTC) */
+	/* I2C_B (also PMIC + on-SOM RTC) */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lpi2c1>;
 
@@ -346,7 +346,7 @@
 };
 
 &lpi2c2 {
-	/* I2C_B / I2C_C */
+	/* I2C_A */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lpi2c2>;
 

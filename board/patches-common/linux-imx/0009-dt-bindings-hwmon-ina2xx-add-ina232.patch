@@ -1,0 +1,26 @@
+From 44bea5b22c373272ba18ece4aaf147b8ee31edc8 Mon Sep 17 00:00:00 2001
+From: Simon Gaynor <simon.gaynor@ezurio.com>
+Date: Tue, 8 Oct 2024 09:49:25 -0700
+Subject: [PATCH 2/2] dt-bindings: hwmon: ina2xx: add ina232
+
+Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
+---
+ Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml b/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml
+index 8648877d2d01..c693a653d6ed 100644
+--- a/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml
++++ b/Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml
+@@ -26,6 +26,7 @@ properties:
+       - ti,ina226
+       - ti,ina230
+       - ti,ina231
++      - ti,ina232
+       - ti,ina237
+       - ti,ina238
+       - ti,ina260
+-- 
+2.47.1
