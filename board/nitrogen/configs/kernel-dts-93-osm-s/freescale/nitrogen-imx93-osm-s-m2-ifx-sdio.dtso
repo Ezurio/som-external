@@ -11,6 +11,9 @@
 #include "nitrogen-imx93-osm-s-m2-sdio.dtsi"
 
 &usdhc2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	wifi@1 {
 		reg = <1>;
 		compatible = "brcm,bcm4329-fmac";

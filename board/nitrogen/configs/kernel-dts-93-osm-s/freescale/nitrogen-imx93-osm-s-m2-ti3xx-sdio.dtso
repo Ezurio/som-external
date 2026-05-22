@@ -17,6 +17,9 @@
 &usdhc2 {
 	cap-power-off-card;
 
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	bt@1 {
 		reg = <1>;
 		compatible = "ti,cc33xxbt";
