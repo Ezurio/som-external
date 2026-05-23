@@ -1,0 +1,12 @@
+[Unit]
+Description=Summit RCM (Rust/Axum)
+After=network.target NetworkManager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/summit-rcm
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

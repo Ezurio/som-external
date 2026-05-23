@@ -1,0 +1,355 @@
+menuconfig BR2_PACKAGE_SUMMIT_RCM_RUST
+	bool "Summit RCM (Rust)"
+	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
+	depends on BR2_PACKAGE_SYSTEMD
+	select BR2_PACKAGE_HOST_RUSTC
+	select BR2_PACKAGE_OPENSSL
+	help
+	  Summit Remote Control Manager (RCM) — Rust/Axum port.
+
+if BR2_PACKAGE_SUMMIT_RCM_RUST
+
+comment "Interface options (select at least one)"
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES
+	bool "v2 REST API routes"
+	default y
+	help
+	  Enable the Summit RCM v2 REST API routes.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	bool "Legacy REST API routes"
+	help
+	  Enable the Summit RCM legacy REST API routes
+	  (backward compatibility with WebLCM).
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_AT_INTERFACE
+	bool "AT command interface"
+	help
+	  Enable the Summit RCM AT command interface over a serial port.
+
+comment "Network device options"
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_MANAGED_SOFTWARE_DEVICES
+	string "List of supported software devices"
+	default ""
+	help
+	  Space separated software devices like bonds, bridges etc.
+	  Bridge devices should be named as "br0", "br1" etc.
+	  Bond devices should be named as "bn0", "bn1" etc.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_UNMANAGED_HARDWARE_DEVICES
+	string "List of unmanaged hardware devices"
+	default ""
+	help
+	  Space separated hardware devices like eth0, wlan0 etc which
+	  are managed by NetworkManager, but don't want to be managed
+	  by Summit RCM.
+
+comment "REST API options"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_HTTPS_PORT
+	int "HTTPS port"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	default 443
+	help
+	  TCP port number the HTTPS REST API server listens on.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE
+	string "Server SSL certificate path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	default "/etc/summit-rcm/ssl/server.crt"
+	help
+	  Path to the server TLS certificate file.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_PRIVATE_KEY
+	string "Server SSL private key path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	default "/etc/summit-rcm/ssl/server.key"
+	help
+	  Path to the server TLS private key file.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE_CHAIN
+	string "Server SSL certificate chain path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	default "/etc/summit-rcm/ssl/ca.crt"
+	help
+	  Path to the server TLS certificate chain (CA bundle) file.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS
+	bool "Enable cookie-based authentication sessions"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	help
+	  Enable cookie-based authentication sessions.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_USERNAME
+	string "Default root username"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS
+	default "root"
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_PASSWORD
+	string "Default root password"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS
+	default "summit"
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_ALLOW_MULTIPLE_USER_SESSIONS
+	bool "Allow multiple sessions per user"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS
+	help
+	  Allow the same user to have more than one active session.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_AUTHENTICATION
+	bool "Enable SSL client authentication"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	help
+	  Enable SSL client authentication (mutual TLS).
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION
+	bool "Disable client certificate expiry verification"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_AUTHENTICATION
+	default y
+	help
+	  Disable verification of a client certificate's expiry during mutual
+	  authentication.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_PAIRING
+	bool "Enable client certificate pairing"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_PROVISIONING
+	help
+	  Enable client certificate pairing support. When enabled, the device
+	  accepts a client certificate upload in the PARTIALLY_PROVISIONED state
+	  and rebuilds the TLS trust store dynamically.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PAIRED_CLIENT_CERT_PATH
+	string "Paired client certificate path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_PAIRING
+	default ""
+	help
+	  Filesystem path where the uploaded paired client certificate is saved.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_RODATA_CA_CERT_PATH
+	string "Read-only CA certificate path"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_PAIRING
+	default ""
+	help
+	  Path to the immutable CA certificate in rodata used as the trust
+	  anchor when rebuilding the TLS trust store.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_LOG_ROUTES_LOADED
+	bool "REST API routes loaded logging"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	help
+	  Enable logging of all loaded REST API routes at startup.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_RESTRICT_NETWORK_STATUS
+	bool "Restrict network status endpoints"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	help
+	  Require authentication for network status endpoints.
+
+choice
+	prompt "REST API docs mode"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_V2_ROUTES || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_LEGACY_ROUTES
+	default BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_NONE
+	help
+	  Select how Summit RCM should expose REST API documentation.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_NONE
+	bool "No docs"
+	help
+	  Do not build or install REST API documentation support.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_RUNTIME
+	bool "Runtime docs (compiled into binary)"
+	help
+	  Compile the OpenAPI document into the summit-rcm binary and expose it
+	  at runtime at /api/openapi.json with the user-facing UI at /api/docs.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_JSON
+	bool "JSON docs (host-generated file)"
+	help
+	  Generate the OpenAPI JSON on the build host, install it to
+	  /etc/summit-rcm-openapi.json, and expose it at runtime at
+	  /api/openapi.json with the user-facing UI at /api/docs.
+endchoice
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_ROOT_REDIRECT
+	bool "Redirect / to REST API docs"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_RUNTIME || \
+	           BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_JSON
+	help
+	  When enabled, an HTTP GET on / returns a 301 redirect to /api/docs.
+
+comment "AT interface options"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_AT_INTERFACE
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_SERIAL_PORT
+	string "AT interface serial port"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_AT_INTERFACE
+	default "/dev/ttyS2"
+	help
+	  Serial device used by the AT command interface.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_BAUD_RATE
+	int "AT interface baud rate"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_AT_INTERFACE
+	default 3000000
+	help
+	  Baud rate for the AT command interface serial port.
+
+comment "Plugin options"
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_DATE_TIME
+	bool "Date/time plugin"
+	default y
+	help
+	  Enable the date and time management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_FILES
+	bool "Files plugin"
+	default y
+	help
+	  Enable the file import/export and file management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_LOGIN
+	bool
+	depends on BR2_PACKAGE_SUMMIT_RCM_ENABLE_SESSIONS
+	default y
+	help
+	  Enable the login and user management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_LOGS
+	bool "Logs plugin"
+	default y
+	help
+	  Enable the log configuration and export plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_NETWORK
+	bool "Network plugin"
+	depends on BR2_PACKAGE_IPROUTE2
+	depends on BR2_PACKAGE_IW
+	default y
+	help
+	  Enable the network status, interface, and connection management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_NETWORK_MANAGER
+	bool "NetworkManager plugin"
+	depends on BR2_PACKAGE_SUMMIT_NETWORK_MANAGER || BR2_PACKAGE_NETWORK_MANAGER
+	default y
+	help
+	  Enable the NetworkManager-backed networking plugin support.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_SYSTEM
+	bool "System plugin"
+	default y
+	help
+	  Enable the system management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_UPDATE
+	bool "Update plugin"
+	depends on BR2_PACKAGE_SUMMIT_UPDATE
+	default y
+	help
+	  Enable the firmware update plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_AWM
+	bool "AWM plugin"
+	depends on BR2_PACKAGE_ADAPTIVE_WW || BR2_PACKAGE_ADAPTIVE_WW_BINARIES
+	default y
+	help
+	  Enable the Adaptive Worldwide Mode (AWM) plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH
+	bool "Bluetooth plugin"
+	depends on BR2_PACKAGE_BLUEZ5_UTILS
+	default y
+	help
+	  Enable the Bluetooth management plugin.
+
+if BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH_VSP
+	bool "BLE VSP support for Summit RCM"
+	help
+		Add BLE VSP support (rx/tx transfers over chosen GATT
+		characteristics to TCP server) to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH_HID
+	bool "HID BT barcode scanner support for Summit RCM"
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HID
+	select BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_HOG
+	help
+		Add Bluetooth HID barcode scanner support to Summit RCM.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH_WEBSOCKET
+	bool "Bluetooth websocket support"
+	depends on BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH
+	help
+	  Enable websocket support for Bluetooth notifications and streaming
+	  endpoints.
+
+endif
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_CHRONY
+	bool "Chrony (NTP) plugin"
+	depends on BR2_PACKAGE_CHRONY
+	default y
+	help
+	  Enable the Chrony NTP management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_FIPS
+	bool "FIPS plugin"
+	depends on BR2_SUMMIT_FIPS_11
+	default y
+	help
+	  Enable the FIPS management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_FIREWALL
+	bool "Firewall plugin"
+	depends on BR2_PACKAGE_IPTABLES
+	default y
+	help
+	  Enable the firewall management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_LOG_FORWARDING
+	bool "Log forwarding plugin"
+	depends on BR2_PACKAGE_SYSTEMD
+	help
+	  Enable the log-forwarding plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_PROVISIONING
+	bool "Certificate provisioning plugin"
+	help
+	  Enable the certificate provisioning plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_RADIO_SISO_MODE
+	bool "Radio SISO mode plugin"
+	depends on BR2_PACKAGE_SUMMIT_FIRMWARE_60
+	default y
+	help
+	  Enable the radio SISO/MIMO mode plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_STUNNEL
+	bool "Stunnel plugin"
+	depends on BR2_PACKAGE_STUNNEL
+	default y
+	help
+	  Enable the stunnel management plugin.
+
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_UNAUTHENTICATED
+	bool "Unauthenticated endpoints plugin"
+	help
+	  Enable unauthenticated REST endpoints (use with care).
+
+endif
