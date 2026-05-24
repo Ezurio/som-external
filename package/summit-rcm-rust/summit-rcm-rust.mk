@@ -79,9 +79,6 @@ endef
 define SUMMIT_RCM_RUST_INSTALL_CONFIG
 	$(INSTALL) -d $(TARGET_DIR)/etc/summit-rcm
 
-	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc \
-		$(SUMMIT_RCM_RUST_PKGDIR)/summit-rcm.ini \
-
 	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/etc/summit-rcm/ssl \
 		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.key \
 		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.crt \
@@ -90,76 +87,37 @@ define SUMMIT_RCM_RUST_INSTALL_CONFIG
 	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin \
 		$(SUMMIT_RCM_PKGDIR)/factory_powerup_summit-rcm.sh
 
-	# --- [global] TLS settings ---
-	$(SED) '/^server\.ssl_certificate/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^server\.ssl_private_key/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^server\.ssl_certificate_chain/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_certificate: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_private_key: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_PRIVATE_KEY)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_certificate_chain: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE_CHAIN)' $(TARGET_DIR)/etc/summit-rcm.ini
+	{ \
+		echo "[global]"; \
+		echo "server.ssl_certificate: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE)"; \
+		echo "server.ssl_private_key: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_PRIVATE_KEY)"; \
+		echo "server.ssl_certificate_chain: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERVER_SSL_CERTIFICATE_CHAIN)"; \
+		echo ""; \
+		echo "[/]"; \
+		echo "tools.sessions.on: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS),true,false)"; \
+		echo "tools.sessions.secure: true"; \
+		echo "tools.sessions.httponly: true"; \
+		echo ""; \
+		echo "[summit-rcm]"; \
+		echo "default_username: $(BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_USERNAME)"; \
+		echo "default_password: $(BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_PASSWORD)"; \
+		echo "allow_multiple_user_sessions: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ALLOW_MULTIPLE_USER_SESSIONS),true,false)"; \
+		echo "managed_software_devices: $(BR2_PACKAGE_SUMMIT_RCM_RUST_MANAGED_SOFTWARE_DEVICES)"; \
+		echo "unmanaged_hardware_devices: $(BR2_PACKAGE_SUMMIT_RCM_RUST_UNMANAGED_HARDWARE_DEVICES)"; \
+		echo "enable_client_auth: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_AUTHENTICATION),true,false)"; \
+		echo "disable_certificate_expiry_verification: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION),true,false)"; \
+		echo "enable_client_pairing: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_PAIRING),true,false)"; \
+		echo "paired_client_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_RUST_PAIRED_CLIENT_CERT_PATH)"; \
+		echo "rodata_ca_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_RUST_RODATA_CA_CERT_PATH)"; \
+		echo "log_routes_loaded: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_LOG_ROUTES_LOADED),true,false)"; \
+		echo "network_status_restricted: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_RESTRICT_NETWORK_STATUS),true,false)"; \
+		echo "socket_port: $(BR2_PACKAGE_SUMMIT_RCM_RUST_HTTPS_PORT)"; \
+		echo "rest_api_docs_root_redirect: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_ROOT_REDIRECT),true,false)"; \
+		echo "serial_port: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERIAL_PORT)"; \
+		echo "baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_RUST_BAUD_RATE)"; \
+	} > $(TARGET_DIR)/etc/summit-rcm.ini
 
-	# --- [summit-rcm] session settings ---
-	$(SED) 's,^tools\.sessions\.on:.*,tools.sessions.on: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_SESSIONS),True,False),' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^default_username/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^default_password/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a default_username: $(BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_USERNAME)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a default_password: $(BR2_PACKAGE_SUMMIT_RCM_RUST_DEFAULT_PASSWORD)' $(TARGET_DIR)/etc/summit-rcm.ini
-
-	$(SED) '/^allow_multiple_user_sessions/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a allow_multiple_user_sessions: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ALLOW_MULTIPLE_USER_SESSIONS),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-
-	# --- [summit-rcm] network device lists ---
-	$(SED) '/^managed_software_devices/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a managed_software_devices: $(BR2_PACKAGE_SUMMIT_RCM_RUST_MANAGED_SOFTWARE_DEVICES)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^unmanaged_hardware_devices/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a unmanaged_hardware_devices: $(BR2_PACKAGE_SUMMIT_RCM_RUST_UNMANAGED_HARDWARE_DEVICES)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-
-	# --- [summit-rcm] client authentication ---
-	$(SED) '/^enable_client_auth/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a enable_client_auth: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_AUTHENTICATION),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^disable_certificate_expiry_verification/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a disable_certificate_expiry_verification: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_DISABLE_CERTIFICATE_EXPIRY_VERIFICATION),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^enable_client_pairing/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a enable_client_pairing: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_ENABLE_CLIENT_PAIRING),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^paired_client_cert_path/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a paired_client_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_RUST_PAIRED_CLIENT_CERT_PATH)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^rodata_ca_cert_path/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a rodata_ca_cert_path: $(BR2_PACKAGE_SUMMIT_RCM_RUST_RODATA_CA_CERT_PATH)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-
-	# --- [summit-rcm] REST API misc ---
-	$(SED) '/^log_routes_loaded/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a log_routes_loaded: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_LOG_ROUTES_LOADED),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^network_status_restricted/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a network_status_restricted: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_RESTRICT_NETWORK_STATUS),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^socket_port/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a socket_port: $(BR2_PACKAGE_SUMMIT_RCM_RUST_HTTPS_PORT)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-
-	# --- [summit-rcm] OpenAPI docs ---
-	$(SED) '/^rest_api_docs/d' $(TARGET_DIR)/etc/summit-rcm.ini
 	rm -f $(TARGET_DIR)/etc/summit-rcm-openapi.json
-	$(SED) '/^rest_api_docs_root_redirect/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a rest_api_docs_root_redirect: $(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_ROOT_REDIRECT),true,false)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-
-	# --- [summit-rcm] AT interface ---
-	$(SED) '/^serial_port/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a serial_port: $(BR2_PACKAGE_SUMMIT_RCM_RUST_SERIAL_PORT)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^baud_rate/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[summit-rcm\]/a baud_rate: $(BR2_PACKAGE_SUMMIT_RCM_RUST_BAUD_RATE)' \
-		$(TARGET_DIR)/etc/summit-rcm.ini
 endef
 
 SUMMIT_RCM_RUST_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_RUST_INSTALL_CONFIG

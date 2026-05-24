@@ -118,6 +118,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-log-forwarding-plugin/C
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-radio-siso-mode-plugin/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-stunnel-plugin/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-unauthenticated-plugin/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-rcm-rust/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-set-mode/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-swupdate-client/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package/summit-update/Config.in"
