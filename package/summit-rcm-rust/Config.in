@@ -265,7 +265,7 @@ config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_UPDATE
 
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_AWM
 	bool "AWM plugin"
-	depends on BR2_PACKAGE_ADAPTIVE_WW || BR2_PACKAGE_ADAPTIVE_WW_BINARIES
+	depends on BR2_PACKAGE_ADAPTIVE_WW || BR2_PACKAGE_SUMMIT_ADAPTIVE_WW
 	default y
 	help
 	  Enable the Adaptive Worldwide Mode (AWM) plugin.
@@ -318,13 +318,14 @@ config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_FIPS
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_FIREWALL
 	bool "Firewall plugin"
 	depends on BR2_PACKAGE_IPTABLES
-	default y
+	default y if BR2_PACKAGE_SUMMIT_FIREWALL
 	help
 	  Enable the firewall management plugin.
 
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_LOG_FORWARDING
 	bool "Log forwarding plugin"
 	depends on BR2_PACKAGE_SYSTEMD
+	select BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
 	help
 	  Enable the log-forwarding plugin.
 
@@ -336,14 +337,12 @@ config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_PROVISIONING
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_RADIO_SISO_MODE
 	bool "Radio SISO mode plugin"
 	depends on BR2_PACKAGE_SUMMIT_FIRMWARE_60
-	default y
 	help
 	  Enable the radio SISO/MIMO mode plugin.
 
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_STUNNEL
 	bool "Stunnel plugin"
-	depends on BR2_PACKAGE_STUNNEL
-	default y
+	select BR2_PACKAGE_STUNNEL
 	help
 	  Enable the stunnel management plugin.
 
