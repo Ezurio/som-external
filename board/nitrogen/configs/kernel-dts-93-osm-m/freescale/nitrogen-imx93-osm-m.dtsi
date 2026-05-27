@@ -1041,9 +1041,9 @@
 		>;
 	};
 
-	pinctrl_osm_gpio_a_4: osm-gpio-a-4-grp {
+	pinctrl_osm_gpio_a_7: osm-gpio-a-7-grp {
 		fsl,pins = <
-			MX93_PAD_PDM_BIT_STREAM1__GPIO1_IO10				0x131e	/* GPIO_A_4 */
+			MX93_PAD_PDM_BIT_STREAM1__GPIO1_IO10				0x131e	/* GPIO_A_7 */
 		>;
 	};
 
