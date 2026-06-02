@@ -1,4 +1,4 @@
-config BR2_PACKAGE_SUMMIT_RCM
+menuconfig BR2_PACKAGE_SUMMIT_RCM
 	bool "Summit Remote Control Manager (RCM)"
 	select BR2_PACKAGE_PYTHON3
 	select BR2_PACKAGE_PYTHON3_SSL
