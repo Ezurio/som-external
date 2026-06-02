@@ -23,12 +23,12 @@ ${CONSOLE_LOGGING} || LOG_LEVEL=quiet
 print_verity() {
     cat << EOF
 dm_table="vroot,,${DM_SUFFIX}ro,0 SIZE verity 1
-\${boot_dev} \${boot_dev} 4096 4096 BLOCKS OFFSET sha256 HASH SALT"
+\${boot_dev} \${boot_dev} 4096 4096 BLOCKS OFFSET sha256 HASH SALT 0"
 
 EOF
 }
 
-print_common() {
+print_common_pre() {
     cat << EOF
 if test "\${boot_src}" = "nand" -o -z "\${boot_src}"; then
     boot_dev="/dev/ubiblock0_\${bootvol}"
@@ -37,6 +37,11 @@ else
     boot_dev="/dev/mmcblk\${mmcdev}p\${rootvol}"
     UBI_ARGS="ubi.fm_autoconvert=1"
 fi
+EOF
+}
+
+print_common() {
+    cat << EOF
 setenv bootargs "root=${1} rootwait rootfstype=squashfs ro bootside=\${bootside}
 init=/usr/bin/pre-systemd-init.sh ${INITTYPE} \${UBI_ARGS}
 fips=\${fips:=0} fips_wifi=\${fips_wifi:=0} ${2}
@@ -47,6 +52,7 @@ EOF
 case ${BUILD_TYPE} in
     som60|ig60|ig60ll|wb50n)
         echo "boot_src=nand"
+        print_common_pre
         if ${SECURE_BOOT}; then
             print_verity
             print_common "/dev/dm-0" "${DM}"
@@ -57,16 +63,19 @@ case ${BUILD_TYPE} in
 
     som60sd|ig60llsd|wb50nsd)
         echo 'boot_src=sd;mmcdev=0;rootvol=5'
+        print_common_pre
         if ${SECURE_BOOT}; then
             print_verity
             print_common "/dev/dm-0" "${DM}"
         else
+
             print_common "\${boot_dev}" \
             "resume=/dev/mmcblk0p2 resumewait=5 \${bootargs}"
         fi
         ;;
 
     am6*|imx*)
+        print_common_pre
         if ${SECURE_BOOT}; then
             print_verity
             print_common "/dev/dm-0" "${DM}"
