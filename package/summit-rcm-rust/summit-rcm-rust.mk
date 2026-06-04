@@ -65,7 +65,8 @@ SUMMIT_RCM_RUST_CARGO_INSTALL_OPTS = $(SUMMIT_RCM_RUST_CARGO_BUILD_OPTS) --profi
 # .rodata even for stripped release binaries. Remap the package build root so
 # shipped artifacts do not expose absolute Buildroot paths.
 SUMMIT_RCM_RUST_CARGO_ENV += \
-	RUSTFLAGS="--remap-path-prefix=$(SUMMIT_RCM_RUST_SRCDIR)=."
+	RUSTFLAGS="--remap-path-prefix=$(SUMMIT_RCM_RUST_SRCDIR)=." \
+	CARGO_PROFILE_RELEASE_LTO="true"
 
 # ---------------------------------------------------------------------------
 # Install target hooks
