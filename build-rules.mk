@@ -28,10 +28,10 @@ PARALLEL_JOBS := $(shell echo $$((1 + `nproc 2>/dev/null || echo 0`)))
 endif
 
 ifneq ($(PARALLEL_JOBS),1)
-#ifeq ($(strip $(filter %-menuconfig,$(MAKECMDGOALS))),)
+ifeq ($(strip $(filter %-menuconfig,$(MAKECMDGOALS))),)
 PARALLEL_OPTS = -j$(PARALLEL_JOBS) PARALLEL_JOBS=$(PARALLEL_JOBS)
-MAKEFLAGS += -Otarget --no-print-directory
-#endif
+MAKEFLAGS += -Orecurse --no-print-directory
+endif
 endif
 
 .PHONY: all clean savedefconfig
