@@ -23,15 +23,15 @@ BR2_SUMMIT_BUILD_VERSION ?= $(if $(VERSION),$(VERSION),0.$(BR2_SUMMIT_BRANCH).0.
 release_name = $(1)$(BR2_SUMMIT_BUILD_SUFFIX)-summit-$(BR2_SUMMIT_BUILD_VERSION)
 release_file = $(OUTPUT_DIR)/$(1)/images/$(call release_name,$(1)).tar
 
-ifeq ($(PARALLEL_JOBS),)
-PARALLEL_JOBS := $(shell echo $$((1 + `nproc 2>/dev/null || echo 0`)))
-else ifeq ($(PARALLEL_JOBS),0)
+ifeq ($(filter-out 0,$(strip $(PARALLEL_JOBS))),)
 PARALLEL_JOBS := $(shell echo $$((1 + `nproc 2>/dev/null || echo 0`)))
 endif
 
-PARALLEL_OPTS = -j$(PARALLEL_JOBS) PARALLEL_JOBS=$(PARALLEL_JOBS)
 ifneq ($(PARALLEL_JOBS),1)
-PARALLEL_OPTS += -Orecurse
+#ifeq ($(strip $(filter %-menuconfig,$(MAKECMDGOALS))),)
+PARALLEL_OPTS = -j$(PARALLEL_JOBS) PARALLEL_JOBS=$(PARALLEL_JOBS)
+MAKEFLAGS += -Otarget --no-print-directory
+#endif
 endif
 
 .PHONY: all clean savedefconfig
