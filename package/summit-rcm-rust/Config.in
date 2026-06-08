@@ -270,6 +270,13 @@ config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_AWM
 	help
 	  Enable the Adaptive Worldwide Mode (AWM) plugin.
 
+config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_CWW
+	bool "Configure World Wide plugin"
+	depends on BR2_PACKAGE_ADAPTIVE_WW_CWW || BR2_PACKAGE_ADAPTIVE_WW_CFG_WW
+	default y
+	help
+	  Enable the Configure Worldwide Mode (CWW) plugin.
+
 config BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_BLUETOOTH
 	bool "Bluetooth plugin"
 	depends on BR2_PACKAGE_BLUEZ5_UTILS
