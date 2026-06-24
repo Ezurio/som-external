@@ -8,7 +8,11 @@ TARGETS_meta-som = \
 	nitrogen_imx91 nitrogen_imx93 nitrogen_imx95 \
 	nitrogen_imx8mm_1g nitrogen_imx8mm_2g nitrogen_imx8mm_4g \
 	nitrogen_imx8mp_2g_r1 nitrogen_imx8mp_2g_r2 nitrogen_imx8mp_4g \
-	nitrogen_imx8mp_8g
+	nitrogen_imx8mp_8g \
+	nitrogen_secure_imx8mm_1g nitrogen_secure_imx8mm_2g \
+	nitrogen_secure_imx8mm_4g \
+	nitrogen_secure_imx8mp_2g_r1 nitrogen_secure_imx8mp_2g_r2 \
+	nitrogen_secure_imx8mp_4g nitrogen_secure_imx8mp_8g
 
 TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy wb45n_legacy_fips_11

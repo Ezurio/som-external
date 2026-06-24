@@ -1,0 +1,13 @@
+config BR2_PACKAGE_HOST_CST
+	bool "host cst (NXP Code Signing Tool)"
+	help
+	  NXP i.MX Code Signing Tool (CST), supporting HABv4 image
+	  signing. Used by U-Boot's binman to sign SPL and FIT images
+	  when CONFIG_IMX_HAB is enabled.
+
+	  The CST_URI environment variable may be set to the base URL
+	  of the directory containing the IMX_CST_TOOL_NEW.tgz tarball.
+	  Buildroot will fetch $(CST_URI)/IMX_CST_TOOL_NEW.tgz.
+	  Alternatively, place the tarball in BR2_DL_DIR manually.
+
+	  https://www.nxp.com/webapp/Download?colCode=IMX_CST_TOOL_NEW
