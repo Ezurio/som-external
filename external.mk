@@ -43,6 +43,23 @@ endif
 
 export KEY_PATH KEYS_DIR
 
+# HAB signing support: make host-cst a dependency of U-Boot and export
+# SRK_TABLE/CSF_KEY/IMG_KEY so binman's nxp-imx8mcst etype can locate
+# the HAB PKI tree during the U-Boot build.
+ifeq ($(BR2_PACKAGE_HOST_CST),y)
+UBOOT_DEPENDENCIES += host-cst
+
+ifeq ($(SIG_DATA_PATH),)
+$(error SIG_DATA_PATH is not set for HAB signing (BR2_SUMMIT_IMX_HAB=y))
+endif
+
+SRK_TABLE ?= $(SIG_DATA_PATH)/crts/SRK_1_2_3_4_table.bin
+CSF_KEY ?= $(SIG_DATA_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
+IMG_KEY ?= $(SIG_DATA_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
+
+export SRK_TABLE CSF_KEY IMG_KEY
+endif
+
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))

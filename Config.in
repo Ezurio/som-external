@@ -6,6 +6,22 @@ config BR2_SUMMIT_SECURE_BOOT
 		This enables "traditional" (down to kernel) secure boot
 		rootfs security provided by Summit Encrypted Storage Toolkit
 
+config BR2_SUMMIT_IMX_HAB
+	bool "i.MX HAB Signed Boot (CST)"
+	select BR2_PACKAGE_HOST_CST
+	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	help
+		Enable NXP HABv4 (High Assurance Boot) signing for i.MX8M
+		platforms. When enabled, U-Boot's binman uses the NXP Code
+		Signing Tool (CST) to sign SPL and FIT images.
+
+		Requires SIG_DATA_PATH environment variable to point to a
+		directory containing HAB PKI certificates and keys:
+		  crts/SRK_1_2_3_4_table.bin
+		  crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
+		  crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
+		  keys/ (private keys and key_pass.txt)
+
 config BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER
 	string "Custom device tree blobs filter"
 	help
@@ -135,6 +151,7 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-kms-pkcs11/Config.in
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-sdk-cpp/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fbida/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/cst/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/mesa-pvr/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/minehunt/Config.in"

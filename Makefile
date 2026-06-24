@@ -9,6 +9,10 @@ TARGETS_meta-som = \
 	nitrogen_imx8mm_smarc_1g nitrogen_imx8mm_smarc_2g nitrogen_imx8mm_smarc_4g \
 	nitrogen_imx8mp_smarc_2g_r1 nitrogen_imx8mp_smarc_2g_r2 \
 	nitrogen_imx8mp_smarc_4g nitrogen_imx8mp_smarc_8g \
+	nitrogen_secure_imx8mm_smarc_1g nitrogen_secure_imx8mm_smarc_2g \
+	nitrogen_secure_imx8mm_smarc_4g \
+	nitrogen_secure_imx8mp_smarc_2g_r1 nitrogen_secure_imx8mp_smarc_2g_r2 \
+	nitrogen_secure_imx8mp_smarc_4g nitrogen_secure_imx8mp_smarc_8g \
 	nitrogen_imx91_smarc nitrogen_imx91_osm_s nitrogen_imx91_osm_m \
 	nitrogen_imx93_smarc nitrogen_imx93_osm_s nitrogen_imx93_osm_m \
 	nitrogen_imx95_smarc
