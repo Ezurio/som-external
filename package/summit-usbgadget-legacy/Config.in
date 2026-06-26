@@ -1,0 +1,123 @@
+menuconfig BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY
+	bool "Summit USB Gadget (legacy shell)"
+	help
+	  Legacy USB Ethernet Gadget helper scripts.
+
+if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_OTG
+	bool "USB Gadget OTG"
+	help
+	  USB Gadget OTG
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_VENDOR_ID
+	string "USB Vendor ID"
+	default "0x1fa3"
+	help
+	  USB Gadget Vendor ID
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_PRODUCT_ID
+	string "USB Product ID"
+	default "0x0002"
+	help
+	  USB Gadget Product ID
+
+choice BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE
+	prompt "USB Gadget serial number source"
+	default BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_AUTO
+	help
+	  Select how the USB gadget serial number is derived at runtime.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_AUTO
+	bool "Automatic fallback"
+	help
+	  Use the existing runtime fallback order.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_UBOOT_ETHADDR
+	bool "U-Boot ethaddr"
+	help
+	  Derive the USB gadget serial number from U-Boot ethaddr.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_UBOOT_ETH1ADDR
+	bool "U-Boot eth1addr"
+	help
+	  Derive the USB gadget serial number from U-Boot eth1addr.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_CUSTOM
+	bool "Custom serial value or expression"
+	help
+	  Use the custom USB gadget serial value or shell expression below.
+
+endchoice
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_STRING
+	string
+	default "auto" if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_AUTO
+	default "uboot_ethaddr" if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_UBOOT_ETHADDR
+	default "uboot_eth1addr" if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_UBOOT_ETH1ADDR
+	default "custom" if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_CUSTOM
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_NUMBER
+	string "USB Gadget serial value or expression"
+	depends on BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_SOURCE_CUSTOM
+	help
+	  Custom USB gadget serial value or shell expression.
+	  This value is written into /etc/default/usb-gadget and sourced
+	  at runtime, so shell expressions such as command substitution may
+	  be used to derive a serial number.
+	  Required when the custom serial source is selected.
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_ETHERNET_PORTS
+	int "USB Gadget Ethernet ports"
+	default 1
+
+if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_ETHERNET_PORTS > 0
+choice BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE
+	prompt "USB Gadget Ethernet Type"
+	default BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_ECM if BR2_PACKAGE_SUMMIT_LEGACY
+	default BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_NCM
+	help
+	  USB Ethernet Gadget Type
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_RNDIS
+	bool "RNDIS"
+	help
+	  RNDIS USB Ethernet Gadget
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_NCM
+	bool "NCM"
+	help
+	  NCM USB Ethernet Gadget
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_ECM
+	bool "ECM"
+	help
+	  ECM USB Ethernet Gadget
+
+endchoice
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_STRING
+	string
+	default "rndis" if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_RNDIS
+	default "ncm"   if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_NCM
+	default "ecm"   if BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_TYPE_ECM
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_LOCAL_MAC
+	string "USB Ethernet Gadget local MAC address"
+	default "DE:AD:BE:EF:00:01"
+	help
+	  USB Ethernet Gadget local MAC address
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_REMOTE_MAC
+	string "USB Ethernet Gadget remote MAC address"
+	default "DE:AD:BE:EF:00:00"
+	help
+	  USB Ethernet Gadget remote MAC address
+
+endif
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_LEGACY_SERIAL_PORTS
+	int "USB Gadget Serial ports"
+	default 0
+
+endif

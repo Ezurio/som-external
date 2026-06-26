@@ -1,0 +1,13 @@
+[Unit]
+Description=Summit USB Gadget daemon
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/summit-usbgadget
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=summit-usbgadget
+
+[Install]
+WantedBy=multi-user.target

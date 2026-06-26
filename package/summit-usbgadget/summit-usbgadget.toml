@@ -1,0 +1,55 @@
+# Default summit-usbgadget configuration.
+#
+# This keeps the legacy summit-usbgadget composite shape by default:
+# one CDC NCM network interface using the historical IDs and MAC addresses.
+# A DFU interface is added on top so firmware can be streamed into SWUpdate.
+
+# Microsoft OS descriptor. Present (even empty) so the gadget advertises the
+# Microsoft OS string descriptor; values default to the usbgadget crate's
+# Microsoft defaults (qw_sign = "MSFT100"). This, together with the NCM
+# interface's WINNCM compatible ID below, lets Windows bind the inbox driver.
+[os_descriptor]
+
+[device]
+vendor = 0x1fa3
+product = 0x0002
+manufacturer = "Ezurio"
+product_name_source = "model"
+serial_source = "auto"
+
+[[config]]
+description = "USB Composite Configuration"
+
+[[config.function]]
+type = "net"
+class = "ncm"
+dev_addr = "DE:AD:BE:EF:00:00"
+host_addr = "DE:AD:BE:EF:00:01"
+os_compatible_id = "WINNCM"
+
+# For an RNDIS gadget instead, use the Microsoft RNDIS compatible IDs and the
+# RNDIS interface class (matching the legacy summit-usbgadget setup):
+# [[config.function]]
+# type = "net"
+# class = "rndis"
+# dev_addr = "DE:AD:BE:EF:00:00"
+# host_addr = "DE:AD:BE:EF:00:01"
+# interface_class = 0xef
+# interface_sub_class = 0x04
+# interface_protocol = 0x01
+# os_compatible_id = "RNDIS"
+# os_sub_compatible_id = "5162001"
+
+[[config.function]]
+type = "dfu"
+download = "swupdate"
+
+[[config.function]]
+type = "fbk"
+download = "swupdate"
+
+# Uncomment to restore the old optional ACM serial function in addition to NCM
+# and DFU.
+# [[config.function]]
+# type = "serial"
+# class = "acm"

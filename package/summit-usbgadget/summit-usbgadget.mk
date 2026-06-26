@@ -1,74 +1,56 @@
-#############################################################
+################################################################################
 #
-# Summit USB Ethernet Gadget Helper
+# summit-usbgadget
 #
-#############################################################
+################################################################################
 
 SUMMIT_USBGADGET_VERSION = local
-SUMMIT_USBGADGET_SITE = $(SUMMIT_USBGADGET_PKGDIR)/files
+SUMMIT_USBGADGET_SITE = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/externals/summit-usbgadget
 SUMMIT_USBGADGET_SITE_METHOD = local
+
 SUMMIT_USBGADGET_LICENSE = Ezurio
 SUMMIT_USBGADGET_LICENSE_FILES = LICENSE.ezurio
 
-SUMMIT_USBGADGET_SYSV_SCRIPT = \
-	$(if $(BR2_PACKAGE_SUMMIT_LEGACY),opt/S91g_ether,S43usb-gadget)
+SUMMIT_USBGADGET_DEPENDENCIES += udev
+
+SUMMIT_USBGADGET_FEATURES = \
+	$(if $(BR2_PACKAGE_SUMMIT_USBGADGET_DFU),dfu,) \
+	$(if $(BR2_PACKAGE_SUMMIT_USBGADGET_FBK),fbk,)
+
+SUMMIT_USBGADGET_CARGO_BUILD_OPTS += \
+	--no-default-features \
+	$(if $(strip $(SUMMIT_USBGADGET_FEATURES)),--features $(subst $() $(),$(comma),$(strip $(SUMMIT_USBGADGET_FEATURES))),)
+
+SUMMIT_USBGADGET_CARGO_INSTALL_OPTS = $(SUMMIT_USBGADGET_CARGO_BUILD_OPTS) --profile release
+
+SUMMIT_USBGADGET_CARGO_ENV += \
+	RUSTFLAGS="--remap-path-prefix=$(SUMMIT_USBGADGET_SRCDIR)=." \
+	CARGO_PROFILE_RELEASE_LTO="true"
 
 ifeq ($(BR2_PACKAGE_SUMMIT_FIREWALL),)
 ifneq ($(BR2_PACKAGE_SUMMIT_NETWORK_MANAGER)$(BR2_PACKAGE_NETWORK_MANAGER),)
 define SUMMIT_USBGADGET_INSTALL_NM
 	$(INSTALL) -D -m 0600 -t $(TARGET_DIR)/usr/lib/NetworkManager/system-connections/ \
-		$(@D)/shared-usb*.nmconnection
+		$(SUMMIT_USBGADGET_PKGDIR)/shared-usb*.nmconnection
 endef
+SUMMIT_USBGADGET_POST_INSTALL_TARGET_HOOKS += SUMMIT_USBGADGET_INSTALL_NM
 endif
 endif
 
-define SUMMIT_USBGADGET_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 -t $(TARGET_DIR)/usr/bin $(@D)/usb-gadget.sh
-
-	mkdir -p "$(TARGET_DIR)/etc/default"
-	echo 'USB_GADGET_ETHER_PORTS=$(BR2_PACKAGE_SUMMIT_USBGADGET_ETHERNET_PORTS)'       > $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_ETHER=$(BR2_PACKAGE_SUMMIT_USBGADGET_TYPE_STRING)'               >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_ETHER_LOCAL_MAC=$(BR2_PACKAGE_SUMMIT_USBGADGET_LOCAL_MAC)'       >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_ETHER_REMOTE_MAC=$(BR2_PACKAGE_SUMMIT_USBGADGET_REMOTE_MAC)'     >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_SERIAL_SOURCE=$(BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_SOURCE_STRING)' >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_SERIAL_NUMBER=$(BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_NUMBER)'     >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_SERIAL_PORTS=$(BR2_PACKAGE_SUMMIT_USBGADGET_SERIAL_PORTS)'       >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_VENDOR_ID=$(BR2_PACKAGE_SUMMIT_USBGADGET_VENDOR_ID)'             >> $(TARGET_DIR)/etc/default/usb-gadget
-	echo 'USB_GADGET_PRODUCT_ID=$(BR2_PACKAGE_SUMMIT_USBGADGET_PRODUCT_ID)'           >> $(TARGET_DIR)/etc/default/usb-gadget
-
-	$(SUMMIT_USBGADGET_INSTALL_NM)
+define SUMMIT_USBGADGET_INSTALL_CONFIG
+	$(INSTALL) -D -m 0644 $(SUMMIT_USBGADGET_PKGDIR)/summit-usbgadget.toml \
+		$(TARGET_DIR)/etc/summit-usbgadget.toml
 endef
+SUMMIT_USBGADGET_POST_INSTALL_TARGET_HOOKS += SUMMIT_USBGADGET_INSTALL_CONFIG
 
-ifeq ($(BR2_PACKAGE_SUMMIT_USBGADGET_OTG),y)
-
-# OTG configuration
 define SUMMIT_USBGADGET_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 0644 $(@D)/usb-gadget.rules.otg.systemd \
-		$(TARGET_DIR)/etc/udev/rules.d/99-usb-gadget.rules
-	$(INSTALL) -D -m 0644 $(@D)/usb-gadget@.service.otg \
-		$(TARGET_DIR)/usr/lib/systemd/system/usb-gadget@.service
+	$(INSTALL) -D -m 0644 $(SUMMIT_USBGADGET_PKGDIR)/summit-usbgadget.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/summit-usbgadget.service
 endef
 
 define SUMMIT_USBGADGET_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0644 $(@D)/usb-gadget.rules.otg \
-		$(TARGET_DIR)/etc/udev/rules.d/99-usb-gadget.rules
-endef
-# OTG configuration done
-
-else
-
-# Non-OTG configuration
-define SUMMIT_USBGADGET_INSTALL_INIT_SYSTEMD
-	$(INSTALL) -D -m 0644 $(@D)/usb-gadget.service \
-		$(TARGET_DIR)/usr/lib/systemd/system/usb-gadget.service
+	$(INSTALL) -D -m 0755 $(SUMMIT_USBGADGET_PKGDIR)/summit-usbgadget.init \
+		$(TARGET_DIR)/etc/init.d/S43summit-usbgadget
 endef
 
-define SUMMIT_USBGADGET_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0755 $(@D)/S43usb-gadget \
-		$(TARGET_DIR)/etc/init.d/$(SUMMIT_USBGADGET_SYSV_SCRIPT)
-endef
-# Non-OTG configuration done
-
-endif
-
-$(eval $(generic-package))
+$(eval $(cargo-package))
