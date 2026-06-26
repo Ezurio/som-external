@@ -39,11 +39,21 @@ if [ -f "${BINARIES_DIR}/sw-description" ]; then
 
 	export EMMC_BOOT_OFFSET=0
 
-	IMX_CPU=$(sed -rn 's/BR2_PACKAGE_FREESCALE_IMX_PLATFORM="(.*)"/\1/p' "${BR2_CONFIG}")
-	case ${IMX_CPU} in
-		IMX8MM)
-			export EMMC_BOOT_OFFSET=33K
-			;;
+	case "${BUILD_TYPE}" in
+	am6*)
+		export UBOOT_ENV_OFFSET=3670016
+		export EMMC_SPL_OFFSET=524288
+		export EMMC_BOOT_OFFSET=2621440
+		;;
+	imx*)
+		export UBOOT_ENV_OFFSET=4128768
+		IMX_CPU=$(sed -rn 's/BR2_PACKAGE_FREESCALE_IMX_PLATFORM="(.*)"/\1/p' "${BR2_CONFIG}")
+		case ${IMX_CPU} in
+			IMX8MM)
+				export EMMC_BOOT_OFFSET=33792
+				;;
+		esac
+		;;
 	esac
 
 	# Call script to generate secure SWU

@@ -40,7 +40,7 @@ software =
 					filename = "uboot.env";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "4032K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
@@ -113,7 +113,7 @@ software =
 					filename = "uboot.env";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 					type = "raw";
-					offset = "4032K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
@@ -221,39 +221,22 @@ software =
 					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
 					offset = "@@EMMC_BOOT_OFFSET@@";
-					sha256 = "$swupdate_get_sha256(flash.bin)";
-				},
-				{
-					filename = "flash.bin";
-					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
-					type = "raw";
-					offset = "@@EMMC_BOOT_OFFSET@@";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(flash.bin)";
 				},
 				{
 					filename = "uboot.env";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "4032K";
-					sha256 = "$swupdate_get_sha256(uboot.env)";
-				},
-				{
-					filename = "uboot.env";
-					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
-					type = "raw";
-					offset = "4032K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "rootfs.bin";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@p2";
 					type = "raw";
-					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
-				{
-					filename = "rootfs.bin";
-					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
-					type = "raw";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
@@ -276,6 +259,57 @@ software =
 			);
 
 			scripts: (
+				{
+					type = "copy";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						type = "postinstall";
+						copyfrom = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+						chain = "raw";
+						size = "4194304";
+					};
+				},
+				{
+					type = "copy";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+
+					properties: {
+						type = "postinstall";
+						copyfrom = "/dev/mmcblk@@EMMC_DEVICE@@p2";
+						chain = "raw";
+						size = "$swupdate_get_file_size_bytes(rootfs.bin)";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(flash.bin)";
+						size = "$swupdate_get_file_size_bytes(flash.bin)";
+						offset = "@@EMMC_BOOT_OFFSET@@";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(uboot.env)";
+						size = "$swupdate_get_file_size_bytes(uboot.env)";
+						offset = "@@UBOOT_ENV_OFFSET@@";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(rootfs.bin)";
+						size = "$swupdate_get_file_size_bytes(rootfs.bin)";
+					};
+				},
 				{
 					type = "emmc_boot";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";

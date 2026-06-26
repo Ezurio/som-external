@@ -35,11 +35,19 @@ done < <(grep -oP '@@.*?@@' sw-description | sort -u)
 # Caller needs unprocessed versions for further use
 cp -af sw-description sw-description-saved
 
-# Embed component hashes in SWU scripts
-while read -r hash file ; do
-	read -r hash_value _ < <("${hash}sum" "${file}")
-	echo "${file}          ${hash_value}"
-	sed -i "s/\$swupdate_get_${hash}(${file})/${hash_value}/g" sw-description
+# Embed component values in SWU scripts
+while read -r op file ; do
+	case "${op}" in
+		file_size_bytes)
+			value=$(stat -Lc '%s' "${file}") || die "failed to get file size for ${file}"
+			;;
+		*)
+			read -r value _ < <("${op}sum" "${file}") || \
+				die "failed to compute ${op} for ${file}"
+			;;
+	esac
+	echo "${file}          ${value}"
+	sed -i "s/\$swupdate_get_${op}(${file})/${value}/g" sw-description
 done < <(sed -n "s/.*\$swupdate_get_\([^(]\+\)(\([^)]\+\).*/\1 \2/p" sw-description | sort -u)
 
 # Extract SWU files from sw-description

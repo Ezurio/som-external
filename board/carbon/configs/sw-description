@@ -9,7 +9,7 @@ software =
 			partitions: (
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 
 					properties: {
 						fstype = "vfat";
@@ -18,7 +18,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p3";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p3";
 
 					properties: {
 						fstype = "ext4";
@@ -30,38 +30,38 @@ software =
 			images: (
 				{
 					filename = "tiboot3.bin";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
 				},
 				{
 					filename = "tispl.bin";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "512K";
+					offset = "@@EMMC_SPL_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tispl.bin)";
 				},
 				{
 					filename = "u-boot.img";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "2560K";
+					offset = "@@EMMC_BOOT_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.img)";
 				},
 				{
 					filename = "uboot.env";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "3584K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "rootfs.bin";
-					device = "/dev/mmcblk0p2";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p2";
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
@@ -72,7 +72,7 @@ software =
 				{
 					filename = "kernel.itb";
 					path = "/kernel.itb";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
@@ -80,7 +80,7 @@ software =
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
 					path = "/prov_data.tar.zst_sign_enc.bin";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
@@ -91,12 +91,12 @@ software =
 				{
 					filename = "erase_data.sh";
 					type = "postinstall";
-					data = "/dev/mmcblk0p6 /dev/mmcblk0p3";
+					data = "/dev/mmcblk@@EMMC_DEVICE@@p6 /dev/mmcblk@@EMMC_DEVICE@@p3";
 					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				},
 				{
 					type = "emmc_boot";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 				}
 			);
 		};
@@ -105,7 +105,7 @@ software =
 			partitions: (
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 
 					properties: {
 						fstype = "vfat";
@@ -114,7 +114,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p6";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p6";
 
 					properties: {
 						fstype = "ext4";
@@ -126,38 +126,38 @@ software =
 			images: (
 				{
 					filename = "tiboot3.bin";
-					device = "/dev/mmcblk0boot1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
 				},
 				{
 					filename = "tispl.bin";
-					device = "/dev/mmcblk0boot1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 					type = "raw";
-					offset = "512K";
+					offset = "@@EMMC_SPL_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tispl.bin)";
 				},
 				{
 					filename = "u-boot.img";
-					device = "/dev/mmcblk0boot1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 					type = "raw";
-					offset = "2560K";
+					offset = "@@EMMC_BOOT_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.img)";
 				},
 				{
 					filename = "uboot.env";
-					device = "/dev/mmcblk0boot1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 					type = "raw";
-					offset = "3584K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "rootfs.bin";
-					device = "/dev/mmcblk0p5";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
 					type = "raw";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
@@ -168,7 +168,7 @@ software =
 				{
 					filename = "kernel.itb";
 					path = "/kernel.itb";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
@@ -176,7 +176,7 @@ software =
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
 					path = "/prov_data.tar.zst_sign_enc.bin";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
 					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
@@ -187,12 +187,12 @@ software =
 				{
 					filename = "erase_data.sh";
 					type = "postinstall";
-					data = "/dev/mmcblk0p3 /dev/mmcblk0p6";
+					data = "/dev/mmcblk@@EMMC_DEVICE@@p3 /dev/mmcblk@@EMMC_DEVICE@@p6";
 					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				},
 				{
 					type = "emmc_boot";
-					device = "/dev/mmcblk0boot1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
 				}
 			);
 		};
@@ -201,7 +201,7 @@ software =
 			partitions: (
 				{
 					type = "diskpart";
-					device = "/dev/mmcblk0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@";
 
 					properties: {
 						labeltype = "gpt";
@@ -216,7 +216,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 
 					properties: {
 						fstype = "vfat";
@@ -225,7 +225,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p3";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p3";
 
 					properties: {
 						fstype = "ext4";
@@ -234,7 +234,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 
 					properties: {
 						fstype = "vfat";
@@ -243,7 +243,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p6";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p6";
 
 					properties: {
 						fstype = "ext4";
@@ -252,7 +252,7 @@ software =
 				},
 				{
 					type = "diskformat";
-					device = "/dev/mmcblk0p7";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p7";
 
 					properties: {
 						fstype = "ext4";
@@ -264,68 +264,40 @@ software =
 			images: (
 				{
 					filename = "tiboot3.bin";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
-				},
-				{
-					filename = "tiboot3.bin";
-					device = "/dev/mmcblk0boot1";
-					type = "raw";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
 				},
 				{
 					filename = "tispl.bin";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "512K";
-					sha256 = "$swupdate_get_sha256(tispl.bin)";
-				},
-				{
-					filename = "tispl.bin";
-					device = "/dev/mmcblk0boot1";
-					type = "raw";
-					offset = "512K";
+					offset = "@@EMMC_SPL_OFFSET@@";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tispl.bin)";
 				},
 				{
 					filename = "u-boot.img";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "2560K";
-					sha256 = "$swupdate_get_sha256(u-boot.img)";
-				},
-				{
-					filename = "u-boot.img";
-					device = "/dev/mmcblk0boot1";
-					type = "raw";
-					offset = "2560K";
+					offset = "@@EMMC_BOOT_OFFSET@@";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.img)";
 				},
 				{
 					filename = "uboot.env";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 					type = "raw";
-					offset = "3584K";
-					sha256 = "$swupdate_get_sha256(uboot.env)";
-				},
-				{
-					filename = "uboot.env";
-					device = "/dev/mmcblk0boot1";
-					type = "raw";
-					offset = "3584K";
+					offset = "@@UBOOT_ENV_OFFSET@@";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "rootfs.bin";
-					device = "/dev/mmcblk0p2";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p2";
 					type = "raw";
-					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
-				{
-					filename = "rootfs.bin";
-					device = "/dev/mmcblk0p5";
-					type = "raw";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
@@ -334,28 +306,28 @@ software =
 				{
 					filename = "kernel.itb";
 					path = "/kernel.itb";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "kernel.itb";
 					path = "/kernel.itb";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
 					path = "/prov_data.tar.zst_sign_enc.bin";
-					device = "/dev/mmcblk0p1";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				},
 				{
 					filename = "prov_data.tar.zst_sign_enc.bin";
 					path = "/prov_data.tar.zst_sign_enc.bin";
-					device = "/dev/mmcblk0p4";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
 					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
 				}
@@ -363,8 +335,78 @@ software =
 
 			scripts: (
 				{
+					type = "copy";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						type = "postinstall";
+						copyfrom = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
+						chain = "raw";
+						size = "4194304";
+					};
+				},
+				{
+					type = "copy";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+
+					properties: {
+						type = "postinstall";
+						copyfrom = "/dev/mmcblk@@EMMC_DEVICE@@p2";
+						chain = "raw";
+						size = "$swupdate_get_file_size_bytes(rootfs.bin)";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(tiboot3.bin)";
+						size = "$swupdate_get_file_size_bytes(tiboot3.bin)";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(tispl.bin)";
+						size = "$swupdate_get_file_size_bytes(tispl.bin)";
+						offset = "@@EMMC_SPL_OFFSET@@";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(u-boot.img)";
+						size = "$swupdate_get_file_size_bytes(u-boot.img)";
+						offset = "@@EMMC_BOOT_OFFSET@@";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot1";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(uboot.env)";
+						size = "$swupdate_get_file_size_bytes(uboot.env)";
+						offset = "@@UBOOT_ENV_OFFSET@@";
+					};
+				},
+				{
+					type = "readback";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@p5";
+
+					properties: {
+						sha256 = "$swupdate_get_sha256(rootfs.bin)";
+						size = "$swupdate_get_file_size_bytes(rootfs.bin)";
+					};
+				},
+				{
 					type = "emmc_boot";
-					device = "/dev/mmcblk0boot0";
+					device = "/dev/mmcblk@@EMMC_DEVICE@@boot0";
 				}
 			);
 		};
