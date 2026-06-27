@@ -11,7 +11,7 @@ SUMMIT_RCM_RUST_SITE_METHOD = local
 SUMMIT_RCM_RUST_LICENSE = Ezurio
 SUMMIT_RCM_RUST_LICENSE_FILES = LICENSE.ezurio
 
-SUMMIT_RCM_RUST_DEPENDENCIES = openssl
+SUMMIT_RCM_RUST_DEPENDENCIES += openssl
 
 # ---------------------------------------------------------------------------
 # Build up --features list from Kconfig options.
@@ -44,8 +44,8 @@ SUMMIT_RCM_RUST_FEATURES = \
 	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_RADIO_SISO_MODE),radio-siso-mode,) \
 	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_STUNNEL),stunnel,) \
 	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_UNAUTHENTICATED),unauthenticated,) \
-	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_RUNTIME),runtime-docs swagger-ui api-docs,) \
-	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_JSON),runtime-docs swagger-ui,)
+	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_RUNTIME),swagger-ui api-docs,) \
+	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_JSON),swagger-ui,)
 
 SUMMIT_RCM_RUST_DOC_GEN_FEATURES = \
 	$(filter-out runtime-docs swagger-ui api-docs,$(SUMMIT_RCM_RUST_FEATURES)) \
