@@ -3,8 +3,6 @@
  * M.2 SDIO Wi-Fi common functions (carrier-side)
  *
  * Copyright 2026 Ezurio LLC
- *
- * Carrier .dts must provide: &exp1, &exp2, &reg_3v3, &reg_1v8
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>

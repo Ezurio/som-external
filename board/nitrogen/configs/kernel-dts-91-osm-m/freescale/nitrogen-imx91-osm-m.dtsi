@@ -270,8 +270,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic_irq>;
-
-		interrupts-extended = <&gpio2 10 IRQ_TYPE_EDGE_FALLING>;	/* GPIO_IO10 -> PMIC_IRQ */
+		interrupts-extended = <&gpio2 10 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO10 -> PMIC_IRQ */
 
 		regulators {
 			buck1: BUCK1 {
@@ -412,7 +411,6 @@
 			};
 		};
 	};
-
 };
 
 &lpi2c3 {
@@ -941,7 +939,6 @@
 			MX91_PAD_SD2_DATA1__GPIO3_IO4		0x51e
 			MX91_PAD_SD2_DATA2__GPIO3_IO5		0x51e
 			MX91_PAD_SD2_DATA3__GPIO3_IO6		0x51e
-			MX91_PAD_SD2_VSELECT__GPIO3_IO19	0x51e
 		>;
 	};
 

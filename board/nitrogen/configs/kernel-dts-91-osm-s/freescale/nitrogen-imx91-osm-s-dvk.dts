@@ -99,6 +99,24 @@
 	xceiver-supply = <&reg_can1_stby>;
 };
 
+&lpspi4 { /* SPI_A */
+	status = "okay";
+
+	spidev@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <24000000>;
+		reg = <0>;
+	};
+};
+
+&lpuart2 { /* UART_A */
+	status = "okay";
+};
+
+&lpuart6 { /* UART_B */
+	status = "okay";
+};
+
 &lpi2c2 { /* I2C_A */
 	status = "okay";
 
@@ -133,7 +151,8 @@
 		#gpio-cells = <2>;
 		gpio-controller;
 
-		gpio-line-names = "USB_C_OEn_P00", "USB_D_OEn_P01",
+		gpio-line-names =
+			"USB_C_OEn_P00", "USB_D_OEn_P01",
 			"CAN_A_STB", "CAN_B_STB",
 			"M2_WDISABLE1#", "M2_WDISABLE2#",
 			"CSI_PWR_CTL_A", "CSI_PWR_CTL_B",
@@ -160,34 +179,35 @@
 			"VOL_UP", "VOL_DOWN",
 			"", "DSI_A_IRQ";
 
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_osm_gpio_a_3>;
+
 		#interrupt-cells = <2>;
 		interrupt-controller;
 		microchip,irq-mirror;
+
+		interrupts-extended = <&gpio2 15 IRQ_TYPE_EDGE_FALLING>; /* GPIO_A_3 */
+		interrupt-names = "irq";
 	};
 };
 
-&lpspi4 { /* SPI_A */
-	status = "okay";
+&usdhc2 { /* SDIO_A (uSD / M.2 socket) */
+	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-3 = <&pinctrl_usdhc2_sleep>, <&pinctrl_usdhc2_gpio_sleep>;
 
-	spidev@0 {
-		compatible = "rohm,dh2228fv";
-		spi-max-frequency = <24000000>;
-		reg = <0>;
-	};
-};
+	cd-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+	fsl,cd-gpio-wakeup-disable;
 
-&lpuart2 { /* UART_A */
-	status = "okay";
-};
-
-&lpuart6 { /* UART_B */
 	status = "okay";
 };
 
 &usbotg1 { /* USB_A */
 	status = "okay";
-};
 
-&usdhc2 { /* SDIO_A (uSD / M.2 socket) */
-	status = "okay";
+	hnp-disable;
+	srp-disable;
+	adp-disable;
+	disable-over-current;
 };

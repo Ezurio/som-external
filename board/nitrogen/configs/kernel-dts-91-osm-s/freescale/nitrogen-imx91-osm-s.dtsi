@@ -140,10 +140,8 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_wlan_en>;
-		gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;	/* GPIO_IO03 - W_DISABLE1# (WL_EN) */
+		gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;	/* W_DISABLE1# / WL_EN */
 		enable-active-high;
-
-		startup-delay-us = <70000>;
 	};
 
 	wifi_wakeup: wifi-wakeup {
@@ -152,14 +150,14 @@
 		status = "disabled";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_sdio_host_wake>, <&pinctrl_uart_host_wake>;
+		pinctrl-0 = <&pinctrl_wifi_wakeup>;
 
 		wifi-wake {
 			label = "Wi-Fi Wake Up";
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 8 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO08 - SDIO_HOST_WAKE# */
+			interrupts-extended = <&gpio2 8 IRQ_TYPE_LEVEL_LOW>;	/* SDIO_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 
@@ -168,7 +166,7 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 2 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO02 - UART_HOST_WAKE# */
+			interrupts-extended = <&gpio2 2 IRQ_TYPE_LEVEL_LOW>;	/* UART_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 	};
@@ -179,6 +177,10 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usdhc1_reset>;
 		reset-gpios = <&gpio2 11 GPIO_ACTIVE_LOW>;
+	};
+
+	display-subsystem {
+		status = "disabled";
 	};
 };
 
@@ -229,7 +231,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic>;
-		interrupts-extended = <&gpio2 10 IRQ_TYPE_LEVEL_LOW>;	/* GPIO_IO10 - PMIC_IRQ_B */
+		interrupts-extended = <&gpio2 10 IRQ_TYPE_LEVEL_LOW>;	/* PMIC_IRQ_B */
 
 		regulators {
 			buck1_reg: BUCK1 {
@@ -297,7 +299,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_rtc>;
-		interrupts-extended = <&gpio3 26 IRQ_TYPE_LEVEL_LOW>;	/* CCM_CLKO1 - RTC_INT */
+		interrupts-extended = <&gpio3 26 IRQ_TYPE_LEVEL_LOW>;	/* CCM_CLKO1 -> RTC_INT */
 		interrupt-names = "irq";
 		wakeup-source;
 
@@ -415,13 +417,10 @@
 &usdhc2 {
 	/* SDIO_A */
 	pinctrl-names = "default", "state_100mhz", "state_200mhz", "sleep";
-	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-3 = <&pinctrl_usdhc2_sleep>, <&pinctrl_usdhc2_gpio_sleep>;
-
-	cd-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
-	fsl,cd-gpio-wakeup-disable;
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	pinctrl-1 = <&pinctrl_usdhc2_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>;
+	pinctrl-3 = <&pinctrl_usdhc2_sleep>;
 
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 
@@ -458,13 +457,13 @@
 			MX91_PAD_ENET1_RD1__ENET_QOS_RGMII_RD1			0x57e
 			MX91_PAD_ENET1_RD2__ENET_QOS_RGMII_RD2			0x57e
 			MX91_PAD_ENET1_RD3__ENET_QOS_RGMII_RD3			0x57e
-			MX91_PAD_ENET1_RXC__ENET_QOS_RGMII_RXC			0x5fe
+			MX91_PAD_ENET1_RXC__ENET_QOS_RGMII_RXC			0x58e
 			MX91_PAD_ENET1_RX_CTL__ENET_QOS_RGMII_RX_CTL		0x57e
 			MX91_PAD_ENET1_TD0__ENET_QOS_RGMII_TD0			0x57e
 			MX91_PAD_ENET1_TD1__ENET1_RGMII_TD1			0x57e
 			MX91_PAD_ENET1_TD2__ENET_QOS_RGMII_TD2			0x57e
 			MX91_PAD_ENET1_TD3__ENET_QOS_RGMII_TD3			0x57e
-			MX91_PAD_ENET1_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x5fe
+			MX91_PAD_ENET1_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x58e
 			MX91_PAD_ENET1_TX_CTL__ENET_QOS_RGMII_TX_CTL		0x57e
 		>;
 	};
@@ -527,20 +526,16 @@
 			MX91_PAD_GPIO_IO01__GPIO2_IO1				0x31e	/* W_DISABLE2# / BT_EN (B17) */
 		>;
 	};
-	pinctrl_sdio_host_wake: sdiohostwakegrp {
-		fsl,pins = <
-			MX91_PAD_GPIO_IO08__GPIO2_IO8				0x31e	/* SDIO_HOST_WAKE# (K14) */
-		>;
-	};
 
-	pinctrl_uart_host_wake: uarthostwakegrp {
+	pinctrl_wifi_wakeup: wifiwakeupgrp {
 		fsl,pins = <
-			MX91_PAD_GPIO_IO02__GPIO2_IO2				0x31e	/* UART_HOST_WAKE# (C16) */
+			MX91_PAD_GPIO_IO08__GPIO2_IO8				0x131e	/* SDIO_HOST_WAKE# (K14) */
+			MX91_PAD_GPIO_IO02__GPIO2_IO2				0x131e	/* UART_HOST_WAKE# (C16) */
 		>;
 	};
 
 	/* ----- CAN ----- */
-	pinctrl_flexcan1: flexcan1grp { /* CAN_A */
+	pinctrl_flexcan1: flexcan1grp {	/* CAN_A */
 		fsl,pins = <
 			MX91_PAD_PDM_CLK__CAN1_TX				0x139e	/* CAN_A_TX (A16) */
 			MX91_PAD_PDM_BIT_STREAM0__CAN1_RX			0x139e	/* CAN_A_RX (A10) */
@@ -555,7 +550,7 @@
 	};
 
 	/* ----- SPI ----- */
-	pinctrl_lpspi4: lpspi4grp { /* SPI_A */
+	pinctrl_lpspi4: lpspi4grp {	/* SPI_A */
 		fsl,pins = <
 			MX91_PAD_GPIO_IO18__LPSPI4_PCS0				0x3fe	/* SPI_A_CS0# (M14) */
 			MX91_PAD_GPIO_IO19__LPSPI4_SIN				0x3fe	/* SPI_A_SDI (J17) */
@@ -572,37 +567,37 @@
 	};
 
 	/* ----- UARTs ----- */
-	pinctrl_uart1: uart1grp { /* UART_CON */
+	pinctrl_uart1: uart1grp {	/* UART_CON */
 		fsl,pins = <
-			MX91_PAD_UART1_RXD__LPUART1_RX				0x31e	/* UART_CON_RX (B13) */
+			MX91_PAD_UART1_RXD__LPUART1_RX				0x131e	/* UART_CON_RX (B13) */
 			MX91_PAD_UART1_TXD__LPUART1_TX				0x31e	/* UART_CON_TX (A13) */
 		>;
 	};
 
 	pinctrl_uart2: uart2grp { /* UART_A (4-wire) */
 		fsl,pins = <
-			MX91_PAD_UART2_RXD__LPUART2_RX				0x31e	/* UART_A_RX   (D14) */
+			MX91_PAD_UART2_RXD__LPUART2_RX				0x131e	/* UART_A_RX   (D14) */
 			MX91_PAD_UART2_TXD__LPUART2_TX				0x31e	/* UART_A_TX   (D12) */
-			MX91_PAD_SAI1_TXC__LPUART2_CTS_B			0x31e	/* UART_A_CTS  (B15) */
-			MX91_PAD_SAI1_TXD0__LPUART2_RTS_B			0x31e	/* UART_A_RTS  (A15) */
+			MX91_PAD_SAI1_TXC__LPUART2_CTS_B			0x131e	/* UART_A_CTS  (B15) */
+			MX91_PAD_SAI1_TXD0__LPUART2_RTS_B			0x131e	/* UART_A_RTS  (A15) */
 		>;
 	};
 
-	pinctrl_uart5: uart5grp { /* WiFi/BT HCI on DAP/JTAG pads */
+	pinctrl_uart5: uart5grp {	/* WiFi/BT HCI on DAP/JTAG pads */
 		fsl,pins = <
 			MX91_PAD_DAP_TDO_TRACESWO__LPUART5_TX			0x31e	/* WIFI_UART_TXD (T3) */
-			MX91_PAD_DAP_TDI__LPUART5_RX				0x31e	/* WIFI_UART_RXD (P8) */
-			MX91_PAD_DAP_TMS_SWDIO__LPUART5_RTS_B			0x31e	/* WIFI_UART_RTS (P6) */
-			MX91_PAD_DAP_TCLK_SWCLK__LPUART5_CTS_B			0x31e	/* WIFI_UART_CTS (U3) */
+			MX91_PAD_DAP_TDI__LPUART5_RX				0x131e	/* WIFI_UART_RXD (P8) */
+			MX91_PAD_DAP_TMS_SWDIO__LPUART5_RTS_B			0x131e	/* WIFI_UART_RTS (P6) */
+			MX91_PAD_DAP_TCLK_SWCLK__LPUART5_CTS_B			0x131e	/* WIFI_UART_CTS (U3) */
 		>;
 	};
 
-	pinctrl_uart6: uart6grp { /* UART_B */
+	pinctrl_uart6: uart6grp {	/* UART_B */
 		fsl,pins = <
 			MX91_PAD_GPIO_IO04__LPUART6_TX				0x31e	/* UART_B_TX (D16) */
-			MX91_PAD_GPIO_IO05__LPUART6_RX				0x31e	/* UART_B_RX (D17) */
-			MX91_PAD_GPIO_IO06__LPUART6_CTS_B			0x31e	/* UART_B_CTS (E16) */
-			MX91_PAD_GPIO_IO07__LPUART6_RTS_B			0x31e	/* UART_B_RTS (E17) */
+			MX91_PAD_GPIO_IO05__LPUART6_RX				0x131e	/* UART_B_RX (D17) */
+			MX91_PAD_GPIO_IO06__LPUART6_CTS_B			0x131e	/* UART_B_CTS (E16) */
+			MX91_PAD_GPIO_IO07__LPUART6_RTS_B			0x131e	/* UART_B_RTS (E17) */
 		>;
 	};
 
@@ -664,19 +659,21 @@
 	/* ----- USDHC2 (SDIO_A) ----- */
 	pinctrl_reg_usdhc2_vmmc: regusdhc2vmmcgrp {
 		fsl,pins = <
-			MX91_PAD_SD2_RESET_B__GPIO3_IO7				0x31e
+			MX91_PAD_SD2_RESET_B__GPIO3_IO7		0x31e
 		>;
 	};
 
 	pinctrl_usdhc2_gpio: usdhc2gpiogrp {
 		fsl,pins = <
-			MX91_PAD_SD2_CD_B__GPIO3_IO0				0x31e	/* SDIO_A_CD (P12) */
+			MX91_PAD_SD2_CD_B__GPIO3_IO0		0x31e
+			MX91_PAD_SD2_VSELECT__USDHC2_VSELECT	0x51e
 		>;
 	};
 
 	pinctrl_usdhc2_gpio_sleep: usdhc2gpiosleepgrp {
 		fsl,pins = <
-			MX91_PAD_SD2_CD_B__GPIO3_IO0				0x51e
+			MX91_PAD_SD2_CD_B__GPIO3_IO0		0x51e
+			MX91_PAD_SD2_VSELECT__USDHC2_VSELECT	0x51e
 		>;
 	};
 
@@ -688,7 +685,6 @@
 			MX91_PAD_SD2_DATA1__USDHC2_DATA1	0x1382
 			MX91_PAD_SD2_DATA2__USDHC2_DATA2	0x1382
 			MX91_PAD_SD2_DATA3__USDHC2_DATA3	0x1382
-			MX91_PAD_SD2_VSELECT__USDHC2_VSELECT	0x51e
 		>;
 	};
 
@@ -700,7 +696,6 @@
 			MX91_PAD_SD2_DATA1__USDHC2_DATA1	0x138e
 			MX91_PAD_SD2_DATA2__USDHC2_DATA2	0x138e
 			MX91_PAD_SD2_DATA3__USDHC2_DATA3	0x138e
-			MX91_PAD_SD2_VSELECT__USDHC2_VSELECT	0x51e
 		>;
 	};
 
@@ -712,7 +707,6 @@
 			MX91_PAD_SD2_DATA1__USDHC2_DATA1	0x13fe
 			MX91_PAD_SD2_DATA2__USDHC2_DATA2	0x13fe
 			MX91_PAD_SD2_DATA3__USDHC2_DATA3	0x13fe
-			MX91_PAD_SD2_VSELECT__USDHC2_VSELECT	0x51e
 		>;
 	};
 
@@ -724,7 +718,6 @@
 			MX91_PAD_SD2_DATA1__GPIO3_IO4		0x51e
 			MX91_PAD_SD2_DATA2__GPIO3_IO5		0x51e
 			MX91_PAD_SD2_DATA3__GPIO3_IO6		0x51e
-			MX91_PAD_SD2_VSELECT__GPIO3_IO19	0x51e
 		>;
 	};
 
