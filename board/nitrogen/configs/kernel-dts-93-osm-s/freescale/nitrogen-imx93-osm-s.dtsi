@@ -142,8 +142,6 @@
 		pinctrl-0 = <&pinctrl_wlan_en>;
 		gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;	/* W_DISABLE1# / WL_EN */
 		enable-active-high;
-
-		startup-delay-us = <70000>;
 	};
 
 	wifi_wakeup: wifi-wakeup {
@@ -152,7 +150,7 @@
 		status = "disabled";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_sdio_host_wake>, <&pinctrl_uart_host_wake>;
+		pinctrl-0 = <&pinctrl_wifi_wakeup>;
 
 		wifi-wake {
 			label = "Wi-Fi Wake Up";
@@ -173,30 +171,16 @@
 		};
 	};
 
-	dvk_keys {
-		compatible = "gpio-keys";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_osm_gpio_a_7>;
-
-		wakeup {
-			label = "Wakeup";
-			interrupts-extended = <&gpio1 10 IRQ_TYPE_LEVEL_LOW>;
-			interrupt-names = "irq";
-			linux,code = <KEY_WAKEUP>;
-			wakeup-source;
-
-			//gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
-			//wakeup-event-action = <EV_ACT_ASSERTED>;
-		};
-	};
-
 	usdhc1_pwrseq: usdhc1-pwrseq {
 		compatible = "mmc-pwrseq-emmc";
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usdhc1_reset>;
 		reset-gpios = <&gpio2 11 GPIO_ACTIVE_LOW>;
+	};
+
+	display-subsystem {
+		status = "disabled";
 	};
 };
 
@@ -315,7 +299,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_rtc>;
-		interrupts-extended = <&gpio3 26 IRQ_TYPE_LEVEL_LOW>;	/* RTC_INT */
+		interrupts-extended = <&gpio3 26 IRQ_TYPE_LEVEL_LOW>;	/* CCM_CLKO1 -> RTC_INT */
 		interrupt-names = "irq";
 		wakeup-source;
 
@@ -469,11 +453,11 @@
 		fsl,pins = <
 			MX93_PAD_ENET1_MDC__ENET_QOS_MDC			0x57e
 			MX93_PAD_ENET1_MDIO__ENET_QOS_MDIO			0x57e
-			MX93_PAD_ENET1_RD0__ENET_QOS_RGMII_RD0			0x37e
-			MX93_PAD_ENET1_RD1__ENET_QOS_RGMII_RD1			0x37e
-			MX93_PAD_ENET1_RD2__ENET_QOS_RGMII_RD2			0x37e
-			MX93_PAD_ENET1_RD3__ENET_QOS_RGMII_RD3			0x37e
-			MX93_PAD_ENET1_RXC__CCM_ENET_QOS_CLOCK_GENERATE_RX_CLK	0x3fe
+			MX93_PAD_ENET1_RD0__ENET_QOS_RGMII_RD0			0x57e
+			MX93_PAD_ENET1_RD1__ENET_QOS_RGMII_RD1			0x57e
+			MX93_PAD_ENET1_RD2__ENET_QOS_RGMII_RD2			0x57e
+			MX93_PAD_ENET1_RD3__ENET_QOS_RGMII_RD3			0x57e
+			MX93_PAD_ENET1_RXC__CCM_ENET_QOS_CLOCK_GENERATE_RX_CLK	0x5fe
 			MX93_PAD_ENET1_RX_CTL__ENET_QOS_RGMII_RX_CTL		0x57e
 			MX93_PAD_ENET1_TD0__ENET_QOS_RGMII_TD0			0x57e
 			MX93_PAD_ENET1_TD1__ENET_QOS_RGMII_TD1			0x57e
@@ -543,20 +527,15 @@
 		>;
 	};
 
-	pinctrl_sdio_host_wake: sdiohostwakegrp {
+	pinctrl_wifi_wakeup: wifiwakeupgrp {
 		fsl,pins = <
-			MX93_PAD_GPIO_IO08__GPIO2_IO08				0x31e	/* SDIO_HOST_WAKE# (K14) */
-		>;
-	};
-
-	pinctrl_uart_host_wake: uarthostwakegrp {
-		fsl,pins = <
-			MX93_PAD_GPIO_IO02__GPIO2_IO02				0x31e	/* UART_HOST_WAKE# (C16) */
+			MX93_PAD_GPIO_IO08__GPIO2_IO08				0x131e	/* SDIO_HOST_WAKE# (K14) */
+			MX93_PAD_GPIO_IO02__GPIO2_IO02				0x131e	/* UART_HOST_WAKE# (C16) */
 		>;
 	};
 
 	/* ----- CAN ----- */
-	pinctrl_flexcan1: flexcan1grp { /* CAN_A */
+	pinctrl_flexcan1: flexcan1grp {	/* CAN_A */
 		fsl,pins = <
 			MX93_PAD_PDM_CLK__CAN1_TX				0x139e	/* CAN_A_TX (A16) */
 			MX93_PAD_PDM_BIT_STREAM0__CAN1_RX			0x139e	/* CAN_A_RX (A10) */
@@ -571,7 +550,7 @@
 	};
 
 	/* ----- SPI ----- */
-	pinctrl_lpspi4: lpspi4grp { /* SPI_A */
+	pinctrl_lpspi4: lpspi4grp {	/* SPI_A */
 		fsl,pins = <
 			MX93_PAD_GPIO_IO18__LPSPI4_PCS0				0x3fe	/* SPI_A_CS0# (M14) */
 			MX93_PAD_GPIO_IO19__LPSPI4_SIN				0x3fe	/* SPI_A_SDI (J17) */
@@ -604,7 +583,7 @@
 		>;
 	};
 
-	pinctrl_uart5: uart5grp { /* WiFi/BT HCI on DAP/JTAG pads */
+	pinctrl_uart5: uart5grp {	/* WiFi/BT HCI on DAP/JTAG pads */
 		fsl,pins = <
 			MX93_PAD_DAP_TDO_TRACESWO__LPUART5_TX			0x31e	/* WIFI_UART_TXD (T3) */
 			MX93_PAD_DAP_TDI__LPUART5_RX				0x131e	/* WIFI_UART_RXD (P8) */

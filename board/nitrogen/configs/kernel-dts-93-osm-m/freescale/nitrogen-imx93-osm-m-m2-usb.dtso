@@ -42,4 +42,5 @@
 &usbotg2 { /* USB_B / M.2 socket */
 	dr_mode = "host";
 	status = "okay";
+	disable-over-current;
 };

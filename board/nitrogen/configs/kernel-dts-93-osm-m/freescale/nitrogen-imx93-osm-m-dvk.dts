@@ -407,10 +407,23 @@
 	};
 };
 
-&usbotg1 { /* USB_A */
+&usdhc2 { /* SDIO_A */
+	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-3 = <&pinctrl_usdhc2_sleep>, <&pinctrl_usdhc2_gpio_sleep>;
+
+	cd-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+	fsl,cd-gpio-wakeup-disable;
+
 	status = "okay";
 };
 
-&usdhc2 { /* SDIO_A (uSD / M.2 socket) */
+&usbotg1 { /* USB_A */
 	status = "okay";
+
+	hnp-disable;
+	srp-disable;
+	adp-disable;
+	disable-over-current;
 };
