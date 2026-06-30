@@ -372,6 +372,10 @@
 	};
 };
 
+&wkup_uart0 { /* UART_C */
+	status = "okay";
+};
+
 &main_uart3 { /* UART_D */
 	status = "okay";
 };
