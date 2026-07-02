@@ -41,11 +41,11 @@ os_compatible_id = "WINNCM"
 # os_sub_compatible_id = "5162001"
 
 [[config.function]]
-type = "dfu"
+type = "fbk"
 download = "swupdate"
 
 [[config.function]]
-type = "fbk"
+type = "dfu"
 download = "swupdate"
 
 # Uncomment to restore the old optional ACM serial function in addition to NCM
