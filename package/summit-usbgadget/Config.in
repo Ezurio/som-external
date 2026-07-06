@@ -1,25 +1,62 @@
 menuconfig BR2_PACKAGE_SUMMIT_USBGADGET
 	bool "Summit USB Gadget daemon (Rust)"
 	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
-	depends on BR2_PACKAGE_HAS_UDEV
 	select BR2_PACKAGE_HOST_RUSTC
 	help
 	  Runtime-configurable composite USB gadget daemon.
 
 if BR2_PACKAGE_SUMMIT_USBGADGET
 
+config BR2_PACKAGE_SUMMIT_USBGADGET_USB
+	bool "Enable USB gadget support"
+	depends on BR2_PACKAGE_HAS_UDEV
+	default y
+	help
+	  Build summit-usbgadget with USB gadget support enabled.
+	  Supports USB gadget modes: CDC ACM, NCM, ECM, RNDIS, and others
+
 config BR2_PACKAGE_SUMMIT_USBGADGET_DFU
 	bool "Enable DFU support (SWUpdate backend)"
 	default y
+	depends on BR2_PACKAGE_SUMMIT_USBGADGET_USB
 	depends on BR2_PACKAGE_SWUPDATE
 	help
-	  Build summit-usbgadget with DFU support enabled.
+	  Support updates over USB connections (DFU). When enabled, the
+	  service performs update from incoming DFU connections.
+	  To perform an update, use the following example command:
+	  sudo dfu-util -d <vendor_id>:<product_id> -D <swu file>
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_FBK
 	bool "Enable FBK support (SWUpdate backend)"
 	default y
+	depends on BR2_PACKAGE_SUMMIT_USBGADGET_USB
 	depends on BR2_PACKAGE_SWUPDATE
 	help
-	  Build summit-usbgadget with FBK support enabled.
+	  Support updates over USB connections (fastboot). When enabled, the
+	  service performs update from incoming Android fastboot or 
+	  NXP uuu FBK (fastboot for kernel) connections.
+	  To perform an update, use the following example command:
+	  fastboot -i <vendor_id> -p <product_id> update <partition> <swu file>
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SOCKET
+	bool "Enable socket update support (SWUpdate backend)"
+	default y
+	depends on BR2_PACKAGE_SWUPDATE
+	help
+	  Support updates over TCP connections (default port 9000). When 
+	  enabled, performs update from incoming network connection.
+	  To perform an update, use the following example command:
+	  nc -N <RECEIVER_IP> <PORT> < <swu file>
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_SOCKET_TLS
+	bool "Enable TLS for socket update"
+	depends on BR2_PACKAGE_SUMMIT_USBGADGET_SOCKET
+	depends on BR2_PACKAGE_OPENSSL
+	help
+	  Support updates over TLS connections (default port 9000). When 
+	  enabled, performs update from incoming network connection.
+	  To perform an update, use the following example command:
+	  ncat -nv <RECEIVER_IP> <PORT> --ssl <swu file>
+	  openssl s_client -connect <RECEIVER_IP>:<PORT> -quiet < <swu file>
 
 endif

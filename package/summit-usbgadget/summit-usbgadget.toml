@@ -48,6 +48,21 @@ download = "swupdate"
 type = "dfu"
 download = "swupdate"
 
+# Socket-based update listener
+# When enabled, firmware can be streamed into SWUpdate over TCP or TLS socket.
+[socket_source]
+listen_address = "0.0.0.0:9000"
+download = "swupdate"
+
+# TLS configuration (requires socket-tls feature)
+[socket_source.tls]
+server_cert = "/etc/summit-rcm/ssl/server.crt"
+server_key = "/etc/summit-rcm/ssl/server.key"
+ca_cert = "/etc/summit-rcm/ssl/ca.crt"
+request_client_cert = false
+ignore_expiration = true
+fips = false
+
 # Uncomment to restore the old optional ACM serial function in addition to NCM
 # and DFU.
 # [[config.function]]
