@@ -26,8 +26,8 @@ config BR2_PACKAGE_SUMMIT_USBGADGET_DFU
 	  To perform an update, use the following example command:
 	  sudo dfu-util -d <vendor_id>:<product_id> -D <swu file>
 
-config BR2_PACKAGE_SUMMIT_USBGADGET_FBK
-	bool "Enable FBK support (SWUpdate backend)"
+config BR2_PACKAGE_SUMMIT_USBGADGET_FASTBOOT_USB
+	bool "Enable fastboot-usb support (SWUpdate backend)"
 	default y
 	depends on BR2_PACKAGE_SUMMIT_USBGADGET_USB
 	depends on BR2_PACKAGE_SWUPDATE
@@ -37,6 +37,17 @@ config BR2_PACKAGE_SUMMIT_USBGADGET_FBK
 	  NXP uuu FBK (fastboot for kernel) connections.
 	  To perform an update, use the following example command:
 	  fastboot -i <vendor_id> -p <product_id> update <partition> <swu file>
+
+config BR2_PACKAGE_SUMMIT_USBGADGET_FASTBOOT_TCP
+	bool "Enable fastboot-tcp support (SWUpdate backend)"
+	default y
+	depends on BR2_PACKAGE_SWUPDATE
+	help
+	  Support updates over TCP using fastboot TCP protocol v1 (default
+	  port 5554). When enabled, the service performs update from incoming
+	  fastboot TCP connections.
+	  To perform an update, use the following example command:
+	  fastboot -s tcp:<receiver_ip> update <partition> <swu file>
 
 config BR2_PACKAGE_SUMMIT_USBGADGET_SOCKET
 	bool "Enable socket update support (SWUpdate backend)"

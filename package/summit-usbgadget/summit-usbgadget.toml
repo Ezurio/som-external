@@ -41,7 +41,7 @@ os_compatible_id = "WINNCM"
 # os_sub_compatible_id = "5162001"
 
 [[config.function]]
-type = "fbk"
+type = "fastboot-usb"
 download = "swupdate"
 
 [[config.function]]
@@ -52,6 +52,11 @@ download = "swupdate"
 # When enabled, firmware can be streamed into SWUpdate over TCP or TLS socket.
 [socket_source]
 listen_address = "0.0.0.0:9000"
+download = "swupdate"
+
+# Fastboot-over-TCP update listener (requires fastboot-tcp feature)
+[fastboot_tcp]
+address = "0.0.0.0:5554"
 download = "swupdate"
 
 # TLS configuration (requires socket-tls feature)
