@@ -36,7 +36,16 @@ done < <(grep -oP '@@.*?@@' sw-description | sort -u)
 cp -af sw-description sw-description-saved
 
 # Embed component values in SWU scripts
-while read -r op file ; do
+while read -r token ; do
+	[ -n "${token}" ] || continue
+
+	if [[ ${token} =~ ^\$swupdate_get_([^(]+)\(([^)]*)\)$ ]]; then
+		op=${BASH_REMATCH[1]}
+		file=${BASH_REMATCH[2]}
+	else
+		die "failed to parse SWUpdate token ${token}"
+	fi
+
 	case "${op}" in
 		file_size_bytes)
 			value=$(stat -Lc '%s' "${file}") || die "failed to get file size for ${file}"
@@ -47,8 +56,8 @@ while read -r op file ; do
 			;;
 	esac
 	echo "${file}          ${value}"
-	sed -i "s/\$swupdate_get_${op}(${file})/${value}/g" sw-description
-done < <(sed -n "s/.*\$swupdate_get_\([^(]\+\)(\([^)]\+\).*/\1 \2/p" sw-description | sort -u)
+	sed -i "s|${token}|${value}|g" sw-description
+done < <(grep -oP '\$swupdate_get_[^(]+\([^)]*\)' sw-description | sort -u)
 
 # Extract SWU files from sw-description
 SWU_FILES=$(

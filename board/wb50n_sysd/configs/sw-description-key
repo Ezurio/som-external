@@ -330,6 +330,7 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(boot1.bin)";
 				},
 				{
@@ -337,6 +338,7 @@ software =
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
@@ -357,13 +359,7 @@ software =
 					filename = "kernel.itb";
 					volume = "kernel_a";
 					type = "ubivol";
-					name = "kernel";
-					sha256 = "$swupdate_get_sha256(kernel.itb)";
-				},
-				{
-					filename = "kernel.itb";
-					volume = "kernel_b";
-					type = "ubivol";
+					installed-directly = true;
 					name = "kernel";
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
@@ -371,19 +367,25 @@ software =
 					filename = "rootfs.bin";
 					volume = "rootfs_a";
 					type = "ubivol";
-					name = "rootfs";
-					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
-				{
-					filename = "rootfs.bin";
-					volume = "rootfs_b";
-					type = "ubivol";
+					installed-directly = true;
 					name = "rootfs";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
 
 			scripts: (
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "kernel_a kernel_b $swupdate_get_file_size_bytes(kernel.itb) $swupdate_get_sha256(kernel.itb)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "rootfs_a rootfs_b $swupdate_get_file_size_bytes(rootfs.bin) $swupdate_get_sha256(rootfs.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
 				{
 					filename = "erase_data.sh";
 					type = "postinstall";
@@ -401,6 +403,7 @@ software =
 					transform = "atmel_pmecc_header";
 					type = "flash";
 					name = "boot";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(boot.bin)";
 				},
 				{
@@ -408,6 +411,7 @@ software =
 					mtdname = "u-boot";
 					type = "flash";
 					name = "u-boot";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.itb)";
 				},
 				{
@@ -428,13 +432,7 @@ software =
 					filename = "kernel.itb";
 					volume = "kernel_a";
 					type = "ubivol";
-					name = "kernel";
-					sha256 = "$swupdate_get_sha256(kernel.itb)";
-				},
-				{
-					filename = "kernel.itb";
-					volume = "kernel_b";
-					type = "ubivol";
+					installed-directly = true;
 					name = "kernel";
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
@@ -442,15 +440,30 @@ software =
 					filename = "rootfs.bin";
 					volume = "rootfs_a";
 					type = "ubivol";
+					installed-directly = true;
 					name = "rootfs";
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+				}
+			);
+
+			scripts: (
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "kernel_a kernel_b $swupdate_get_file_size_bytes(kernel.itb) $swupdate_get_sha256(kernel.itb)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
 				},
 				{
-					filename = "rootfs.bin";
-					volume = "rootfs_b";
-					type = "ubivol";
-					name = "rootfs";
-					sha256 = "$swupdate_get_sha256(rootfs.bin)";
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "rootfs_a rootfs_b $swupdate_get_file_size_bytes(rootfs.bin) $swupdate_get_sha256(rootfs.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "erase_data.sh";
+					type = "postinstall";
+					data = "rootfs_data_a rootfs_data_b perm";
+					sha256 = "$swupdate_get_sha256(erase_data.sh)";
 				}
 			);
 

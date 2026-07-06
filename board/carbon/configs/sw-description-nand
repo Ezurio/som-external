@@ -83,27 +83,6 @@ software =
 			images: (
 				{
 					filename = "tiboot3.bin";
-					mtdname = "tiboot3";
-					type = "flash";
-					name = "tiboot3";
-					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
-				},
-				{
-					filename = "tispl.bin";
-					mtdname = "tispl";
-					type = "flash";
-					name = "tispl";
-					sha256 = "$swupdate_get_sha256(tispl.bin)";
-				},
-				{
-					filename = "u-boot.img";
-					mtdname = "u-boot";
-					type = "flash";
-					name = "u-boot";
-					sha256 = "$swupdate_get_sha256(u-boot.img)";
-				},
-				{
-					filename = "tiboot3.bin";
 					mtdname = "tiboot3.backup";
 					type = "flash";
 					name = "tiboot3";
@@ -143,6 +122,24 @@ software =
 
 			scripts: (
 				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tiboot3.backup tiboot3 $swupdate_get_file_size_bytes(tiboot3.bin) $swupdate_get_sha256(tiboot3.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tispl.backup tispl $swupdate_get_file_size_bytes(tispl.bin) $swupdate_get_sha256(tispl.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "u-boot.backup u-boot $swupdate_get_file_size_bytes(u-boot.img) $swupdate_get_sha256(u-boot.img)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
 					filename = "erase_data.sh";
 					type = "postinstall";
 					data = "rootfs_data_a";
@@ -160,27 +157,6 @@ software =
 
 		full-b: {
 			images: (
-				{
-					filename = "tiboot3.bin";
-					mtdname = "tiboot3";
-					type = "flash";
-					name = "tiboot3";
-					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
-				},
-				{
-					filename = "tispl.bin";
-					mtdname = "tispl";
-					type = "flash";
-					name = "tispl";
-					sha256 = "$swupdate_get_sha256(tispl.bin)";
-				},
-				{
-					filename = "u-boot.img";
-					mtdname = "u-boot";
-					type = "flash";
-					name = "u-boot";
-					sha256 = "$swupdate_get_sha256(u-boot.img)";
-				},
 				{
 					filename = "tiboot3.bin";
 					mtdname = "tiboot3.backup";
@@ -221,6 +197,24 @@ software =
 			);
 
 			scripts: (
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tiboot3.backup tiboot3 $swupdate_get_file_size_bytes(tiboot3.bin) $swupdate_get_sha256(tiboot3.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tispl.backup tispl $swupdate_get_file_size_bytes(tispl.bin) $swupdate_get_sha256(tispl.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "u-boot.backup u-boot $swupdate_get_file_size_bytes(u-boot.img) $swupdate_get_sha256(u-boot.img)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
 				{
 					filename = "erase_data.sh";
 					type = "postinstall";
@@ -303,58 +297,34 @@ software =
 			images: (
 				{
 					filename = "tiboot3.bin";
-					mtdname = "tiboot3";
-					type = "flash";
-					name = "tiboot3";
-					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
-				},
-				{
-					filename = "tiboot3.bin";
 					mtdname = "tiboot3.backup";
 					type = "flash";
 					name = "tiboot3";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tiboot3.bin)";
-				},
-				{
-					filename = "tispl.bin";
-					mtdname = "tispl";
-					type = "flash";
-					name = "tispl";
-					sha256 = "$swupdate_get_sha256(tispl.bin)";
 				},
 				{
 					filename = "tispl.bin";
 					mtdname = "tispl.backup";
 					type = "flash";
 					name = "tispl";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(tispl.bin)";
-				},
-				{
-					filename = "u-boot.img";
-					mtdname = "u-boot";
-					type = "flash";
-					name = "u-boot";
-					sha256 = "$swupdate_get_sha256(u-boot.img)";
 				},
 				{
 					filename = "u-boot.img";
 					mtdname = "u-boot.backup";
 					type = "flash";
 					name = "u-boot";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(u-boot.img)";
-				},
-				{
-					filename = "uboot.env";
-					mtdname = "u-boot-env-a";
-					type = "flash";
-					name = "u-boot-env";
-					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
 					filename = "uboot.env";
 					mtdname = "u-boot-env-b";
 					type = "flash";
 					name = "u-boot-env";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
@@ -362,13 +332,7 @@ software =
 					volume = "kernel_a";
 					type = "ubivol";
 					name = "kernel";
-					sha256 = "$swupdate_get_sha256(kernel.itb)";
-				},
-				{
-					filename = "kernel.itb";
-					volume = "kernel_b";
-					type = "ubivol";
-					name = "kernel";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
@@ -376,18 +340,48 @@ software =
 					volume = "rootfs_a";
 					type = "ubivol";
 					name = "rootfs";
-					sha256 = "$swupdate_get_sha256(rootfs.bin)";
-				},
-				{
-					filename = "rootfs.bin";
-					volume = "rootfs_b";
-					type = "ubivol";
-					name = "rootfs";
+					installed-directly = true;
 					sha256 = "$swupdate_get_sha256(rootfs.bin)";
 				}
 			);
 
 			scripts: (
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tiboot3.backup tiboot3 $swupdate_get_file_size_bytes(tiboot3.bin) $swupdate_get_sha256(tiboot3.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "tispl.backup tispl $swupdate_get_file_size_bytes(tispl.bin) $swupdate_get_sha256(tispl.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "u-boot.backup u-boot $swupdate_get_file_size_bytes(u-boot.img) $swupdate_get_sha256(u-boot.img)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "u-boot-env-b u-boot-env-a $swupdate_get_file_size_bytes(uboot.env) $swupdate_get_sha256(uboot.env)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "kernel_a kernel_b $swupdate_get_file_size_bytes(kernel.itb) $swupdate_get_sha256(kernel.itb)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
+				{
+					filename = "copy_partitions.sh";
+					type = "postinstall";
+					data = "rootfs_a rootfs_b $swupdate_get_file_size_bytes(rootfs.bin) $swupdate_get_sha256(rootfs.bin)";
+					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
+				},
 				{
 					filename = "erase_data.sh";
 					type = "postinstall";

@@ -388,6 +388,7 @@ case "${BUILD_TYPE}" in
 			ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
 		else
 			ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
+			ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
 		fi
 
 		export linux_comp='gzip'
@@ -432,6 +433,7 @@ case "${BUILD_TYPE}" in
 		if grep -qF "BR2_PACKAGE_MTD=y" "${BR2_CONFIG}"; then
 			create_fw_env_flash
 			ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
+			ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
 		fi
 
 		export UBOOT_LOADADDRESS=0x82000000
