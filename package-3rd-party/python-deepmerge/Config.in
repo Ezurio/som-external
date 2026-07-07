@@ -1,0 +1,6 @@
+config BR2_PACKAGE_PYTHON_DEEPMERGE
+	bool "python-deepmerge"
+	help
+	  A toolset for deeply merging Python dictionaries.
+
+	  https://github.com/toumorokoshi/deepmerge

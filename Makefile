@@ -14,8 +14,11 @@ TARGETS_meta-som = \
 	nitrogen_secure_imx8mp_smarc_2g_r1 nitrogen_secure_imx8mp_smarc_2g_r2 \
 	nitrogen_secure_imx8mp_smarc_4g nitrogen_secure_imx8mp_smarc_8g \
 	nitrogen_imx91_smarc nitrogen_imx91_osm_s nitrogen_imx91_osm_m \
+	nitrogen_secure_imx91_smarc nitrogen_secure_imx91_osm_s nitrogen_secure_imx91_osm_m \
 	nitrogen_imx93_smarc nitrogen_imx93_osm_s nitrogen_imx93_osm_m \
-	nitrogen_imx95_smarc
+	nitrogen_secure_imx93_smarc nitrogen_secure_imx93_osm_s nitrogen_secure_imx93_osm_m \
+	nitrogen_imx95_smarc \
+	nitrogen_secure_imx95_smarc
 
 TARGETS_meta-legacy = \
 	wb50n_legacy wb45n_legacy wb45n_legacy_fips_11

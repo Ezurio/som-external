@@ -60,6 +60,17 @@ IMG_KEY ?= $(SIG_DATA_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
 export SRK_TABLE CSF_KEY IMG_KEY
 endif
 
+# AHAB signing support: make host-python-spsdk a dependency of U-Boot and export
+# SIG_DATA_PATH so the post-image script can locate the AHAB PKI tree
+# when signing flash.bin after the U-Boot build.
+ifeq ($(BR2_PACKAGE_HOST_PYTHON_SPSDK),y)
+UBOOT_DEPENDENCIES += host-python-spsdk
+
+SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
+
+export SIG_DATA_PATH
+endif
+
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))

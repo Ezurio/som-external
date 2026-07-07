@@ -1,0 +1,41 @@
+From e136770a1bbcf7fecc32adf26f4c6d2a5fd0cb8e Mon Sep 17 00:00:00 2001
+From: Chris Trowbridge <chris.trowbridge@ezurio.com>
+Date: Tue, 25 Mar 2026 10:00:00 +0000
+Subject: [PATCH 1/2] Normalize pyproject metadata for native builds
+
+Adjust the source metadata in-tree instead of mutating it from the recipe
+with sed during do_configure.
+
+This keeps the native integration deterministic and makes the package
+discovery and setuptools version compatibility explicit in the fetched
+sources.
+
+Upstream-Status: Inappropriate [native integration adjustments]
+Signed-off-by: Chris Trowbridge <chris.trowbridge@ezurio.com>
+---
+ pyproject.toml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pyproject.toml b/pyproject.toml
+index fcfad68..fc5323e 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@ dynamic = ["dependencies", "version"]
+ description = "Open Source Secure Provisioning SDK for NXP MCU/MPU"
+ readme = "README.md"
+ authors = [{ name = "NXP", email = "spsdk@nxp.com" }]
+-license = "BSD-3-Clause"
++license = { text = "BSD-3-Clause" }
+ requires-python = ">=3.10"
+ classifiers = [
+     "Development Status :: 3 - Alpha",
+@@ -84,6 +84,6 @@ nxpshe = "spsdk.apps.nxpshe:safe_main"
+ 
+ [build-system]
+-requires = ["setuptools_scm<10", "setuptools>=77", "wheel"]
++requires = ["setuptools_scm<10", "setuptools>=76", "wheel"]
+ 
+ [tool.black]
+ line-length = 100
+-- 
+2.34.1
