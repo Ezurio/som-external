@@ -258,6 +258,53 @@ imx*)
         export KEY_PATH
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
     fi
+
+    # AHAB: sign flash.bin containers using SPSDK nxpimage
+    AHAB_FAMILY=$(sed -rn 's/^BR2_SUMMIT_IMX_AHAB_FAMILY="(.+)"/\1/p' "${BR2_CONFIG}")
+    if [ -n "${AHAB_FAMILY}" ] && [ -n "${SIG_DATA_PATH}" ]; then
+        nxpimage=${HOST_DIR}/bin/nxpimage
+        [ -x "${nxpimage}" ] || \
+            die "nxpimage not found (host-python-spsdk has not been built?)"
+
+        [ -f "${SIG_DATA_PATH}/spsdk_ahab.yaml" ] || \
+            die "spsdk_ahab.yaml not found in SIG_DATA_PATH (${SIG_DATA_PATH})"
+
+        [ -f flash.bin ] || \
+            die "flash.bin not found in ${BINARIES_DIR}"
+
+        # Save unsigned copy (not in unsecured_images/ — that directory is
+        # restored over BINARIES_DIR at the end of this script)
+        cp -f flash.bin flash.bin.unsigned
+
+        # Fix AHAB V2 signature block version if needed (non-fatal for V1-only images)
+        ${nxpimage} ahab fix-signature-block-version \
+            -f "${AHAB_FAMILY}" -b flash.bin -o flash.bin --force || true
+
+        # Copy signing YAML, update family, absolutize paths, and wire up
+        # the key password file so nxpimage does not prompt interactively.
+        AHAB_SIGN_YAML="${BINARIES_DIR}/spsdk_ahab_sign.yaml"
+        KEY_PASS_TXT="${SIG_DATA_PATH}/keys/key_pass.txt"
+        if [ -f "${KEY_PASS_TXT}" ]; then
+            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1;password=${KEY_PASS_TXT}|"
+        else
+            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1|"
+        fi
+        sed -e "s|^\(family:\).*|\1 ${AHAB_FAMILY}|" \
+            -e "${SIGNER_SED}" \
+            -e "/srk_array/,/^[^ #]/{s|- \([^/][^ ]*\.pem\)|- ${SIG_DATA_PATH}/crts/\1|}" \
+            "${SIG_DATA_PATH}/spsdk_ahab.yaml" > "${AHAB_SIGN_YAML}"
+
+        # Sign all OEM AHAB containers in flash.bin
+        ${nxpimage} ahab sign \
+            -c "${AHAB_SIGN_YAML}" \
+            -b flash.bin \
+            -o flash.bin \
+            --force
+
+        rm -f "${AHAB_SIGN_YAML}"
+
+        echo "AHAB: flash.bin signed successfully for ${AHAB_FAMILY}"
+    fi
     ;;
 
 am6*)

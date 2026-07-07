@@ -1,0 +1,451 @@
+From 8355b8da6b2035cd1766b279ff98b3eeb7542af8 Mon Sep 17 00:00:00 2001
+From: Chris Trowbridge <chris.trowbridge@ezurio.com>
+Date: Thu, 2 Jul 2026 16:51:26 -0400
+Subject: [PATCH] Ignore import errors for optional dependencies
+
+These libraries are not required for offline AHAB container signing
+with nxpimage:
+
+- libusbsio, libuuu: USB device communication
+- colorama: terminal color output
+- prettytable: formatted table display
+- hexdump: debug hex dump formatting
+- packaging: version string parsing
+- platformdirs: platform-specific directory management
+- click_command_tree: CLI help tree formatting
+- sly: SB2 boot descriptor parser
+- x690: ASN.1 TLV encoding
+
+Install sys.modules shims for colorama, click_command_tree, hexdump,
+prettytable, sly, and x690 in spsdk/__init__.py so all downstream
+imports resolve without per-file patches.
+
+Upstream-Status: Inappropriate [native integration adjustments]
+Signed-off-by: Chris Trowbridge <chris.trowbridge@ezurio.com>
+---
+ spsdk/__init__.py                             | 251 +++++++++++++++++-
+ spsdk/sbfile/sb31/commands.py                 |   5 +-
+ spsdk/uboot/spsdk_uuu.py                      |  14 +-
+ spsdk/utils/devicedescription.py              |   5 +-
+ spsdk/utils/interfaces/device/usb_device.py   |   5 +-
+ .../utils/interfaces/device/usbsio_device.py  |  11 +-
+ spsdk/utils/nxpdevscan.py                     |   5 +-
+ 7 files changed, 280 insertions(+), 16 deletions(-)
+
+diff --git a/spsdk/__init__.py b/spsdk/__init__.py
+index 70a36f5..16460a8 100644
+--- a/spsdk/__init__.py
++++ b/spsdk/__init__.py
+@@ -28,8 +28,254 @@ import os
+ import sys
+ from typing import Optional, Union
+ 
+-from packaging.version import Version, parse
+-from platformdirs import PlatformDirs
++# ---- Begin optional-dependency shims ----
++# Install shim modules into sys.modules so that "import <mod>" succeeds
++# everywhere without per-file try/except blocks.  These libraries are
++# not required for offline AHAB container signing with nxpimage.
++try:
++    import colorama  # noqa: F401
++except ImportError:
++    import types as _types
++
++    class _EmptyStr:
++        def __getattr__(self, name):
++            return ""
++
++    _colorama = _types.ModuleType("colorama")
++    _colorama.Fore = _EmptyStr()
++    _colorama.Style = _EmptyStr()
++    _colorama.just_fix_windows_console = lambda: None
++    sys.modules["colorama"] = _colorama
++
++try:
++    import click_command_tree  # noqa: F401
++except ImportError:
++    import types as _types
++
++    _cct = _types.ModuleType("click_command_tree")
++    _cct._build_command_tree = lambda cmd: cmd
++    _cct._CommandWrapper = type("_CommandWrapper", (), {})
++    sys.modules["click_command_tree"] = _cct
++
++try:
++    import hexdump  # noqa: F401
++except ImportError:
++    import types as _types
++
++    def _hexdump_hexdump(data, result="print"):
++        s = " ".join(f"{b:02x}" for b in data[:64])
++        if result == "return":
++            return s
++        print(s)
++
++    def _hexdump_restore(s):
++        return bytes.fromhex(s.replace(" ", ""))
++
++    _hexdump = _types.ModuleType("hexdump")
++    _hexdump.hexdump = _hexdump_hexdump
++    _hexdump.restore = _hexdump_restore
++    sys.modules["hexdump"] = _hexdump
++
++try:
++    import prettytable  # noqa: F401
++except ImportError:
++    import types as _types
++
++    class _PrettyTable:
++        def __init__(self, *a, **kw):
++            self.field_names = []
++
++        def add_row(self, *a, **kw):
++            pass
++
++        def set_style(self, *a):
++            pass
++
++        def __str__(self):
++            return ""
++
++    class _StyleEnum:
++        def __getattr__(self, name):
++            return None
++
++    _pt = _types.ModuleType("prettytable")
++    _pt.PrettyTable = _PrettyTable
++    _pt.TableStyle = _StyleEnum()
++    _pt.HRuleStyle = _StyleEnum()
++    _pt.VRuleStyle = _StyleEnum()
++    sys.modules["prettytable"] = _pt
++
++try:
++    import sly  # noqa: F401
++except ImportError:
++    import types as _types
++
++    def _sly_decorator(*patterns):
++        """Stand-in for sly's _ decorator that just returns the function."""
++        def _wrapper(fn):
++            return fn
++        return _wrapper
++
++    class _SlyMeta(type):
++        """Metaclass that injects _ into every subclass body namespace."""
++        @classmethod
++        def __prepare__(mcs, name, bases, **kw):
++            d = super().__prepare__(name, bases, **kw)
++            d['_'] = _sly_decorator
++            return d
++
++    class _SlyBase(metaclass=_SlyMeta):
++        tokens = set()
++
++    class _Token:
++        pass
++
++    class _YaccProduction:
++        pass
++
++    _sly = _types.ModuleType("sly")
++    _sly.__path__ = []
++    _sly.Lexer = _SlyBase
++    _sly.Parser = _SlyBase
++    _sly_lex = _types.ModuleType("sly.lex")
++    _sly_lex.Token = _Token
++    _sly_yacc = _types.ModuleType("sly.yacc")
++    _sly_yacc.YaccProduction = _YaccProduction
++    _sly.lex = _sly_lex
++    _sly.yacc = _sly_yacc
++    sys.modules["sly"] = _sly
++    sys.modules["sly.lex"] = _sly_lex
++    sys.modules["sly.yacc"] = _sly_yacc
++
++try:
++    import x690  # noqa: F401
++except ImportError:
++    import types as _types
++
++    class _X690Type:
++        def __class_getitem__(cls, item):
++            return cls
++
++    class _TypeClass:
++        def __getattr__(self, name):
++            return name
++
++    class _TypeNature:
++        def __getattr__(self, name):
++            return name
++
++    _TypeClass = _TypeClass()
++    _TypeNature = _TypeNature()
++
++    def _decode(*a, **kw):
++        return b""
++
++    _x690 = _types.ModuleType("x690")
++    _x690_types = _types.ModuleType("x690.types")
++    _x690_types.X690Type = _X690Type
++    _x690_types.TypeClass = _TypeClass
++    _x690_types.TypeNature = _TypeNature
++    _x690_types.decode = _decode
++    _x690.types = _x690_types
++    sys.modules["x690"] = _x690
++    sys.modules["x690.types"] = _x690_types
++
++try:
++    from packaging.version import Version, parse
++except ImportError:
++
++    class Version:
++        def __init__(self, v):
++            self.base_version = str(v).split("+")[0].split("-")[0]
++
++        def __str__(self):
++            return self.base_version
++
++    def parse(v):
++        return Version(v)
++
++
++try:
++    from platformdirs import PlatformDirs
++except ImportError:
++
++    class PlatformDirs:
++        def __init__(
++            self, appauthor=None, appname=None, version=None, ensure_exists=False
++        ):
++            self._base = os.path.join(
++                os.path.expanduser("~"), ".cache", appname or "spsdk"
++            )
++            if version:
++                self._base = os.path.join(self._base, version)
++            if ensure_exists:
++                os.makedirs(self._base, exist_ok=True)
++
++        @property
++        def user_cache_dir(self):
++            p = os.path.join(self._base, "cache")
++            os.makedirs(p, exist_ok=True)
++            return p
++
++        @property
++        def user_data_dir(self):
++            return self._base
++
++        @property
++        def user_log_dir(self):
++            p = os.path.join(self._base, "log")
++            os.makedirs(p, exist_ok=True)
++            return p
++
++        @property
++        def user_runtime_dir(self):
++            p = os.path.join(self._base, "runtime")
++            os.makedirs(p, exist_ok=True)
++            return p
++
++        def _optionally_create_directory(self, path):
++            os.makedirs(path, exist_ok=True)
++
++# Redirect importlib_metadata (backport) to stdlib importlib.metadata
++# since Python 3.9+ includes the same API.
++try:
++    import importlib_metadata  # noqa: F401
++except ImportError:
++    import importlib.metadata as importlib_metadata
++    sys.modules["importlib_metadata"] = importlib_metadata
++
++# Shim remaining optional third-party modules not needed for AHAB signing.
++# Using bare ModuleType stubs injected into sys.modules avoids per-file
++# try/except blocks across the spsdk source tree.
++# NOTE: Do NOT shim spsdk_pqc or gmssl -- the code uses
++# importlib.util.find_spec() for those and must see them absent.
++import types as _types
++
++_shim_names = [
++    "click_option_group",
++    "auto_click_auto",
++    "bincopy",
++    "bitstring",
++    "can",
++    "ftd2xx",
++    "asn1crypto",
++    "astunparse",
++    "ipywidgets",
++    "IPython",
++    "pyasn1",
++    "pyftdi",
++    "pylibftdi",
++    "validator_file",
++]
++for _name in _shim_names:
++    if _name not in sys.modules:
++        _mod = _types.ModuleType(_name)
++        _mod.__path__ = []
++        _mod.__file__ = "<shim:" + _name + ">"
++        sys.modules[_name] = _mod
++
++del _types, _shim_names, _name, _mod
++# ---- End optional-dependency shims ----
+ 
+ 
+ class SPSDKPlatformDirs(PlatformDirs):
+diff --git a/spsdk/sbfile/sb31/commands.py b/spsdk/sbfile/sb31/commands.py
+index 7ce3a04..ea27ca3 100644
+--- a/spsdk/sbfile/sb31/commands.py
++++ b/spsdk/sbfile/sb31/commands.py
+@@ -12,7 +12,10 @@ for various boot commands such as load, execute, erase, program fuses,
+ and memory operations used in NXP MCU secure boot processes.
+ """
+ 
+-import lzma
++try:
++    import lzma
++except ImportError:
++    lzma = None  # type: ignore[assignment]
+ import os
+ from enum import Enum as BuiltinEnum
+ from struct import calcsize, pack, unpack_from
+diff --git a/spsdk/uboot/spsdk_uuu.py b/spsdk/uboot/spsdk_uuu.py
+index 5be90ec..666db44 100644
+--- a/spsdk/uboot/spsdk_uuu.py
++++ b/spsdk/uboot/spsdk_uuu.py
+@@ -19,8 +19,16 @@ from types import TracebackType
+ from typing import Any, Callable, Optional, no_type_check
+ 
+ import click
+-from libuuu import LibUUU, UUUNotifyCallback, UUUState
+-from libuuu.libuuu import UUUNotifyStruct, UUUNotifyType, _default_notify_callback
++try:
++    from libuuu import LibUUU, UUUNotifyCallback, UUUState
++    from libuuu.libuuu import UUUNotifyStruct, UUUNotifyType, _default_notify_callback
++except ImportError:
++    LibUUU = None  # type: ignore[assignment,misc]
++    UUUNotifyCallback = None  # type: ignore[assignment,misc]
++    UUUState = None  # type: ignore[assignment,misc]
++    UUUNotifyStruct = None  # type: ignore[assignment,misc]
++    UUUNotifyType = None  # type: ignore[assignment,misc]
++    _default_notify_callback = None  # type: ignore[assignment]
+ 
+ from spsdk.exceptions import SPSDKError, SPSDKValueError
+ from spsdk.utils.database import DatabaseManager, UsbId
+@@ -43,8 +51,7 @@ UUULsUsbDevices = CFUNCTYPE(
+ )
+ 
+ 
+-@UUUNotifyCallback
+-def _spsdk_notify_callback(struct: UUUNotifyStruct, data) -> int:  # type: ignore
++def _spsdk_notify_callback(struct, data) -> int:  # type: ignore
+     """Default callback function that stores UUU response in class variable.
+ 
+     This callback processes UUU notifications and updates the internal state. For command info
+@@ -61,7 +68,7 @@ def _spsdk_notify_callback(struct: UUUNotifyStruct, data) -> int:  # type: ignor
+     return 1 if SPSDKUUU._state.error else 0
+ 
+ 
+-class SPSDKUUUState(UUUState):
++class SPSDKUUUState:
+     """SPSDK UUU State Manager.
+ 
+     This class extends UUUState to provide enhanced state management for UUU operations
+@@ -112,7 +119,7 @@ class SPSDKUUUState(UUUState):
+             # Enable cursor again
+             click.echo("\033[?25h", nl=False)
+ 
+-    def update(self, struct: UUUNotifyStruct) -> None:
++    def update(self, struct) -> None:
+         """Update the state with a notification from uuu.
+ 
+         This method processes different types of notifications from the uuu tool and updates
+diff --git a/spsdk/utils/devicedescription.py b/spsdk/utils/devicedescription.py
+index b6b44d7..608bee5 100644
+--- a/spsdk/utils/devicedescription.py
++++ b/spsdk/utils/devicedescription.py
+@@ -15,7 +15,10 @@ and SIO interfaces.
+ from abc import ABC, abstractmethod
+ from typing import Optional, Union
+ 
+-from libusbsio.libusbsio import LIBUSBSIO
++try:
++    from libusbsio.libusbsio import LIBUSBSIO
++except ImportError:
++    LIBUSBSIO = None  # type: ignore[assignment,misc]
+ 
+ from spsdk.mboot.interfaces.usb import MbootUSBInterface
+ from spsdk.sdp.interfaces.usb import SdpUSBInterface
+diff --git a/spsdk/utils/interfaces/device/usb_device.py b/spsdk/utils/interfaces/device/usb_device.py
+index 69c0538..2cf6647 100644
+--- a/spsdk/utils/interfaces/device/usb_device.py
++++ b/spsdk/utils/interfaces/device/usb_device.py
+@@ -14,7 +14,10 @@ for SPSDK applications using the libusbsio library.
+ import logging
+ from typing import Optional
+ 
+-import libusbsio
++try:
++    import libusbsio
++except ImportError:
++    libusbsio = None  # type: ignore[assignment]
+ from typing_extensions import Self
+ 
+ from spsdk.exceptions import SPSDKConnectionError, SPSDKError
+diff --git a/spsdk/utils/interfaces/device/usbsio_device.py b/spsdk/utils/interfaces/device/usbsio_device.py
+index 5d4ff6f..c5c1538 100644
+--- a/spsdk/utils/interfaces/device/usbsio_device.py
++++ b/spsdk/utils/interfaces/device/usbsio_device.py
+@@ -17,8 +17,12 @@ import re
+ from dataclasses import dataclass
+ from typing import Optional, Union
+ 
+-import libusbsio
+-from libusbsio.libusbsio import LIBUSBSIO
++try:
++    import libusbsio
++    from libusbsio.libusbsio import LIBUSBSIO
++except ImportError:
++    libusbsio = None  # type: ignore[assignment]
++    LIBUSBSIO = None  # type: ignore[assignment,misc]
+ from typing_extensions import Self
+ 
+ from spsdk.exceptions import SPSDKConnectionError, SPSDKError, SPSDKValueError
+@@ -396,7 +400,7 @@ class UsbSioDevice(DeviceBase):
+         return (args, kwargs)
+ 
+     @staticmethod
+-    def _get_usbsio() -> LIBUSBSIO:
++    def _get_usbsio():
+         """Get USBSIO library instance with SPSDK error handling.
+ 
+         Wraps the libusbsio library initialization to provide consistent SPSDK error handling
+@@ -426,7 +430,7 @@ class UsbSioDevice(DeviceBase):
+         :return: List of port indexes of found USBSIO devices
+         """
+ 
+-        def _filter_usb(sio: LIBUSBSIO, ports: list[int], flt: str) -> list[int]:
++        def _filter_usb(sio, ports: list[int], flt: str) -> list[int]:
+             """Filter LIBUSBSIO devices based on provided criteria.
+ 
+             Filters the list of available LIBUSBSIO ports using the specified filter string which can
+diff --git a/spsdk/utils/nxpdevscan.py b/spsdk/utils/nxpdevscan.py
+index b3b0ac5..e08ee44 100644
+--- a/spsdk/utils/nxpdevscan.py
++++ b/spsdk/utils/nxpdevscan.py
+@@ -19,7 +19,11 @@ import platform
+ import struct
+ from typing import Any, Optional
+ 
+-from libusbsio import LIBUSBSIO_Exception, usbsio
++try:
++    from libusbsio import LIBUSBSIO_Exception, usbsio
++except ImportError:
++    LIBUSBSIO_Exception = None  # type: ignore[assignment,misc]
++    usbsio = None  # type: ignore[assignment]
+ from serial import SerialException
+ from serial.tools.list_ports import comports
+ from serial.tools.list_ports_common import ListPortInfo
+-- 
+2.43.0
+

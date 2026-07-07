@@ -22,6 +22,36 @@ config BR2_SUMMIT_IMX_HAB
 		  crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
 		  keys/ (private keys and key_pass.txt)
 
+config BR2_SUMMIT_IMX_AHAB
+	bool "i.MX AHAB Signed Boot (SPSDK)"
+	select BR2_PACKAGE_HOST_PYTHON_SPSDK
+	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	help
+		Enable NXP AHAB (Advanced High Assurance Boot) signing for
+		i.MX9x platforms. After U-Boot builds flash.bin, the SPSDK
+		nxpimage tool signs the AHAB containers in a post-build
+		step.
+
+		Requires SIG_DATA_PATH environment variable to point to a
+		directory containing AHAB PKI certificates and keys
+		(ECC secp256r1):
+		  spsdk_ahab.yaml
+		  crts/SRK1_sha256_secp256r1_v3_usr_crt.pem (SRK 1-4)
+		  crts/SRK_1_2_3_4_table.bin
+		  crts/SRK_1_2_3_4_fuse.bin
+		  keys/SRK1_sha256_secp256r1_v3_usr_key.pem (SRK 1-4)
+		  keys/key_pass.txt (optional, for non-interactive signing)
+
+config BR2_SUMMIT_IMX_AHAB_FAMILY
+	string "SPSDK family name"
+	depends on BR2_SUMMIT_IMX_AHAB
+	help
+		SPSDK family identifier for the target SoC, used by
+		nxpimage ahab sign. Examples:
+		  i.MX91  -> mimx9131
+		  i.MX93  -> mimx9352
+		  i.MX95  -> mimx9596
+
 config BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER
 	string "Custom device tree blobs filter"
 	help
@@ -157,9 +187,12 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/pkcs11-provider/Config.i
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awscrt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awsiotsdk/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-btsocket/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-deepmerge/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-fastjsonschema/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-gatt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-httptools/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spectree/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spsdk/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-transitions/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/secure-sam-ba-cipher/Config.in.host"

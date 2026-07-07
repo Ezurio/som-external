@@ -6,6 +6,7 @@ TARGETS_meta-som = \
 	carbon_am62x carbon_am67x carbon_secure_am62x carbon_secure_am67x \
 	summitsom_imx8mp summitsom_secure_imx8mp \
 	nitrogen_imx91 nitrogen_imx93 nitrogen_imx95 \
+	nitrogen_secure_imx91 nitrogen_secure_imx93 nitrogen_secure_imx95 \
 	nitrogen_imx8mm_1g nitrogen_imx8mm_2g nitrogen_imx8mm_4g \
 	nitrogen_imx8mp_2g_r1 nitrogen_imx8mp_2g_r2 nitrogen_imx8mp_4g \
 	nitrogen_imx8mp_8g \
