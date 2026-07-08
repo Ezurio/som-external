@@ -36,7 +36,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_lvds_e_power_default>;
-		powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&main_gpio0 49 GPIO_ACTIVE_LOW>;
 
 		port@0 {
 			reg = <0>;
