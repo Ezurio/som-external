@@ -1,6 +1,8 @@
-sha256  7010fd16a56150943a14112669708ac3047b3cbcfc80742caf7ed0ba0e957c28  aarch64-aarch64_toolchain-summit-13.0.0.102.tar.gz
-sha256  3328e4cfe2fe57453daa4a0110e1933d0627ba7949a5e002b2de130ba3e70a45  aarch64-x86_64_toolchain-summit-13.0.0.102.tar.gz
-sha256  3d060e1e79afcb86c0c229a0fe7ac6fc922a7e92118a0fa1078f44cf1571e758  arm-eabi-aarch64_toolchain-summit-13.0.0.102.tar.gz
-sha256  c876049d61e74b0e4e776e62b03c04ae17b0f8a431ffe632cc539f5fa2554484  arm-eabi-x86_64_toolchain-summit-13.0.0.102.tar.gz
-sha256  c76bce4d0bf2fada2ec2d9d3b83682d9531f16ee16cee6a4c78778df5430185c  arm-eabihf-aarch64_toolchain-summit-13.0.0.102.tar.gz
-sha256  b590c4cc375e68ccfdfc9e654128fd4a5b0db62d05d6ddc5765e75ca637b27dd  arm-eabihf-x86_64_toolchain-summit-13.0.0.102.tar.gz
+sha256  e62abc3ab6f7f422501d62baebb37f812b4e82e6b0d91718b4917eb88af410cb  aarch64-aarch64_toolchain-summit-14.0.0.16.tar.gz
+sha256  2154985b84d25abe278760c7a152e9724882564f4e5aa7fba33bb3a8107d583b  aarch64-x86_64_toolchain-summit-14.0.0.16.tar.gz
+sha256  171b39e9855df3a2a94aee58aebf06e39cba155562e020e0a9aced81ff7cb3b9  arm-eabi-aarch64_toolchain-summit-14.0.0.16.tar.gz
+sha256  4e5c171f21306a72bfa51843e2998556777d30ddb69bb935f0bb029bd9df7c8e  arm-eabi-x86_64_toolchain-summit-14.0.0.16.tar.gz
+sha256  2080eaa853e06b310dac64bf5275b2fd352a8c32f0232b3b430785242f6c580a  arm-eabihf-aarch64_toolchain-summit-14.0.0.16.tar.gz
+sha256  826888cbaf57288a5708a9107df25f07fb2052b26337c35262cc1d213be15676  arm-eabihf-x86_64_toolchain-summit-14.0.0.16.tar.gz
+sha256  5bd3d9a089c5f942235e183cd3b7f7f86a367e9ee4502e175d04b8a95247f047  wb40_32-aarch64_toolchain-summit-14.0.0.16.tar.gz
+sha256  91952b4f0560fab0c3177d55fb7db1c9426b34cbb2fe6ec4cdb15b2cf6c45145  wb40_32-x86_64_toolchain-summit-14.0.0.16.tar.gz
