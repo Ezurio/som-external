@@ -1,8 +1,16 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
-diff --git a/drivers/gpu/imx/lcdifv3/lcdifv3-common.c b/drivers/gpu/imx/lcdifv3/lcdifv3-common.c
-index 7bdb00e2ecc7..dfe95675085b 100644
+--- a/drivers/gpu/drm/imx/lcdifv3/Kconfig
++++ b/drivers/gpu/drm/imx/lcdifv3/Kconfig
+@@ -2,6 +2,7 @@
+ 	tristate "i.MX LCDIFV3 controller DRM driver"
+ 	depends on DRM_IMX
+ 	depends on IMX_LCDIFV3_CORE
++	select DRM_DISPLAY_HELPER
+ 	default y if DRM_IMX=y
+ 	default m if DRM_IMX=m
+ 	help
 --- a/drivers/gpu/imx/lcdifv3/lcdifv3-common.c
 +++ b/drivers/gpu/imx/lcdifv3/lcdifv3-common.c
 @@ -644,14 +644,14 @@ static int imx_lcdifv3_probe(struct platform_device *pdev)

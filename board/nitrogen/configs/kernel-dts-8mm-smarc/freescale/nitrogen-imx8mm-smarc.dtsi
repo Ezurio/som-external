@@ -6,6 +6,7 @@
 #include <dt-bindings/phy/phy-imx8-pcie.h>
 #include <dt-bindings/usb/pd.h>
 #include "imx8mm.dtsi"
+#include "imx8mm-nxp-display.dtsi"
 
 / {
 	model = "Ezurio i.MX8MM Nitrogen SMARC board";
@@ -816,6 +817,14 @@
 	};
 };
 
+&pgc_gpu {
+	/delete-property/ power-domains;
+};
+
+&pgc_gpumix {
+	status = "disabled";
+};
+
 &pcie0 {
 	assigned-clocks = <&clk IMX8MM_CLK_PCIE1_AUX>,
 			  <&clk IMX8MM_CLK_PCIE1_CTRL>;
@@ -968,4 +977,28 @@
 	fsl,ext-reset-output;
 
 	status = "okay";
+};
+
+&gpu_3d {
+	status = "disabled";
+};
+
+&gpu_2d {
+	status = "disabled";
+};
+
+&vpu_g1 {
+	status = "disabled";
+};
+
+&vpu_g2 {
+	status = "disabled";
+};
+
+&vpu_h1 {
+	status = "disabled";
+};
+
+&vpu_v4l2 {
+	status = "disabled";
 };

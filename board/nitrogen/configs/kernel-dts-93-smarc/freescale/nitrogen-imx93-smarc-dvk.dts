@@ -302,6 +302,18 @@
 	};
 };
 
+&lpuart2 { /* SER2 */
+	status = "okay";
+};
+
+&lpuart6 { /* SER3 */
+	status = "okay";
+};
+
+&lpuart5 { /* SER0 */
+	status = "okay";
+};
+
 /* I2S0 */
 &sai3 {
 	status = "okay";

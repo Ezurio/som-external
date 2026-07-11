@@ -1,3 +1,3 @@
  From https://github.com/OP-TEE/optee_os/archive/4.8.0/optee_os-4.8.0.tar.gz
 sha256  5222cd553f5edb69ae4ec7cb99b2bfec2c47a47c0be1865b49744701918e8b4d  optee_os-4.8.0.tar.gz
-sha256  c05cfc40bce777f8583896f5e557fe534ec38d22da118dcf9125060ac29c9ceb  imx-optee-os-lf-6.12.49_2.2.0.tar.gz
+sha256  ae8bb94f520c359f6d6147bba28a6f1762b6da367eb39f60f135862ecd1625e1  imx-optee-os-lf-6.18.20_2.0.0.tar.gz

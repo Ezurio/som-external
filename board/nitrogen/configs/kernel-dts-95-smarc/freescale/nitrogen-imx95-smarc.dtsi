@@ -8,19 +8,42 @@
 
 #include "imx95.dtsi"
 
+&ele_if0 {
+	memory-region = <&ele_reserved>;
+};
+
 / {
 	model = "Ezurio i.MX95 Nitrogen SMARC board";
 	compatible = "summit,imx95-nitrogen-smarc", "fsl,imx95";
 
 	aliases {
+		gpio0 = &gpio1;
+		gpio1 = &gpio2;
+		gpio2 = &gpio3;
+		gpio3 = &gpio4;
+		gpio4 = &gpio5;
+		gpio5 = &pcal6524;
+		i2c0 = &lpi2c1;
+		i2c1 = &lpi2c2;
+		i2c2 = &lpi2c3;
+		i2c3 = &lpi2c4;
+		i2c4 = &lpi2c5;
+		i2c5 = &lpi2c6;
+		i2c6 = &lpi2c7;
+		i2c7 = &lpi2c8;
+		mmc0 = &usdhc1;
+		mmc1 = &usdhc2;
+		mmc2 = &usdhc3;
+		serial0 = &lpuart1;
+		serial5 = &lpuart6;
+		serial6 = &lpuart7;
+		spi0 = &lpspi6;
 		can0 = &flexcan1;
 		can1 = &flexcan2;
 		ethernet0 = &enetc_port0;
 		ethernet1 = &enetc_port1;
 		rtc0 = &rv3028;
 		rtc1 = &scmi_bbm;
-		gpio5 = &pcal6524;
-		spi0 = &lpspi6;
 	};
 
 	chosen {
@@ -33,14 +56,14 @@
 	};
 
 	reserved-memory {
+		ranges;
 		#address-cells = <2>;
 		#size-cells = <2>;
-		ranges;
 
 		linux_cma: linux,cma {
 			compatible = "shared-dma-pool";
-			reusable;
 			alloc-ranges = <0 0x80000000 0 0x7F000000>;
+			reusable;
 			size = <0 0x3c000000>;
 			linux,cma-default;
 		};
@@ -52,6 +75,12 @@
 
 		mali_protected: mali_protected {
 			reg = <0 0xa0100000 0 0x1000000>;
+			no-map;
+		};
+
+		ele_reserved: ele-reserved@a4120000 {
+			compatible = "shared-dma-pool";
+			reg = <0 0xa4120000 0 0x100000>;
 			no-map;
 		};
 	};
@@ -329,7 +358,7 @@
 	};
 };
 
-&lpspi6 {
+&lpspi6 {  /* SPI0 */
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&pinctrl_lpspi6>;
 	pinctrl-1 = <&pinctrl_lpspi6>;
@@ -709,6 +738,20 @@
 		fsl,pins = <
 			IMX95_PAD_UART1_RXD__AONMIX_TOP_LPUART1_RX      0x131e
 			IMX95_PAD_UART1_TXD__AONMIX_TOP_LPUART1_TX      0x31e
+		>;
+	};
+
+	pinctrl_uart2: uart2grp {
+		fsl,pins = <
+			IMX95_PAD_UART2_RXD__AONMIX_TOP_LPUART2_RX      0x131e
+			IMX95_PAD_UART2_TXD__AONMIX_TOP_LPUART2_TX      0x31e
+		>;
+	};
+
+	pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			IMX95_PAD_GPIO_IO15__LPUART3_RX      0x131e
+			IMX95_PAD_GPIO_IO14__LPUART3_TX      0x31e
 		>;
 	};
 

@@ -126,9 +126,6 @@
 };
 
 &lcdif {
-	// 1st 2 numbers are set for your display panel pixel clock
-	// 4 * DSI_CLOCK, DSI_CLOCK
-	assigned-clock-rates = <576000000>, <144000000>, <400000000>, <133333333>;
 	status = "okay";
 };
 

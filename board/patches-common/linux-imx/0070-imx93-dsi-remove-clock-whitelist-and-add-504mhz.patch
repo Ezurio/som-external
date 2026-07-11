@@ -1,0 +1,41 @@
+Upstream-Status: Inappropriate No time for upstreaming  
+
+diff --git a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
+index 7bbce51..769af6e 100644
+--- a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
++++ b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
+@@ -81,24 +80,0 @@ static bool dw_mipi_dsi_phy_validate_helper(void *priv_data,
+-
+-static bool dw_mipi_dsi_imx_is_mode_clock_valid(int clock)
+-{
+-	int i;
+-	const int valid_mode_clocks[] = {
+-		25175, 25200, 27000, 27027, 28320,
+-		31500,
+-		40000, 49500,
+-		50000, 54000, 54054, 59341, 59400,
+-		65000,
+-		74176, 74250, 78750,
+-		108000, 108108,
+-		132000,
+-		148352, 148500,
+-	};
+-
+-	for (i = 0; i < ARRAY_SIZE(valid_mode_clocks); i++) {
+-		if (clock == valid_mode_clocks[i])
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+@@ -118,3 +93,0 @@ __dw_mipi_dsi_imx_mode_valid(void *priv_data,
+-	if (!dw_mipi_dsi_imx_is_mode_clock_valid(mode->clock))
+-		return MODE_ERROR;
+-
+diff --git a/drivers/clk/imx/clk-fracn-gppll.c b/drivers/clk/imx/clk-fracn-gppll.c
+index 7301887..f8a3ceb 100644
+--- a/drivers/clk/imx/clk-fracn-gppll.c
++++ b/drivers/clk/imx/clk-fracn-gppll.c
+@@ -88,0 +89 @@ static const struct imx_fracn_gppll_rate_table fracn_tbl[] = {
++	PLL_FRACN_GP(504000000U, 168, 0, 1, 0, 8),

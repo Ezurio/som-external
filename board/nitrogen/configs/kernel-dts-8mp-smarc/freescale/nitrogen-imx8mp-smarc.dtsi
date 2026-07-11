@@ -6,6 +6,8 @@
 #include <dt-bindings/phy/phy-imx8-pcie.h>
 #include <dt-bindings/usb/pd.h>
 #include "imx8mp.dtsi"
+#include "imx8mp-nxp-capture.dtsi"
+#include "imx8mp-nxp-display.dtsi"
 
 / {
 	model = "Ezurio i.MX8MP Nitrogen SMARC board";
@@ -994,4 +996,36 @@
 	fsl,ext-reset-output;
 
 	status = "okay";
+};
+
+&gpu3d {
+	status = "disabled";
+};
+
+&gpu2d {
+	status = "disabled";
+};
+
+&npu {
+	status = "disabled";
+};
+
+&mix_gpu_ml {
+	status = "disabled";
+};
+
+&vpu_g1 {
+	status = "disabled";
+};
+
+&vpu_g2 {
+	status = "disabled";
+};
+
+&vpu_vc8000e {
+	status = "disabled";
+};
+
+&vpu_v4l2 {
+	status = "disabled";
 };

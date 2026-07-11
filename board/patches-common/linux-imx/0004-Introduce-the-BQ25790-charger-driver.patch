@@ -141,8 +141,8 @@ index 006b95eca673..d0ecbe76b720 100644
 --- a/drivers/power/supply/Kconfig
 +++ b/drivers/power/supply/Kconfig
 @@ -684,6 +684,14 @@ config CHARGER_BQ2515X
- 	  rail, ADC for battery and system monitoring, and push-button
- 	  controller.
+ 	  Say Y to enable support for the TI BQ257XX family of battery
+ 	  charging integrated circuits.
  
 +config CHARGER_BQ25790
 +	tristate "TI BQ25790 battery charger driver"
@@ -160,9 +160,9 @@ index 5e5fdbbef531..fa18d4fa9e6a 100644
 --- a/drivers/power/supply/Makefile
 +++ b/drivers/power/supply/Makefile
 @@ -90,6 +90,7 @@ obj-$(CONFIG_CHARGER_BQ24190)	+= bq24190_charger.o
- obj-$(CONFIG_CHARGER_BQ24257)	+= bq24257_charger.o
  obj-$(CONFIG_CHARGER_BQ24735)	+= bq24735-charger.o
  obj-$(CONFIG_CHARGER_BQ2515X)	+= bq2515x_charger.o
+ obj-$(CONFIG_CHARGER_BQ257XX)	+= bq257xx_charger.o
 +obj-$(CONFIG_CHARGER_BQ25790)	+= bq25790_charger.o
  obj-$(CONFIG_CHARGER_BQ25890)	+= bq25890_charger.o
  obj-$(CONFIG_CHARGER_BQ25980)	+= bq25980_charger.o
@@ -1117,7 +1117,7 @@ index 000000000000..2a2305b985df
 +	int ret = 0;
 +
 +	psy_cfg->drv_data = bq;
-+	psy_cfg->of_node = dev->of_node;
++	psy_cfg->fwnode = dev_fwnode(dev);
 +
 +	ret = device_property_read_u32(bq->dev, "ti,watchdog-timeout-ms",
 +				       &bq->watchdog_timer);

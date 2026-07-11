@@ -11,6 +11,8 @@ Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
  configs/mx95evk/config_trdc.h  |  4 ++--
  4 files changed, 15 insertions(+), 13 deletions(-)
 
+Upstream-Status: Inappropriate No upstream
+
 diff --git a/configs/mx95evk.cfg b/configs/mx95evk.cfg
 index d05e121..f2a18eb 100755
 --- a/configs/mx95evk.cfg

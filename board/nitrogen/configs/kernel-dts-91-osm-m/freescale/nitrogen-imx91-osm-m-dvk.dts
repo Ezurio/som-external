@@ -79,7 +79,7 @@
 
 		dailink0_master: simple-audio-card,cpu {
 			sound-dai = <&sai3>;
-			clocks = <&clk IMX91_CLK_SAI3_GATE>;
+			clocks = <&clk IMX93_CLK_SAI3_GATE>;
 			bitclock-master;
 			frame-master;
 		};
@@ -227,8 +227,8 @@
 &sai3 { /* I2S_A / TAC5112 */
 	status = "okay";
 
-	assigned-clocks = <&clk IMX91_CLK_SAI3>;
-	assigned-clock-parents = <&clk IMX91_CLK_AUDIO_PLL>;
+	assigned-clocks = <&clk IMX93_CLK_SAI3>;
+	assigned-clock-parents = <&clk IMX93_CLK_AUDIO_PLL>;
 	assigned-clock-rates = <24576000>;
 
 	fsl,sai-mclk-direction-output;

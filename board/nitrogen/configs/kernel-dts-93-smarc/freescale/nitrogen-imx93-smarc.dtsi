@@ -459,6 +459,14 @@
 	status = "okay";
 };
 
+&mu1 {
+	status = "okay";
+};
+
+&mu2 {
+	status = "okay";
+};
+
 &usbotg1 { /* USB0 */
 	vbus-supply = <&reg_usb_otg_vbus>;
 	samsung,picophy-pre-emp-curr-control = <3>;

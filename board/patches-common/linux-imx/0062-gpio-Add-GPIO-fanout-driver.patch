@@ -70,7 +70,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  obj-$(CONFIG_GPIO_GE_FPGA)		+= gpio-ge.o
 --- /dev/null
 +++ b/drivers/gpio/gpio-fanout.c
-@@ -0,0 +1,252 @@
+@@ -0,0 +1,249 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * GPIO Fanout Driver - Virtual GPIO chip that controls multiple physical GPIOs
@@ -132,13 +132,13 @@ Upstream-Status: Inappropriate No time for upstreaming
 + * Sets all output GPIOs to the requested value by updating the
 + * value bitmap and propagating changes via the GPIO array API.
 + */
-+static void gpio_fanout_set(struct gpio_chip *chip, unsigned int offset,
++static int gpio_fanout_set(struct gpio_chip *chip, unsigned int offset,
 +			    int value)
 +{
 +	struct gpio_fanout_data *data = gpiochip_get_data(chip);
 +
 +	if (offset >= chip->ngpio)
-+		return;
++		return -EINVAL;
 +
 +	data->output_values[offset] = value;
 +
@@ -151,13 +151,10 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	else
 +		bitmap_zero(data->value_bitmap, data->descs->ndescs);
 +
-+	gpiod_set_array_value_cansleep(data->descs->ndescs,
++	return gpiod_set_array_value_cansleep(data->descs->ndescs,
 +				       data->descs->desc,
 +				       NULL,
 +				       data->value_bitmap);
-+
-+	dev_dbg(data->dev, "All %d output GPIOs set to: %d\n",
-+		data->descs->ndescs, value);
 +}
 +
 +/**

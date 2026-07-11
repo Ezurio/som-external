@@ -19,7 +19,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	bool	vbus_enabled;
  };
  
- static void tca_blk_orientation_set(struct tca_blk *tca,
+ 
 @@ -864,10 +865,6 @@ static int imx8mq_phy_power_on(struct phy *phy)
  	u32 value;
  	int ret;

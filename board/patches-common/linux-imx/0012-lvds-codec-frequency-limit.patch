@@ -43,7 +43,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	if (!of_property_read_u32(dev->of_node, "max-frequency", &lvds_codec->max_frequency))
 +		lvds_codec->max_frequency /= 1000;
 +	 else
-+	 	lvds_codec->max_frequency = -1;	 	
++	 	lvds_codec->max_frequency = -1;
 +
 +	if (!of_property_read_u32(dev->of_node, "min-frequency", &lvds_codec->min_frequency))
 +		lvds_codec->min_frequency /= 1000;

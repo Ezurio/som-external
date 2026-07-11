@@ -12,7 +12,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  #define DPCM_SELECTABLE 1
  
 @@ -529,6 +530,35 @@
- 	return devm_add_action_or_reset(dev, simple_depopulate_aux, priv);
+ 	return simple_ret(priv, ret);
  }
  
 +static int jack_ts3a227_init(struct snd_soc_component *component)
@@ -47,13 +47,13 @@ Upstream-Status: Inappropriate No time for upstreaming
  static int simple_parse_of(struct simple_util_priv *priv, struct link_info *li)
  {
  	struct snd_soc_card *card = simple_priv_to_card(priv);
-@@ -563,7 +587,18 @@
- 		return ret;
+@@ -563,6 +587,18 @@
+ 		goto end;
  
  	ret = snd_soc_of_parse_aux_devs(card, PREFIX "aux-devs");
 +	if (ret < 0)
-+		return ret;
- 
++		goto end;
++ 
 +	struct snd_soc_aux_dev *aux;
 +	int i;
 +	for_each_card_pre_auxs(card, i, aux) {
@@ -63,6 +63,6 @@ Upstream-Status: Inappropriate No time for upstreaming
 +		}
 +	}
 +	
- 	return ret;
+ end:
+ 	return simple_ret(priv, ret);
  }
- 

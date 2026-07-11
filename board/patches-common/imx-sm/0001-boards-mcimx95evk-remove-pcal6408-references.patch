@@ -12,11 +12,13 @@ Signed-off-by: Gary Bisson <gary.bisson@ezurio.com>
  boards/mcimx95evk/sm/brd_sm_handlers.h |   3 -
  5 files changed, 133 deletions(-)
 
+Upstream-Status: Inappropriate No upstream
+
 diff --git a/boards/mcimx95evk/board.c b/boards/mcimx95evk/board.c
 index d4a671f..660bce7 100755
 --- a/boards/mcimx95evk/board.c
 +++ b/boards/mcimx95evk/board.c
-@@ -355,9 +355,6 @@ void BOARD_InitHandlers(void)
+@@ -359,9 +359,6 @@ void BOARD_InitHandlers(void)
      /* Enable FCCU handler */
      NVIC_SetPriority(FCCU_INT0_IRQn, IRQ_PRIO_NOPREEMPT_CRITICAL);
      NVIC_EnableIRQ(FCCU_INT0_IRQn);
@@ -113,7 +115,7 @@ index a96f6ce..a2f5710 100755
  
      if (status == SM_ERR_SUCCESS)
      {
-@@ -254,20 +233,6 @@ int32_t BRD_SM_SerialDevicesInit(void)
+@@ -262,20 +241,6 @@ int32_t BRD_SM_SerialDevicesInit(void)
          }
      }
  
@@ -134,7 +136,7 @@ index a96f6ce..a2f5710 100755
      /* Return status */
      return status;
  }
-@@ -278,76 +243,11 @@ int32_t BRD_SM_SerialDevicesInit(void)
+@@ -270,78 +235,11 @@ int32_t BRD_SM_SerialDevicesInit(void)
  int32_t BRD_SM_BusExpMaskSet(uint8_t val, uint8_t mask)
  {
      int32_t status = SM_ERR_SUCCESS;
@@ -184,6 +186,7 @@ index a96f6ce..a2f5710 100755
 -    if ((status & BIT8(PCAL6408A_INPUT_PF09_INT)) != 0U)
 -    {
 -        /* Asserts low */
+-        /* gcov_excl_ntbr_nextline - rising edge not seen */
 -        if ((val & BIT8(PCAL6408A_INPUT_PF09_INT)) == 0U)
 -        {
 -            BRD_SM_Pf09Handler();
@@ -195,6 +198,7 @@ index a96f6ce..a2f5710 100755
 -        != 0U))
 -    {
 -        /* Asserts low */
+-        /* gcov_excl_ntbr_nextline - rising edge not seen */
 -        if ((val & BIT8(PCAL6408A_INPUT_PCA2131_INT)) == 0U)
 -        {
 -            BRD_SM_BbmHandler();

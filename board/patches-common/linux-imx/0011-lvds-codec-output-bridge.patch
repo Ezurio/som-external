@@ -49,5 +49,5 @@ Upstream-Status: Inappropriate No time for upstreaming
 +			return PTR_ERR(lvds_codec->panel_bridge);
 +	}
  
- 	lvds_codec->bridge.funcs = &funcs;
- 
+ 	/*
+ 	 * Decoder input LVDS format is a property of the decoder chip or even

@@ -27,8 +27,8 @@ index a3b9402d39af..2ac5adf1cbbb 100644
  #include <linux/types.h>
 +#include <media/mipi-csi2.h>
  #include <media/v4l2-ctrls.h>
- #include <media/v4l2-event.h>
  #include <media/v4l2-fwnode.h>
+ #include <media/v4l2-subdev.h>
 @@ -819,6 +820,23 @@ static const struct v4l2_ctrl_ops ov5645_ctrl_ops = {
  	.s_ctrl = ov5645_s_ctrl,
  };

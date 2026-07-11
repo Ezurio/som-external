@@ -19,11 +19,11 @@
 	status = "okay";
 };
 
-&gpu_3d {
+&gpu3d {
 	status = "okay";
 };
 
-&gpu_2d {
+&gpu2d {
 	status = "okay";
 };
 
@@ -31,7 +31,7 @@
 	status = "okay";
 };
 
-&ml_vipsi {
+&npu {
 	status = "okay";
 };
 

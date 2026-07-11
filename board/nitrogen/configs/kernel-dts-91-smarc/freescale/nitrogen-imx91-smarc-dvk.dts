@@ -223,7 +223,7 @@
 			codec: wm8962@1a {
 				compatible = "wlf,wm8962";
 				reg = <0x1a>;
-				clocks = <&clk IMX91_CLK_SAI3_GATE>;
+				clocks = <&clk IMX93_CLK_SAI3_GATE>;
 				AVDD-supply = <&reg_vdd_1v8>;
 				CPVDD-supply = <&reg_vdd_1v8>;
 				DBVDD-supply = <&reg_vdd_3v3>;
@@ -288,11 +288,15 @@
 	};
 };
 
-&mu1 {
+&lpuart2 { /* SER2 */
 	status = "okay";
 };
 
-&mu2 {
+&lpuart6 { /* SER3 */
+	status = "okay";
+};
+
+&lpuart5 { /* SER0 */
 	status = "okay";
 };
 
@@ -304,8 +308,8 @@
 &sai3 {
 	status = "okay";
 
-	assigned-clocks = <&clk IMX91_CLK_SAI3>;
-	assigned-clock-parents = <&clk IMX91_CLK_AUDIO_PLL>;
+	assigned-clocks = <&clk IMX93_CLK_SAI3>;
+	assigned-clock-parents = <&clk IMX93_CLK_AUDIO_PLL>;
 	/* wm8962 needs MCLK 14 - 40 MHz */
 	assigned-clock-rates = <24000000>;
 

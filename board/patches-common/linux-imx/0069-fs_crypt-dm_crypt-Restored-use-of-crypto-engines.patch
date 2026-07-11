@@ -1,0 +1,35 @@
+From c7ccc95ecb767d4a204fef3a7436d67e49cbc795 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Thu, 2 Apr 2026 02:35:40 -0400
+Subject: [PATCH] fs_crypt: dm_crypt: Restored use of crypto engines
+
+armv7 CPUs do not have crypto hardware and require use of external
+crypto engines to be reasonable for crypto operations
+
+PROD-62700
+---
+ fs/crypto/fscrypt_private.h |  5 ++++-
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+Upstream-Status: Inappropriate Local requirement 
+
+diff --git a/fs/crypto/fscrypt_private.h b/fs/crypto/fscrypt_private.h
+index 4e8e82a9ccf9..384d21f97be1 100644
+--- a/fs/crypto/fscrypt_private.h
++++ b/fs/crypto/fscrypt_private.h
+@@ -59,9 +59,12 @@
+  * Note that fscrypt also supports inline crypto engines.  Those don't use the
+  * Crypto API and work much better than the old-style (non-inline) engines.
+  */
+-#define FSCRYPT_CRYPTOAPI_MASK                            \
++/*
++ #define FSCRYPT_CRYPTOAPI_MASK                            \
+ 	(CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY | \
+ 	 CRYPTO_ALG_KERN_DRIVER_ONLY)
++*/
++#define FSCRYPT_CRYPTOAPI_MASK 0
+ 
+ #define FSCRYPT_CONTEXT_V1	1
+ #define FSCRYPT_CONTEXT_V2	2
+-- 
+2.54.0

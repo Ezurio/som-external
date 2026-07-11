@@ -79,6 +79,14 @@
 	};
 };
 
+&uart1 {
+	status = "okay";
+};
+
+&uart4 {
+	status = "okay";
+};
+
 &sai2 {
 	status = "okay";
 };
