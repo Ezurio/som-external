@@ -16,13 +16,13 @@
 	off-on-delay-us = <100>;
 };
 
-&main_wifi_wake_default {
+&wifi_wake_default {
 	pinctrl-single,pins = <
 		AM62LX_IOPAD(0x018c, PIN_INPUT_PULLDOWN, 7) /* SDIO_WAKE# (B9) MCASP0_AXR0.GPIO0_82 */
 	>;
 };
 
-&main_bt_wake_pins_default {
+&bt_wake_pins_default {
 	pinctrl-single,pins = <
 		AM62LX_IOPAD(0x0050, PIN_INPUT_PULLDOWN, 7) /* BT_HOST_WAKE (E23) OSPI0_D2.GPIO0_5 */
 	>;
@@ -46,12 +46,12 @@
 		compatible = "ti,cc33xx";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_wifi_wake_default>;
-		//interrupts-extended = <&main_gpio0 82 IRQ_TYPE_EDGE_RISING>;
+		pinctrl-0 = <&wifi_wake_default>;
+		//interrupts-extended = <&gpio0 82 IRQ_TYPE_EDGE_RISING>;
 	};
 };
 
-&main_uart1 {
+&uart1 {
  	status = "okay";
 
 	bluetooth {
@@ -60,7 +60,7 @@
 		max-speed = <115200>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&main_bt_wake_pins_default>;
-		host-wakeup-gpios = <&main_gpio0 5 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&bt_wake_pins_default>;
+		host-wakeup-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
 	};
 };

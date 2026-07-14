@@ -3,7 +3,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
 +++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -3097,8 +3097,8 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+@@ -3093,8 +3093,8 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
  		port->slave.ifphy = devm_of_phy_get(dev, port_np, NULL);
  		if (IS_ERR(port->slave.ifphy)) {
  			ret = PTR_ERR(port->slave.ifphy);
@@ -16,7 +16,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
 --- a/drivers/net/ethernet/ti/cpsw.c
 +++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -1304,8 +1304,8 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
+@@ -1351,8 +1351,8 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
  		if (!IS_ENABLED(CONFIG_TI_CPSW_PHY_SEL) &&
  		    IS_ERR(slave_data->ifphy)) {
  			ret = PTR_ERR(slave_data->ifphy);
@@ -29,7 +29,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
 --- a/drivers/net/ethernet/ti/cpsw_new.c
 +++ b/drivers/net/ethernet/ti/cpsw_new.c
-@@ -1284,8 +1284,8 @@ static int cpsw_probe_dt(struct cpsw_common *cpsw)
+@@ -1309,8 +1309,8 @@ static int cpsw_probe_dt(struct cpsw_common *cpsw)
  		slave_data->ifphy = devm_of_phy_get(dev, port_np, NULL);
  		if (IS_ERR(slave_data->ifphy)) {
  			ret = PTR_ERR(slave_data->ifphy);

@@ -47,7 +47,7 @@
 	dr_mode = "host";
 };
 
-&main_uart2 {
+&uart2 {
 	status = "okay";
 
 	uart-has-rtscts;

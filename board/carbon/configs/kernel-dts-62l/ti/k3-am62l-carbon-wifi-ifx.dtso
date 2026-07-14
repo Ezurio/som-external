@@ -27,7 +27,7 @@
 	};
 };
 
-&main_uart1 {
+&uart1 {
 	status = "okay";
 
 	bluetooth {

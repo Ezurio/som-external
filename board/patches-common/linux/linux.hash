@@ -1,3 +1,12 @@
 sha256  ff4fbe958eca38fb71fbde2d7fc1b784693b3d3652b5d3280431cc2ef42b0533  boundary-imx_5.15.71.tar.gz
+<<<<<<< Updated upstream
 sha256  5fa88456fe093a6d05487f5f5100eec098cd8b5069c42a162dab39dfb8b14943  ti-linux-kernel-11.01.09.tar.gz
+<<<<<<< Updated upstream
 sha256  a8f55764fd1418db8adfd2711c0abb7d5464a8ee1cbfd0f6878f1059ecfa1316  linux-imx-lf-6.18.20-2.0.0.tar.gz
+=======
+sha256  2166d92e5631ee11bd249d492a1f4009c7635ee36b835fa55384b4ce41e8a63f  linux-imx-lf-6.12.49-2.2.0.tar.gz
+=======
+sha256  a0e386c3fbcb3a5f9ee9ac3f27fb33a8d0ff8a84a088c03e7979ff4a6f825284  ti-linux-kernel-12.00.00.08.tar.gz
+sha256  a8f55764fd1418db8adfd2711c0abb7d5464a8ee1cbfd0f6878f1059ecfa1316  linux-imx-lf-6.18.20-2.0.0.tar.gz
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes

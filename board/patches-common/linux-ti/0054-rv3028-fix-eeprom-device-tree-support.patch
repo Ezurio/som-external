@@ -1,6 +1,9 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
 --- a/drivers/rtc/rtc-rv3028.c
 +++ b/drivers/rtc/rtc-rv3028.c
-@@ -1014,6 +1014,8 @@
+@@ -1021,6 +1021,8 @@
  	nvmem_cfg.priv = rv3028->regmap;
  	devm_rtc_nvmem_register(rv3028->rtc, &nvmem_cfg);
  	eeprom_cfg.priv = rv3028;

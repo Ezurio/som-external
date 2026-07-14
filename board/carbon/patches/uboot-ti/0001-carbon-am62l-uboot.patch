@@ -1,9 +1,9 @@
 diff --git a/arch/arm/dts/k3-am62l-carbon-binman.dtsi b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
 new file mode 100644
-index 00000000000..785babb2ee6
+index 00000000000..0d3648c0505
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
-@@ -0,0 +1,198 @@
+@@ -0,0 +1,228 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -24,34 +24,52 @@ index 00000000000..785babb2ee6
 +		};
 +	};
 +
++	custMpk-crt {
++		filename = "custMpk.crt";
++
++		custmpk_crt: blob-ext {
++			filename = "arch/arm/mach-k3/keys/custMpk.crt";
++		};
++	};
++
++	custMpk-key {
++		filename = "custMpk.key";
++
++		custmpk_key: blob-ext {
++			filename = "arch/arm/mach-k3/keys/custMpk.key";
++		};
++	};
++
 +	board-cfg {
 +		filename = "board-cfg.bin";
++
 +		bcfg_yaml: ti-board-config {
 +			config = "board-cfg.yaml";
-+			schema = "arch/arm/mach-k3/am62l-schema.yaml";
++			schema = "arch/arm/mach-k3/am62lx/schema.yaml";
 +		};
 +	};
 +
 +	sec-cfg {
 +		filename = "sec-cfg.bin";
++
 +		sec_yaml: ti-board-config {
 +			config = "sec-cfg.yaml";
-+			schema = "arch/arm/mach-k3/am62l-schema.yaml";
++			schema = "arch/arm/mach-k3/am62lx/schema.yaml";
 +		};
 +	};
-+
++	
 +	combined-tifs-cfg {
 +		filename = "combined-tifs-cfg.bin";
 +
 +		ti-board-config {
 +			bcfg_yaml_tifs: board-cfg {
 +				config = "board-cfg.yaml";
-+				schema = "arch/arm/mach-k3/am62l-schema.yaml";
++				schema = "arch/arm/mach-k3/am62lx/schema.yaml";
 +			};
 +
 +			sec_yaml_tifs: sec-cfg {
 +				config = "sec-cfg.yaml";
-+				schema = "arch/arm/mach-k3/am62l-schema.yaml";
++				schema = "arch/arm/mach-k3/am62lx/schema.yaml";
 +			};
 +		};
 +	};
@@ -83,9 +101,6 @@ index 00000000000..785babb2ee6
 +			type = "blob-ext";
 +		};
 +
-+		/*
-+		 * TODO: this doesn't need to be here
-+		 */
 +		tifs_data: sysfw-data.bin {
 +			filename = "combined-tifs-cfg.bin";
 +			type = "blob-ext";
@@ -109,16 +124,16 @@ index 00000000000..785babb2ee6
 +			keyfile = "custMpk.pem";
 +			sw-rev = <1>;
 +			content-sbl = <&atf>;
++			content-tee = <&tee>;
 +			content-sysfw = <&tifs_enc2>;
 +			content-sysfw-data = <&tifs_data2>;
 +			content-sysfw-inner-cert = <&tifs_cert2>;
-+			content-tee = <&tee>;
 +			content-dm-data = <&spl>;
 +			load = <CONFIG_K3_ATF_LOAD_ADDR>;
-+			load-tee = <CONFIG_K3_OPTEE_LOAD_ADDR>;
 +			load-sysfw = <CONFIG_K3_TIFS_LOAD_ADDR>;
 +			load-sysfw-data = <CONFIG_K3_TIFS_DATA_LOAD_ADDR>;
 +			load-dm-data = <CONFIG_SPL_TEXT_BASE>;
++			load-tee = <CONFIG_K3_OPTEE_LOAD_ADDR>;
 +		};
 +
 +		atf: atf-bl31 {
@@ -142,9 +157,17 @@ index 00000000000..785babb2ee6
 +		tee: tee-os {
 +		};
 +
-+		spl: u-boot-spl {
-+			no-expanded;
++		spl: section {
++			u-boot-spl-nodtb {
++			};
++
++			u-boot-spl-pubkey-dtb {
++				algo = "sha512,rsa4096";
++				required = "conf";
++				key-name-hint = "custMpk";
++			};
 +		};
++
 +	};
 +
 +	u-boot.img {
@@ -153,6 +176,7 @@ index 00000000000..785babb2ee6
 +
 +		fit {
 +			description = "U-Boot fitImage for AM62Lx Carbon";
++			fit,sign;
 +
 +			images {
 +				uboot {
@@ -168,7 +192,7 @@ index 00000000000..785babb2ee6
 +					};
 +
 +					hash {
-+						algo = "crc32";
++						algo = "sha256";
 +					};
 +				};
 +
@@ -183,7 +207,7 @@ index 00000000000..785babb2ee6
 +					};
 +
 +					hash {
-+						algo = "crc32";
++						algo = "sha256";
 +					};
 +				};
 +			};
@@ -196,6 +220,12 @@ index 00000000000..785babb2ee6
 +					firmware = "uboot";
 +					loadables = "uboot";
 +					fdt = "fdt-0";
++
++					signature {
++						algo = "sha512,rsa4096";
++						key-name-hint = "custMpk";
++						sign-images = "firmware", "loadables", "fdt";
++					};
 +				};
 +
 +			};
@@ -204,7 +234,7 @@ index 00000000000..785babb2ee6
 +};
 diff --git a/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
 new file mode 100644
-index 00000000000..bd48b19683e
+index 00000000000..bd016d100cd
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
 @@ -0,0 +1,229 @@
@@ -234,11 +264,11 @@ index 00000000000..bd48b19683e
 +	bootph-all;
 +};
 +
-+&main_gpio0 {
++&gpio0 {
 +	bootph-all;
 +};
 +
-+&main_gpio2 {
++&gpio2 {
 +	bootph-all;
 +};
 +
@@ -246,7 +276,7 @@ index 00000000000..bd48b19683e
 +	bootph-all;
 +};
 +
-+&main_uart0 {
++&uart0 {
 +	bootph-all;
 +};
 +
@@ -394,11 +424,11 @@ index 00000000000..bd48b19683e
 +	bootph-all;
 +};
 +
-+&main_uart0_tx_pins_default {
++&uart0_tx_pins_default {
 +	bootph-all;
 +};
 +
-+&main_uart0_rx_pins_default {
++&uart0_rx_pins_default {
 +	bootph-all;
 +};
 +
@@ -406,19 +436,19 @@ index 00000000000..bd48b19683e
 +	bootph-all;
 +};
 +
-+&main_mmc0_pins_default {
++&mmc0_pins_default {
 +	bootph-all;
 +};
 +
-+&main_mmc1_pins_default {
++&mmc1_pins_default {
 +	bootph-all;
 +};
 +
-+&main_gpmc0_pins_default {
++&gpmc0_pins_default {
 +	bootph-all;
 +};
 +
-+&main_mmc1_power_en_pins_default {
++&mmc1_power_en_pins_default {
 +	bootph-all;
 +};
 +
@@ -467,10 +497,10 @@ index 00000000000..b77202334d7
 +};
 diff --git a/arch/arm/dts/k3-am62l-carbon-som.dtsi b/arch/arm/dts/k3-am62l-carbon-som.dtsi
 new file mode 100644
-index 00000000000..54427fff2a3
+index 00000000000..439f963f50e
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-som.dtsi
-@@ -0,0 +1,1167 @@
+@@ -0,0 +1,1163 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * AM62L Carbon SOM
@@ -493,26 +523,26 @@ index 00000000000..54427fff2a3
 +		mmc1 = &sdhci1;			/* SD/MMC */
 +		mmc2 = &sdhci2;			/* Wi-Fi */
 +		serial0 = &wkup_uart0;		/* UART_C */
-+		serial2 = &main_uart0; 		/* UART_CON */
-+		serial3 = &main_uart1;		/* BT */
-+		serial4 = &main_uart5;		/* UART_A */
-+		serial5 = &main_uart2;		/* UART_B */
-+		serial6 = &main_uart3;		/* UART_D */
++		serial2 = &uart0; 		/* UART_CON */
++		serial3 = &uart1;		/* BT */
++		serial4 = &uart5;		/* UART_A */
++		serial5 = &uart2;		/* UART_B */
++		serial6 = &uart3;		/* UART_D */
 +		ethernet0 = &cpsw_port1;	/* ETH_A */
 +		ethernet1 = &cpsw_port2;	/* ETH_B */
 +		i2c0 = &wkup_i2c0;		/* I2C WKUP */
-+		i2c1 = &main_i2c0;		/* I2C_A */
-+		i2c2 = &main_i2c1;		/* I2C_B */
-+		i2c3 = &main_i2c2;		/* I2C_C */
-+		spi1 = &main_spi1;		/* SPI_A */
-+		spi2 = &main_spi0;		/* SPI_B */
-+		can0 = &main_mcan1;		/* CAN_A */
-+		can1 = &main_mcan2;		/* CAN_B */
++		i2c1 = &i2c0;		/* I2C_A */
++		i2c2 = &i2c1;		/* I2C_B */
++		i2c3 = &i2c2;		/* I2C_C */
++		spi1 = &spi1;		/* SPI_A */
++		spi2 = &spi0;		/* SPI_B */
++		can0 = &mcan1;		/* CAN_A */
++		can1 = &mcan2;		/* CAN_B */
 +		usb0 = &usb0;			/* USB_A */
 +		usb1 = &usb1;			/* USB_B */
 +		gpio0 = &wkup_gpio0;
-+		gpio1 = &main_gpio0;
-+		gpio2 = &main_gpio2;
++		gpio1 = &gpio0;
++		gpio2 = &gpio2;
 +		gpio3 = &exp0;
 +		rtc0 = &rv3028;
 +		rtc1 = &wkup_rtc0;
@@ -586,8 +616,8 @@ index 00000000000..54427fff2a3
 +		regulator-max-microvolt = <1800000>;
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_vpp_en_pins_default>;
-+		gpios = <&main_gpio0 6 GPIO_ACTIVE_HIGH>;
++		pinctrl-0 = <&vpp_en_pins_default>;
++		gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +	};
 +
@@ -615,8 +645,8 @@ index 00000000000..54427fff2a3
 +		regulator-max-microvolt = <3300000>;
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_mmc1_power_en_pins_default>;
-+		gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;
++		pinctrl-0 = <&mmc1_power_en_pins_default>;
++		gpios = <&gpio0 51 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +
 +		startup-delay-us = <5000>;
@@ -625,10 +655,10 @@ index 00000000000..54427fff2a3
 +
 +	mmc0_pwrseq: mmc0-pwrseq {
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_mmc0_reset_pins_default>;
++		pinctrl-0 = <&mmc0_reset_pins_default>;
 +
 +		compatible = "mmc-pwrseq-emmc";
-+		reset-gpios = <&main_gpio0 52 GPIO_ACTIVE_LOW>;
++		reset-gpios = <&gpio0 52 GPIO_ACTIVE_LOW>;
 +
 +		status = "disabled";
 +	};
@@ -671,18 +701,18 @@ index 00000000000..54427fff2a3
 +		status = "disabled";
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_wifi_wake_default>, <&main_bt_wake_pins_default>;
++		pinctrl-0 = <&wifi_wake_default>, <&bt_wake_pins_default>;
 +
 +		wifi-wake {
 +			label = "Wi-Fi Wake Up";
 +			linux,code = <KEY_WAKEUP>;
 +			wakeup-source;
 +
-+			interrupts-extended = <&main_gpio0 82 IRQ_TYPE_EDGE_FALLING>,
++			interrupts-extended = <&gpio0 82 IRQ_TYPE_EDGE_FALLING>,
 +				<&pmx0 0x18c>;
 +			interrupt-names = "irq", "wakeup";
 +
-+			//gpios = <&main_gpio0 82 GPIO_ACTIVE_LOW>;
++			//gpios = <&gpio0 82 GPIO_ACTIVE_LOW>;
 +			//wakeup-event-action = <EV_ACT_ASSERTED>;
 +		};
 +
@@ -691,53 +721,49 @@ index 00000000000..54427fff2a3
 +			linux,code = <KEY_WAKEUP>;
 +			wakeup-source;
 +
-+			interrupts-extended = <&main_gpio0 5 IRQ_TYPE_EDGE_FALLING>,
++			interrupts-extended = <&gpio0 5 IRQ_TYPE_EDGE_FALLING>,
 +				<&pmx0 0x050>;
 +			interrupt-names = "irq", "wakeup";
 +
-+			//gpios = <&main_gpio0 5 GPIO_ACTIVE_LOW>;
++			//gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
 +			//wakeup-event-action = <EV_ACT_ASSERTED>;
 +		};
 +	};
 +};
 +
-+&main_rti1 {
-+	status = "disabled";
-+};
-+
-+&main_uart0 {
++&uart0 {
 +	/* UART_CON */
 +	pinctrl-names = "default", "wakeup";
-+	pinctrl-0 = <&main_uart0_tx_pins_default>, <&main_uart0_rx_pins_default>;
-+	pinctrl-1 = <&main_uart0_tx_pins_default>, <&main_uart0_rx_pins_wakeup>;
-+	wakeup-source  = <&system_deep_sleep>;
++	pinctrl-0 = <&uart0_tx_pins_default>, <&uart0_rx_pins_default>;
++	pinctrl-1 = <&uart0_tx_pins_default>, <&uart0_rx_pins_wakeup>;
++	wakeup-source;
 +	status = "okay";
 +};
 +
-+&main_uart1 {
++&uart1 {
 +	/* BT */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_uart1_pins_default>;
++	pinctrl-0 = <&uart1_pins_default>;
 +
 +	uart-has-rtscts;
 +};
 +
-+&main_uart2 {
++&uart2 {
 +	/* UART_B */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_uart2_pins_default>;
++	pinctrl-0 = <&uart2_pins_default>;
 +};
 +
-+&main_uart3 {
++&uart3 {
 +	/* UART_D */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_uart3_pins_default>;
++	pinctrl-0 = <&uart3_pins_default>;
 +};
 +
-+&main_uart5 {
++&uart5 {
 +	/* UART_A */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_uart5_pins_default>;
++	pinctrl-0 = <&uart5_pins_default>;
 +};
 +
 +&wkup_uart0_interconnect {
@@ -750,26 +776,26 @@ index 00000000000..54427fff2a3
 +	pinctrl-0 = <&wkup_uart0_pins_default>;
 +};
 +
-+&main_i2c0 {
++&i2c0 {
 +	/* I2C_A */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_i2c0_pins_default>;
++	pinctrl-0 = <&i2c0_pins_default>;
 +
 +	clock-frequency = <400000>;
 +};
 +
-+&main_i2c1 {
++&i2c1 {
 +	/* I2C_B */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_i2c1_pins_default>;
++	pinctrl-0 = <&i2c1_pins_default>;
 +
 +	clock-frequency = <400000>;
 +};
 +
-+&main_i2c2 {
++&i2c2 {
 +	/* I2C_C */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_i2c2_pins_default>;
++	pinctrl-0 = <&i2c2_pins_default>;
 +
 +	clock-frequency = <400000>;
 +};
@@ -803,15 +829,15 @@ index 00000000000..54427fff2a3
 +		#interrupt-cells = <2>;
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_exp0_pins_default>;
-+		interrupts-extended = <&main_gpio0 102 IRQ_TYPE_EDGE_FALLING>;
++		pinctrl-0 = <&exp0_pins_default>;
++		interrupts-extended = <&gpio0 102 IRQ_TYPE_EDGE_FALLING>;
 +	};
 +
 +	tps65214: pmic@30 {
 +		compatible = "ti,tps65214";
 +		reg = <0x30>;
 +		interrupts-extended = <&gic500 GIC_SPI 224 IRQ_TYPE_LEVEL_HIGH>;
-+		pinctrl-0 = <&main_pmic_irq_pins_default>;
++		pinctrl-0 = <&pmic_irq_pins_default>;
 +		ti,power-button;
 +
 +		buck1-supply = <&reg_5v0>;
@@ -868,8 +894,8 @@ index 00000000000..54427fff2a3
 +		reg = <0x52>;
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&main_rtc_pins_default>;
-+		interrupts-extended = <&main_gpio0 103 IRQ_TYPE_EDGE_FALLING>;
++		pinctrl-0 = <&rtc_pins_default>;
++		interrupts-extended = <&gpio0 103 IRQ_TYPE_EDGE_FALLING>;
 +		interrupt-names = "irq";
 +		wakeup-source;
 +
@@ -899,48 +925,48 @@ index 00000000000..54427fff2a3
 +	};
 +};
 +
-+&main_spi0 {
++&spi0 {
 +	/* SPI_B */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_spi0_pins_default>;
++	pinctrl-0 = <&spi0_pins_default>;
 +};
 +
-+&main_spi1 {
++&spi1 {
 +	/* SPI_A */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_spi1_pins_default>;
++	pinctrl-0 = <&spi1_pins_default>;
 +};
 +
-+&main_mcan1 {
++&mcan1 {
 +	/* CAN_A */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mcan1_pins_default>;
++	pinctrl-0 = <&mcan1_pins_default>;
 +};
 +
-+&main_mcan2 {
++&mcan2 {
 +	/* CAN_B */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mcan2_pins_default>;
++	pinctrl-0 = <&mcan2_pins_default>;
 +};
 +
 +&epwm1 {
 +	/* PWM_0 */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_epwm1_pins_default>;
++	pinctrl-0 = <&epwm1_pins_default>;
 +};
 +
-+&main_gpio0 {
++&gpio0 {
 +	status = "okay";
 +};
 +
-+&main_gpio2 {
++&gpio2 {
 +	status = "okay";
 +};
 +
 +&sdhci0 {
 +	/* eMMC */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mmc0_pins_default>;
++	pinctrl-0 = <&mmc0_pins_default>;
 +
 +	vmmc-supply = <&reg_mmc0>;
 +	mmc-pwrseq = <&mmc0_pwrseq>;
@@ -954,11 +980,11 @@ index 00000000000..54427fff2a3
 +&sdhci1 {
 +	/* SD/MMC */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mmc1_pins_default>;
++	pinctrl-0 = <&mmc1_pins_default>;
 +
 +	vmmc-supply = <&reg_mmc1>;
 +
-+	cd-gpios = <&main_gpio0 122 GPIO_ACTIVE_LOW>;
++	cd-gpios = <&gpio0 122 GPIO_ACTIVE_LOW>;
 +
 +	disable-wp;
 +	bus-width = <4>;
@@ -969,7 +995,7 @@ index 00000000000..54427fff2a3
 +&sdhci2 {
 +	/* WI-FI */
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mmc2_pins_default>;
++	pinctrl-0 = <&mmc2_pins_default>;
 +
 +	vmmc-supply = <&reg_wifi_en>;
 +
@@ -989,7 +1015,7 @@ index 00000000000..54427fff2a3
 +
 +&cpsw3g {
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;
++	pinctrl-0 = <&rgmii1_pins_default>, <&rgmii2_pins_default>;
 +
 +	status = "disabled";
 +};
@@ -1012,7 +1038,7 @@ index 00000000000..54427fff2a3
 +
 +&cpsw3g_mdio {
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mdio0_pins_default>;
++	pinctrl-0 = <&mdio0_pins_default>;
 +};
 +
 +&dss_ports {
@@ -1059,7 +1085,7 @@ index 00000000000..54427fff2a3
 +	status = "okay";
 +
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_gpmc0_pins_default>;
++	pinctrl-0 = <&gpmc0_pins_default>;
 +	
 +	#address-cells = <2>;
 +	#size-cells = <1>;
@@ -1155,7 +1181,7 @@ index 00000000000..54427fff2a3
 +	#sound-dai-cells = <0>;
 +
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&main_mcasp2_pins_default>;
++	pinctrl-0 = <&mcasp2_pins_default>;
 +
 +	op-mode = <0>;          /* MCASP_IIS_MODE */
 +	tdm-slots = <2>;
@@ -1171,25 +1197,25 @@ index 00000000000..54427fff2a3
 +};
 +
 +&pmx0 {
-+	main_uart0_tx_pins_default: main-uart0-tx-default-pins {
++	uart0_tx_pins_default: uart0-tx-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01b8, PIN_OUTPUT, 0) /* UART_CON_TXD (C13) UART0_TXD */
 +		>;
 +	};
 +
-+	main_uart0_rx_pins_default: main-uart0-rx-default-pins {
++	uart0_rx_pins_default: uart0-rx-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01b4, PIN_INPUT_PULLUP, 0) /* UART_CON_RXD (D13) UART0_RXD */
 +		>;
 +	};
 +
-+	main_uart0_rx_pins_wakeup: main-uart0-rx-wakeup-pins {
++	uart0_rx_pins_wakeup: uart0-rx-wakeup-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01b4, PIN_INPUT_PULLUP | PIN_WKUP_EN, 0)	/* UART_CON_RXD (D13) UART0_RXD */
 +		>;
 +	};
 +
-+	main_uart1_pins_default: main-uart1-default-pins {
++	uart1_pins_default: uart1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0180, PIN_INPUT_PULLUP, 2) /* UART_BT_CTS (A8) MCASP0_AXR3.UART1_CTSn */
 +			AM62LX_IOPAD(0x0184, PIN_OUTPUT, 2) /* UART_BT_RTS (B10) MCASP0_AXR2.UART1_RTSn */
@@ -1198,7 +1224,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_uart2_pins_default: main-uart2-default-pins {
++	uart2_pins_default: uart2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x00B0, PIN_INPUT_PULLUP, 8) /* UART_B_CTS (A8) GPMC0_AD14.UART2_CTSn */
 +			AM62LX_IOPAD(0x00B4, PIN_OUTPUT, 8) /* UART_B_RTS (B10) GPMC0_AD15.UART2_RTSn */
@@ -1207,14 +1233,14 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_uart3_pins_default: main-uart3-default-pins {
++	uart3_pins_default: uart3-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x00a0, PIN_INPUT_PULLUP, 2) /* UART_D_RX (H21) GPMC0_AD10.UART3_RXD */
 +			AM62LX_IOPAD(0x00a4, PIN_OUTPUT, 2) /* UART_D_TX (H18) GPMC0_AD11.UART3_TXD */
 +		>;
 +	};
 +
-+	main_uart5_pins_default: main-uart5-default-pins {
++	uart5_pins_default: uart5-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0044, PIN_INPUT_PULLUP, 5) /* UART_A_CTS (E22) OSPI0_DQS.UART5_CTSn */
 +			AM62LX_IOPAD(0x0040, PIN_OUTPUT, 5) /* UART_A_RTS (E18) OSPI0_LBCLKO.UART5_RTSn */
@@ -1250,28 +1276,28 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_i2c0_pins_default: main-i2c0-default-pins {
++	i2c0_pins_default: i2c0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01cc, PIN_INPUT_PULLUP, 0) /* I2C_A_SCL (B7) I2C0_SCL */
 +			AM62LX_IOPAD(0x01d0, PIN_INPUT_PULLUP, 0) /* I2C_A_SDA (A7) I2C0_SDA */
 +		>;
 +	};
 +
-+	main_i2c1_pins_default: main-i2c1-default-pins {
++	i2c1_pins_default: i2c1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01d4, PIN_INPUT_PULLUP, 0) /* I2C_B_SCL (D7) I2C1_SCL */
 +			AM62LX_IOPAD(0x01d8, PIN_INPUT_PULLUP, 0) /* I2C_B_SDA (A6) I2C1_SDA */
 +		>;
 +	};
 +
-+	main_i2c2_pins_default: main-i2c2-default-pins {
++	i2c2_pins_default: i2c2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x00ec, PIN_INPUT_PULLUP, 1) /* I2C_C_SCL (M23) GPMC0_CSn2.I2C2_SCL */
 +			AM62LX_IOPAD(0x00f0, PIN_INPUT_PULLUP, 1) /* I2C_C_SDA (M22) GPMC0_CSn3.I2C2_SDA */
 +		>;
 +	};
 +
-+	main_spi0_pins_default: main-spi0-default-pins {
++	spi0_pins_default: spi0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01ac, PIN_OUTPUT, 0) /* SPI_B_SDO (E12) SPI0_D0 */
 +			AM62LX_IOPAD(0x01b0, PIN_INPUT, 0) /* SPI_B_SDI (B12) SPI0_D1 */
@@ -1280,13 +1306,13 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_spi0_cs1_pins_default: main-spi0-cs1-default-pins {
++	spi0_cs1_pins_default: spi0-cs1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01a4, PIN_INPUT, 0) /* SPI_B_CS1# (D11) SPI0_CS1 */
 +		>;
 +	};
 +
-+	main_spi1_pins_default: main-spi1-default-pins {
++	spi1_pins_default: spi1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0060, PIN_OUTPUT, 1) /* SPI_A_SDO (G20) OSPI0_D6.SPI1_D0 */
 +			AM62LX_IOPAD(0x0064, PIN_INPUT, 1) /* SPI_A_SDI (F20) OSPI0_D7.SPI1_D1 */
@@ -1295,27 +1321,27 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_spi1_cs1_pins_default: main-spi1-cs1-default-pins {
++	spi1_cs1_pins_default: spi1-cs1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0070, PIN_INPUT, 1) /* SPI_A_CS1# (D18) OSPI0_CSn2.SPI1_CS1 */
 +		>;
 +	};
 +
-+	main_mcan1_pins_default: main-mcan1-default-pins {
++	mcan1_pins_default: mcan1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0e0, PIN_OUTPUT, 9) /* CAN_A_TX (M21) GPMC0_DIR.MCAN1_TX */
 +			AM62LX_IOPAD(0x0d8, PIN_INPUT, 9) /* CAN_A_RX (N22) GPMC0_WAIT1.MCAN1_RX */
 +		>;
 +	};
 +
-+	main_mcan2_pins_default: main-mcan2-default-pins {
++	mcan2_pins_default: mcan2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x1c0, PIN_OUTPUT, 6) /* CAN_B_TX (B13) UART0_RTSn.MCAN2_TX */
 +			AM62LX_IOPAD(0x1bc, PIN_INPUT, 6) /* CAN_B_RX (B14) UART0_CTSn.MCAN2_RX */
 +		>;
 +	};
 +
-+	main_mmc0_pins_default: main-mmc0-default-pins {
++	mmc0_pins_default: mmc0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0214, PIN_INPUT_PULLUP, 0) /* SDIO_B_CMD (D2) MMC0_CMD */
 +			AM62LX_IOPAD(0x020c, PIN_OUTPUT, 0) /* SDIO_B_CLK (B2) MMC0_CLK */
@@ -1331,7 +1357,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_mmc1_pins_default: main-mmc1-default-pins {
++	mmc1_pins_default: mmc1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0230, PIN_INPUT_PULLUP, 0) /* SDIO_A_CMD (Y3) MMC1_CMD */
 +			AM62LX_IOPAD(0x0228, PIN_OUTPUT, 0) /* SDIO_A_CLK (Y2) MMC1_CLK */
@@ -1344,7 +1370,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_mmc2_pins_default: main-mmc2-default-pins {
++	mmc2_pins_default: mmc2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x010c, PIN_INPUT_PULLUP, 0) /* (U23) MMC2_CMD */
 +			AM62LX_IOPAD(0x0104, PIN_OUTPUT, 0) /* (R23) MMC2_CLK */
@@ -1356,7 +1382,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_gpmc0_pins_default: main-gpmc0-default-pins {
++	gpmc0_pins_default: gpmc0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0078, PIN_INPUT, 0) /* (L22) GPMC0_AD0 */
 +			AM62LX_IOPAD(0x007c, PIN_INPUT, 0) /* (L23) GPMC0_AD1 */
@@ -1376,14 +1402,14 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_mdio0_pins_default: main-mdio0-default-pins {
++	mdio0_pins_default: mdio0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x014c, PIN_OUTPUT, 0) /* ETH_A(B)_MDC (AC15) MDIO0_MDC */
 +			AM62LX_IOPAD(0x0148, PIN_INPUT, 0) /* ETH_A(B)_MDIO (AC13) MDIO0_MDIO */
 +		>;
 +	};
 +
-+	main_rgmii1_pins_default: main-rgmii1-default-pins {
++	rgmii1_pins_default: rgmii1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0138, PIN_INPUT, 0) /* ETH_A_(S)(R)(G)MII_RXD0 (Y8) RGMII1_RD0 */
 +			AM62LX_IOPAD(0x013c, PIN_INPUT, 0) /* ETH_A_(S)(R)(G)MII_RXD1 (AA6) RGMII1_RD1 */
@@ -1400,7 +1426,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_rgmii2_pins_default: main-rgmii2-default-pins {
++	rgmii2_pins_default: rgmii2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0170, PIN_INPUT, 0) /* ETH_B_(S)(R)(G)MII_RXD0 (AB9) RGMII2_RD0 */
 +			AM62LX_IOPAD(0x0174, PIN_INPUT, 0) /* ETH_B_(S)(R)(G)MII_RXD1 (AC9) RGMII2_RD1 */
@@ -1417,7 +1443,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_rmii1_pins_default: main-rmii1-default-pins {
++	rmii1_pins_default: rmii1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0138, PIN_INPUT, 1) /* ETH_A_(S)(R)(G)MII_RXD0 (Y8) RGMII1_RD0.RMII1_RD0 */
 +			AM62LX_IOPAD(0x013c, PIN_INPUT, 1) /* ETH_A_(S)(R)(G)MII_RXD1 (AA6) RGMII1_RD1.RMII1_RD1 */
@@ -1430,7 +1456,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_rmii2_pins_default: main-rmii2-default-pins {
++	rmii2_pins_default: rmii2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0170, PIN_INPUT, 1) /* ETH_B_(S)(R)(G)MII_RXD0 (AB9) RGMII2_RD0.RMII2_RD0 */
 +			AM62LX_IOPAD(0x0174, PIN_INPUT, 1) /* ETH_B_(S)(R)(G)MII_RXD1 (AC9) RGMII2_RD1.RMII2_RD1 */
@@ -1443,43 +1469,43 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_rgmii_phy0_rst_pins_default: main-rgmii-phy0-rst-default-pins {
++	rgmii_phy0_rst_pins_default: rgmii-phy0-rst-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0190, PIN_INPUT, 7) /* ETH_A_RST (A11) MCASP0_ACLKX.GPIO0_83 */
 +		>;
 +	};
 +
-+	main_rgmii_phy0_irq_pins_default: main-rgmii-phy0-irq-default-pins {
++	rgmii_phy0_irq_pins_default: rgmii-phy0-irq-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0194, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (B11) MCASP0_AFSX.GPIO0_84 */
 +		>;
 +	};
 +
-+	main_usb0_en_pins_default: main-usb0-en-default-pins {
++	usb0_en_pins_default: usb0-en-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0244, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_A_EN (C6) USB0_DRVVBUS */
 +		>;
 +	};
 +
-+	main_usb1_en_pins_default: main-usb1-en-default-pins {
++	usb1_en_pins_default: usb1-en-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0248, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_B_EN (A5) USB1_DRVVBUS */
 +		>;
 +	};
 +
-+	main_exp0_pins_default: main-exp0-default-pins {
++	exp0_pins_default: exp0-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01dc, PIN_INPUT_PULLUP, 7) /* (B8) I2C2_SCL.GPIO0_102 */
 +		>;
 +	};
 +
-+	main_rtc_pins_default: main-rtc-default-pins {
++	rtc_pins_default: rtc-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01e0, PIN_INPUT_PULLUP, 7) /* (D8) I2C2_SDA.GPIO0_103 */
 +		>;
 +	};
 +
-+	main_mcasp2_pins_default: main-mcasp2-default-pins {
++	mcasp2_pins_default: mcasp2-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x00ac, PIN_INPUT, 3) /* I2S_A_BITCLK (G22) GPMC0_AD13.MCASP2_ACLKX */
 +			AM62LX_IOPAD(0x00a8, PIN_INPUT, 3) /* I2S_A_LRCLK (G23) GPMC0_AD12.MCASP2.AFSX */
@@ -1488,43 +1514,43 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_mcasp2_mclk_pins_default: main-mcasp2-mclk-default-pins {
++	mcasp2_mclk_pins_default: mcasp2-mclk-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01e4, PIN_OUTPUT, 3) /* I2S_AB_MCLK (D16) EXT_REFCLK1 */
 +		>;
 +	};
 +
-+	main_pmic_irq_pins_default: main-pmic-irq-default-pins {
++	pmic_irq_pins_default: pmic-irq-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x01e8, PIN_INPUT, 0) /* (C8) EXTINTn */
 +		>;
 +	};
 +
-+	main_vpp_en_pins_default: main-vpp-en-default-pins {
++	vpp_en_pins_default: vpp-en-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0054, PIN_INPUT, 7) /* VPP_EN (D23) OSPI0_D3.GPIO0_6 */
 +		>;
 +	};
 +
-+	main_mmc0_reset_pins_default: main-mmc0-reset-default-pins {
++	mmc0_reset_pins_default: mmc0-reset-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0114, PIN_INPUT, 7) /* SDIO_B_RST (T21) MMC2_SDWP.GPIO0_52 */
 +		>;
 +	};
 +
-+	main_mmc1_power_en_pins_default: main-mmc1-power-en-default-pins {
++	mmc1_power_en_pins_default: mmc1-power-en-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0110, PIN_INPUT, 7) /* MMC1_POWER_EN (T20) MMC2_SDCD.GPIO0_51 */
 +		>;
 +	};
 +
-+	main_wifi_wake_default: main-wifi-wake-default-pins {
++	wifi_wake_default: wifi-wake-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x018c, PIN_INPUT_PULLUP, 7) /* SDIO_WAKE# (B9) MCASP0_AXR0.GPIO0_82 */
 +		>;
 +	};
 +
-+	main_bt_wake_pins_default: main-bt-wake-default-pins {
++	bt_wake_pins_default: bt-wake-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0050, PIN_INPUT_PULLUP, 7) /* BT_HOST_WAKE (E23) OSPI0_D2.GPIO0_5 */
 +		>;
@@ -1536,7 +1562,7 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +
-+	main_epwm1_pins_default: main-epwm1-default-pins {
++	epwm1_pins_default: epwm1-default-pins {
 +		pinctrl-single,pins = <
 +			AM62LX_IOPAD(0x0188, PIN_OUTPUT, 5) /* EPWM1A (A9) MCASP0_AXR1.EPWM1A */
 +		>;
@@ -1638,77 +1664,6 @@ index 00000000000..54427fff2a3
 +		>;
 +	};
 +};
-diff --git a/arch/arm/dts/k3-pinctrl.h b/arch/arm/dts/k3-pinctrl.h
-deleted file mode 100644
-index 2a4e0e084d6..00000000000
---- a/arch/arm/dts/k3-pinctrl.h
-+++ /dev/null
-@@ -1,65 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--/*
-- * This header provides constants for pinctrl bindings for TI's K3 SoC
-- * family.
-- *
-- * Copyright (C) 2018-2023 Texas Instruments Incorporated - https://www.ti.com/
-- */
--#ifndef DTS_ARM64_TI_K3_PINCTRL_H
--#define DTS_ARM64_TI_K3_PINCTRL_H
--
--#define PULLUDEN_SHIFT		(16)
--#define PULLTYPESEL_SHIFT	(17)
--#define RXACTIVE_SHIFT		(18)
--#define DEBOUNCE_SHIFT		(11)
--
--#define PULL_DISABLE		(1 << PULLUDEN_SHIFT)
--#define PULL_ENABLE		(0 << PULLUDEN_SHIFT)
--
--#define PULL_UP			(1 << PULLTYPESEL_SHIFT | PULL_ENABLE)
--#define PULL_DOWN		(0 << PULLTYPESEL_SHIFT | PULL_ENABLE)
--
--#define INPUT_EN		(1 << RXACTIVE_SHIFT)
--#define INPUT_DISABLE		(0 << RXACTIVE_SHIFT)
--
--/* Only these macros are expected be used directly in device tree files */
--#define PIN_OUTPUT		(INPUT_DISABLE | PULL_DISABLE)
--#define PIN_OUTPUT_PULLUP	(INPUT_DISABLE | PULL_UP)
--#define PIN_OUTPUT_PULLDOWN	(INPUT_DISABLE | PULL_DOWN)
--#define PIN_INPUT		(INPUT_EN | PULL_DISABLE)
--#define PIN_INPUT_PULLUP	(INPUT_EN | PULL_UP)
--#define PIN_INPUT_PULLDOWN	(INPUT_EN | PULL_DOWN)
--
--#define PIN_DEBOUNCE_DISABLE	(0 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF1	(1 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF2	(2 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF3	(3 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF4	(4 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF5	(5 << DEBOUNCE_SHIFT)
--#define PIN_DEBOUNCE_CONF6	(6 << DEBOUNCE_SHIFT)
--
--#define AM62AX_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define AM62AX_MCU_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define AM62PX_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define AM62PX_MCU_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define AM62X_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define AM62X_MCU_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define AM64X_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define AM64X_MCU_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define AM65X_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define AM65X_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define J721E_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define J721E_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define J721S2_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define J721S2_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#define J784S4_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
--#define J784S4_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
--
--#endif
 diff --git a/arch/arm/mach-k3/am62lx/Kconfig b/arch/arm/mach-k3/am62lx/Kconfig
 index 1d89fe4e0b0..d2b6c5efcac 100644
 --- a/arch/arm/mach-k3/am62lx/Kconfig
@@ -2245,10 +2200,10 @@ index 00000000000..954cbda57de
 +#endif /* _BOARD_SUMMIT_COMMON_H */
 diff --git a/board/summit/common/k3-common.c b/board/summit/common/k3-common.c
 new file mode 100644
-index 00000000000..53f817cdf60
+index 00000000000..7c4f2954562
 --- /dev/null
 +++ b/board/summit/common/k3-common.c
-@@ -0,0 +1,184 @@
+@@ -0,0 +1,165 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * k3 eMMC Common boot 
@@ -2263,7 +2218,6 @@ index 00000000000..53f817cdf60
 +#include <env_internal.h>
 +#include <asm/arch/hardware.h>
 +#include <asm/global_data.h> 
-+#include <mach/k3-ddr.h> 
 +
 +#include "common.h"
 +
@@ -2289,7 +2243,7 @@ index 00000000000..53f817cdf60
 +	return EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 +}
 +
-+#if IS_ENABLED(CONFIG_ENV_IS_IN_MMC)
++#if IS_ENABLED(CONFIG_ENV_IS_IN_FAT) || IS_ENABLED(CONFIG_ENV_IS_IN_MMC)
 +int mmc_get_env_dev(void)
 +{
 +	u32 bdev = get_boot_device();
@@ -2302,22 +2256,22 @@ index 00000000000..53f817cdf60
 +		return 1;
 +	}
 +
-+	return CONFIG_SYS_MMC_ENV_DEV;
++	return CONFIG_ENV_MMC_DEVICE_INDEX;
 +}
 +
-+#ifdef CONFIG_SYS_MMC_ENV_PART
++#ifdef CONFIG_ENV_MMC_EMMC_HW_PARTITION
 +uint mmc_get_env_part(struct mmc *mmc)
 +{
 +	u32 bdev = get_boot_device();
 +	int devno;
 +
 +	switch (bdev) {
++	case BOOT_DEVICE_MMC:
++		return CONFIG_ENV_MMC_EMMC_HW_PARTITION;
++
 +	case BOOT_DEVICE_EMMC:
 +		devno = 0;
 +		return emmc_get_boot_side(devno);
-+
-+	case BOOT_DEVICE_MMC:
-+		return CONFIG_SYS_MMC_ENV_PART;
 +
 +	default:
 +		return 0;
@@ -2405,42 +2359,23 @@ index 00000000000..53f817cdf60
 +
 +int dram_init(void)
 +{
-+	int ret;
++	if (!gd->ram_size)
++		return fdtdec_setup_mem_size_base();
 +
-+	if (gd->ram_size)
-+		return 0;
-+
-+	ret = fdtdec_setup_mem_size_base_lowest();
-+	if (ret) {
-+		printf("Error setting up mem size and base. %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = k3_mem_map_init();
-+	if (ret)
-+		printf("Error setting up MMU table. %d\n", ret);
-+
-+	return ret;
++	return 0;
 +}
 +
 +int dram_init_banksize(void)
 +{
-+	int ret;
-+
-+	ret = fdtdec_setup_memory_banksize();
-+	if (ret)
-+		printf("Error setting up memory banksize. %d\n", ret);
-+
-+	return ret;
++	return fdtdec_setup_memory_banksize();
 +}
 diff --git a/configs/carbon_am62l_defconfig b/configs/carbon_am62l_defconfig
 new file mode 100644
-index 00000000000..e73a89beeda
+index 00000000000..16b08f20066
 --- /dev/null
 +++ b/configs/carbon_am62l_defconfig
-@@ -0,0 +1,168 @@
+@@ -0,0 +1,171 @@
 +CONFIG_ARM=y
-+CONFIG_ARM_SMCCC=y
 +CONFIG_ARCH_K3=y
 +CONFIG_TEXT_BASE=0x84000000
 +CONFIG_SYS_MALLOC_F_LEN=0x8000
@@ -2481,7 +2416,7 @@ index 00000000000..e73a89beeda
 +CONFIG_FIT_SIGNATURE_MAX_SIZE=0x1000000
 +CONFIG_FIT_RSASSA_PSS=y
 +# CONFIG_FIT_PRINT is not set
-+CONFIG_SPL_LOAD_FIT=y
++CONFIG_SPL_FIT_SIGNATURE=y
 +CONFIG_SPL_LOAD_FIT_ADDRESS=0x83000000
 +# CONFIG_BOOTSTD is not set
 +CONFIG_NAND_BOOT=y
@@ -2533,7 +2468,7 @@ index 00000000000..e73a89beeda
 +CONFIG_ENV_IS_IN_FAT=y
 +CONFIG_ENV_IS_IN_MMC=y
 +CONFIG_ENV_IS_IN_NAND=y
-+CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
++CONFIG_ENV_REDUNDANT=y
 +CONFIG_ENV_FAT_DEVICE_AND_PART=":1"
 +CONFIG_ENV_WRITEABLE_LIST=y
 +CONFIG_NO_NET=y
@@ -2546,7 +2481,8 @@ index 00000000000..e73a89beeda
 +CONFIG_CLK=y
 +CONFIG_SPL_CLK=y
 +CONFIG_DMA_CHANNELS=y
-+CONFIG_TI_K3_UDMA_AM62L=y
++CONFIG_TI_K3_UDMA_V2=y
++CONFIG_TI_SCI_PROTOCOL=y
 +CONFIG_GPIO_HOG=y
 +CONFIG_SPL_GPIO_HOG=y
 +CONFIG_SPL_DM_GPIO_LOOKUP_LABEL=y
@@ -2596,12 +2532,15 @@ index 00000000000..e73a89beeda
 +CONFIG_SPL_DM_REGULATOR=y
 +CONFIG_DM_REGULATOR_FIXED=y
 +CONFIG_SPL_DM_REGULATOR_FIXED=y
++# CONFIG_DM_RNG is not set
 +CONFIG_DM_SERIAL=y
 +CONFIG_SOC_DEVICE=y
 +CONFIG_SOC_DEVICE_TI_K3=y
 +CONFIG_SOC_TI=y
 +CONFIG_SYSRESET=y
 +CONFIG_SPL_SYSRESET=y
++# CONFIG_OPTEE is not set
++CONFIG_DM_THERMAL=y
 +CONFIG_WDT=y
 +CONFIG_WDT_K3_RTI=y
 +CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
@@ -2609,219 +2548,19 @@ index 00000000000..e73a89beeda
 +# CONFIG_TOOLS_KWBIMAGE is not set
 diff --git a/configs/carbon_am62l_emmc_defconfig b/configs/carbon_am62l_emmc_defconfig
 new file mode 100644
-index 00000000000..e73a89beeda
+index 00000000000..b17f27bb970
 --- /dev/null
 +++ b/configs/carbon_am62l_emmc_defconfig
-@@ -0,0 +1,168 @@
-+CONFIG_ARM=y
-+CONFIG_ARM_SMCCC=y
-+CONFIG_ARCH_K3=y
-+CONFIG_TEXT_BASE=0x84000000
-+CONFIG_SYS_MALLOC_F_LEN=0x8000
-+CONFIG_SPL_GPIO=y
-+CONFIG_SPL_LIBCOMMON_SUPPORT=y
-+CONFIG_SPL_LIBGENERIC_SUPPORT=y
-+CONFIG_NR_DRAM_BANKS=1
-+CONFIG_SOC_K3_AM62L3=y
-+CONFIG_TARGET_CARBON_AM62L=y
-+CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
-+CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x82b80000
-+CONFIG_ENV_SIZE=0x2000
-+CONFIG_ENV_OFFSET=0x800000
-+CONFIG_DM_GPIO=y
-+CONFIG_DEFAULT_DEVICE_TREE="k3-am62l-carbon-minimal"
-+CONFIG_OF_LIBFDT_OVERLAY=y
-+CONFIG_DM_RESET=y
-+CONFIG_SPL_MMC=y
-+CONFIG_SPL_SERIAL=y
-+CONFIG_SPL_STACK_R_ADDR=0x85000000
-+CONFIG_SPL_TEXT_BASE=0x82000000
-+CONFIG_SPL_HAS_BSS_LINKER_SECTION=y
-+CONFIG_SPL_BSS_START_ADDR=0x82c80000
-+CONFIG_SPL_BSS_MAX_SIZE=0x80000
-+CONFIG_SPL_STACK_R=y
-+CONFIG_SYS_LOAD_ADDR=0x84000000
-+CONFIG_WATCHDOG_TIMEOUT_MSECS=10000
-+CONFIG_SPL_SIZE_LIMIT=0x50000
-+CONFIG_SPL_SIZE_LIMIT_PROVIDE_STACK=0x800
-+CONFIG_ENV_OFFSET_REDUND=0x840000
-+CONFIG_SPL_FS_FAT=y
-+CONFIG_SPL_LIBDISK_SUPPORT=y
-+# CONFIG_PSCI_RESET is not set
-+CONFIG_ARMV8_CRYPTO=y
-+# CONFIG_LOCALVERSION_AUTO is not set
-+# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
-+# CONFIG_EFI_LOADER is not set
-+CONFIG_FIT_SIGNATURE_MAX_SIZE=0x1000000
-+CONFIG_FIT_RSASSA_PSS=y
-+# CONFIG_FIT_PRINT is not set
-+CONFIG_SPL_LOAD_FIT=y
-+CONFIG_SPL_LOAD_FIT_ADDRESS=0x83000000
-+# CONFIG_BOOTSTD is not set
-+CONFIG_NAND_BOOT=y
-+CONFIG_BOOTDELAY=-2
-+CONFIG_BOOTARGS_SUBST=y
-+CONFIG_BOARD_LATE_INIT=y
-+CONFIG_SPL_MAX_SIZE=0x58000
-+CONFIG_SPL_SYS_REPORT_STACK_F_USAGE=y
-+# CONFIG_SPL_BINMAN_SYMBOLS is not set
-+CONFIG_SPL_SYS_MALLOC_SIMPLE=y
-+CONFIG_SPL_SYS_MMCSD_RAW_MODE=y
-+CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x1400
-+CONFIG_SPL_DMA=y
-+CONFIG_SPL_ENV_SUPPORT=y
-+CONFIG_SPL_FS_LOAD_PAYLOAD_NAME="u-boot.img"
-+CONFIG_SPL_I2C=y
-+CONFIG_SPL_DM_MAILBOX=y
-+CONFIG_SPL_MEMORY=y
-+CONFIG_SPL_MTD=y
-+CONFIG_SPL_NAND_SUPPORT=y
-+CONFIG_SPL_NAND_DRIVERS=y
-+CONFIG_SPL_NAND_ECC=y
-+CONFIG_SPL_NAND_BASE=y
-+CONFIG_SPL_NAND_IDENT=y
-+CONFIG_SPL_POWER_DOMAIN=y
-+CONFIG_HUSH_PARSER=y
-+# CONFIG_CMD_BOOTI is not set
-+# CONFIG_BOOTM_NETBSD is not set
-+# CONFIG_BOOTM_PLAN9 is not set
-+# CONFIG_BOOTM_RTEMS is not set
-+# CONFIG_BOOTM_VXWORKS is not set
-+# CONFIG_CMD_ELF is not set
-+# CONFIG_CMD_LOADB is not set
-+CONFIG_CMD_MMC=y
-+CONFIG_MMC_SPEED_MODE_SET=y
-+CONFIG_CMD_NAND=y
-+CONFIG_CMD_PART=y
-+CONFIG_CMD_FS_GENERIC=y
-+CONFIG_CMD_UBI=y
-+CONFIG_DOS_PARTITION=y
-+CONFIG_EFI_PARTITION=y
-+# CONFIG_SPL_EFI_PARTITION is not set
-+CONFIG_SPL_PARTITION_UUIDS=y
-+CONFIG_OF_CONTROL=y
-+CONFIG_SPL_OF_CONTROL=y
-+CONFIG_MULTI_DTB_FIT=y
-+CONFIG_OF_SPL_REMOVE_PROPS="interrupt-parent interrupts gpio-line-names"
-+CONFIG_ENV_IS_NOWHERE=y
-+CONFIG_ENV_IS_IN_FAT=y
-+CONFIG_ENV_IS_IN_MMC=y
-+CONFIG_ENV_IS_IN_NAND=y
-+# CONFIG_SYS_REDUNDAND_ENVIRONMENT is not set
-+CONFIG_ENV_FAT_DEVICE_AND_PART=":1"
-+CONFIG_ENV_WRITEABLE_LIST=y
-+CONFIG_NO_NET=y
-+CONFIG_SPL_DM=y
-+CONFIG_SPL_DM_DEVICE_REMOVE=y
-+CONFIG_SPL_DM_SEQ_ALIAS=y
-+CONFIG_REGMAP=y
-+CONFIG_SPL_REGMAP=y
-+CONFIG_SPL_OF_TRANSLATE=y
-+CONFIG_CLK=y
-+CONFIG_SPL_CLK=y
-+CONFIG_DMA_CHANNELS=y
-+CONFIG_TI_K3_UDMA_AM62L=y
-+CONFIG_GPIO_HOG=y
-+CONFIG_SPL_GPIO_HOG=y
-+CONFIG_SPL_DM_GPIO_LOOKUP_LABEL=y
-+CONFIG_DA8XX_GPIO=y
-+CONFIG_DM_PCA953X=y
-+CONFIG_SPL_DM_PCA953X=y
-+CONFIG_DM_I2C=y
-+CONFIG_SYS_I2C_OMAP24XX=y
-+# CONFIG_INPUT is not set
-+CONFIG_DM_MAILBOX=y
-+CONFIG_K3_SEC_PROXY=y
-+CONFIG_MEMORY=y
-+CONFIG_TI_GPMC=y
-+# CONFIG_SPL_MISC is not set
-+CONFIG_FS_LOADER=y
-+CONFIG_SUPPORT_EMMC_BOOT=y
-+CONFIG_MMC_IO_VOLTAGE=y
-+CONFIG_SPL_MMC_IO_VOLTAGE=y
-+CONFIG_MMC_UHS_SUPPORT=y
-+CONFIG_SPL_MMC_UHS_SUPPORT=y
-+CONFIG_MMC_HS200_SUPPORT=y
-+CONFIG_SPL_MMC_HS200_SUPPORT=y
-+CONFIG_MMC_SDHCI=y
-+CONFIG_MMC_SDHCI_ADMA=y
-+CONFIG_SPL_MMC_SDHCI_ADMA=y
-+CONFIG_MMC_SDHCI_AM654=y
-+CONFIG_MTD=y
-+CONFIG_DM_MTD=y
-+CONFIG_NAND_OMAP_GPMC=y
-+# CONFIG_NAND_OMAP_GPMC_PREFETCH is not set
-+CONFIG_NAND_OMAP_ELM=y
-+CONFIG_SYS_NAND_BLOCK_SIZE=0x40000
-+CONFIG_SYS_NAND_ONFI_DETECTION=y
-+CONFIG_SYS_NAND_PAGE_SIZE=0x1000
-+CONFIG_SYS_NAND_OOBSIZE=0xe0
-+CONFIG_SYS_NAND_U_BOOT_LOCATIONS=y
-+CONFIG_SYS_NAND_U_BOOT_OFFS=0x280000
-+CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND=0x680000
-+# CONFIG_SPL_NAND_AM33XX_BCH is not set
-+CONFIG_MTD_UBI_FASTMAP=y
-+CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT=1
-+CONFIG_PINCTRL=y
-+CONFIG_SPL_PINCTRL=y
-+CONFIG_PINCTRL_SINGLE=y
-+CONFIG_POWER_DOMAIN=y
-+CONFIG_DM_REGULATOR=y
-+CONFIG_SPL_DM_REGULATOR=y
-+CONFIG_DM_REGULATOR_FIXED=y
-+CONFIG_SPL_DM_REGULATOR_FIXED=y
-+CONFIG_DM_SERIAL=y
-+CONFIG_SOC_DEVICE=y
-+CONFIG_SOC_DEVICE_TI_K3=y
-+CONFIG_SOC_TI=y
-+CONFIG_SYSRESET=y
-+CONFIG_SPL_SYSRESET=y
-+CONFIG_WDT=y
-+CONFIG_WDT_K3_RTI=y
-+CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
-+CONFIG_ZSTD=y
-+# CONFIG_TOOLS_KWBIMAGE is not set
-diff --git a/drivers/mmc/am654_sdhci.c b/drivers/mmc/am654_sdhci.c
-index 5e11429e462..0e38fac1ba6 100644
---- a/drivers/mmc/am654_sdhci.c
-+++ b/drivers/mmc/am654_sdhci.c
-@@ -527,16 +527,23 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
- void am654_sdhci_set_control_reg(struct sdhci_host *host)
- {
- 	struct mmc *mmc = host->mmc;
--	u32 reg;
-+	struct udevice *dev = mmc->dev;
-+	struct am654_sdhci_plat *plat = dev_get_plat(dev);
- 
--	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
--	reg &= ~SDHCI_CTRL_UHS_MASK;
--	sdhci_set_voltage(host);
-+	if (plat->non_removable) {
-+		u32 reg;
- 
--	if (mmc->selected_mode > MMC_HS_52)
--		sdhci_set_uhs_timing(host);
--	else
--		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-+		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-+		reg &= ~SDHCI_CTRL_UHS_MASK;
-+		sdhci_set_voltage(host);
+@@ -0,0 +1,4 @@
++#include <configs/carbon_am62l_defconfig>
 +
-+		if (mmc->selected_mode > MMC_HS_52)
-+			sdhci_set_uhs_timing(host);
-+		else
-+			sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-+	} else {
-+		sdhci_set_control_reg(host);
-+	}
- }
- 
- const struct sdhci_ops am654_sdhci_ops = {
++CONFIG_ENV_REDUNDANT=n
++CONFIG_ENV_OFFSET=0x380000
 diff --git a/env/env.c b/env/env.c
-index bcc189e14db..2ffb3008512 100644
+index 7a9c96b4078..5e5fdb89c47 100644
 --- a/env/env.c
 +++ b/env/env.c
-@@ -193,6 +193,7 @@ int env_load(void)
+@@ -199,6 +199,7 @@ int env_load(void)
  		if (!ret) {
  			printf("OK\n");
  			gd->env_load_prio = prio;

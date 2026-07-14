@@ -1,3 +1,13 @@
+<<<<<<< Updated upstream
  From https://github.com/OP-TEE/optee_client/archive/4.8.0/optee_client-4.8.0.tar.gz
 sha256  464b3bf5bc4a61830357dbf81a0e5b89414d3bca1c2a752570cb0e40d2f1e637  optee_client-4.8.0.tar.gz
+<<<<<<< Updated upstream
 sha256  1cdebc4f8a698478a241b63cd9cc3aa16e0662569675753db966e27b7b18ef09  imx-optee-client-lf-6.18.20_2.0.0.tar.gz
+=======
+sha256  22dcad5cf53efbec8d3c059d5e3d09d8068ab7f177085ab249f10ada44ffbfa2  imx-optee-client-lf-6.12.49_2.2.0.tar.gz
+=======
+ From https://github.com/OP-TEE/optee_client/archive/4.10.0/optee_client-4.10.0.tar.gz
+sha256  984084a465f55ed8037e0e27eb4399149b5cec981ed295c2f0ee0dd515f60af9  optee_client-4.10.0.tar.gz
+sha256  1cdebc4f8a698478a241b63cd9cc3aa16e0662569675753db966e27b7b18ef09  imx-optee-client-lf-6.18.20_2.0.0.tar.gz
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes

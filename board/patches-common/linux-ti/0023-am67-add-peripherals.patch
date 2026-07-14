@@ -5,7 +5,7 @@ diff --git a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi b/arch/arm
 index 13dba104ae3b..03bf4790de6a 100644
 --- a/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am62p-j722s-common-wakeup.dtsi
-@@ -116,6 +116,31 @@ wkup_rti0: watchdog@2b000000 {
+@@ -120,6 +120,31 @@ wkup_rti0: watchdog@2b000000 {
  		status = "reserved";
  	};
  
@@ -41,7 +41,7 @@ diff --git a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi b/arch/arm64/boot/dts/ti/
 index 25287bb68e86..1685e1a4e63d 100644
 --- a/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j722s-main.dtsi
-@@ -397,6 +397,19 @@ c7x_1: dsp@7e200000 {
+@@ -408,6 +408,19 @@ c7x_1: dsp@7e200000 {
  		power-domains = <&k3_pds 201 TI_SCI_PD_EXCLUSIVE>;
  		interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
  	};
@@ -65,7 +65,7 @@ diff --git a/arch/arm64/boot/dts/ti/k3-j722s.dtsi b/arch/arm64/boot/dts/ti/k3-j7
 index 747f989a54a4..fff0cc9cdda4 100644
 --- a/arch/arm64/boot/dts/ti/k3-j722s.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j722s.dtsi
-@@ -156,6 +156,8 @@ cbass_main: bus@f0000 {
+@@ -160,6 +160,8 @@ cbass_main: bus@f0000 {
  			 <0x00 0x0fd80000 0x00 0x0fd80000 0x00 0x00080000>, /* GPU */
  			 <0x00 0x0fd20000 0x00 0x0fd20000 0x00 0x00000100>, /* JPEGENC0_CORE */
  			 <0x00 0x0fd20200 0x00 0x0fd20200 0x00 0x00000200>, /* JPEGENC0_CORE_MMU */

@@ -25,7 +25,7 @@ static int decrypt_aes_cbc(u8 *data, u8 *key, u8 *iv_data, unsigned int len)
     tfm = crypto_alloc_skcipher("cbc(aes)", 0, 0);
     if (IS_ERR(tfm))
     {
-        printk(KERN_ERR "Error allocating cbc(aes) handle: %ld\n", PTR_ERR(tfm));
+        printk(KERN_ERR "Error allocating cbc(aes) handle: %px\n", PTR_ERR(tfm));
         return PTR_ERR(tfm);
     }
 
@@ -213,7 +213,7 @@ static int k3_sec_proxy_verify_thread(u32 dir)
     virt_addr = ioremap(spt->rt + RT_THREAD_STATUS, sizeof(u32));
     if (!virt_addr)
     {
-        printk(KERN_ERR "%s: Failed to ioremap rt addr 0x%lx\n",
+        printk(KERN_ERR "%s: Failed to ioremap rt addr 0x%px\n",
                __func__, spt->rt + RT_THREAD_STATUS);
         return -1;
     }
@@ -231,7 +231,7 @@ static int k3_sec_proxy_verify_thread(u32 dir)
     virt_addr = ioremap(spt->scfg + SCFG_THREAD_CTRL, sizeof(u32));
     if (!virt_addr)
     {
-        printk(KERN_ERR "%s: Failed to ioremap scfg addr 0x%lx\n",
+        printk(KERN_ERR "%s: Failed to ioremap scfg addr 0x%px\n",
                __func__, spt->scfg + SCFG_THREAD_CTRL);
         return -1;
     }
@@ -256,7 +256,7 @@ static int k3_sec_proxy_verify_thread(u32 dir)
     virt_addr = ioremap(spt->rt + RT_THREAD_STATUS, sizeof(u32));
     if (!virt_addr)
     {
-        printk(KERN_ERR "%s: Failed to ioremap rt addr 0x%lx\n",
+        printk(KERN_ERR "%s: Failed to ioremap rt addr 0x%px\n",
                __func__, spt->rt + RT_THREAD_STATUS);
         return -1;
     }
@@ -304,7 +304,7 @@ int k3_sec_proxy_send(struct k3_sec_proxy_msg *msg)
         virt_addr = ioremap(data_reg, sizeof(u32));
         if (!virt_addr)
         {
-            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%lx\n",
+            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%px\n",
                    __func__, data_reg);
             return -1;
         }
@@ -322,7 +322,7 @@ int k3_sec_proxy_send(struct k3_sec_proxy_msg *msg)
         virt_addr = ioremap(data_reg, sizeof(u32));
         if (!virt_addr)
         {
-            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%lx\n",
+            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%px\n",
                    __func__, data_reg);
             return -1;
         }
@@ -340,7 +340,7 @@ int k3_sec_proxy_send(struct k3_sec_proxy_msg *msg)
         virt_addr = ioremap(spt->data + SEC_PROXY_DATA_END_OFFS, sizeof(u32));
         if (!virt_addr)
         {
-            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%lx\n",
+            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%px\n",
                    __func__, spt->data + SEC_PROXY_DATA_END_OFFS);
             return -1;
         }
@@ -356,7 +356,7 @@ int k3_sec_proxy_recv(struct k3_sec_proxy_msg *msg)
     struct k3_sec_proxy_thread *spt = &spts[SEC_PROXY_RX_THREAD];
     int num_words, ret = -1, retry = SEC_PROXY_RECV_MAX_RETRIES;
     u32 *word_data;
-    uintptr_t data_reg;
+    resource_size_t data_reg;
     void *virt_addr;
 
     while (retry-- && ret)
@@ -379,8 +379,8 @@ int k3_sec_proxy_recv(struct k3_sec_proxy_msg *msg)
         virt_addr = ioremap(data_reg, sizeof(u32));
         if (!virt_addr)
         {
-            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%lx\n",
-                   __func__, data_reg);
+            printk(KERN_ERR "%s: Failed to ioremap data addr 0x%px\n",
+                   __func__, (void *)data_reg);
             return -1;
         }
         *word_data = readl(virt_addr);
@@ -575,7 +575,7 @@ static int decrypt_image(enum k3_device_type dev_type)
     loff_t file_size = i_size_read(file_inode(in_file));
     if (file_size <= 0 || file_size > MAX_INPUT_FILE_SIZE)
     {
-        printk(KERN_ERR "Invalid input file size: %lld\n", file_size);
+        printk(KERN_ERR "Invalid input file size: %px\n", file_size);
         filp_close(in_file, NULL);
         return -EINVAL;
     }

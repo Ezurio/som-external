@@ -3,7 +3,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
-@@ -352,25 +361,30 @@
+@@ -354,25 +363,30 @@
  static irqreturn_t dp83867_handle_interrupt(struct phy_device *phydev)
  {
  	int irq_status, irq_enabled;

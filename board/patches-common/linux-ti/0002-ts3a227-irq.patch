@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/sound/soc/codecs/ts3a227e.c b/sound/soc/codecs/ts3a227e.c
+index 2541eef..f6c6634 100644
 --- a/sound/soc/codecs/ts3a227e.c
 +++ b/sound/soc/codecs/ts3a227e.c
-@@ -376,7 +376,7 @@
+@@ -376,7 +376,7 @@ static int ts3a227e_i2c_probe(struct i2c_client *i2c)
  	}
  
  	ret = devm_request_threaded_irq(dev, i2c->irq, NULL, ts3a227e_interrupt,

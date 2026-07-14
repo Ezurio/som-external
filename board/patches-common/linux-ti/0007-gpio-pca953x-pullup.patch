@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 941ab59..d5e9002 100644
 --- a/drivers/gpio/gpio-pca953x.c
 +++ b/drivers/gpio/gpio-pca953x.c
-@@ -120,6 +120,8 @@
+@@ -126,6 +138,8 @@ static const struct i2c_device_id pca953x_id[] = {
  	{ "tca9539", 16 | PCA953X_TYPE | PCA_INT, },
  	{ "tca9554", 8  | PCA953X_TYPE | PCA_INT, },
  	{ "xra1202", 8  | PCA953X_TYPE },
@@ -12,7 +14,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	{ }
  };
  MODULE_DEVICE_TABLE(i2c, pca953x_id);
-@@ -1301,6 +1303,8 @@
+@@ -1467,6 +1469,8 @@ static const struct of_device_id pca953x_dt_ids[] = {
  	{ .compatible = "ti,tca9538", .data = OF_953X( 8, PCA_INT), },
  	{ .compatible = "ti,tca9539", .data = OF_953X(16, PCA_INT), },
  

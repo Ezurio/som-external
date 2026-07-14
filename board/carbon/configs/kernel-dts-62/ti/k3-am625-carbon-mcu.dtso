@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * MCU for Carbon AM62x
+ *
+ * Copyright (C) 2024 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+&mcu_m4fss {
+    status = "okay";
+};

@@ -1,7 +1,7 @@
 ################################################################################
 # aws-sdk-cpp
 ################################################################################
-AWS_SDK_CPP_VERSION = 1.11.701
+AWS_SDK_CPP_VERSION = 1.11.845
 AWS_SDK_CPP_SITE_METHOD = git
 AWS_SDK_CPP_SITE = https://github.com/aws/aws-sdk-cpp.git
 HOST_AWS_SDK_CPP_DEPENDENCIES = host-cmake host-openssl host-util-linux

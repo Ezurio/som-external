@@ -20,7 +20,7 @@
 	};
 };
 
-&main_uart2 {
+&uart2 {
 	bluetooth {
 		compatible = "brcm,bcm4329-bt";
 		vbat-supply = <&reg_m2_power_en>;

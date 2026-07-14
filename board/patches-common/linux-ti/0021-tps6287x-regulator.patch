@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/drivers/regulator/tps6287x-regulator.c b/drivers/regulator/tps6287x-regulator.c
+index 7b7d3ae..6c45ed3 100644
 --- a/drivers/regulator/tps6287x-regulator.c
 +++ b/drivers/regulator/tps6287x-regulator.c
-@@ -48,6 +48,20 @@
+@@ -59,6 +59,24 @@ static const unsigned int tps6287x_ramp_table[] = {
  	10000, 5000, 1250, 500
  };
  
@@ -17,14 +19,18 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	0x0, 0x1, 0x2
 +};
 +
++static const unsigned int tps62874_voltage_range_prefix[] = {
++	0x000, 0x100, 0x200
++};
++
 +static const unsigned int tps62874_ramp_table[] = {
 +	2000, 1000, 770, 500
 +};
 +
- static int tps6287x_set_mode(struct regulator_dev *rdev, unsigned int mode)
- {
- 	unsigned int val;
-@@ -126,11 +140,35 @@
+ struct tps6287x_reg_data {
+ 	int range;
+ };
+@@ -181,12 +199,36 @@ static const struct regulator_desc tps6287x_reg = {
  	.linear_range_selectors_bitfield = tps6287x_voltage_range_sel,
  };
  
@@ -55,12 +61,13 @@ Upstream-Status: Inappropriate No time for upstreaming
  {
  	struct device *dev = &i2c->dev;
  	struct regulator_config config = {};
+ 	struct tps6287x_reg_data *reg_data;
  	struct regulator_dev *rdev;
 +	const struct regulator_desc* reg = i2c_get_match_data(i2c);
  
- 	config.regmap = devm_regmap_init_i2c(i2c, &tps6287x_regmap_config);
- 	if (IS_ERR(config.regmap)) {
-@@ -140,10 +178,9 @@
+ 	reg_data = devm_kzalloc(dev, sizeof(struct tps6287x_reg_data), GFP_KERNEL);
+ 
+@@ -201,12 +243,11 @@ static int tps6287x_i2c_probe(struct i2c_client *i2c)
  
  	config.dev = dev;
  	config.of_node = dev->of_node;
@@ -68,12 +75,15 @@ Upstream-Status: Inappropriate No time for upstreaming
 -						      &tps6287x_reg);
 +	config.init_data = of_get_regulator_init_data(dev, dev->of_node, reg);
  
+-	reg_data->range = tps6287x_best_range(&config, &tps6287x_reg);
++	reg_data->range = tps6287x_best_range(&config, reg);
+ 
 -	rdev = devm_regulator_register(dev, &tps6287x_reg, &config);
 +	rdev = devm_regulator_register(dev, reg, &config);
  	if (IS_ERR(rdev)) {
  		dev_err(dev, "Failed to register regulator\n");
  		return PTR_ERR(rdev);
-@@ -155,20 +192,28 @@
+@@ -219,20 +260,28 @@ static int tps6287x_i2c_probe(struct i2c_client *i2c)
  }
  
  static const struct of_device_id tps6287x_dt_ids[] = {

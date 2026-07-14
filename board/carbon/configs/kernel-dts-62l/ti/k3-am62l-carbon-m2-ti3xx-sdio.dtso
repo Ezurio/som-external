@@ -31,7 +31,7 @@
 	};
 };
 
-&main_uart2 {
+&uart2 {
 	bluetooth {
 		compatible = "ti,cc33xx-bt";
 		cc33xx-supply = <&reg_m2_wifi_en>;

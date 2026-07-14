@@ -124,7 +124,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 +
 --- a/drivers/gpu/drm/bridge/Kconfig
 +++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -286,6 +286,16 @@ config DRM_DISPLAY_CONNECTOR
+@@ -308,6 +308,16 @@ config DRM_DISPLAY_CONNECTOR
  	  It is an I2C driver, that detects connection of MHL bridge
  	  and starts encapsulation of HDMI signal.
  
@@ -143,14 +143,14 @@ Upstream-Status: Inappropriate No time for upstreaming
  	depends on OF
 --- a/drivers/gpu/drm/bridge/Makefile
 +++ b/drivers/gpu/drm/bridge/Makefile
-@@ -21,6 +21,7 @@
+@@ -26,6 +26,7 @@
  obj-$(CONFIG_DRM_SIL_SII8620) += sil-sii8620.o
  obj-$(CONFIG_DRM_SII902X) += sii902x.o
  obj-$(CONFIG_DRM_SII9234) += sii9234.o
 +obj-$(CONFIG_DRM_DISPLAY_FORMAT_BRIDGE) += format-bridge.o
  obj-$(CONFIG_DRM_SIMPLE_BRIDGE) += simple-bridge.o
+ obj-$(CONFIG_DRM_SOLOMON_SSD2825) += ssd2825.o
  obj-$(CONFIG_DRM_THINE_THC63LVD1024) += thc63lvd1024.o
- obj-$(CONFIG_DRM_TOSHIBA_TC358762) += tc358762.o
 --- /dev/null
 +++ b/drivers/gpu/drm/bridge/format-bridge.c
 @@ -0,0 +1,237 @@
@@ -244,7 +244,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 +}
 +
 +static int format_bridge_attach(struct drm_bridge *bridge,
-+				enum drm_bridge_attach_flags flags)
++			struct drm_encoder *encoder, enum drm_bridge_attach_flags flags)
 +{
 +	struct format_bridge *fmt_bridge = to_format_bridge(bridge);
 +
@@ -252,7 +252,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 +		return -EINVAL;
 +
 +	if (fmt_bridge->next_bridge)
-+		return drm_bridge_attach(bridge->encoder,
++		return drm_bridge_attach(encoder,
 +					 fmt_bridge->next_bridge,
 +					 bridge, flags);
 +

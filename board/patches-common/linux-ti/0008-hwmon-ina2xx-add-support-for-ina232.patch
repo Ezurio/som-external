@@ -15,7 +15,7 @@ Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/Documentation/hwmon/ina2xx.rst b/Documentation/hwmon/ina2xx.rst
-index 7f1939b40f74f..5e985fe7d5246 100644
+index a3860aa..462e46e 100644
 --- a/Documentation/hwmon/ina2xx.rst
 +++ b/Documentation/hwmon/ina2xx.rst
 @@ -53,6 +53,16 @@ Supported chips:
@@ -32,10 +32,10 @@ index 7f1939b40f74f..5e985fe7d5246 100644
 +
 +	       https://www.ti.com/
 +
- Author: Lothar Felten <lothar.felten@gmail.com>
+   * Texas Instruments INA260
  
- Description
-@@ -68,7 +78,7 @@ interface. The INA220 monitors both shunt drop and supply voltage.
+     Prefix: 'ina260'
+@@ -89,7 +99,7 @@ interface. The INA220 monitors both shunt drop and supply voltage.
  The INA226 is a current shunt and power monitor with an I2C interface.
  The INA226 monitors both a shunt voltage drop and bus supply voltage.
  
@@ -44,7 +44,7 @@ index 7f1939b40f74f..5e985fe7d5246 100644
  with an I2C interface. The chips monitor both a shunt voltage drop and
  bus supply voltage.
  
-@@ -77,7 +87,7 @@ compile-time or via the shunt_resistor attribute in sysfs at run-time. Please
+@@ -106,7 +116,7 @@ compile-time or via the shunt_resistor attribute in sysfs at run-time. Please
  refer to the Documentation/devicetree/bindings/hwmon/ti,ina2xx.yaml for bindings
  if the device tree is used.
  
@@ -54,7 +54,7 @@ index 7f1939b40f74f..5e985fe7d5246 100644
  bus and shunt voltage conversion times multiplied by the averaging rate. We
  don't touch the conversion times and only modify the number of averages. The
 diff --git a/drivers/hwmon/ina2xx.c b/drivers/hwmon/ina2xx.c
-index f0fa6d073627f..65e20c1cc77e7 100644
+index bc3c1f7..3a160c6 100644
 --- a/drivers/hwmon/ina2xx.c
 +++ b/drivers/hwmon/ina2xx.c
 @@ -18,6 +18,10 @@
@@ -68,18 +68,18 @@ index f0fa6d073627f..65e20c1cc77e7 100644
   * Copyright (C) 2012 Lothar Felten <lothar.felten@gmail.com>
   * Thanks to Jan Volkering
   */
-@@ -125,7 +129,7 @@ static const struct regmap_config ina2xx_regmap_config = {
+@@ -135,7 +139,7 @@ static const struct regmap_config ina2xx_regmap_config = {
  	.writeable_reg = ina2xx_writeable_reg,
  };
  
--enum ina2xx_ids { ina219, ina226 };
-+enum ina2xx_ids { ina219, ina226, ina232 };
+-enum ina2xx_ids { ina219, ina226, ina260, sy24655 };
++enum ina2xx_ids { ina219, ina226, ina232, ina260, sy24655 };
  
  struct ina2xx_config {
  	u16 config_default;
-@@ -164,6 +168,14 @@ static const struct ina2xx_config ina2xx_config[] = {
- 		.bus_voltage_lsb = 1250,
- 		.power_lsb_factor = 25,
+@@ -184,6 +188,14 @@ static const struct ina2xx_config ina2xx_config[] = {
+ 		.has_ishunt = false,
+ 		.has_power_average = false,
  	},
 +	[ina232] = {
 +		.config_default = INA226_CONFIG_DEFAULT,
@@ -89,18 +89,18 @@ index f0fa6d073627f..65e20c1cc77e7 100644
 +		.bus_voltage_lsb = 1600,
 +		.power_lsb_factor = 32,
 +	},
- };
- 
- /*
-@@ -872,6 +884,7 @@ static const struct i2c_device_id ina2xx_id[] = {
+ 	[ina260] = {
+ 		.config_default = INA260_CONFIG_DEFAULT,
+ 		.shunt_div = 400,
+@@ -990,6 +1002,7 @@ static const struct i2c_device_id ina2xx_id[] = {
  	{ "ina226", ina226 },
  	{ "ina230", ina226 },
  	{ "ina231", ina226 },
 +	{ "ina232", ina232 },
+ 	{ "ina260", ina260 },
+ 	{ "sy24655", sy24655 },
  	{ }
- };
- MODULE_DEVICE_TABLE(i2c, ina2xx_id);
-@@ -897,6 +910,10 @@ static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
+@@ -1021,6 +1034,10 @@ static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
  		.compatible = "ti,ina231",
  		.data = (void *)ina226
  	},
@@ -108,8 +108,6 @@ index f0fa6d073627f..65e20c1cc77e7 100644
 +		.compatible = "ti,ina232",
 +		.data = (void *)ina232
 +	},
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, ina2xx_of_match);
--- 
-2.34.1
+ 	{
+ 		.compatible = "ti,ina260",
+ 		.data = (void *)ina260

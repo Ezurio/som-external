@@ -13,7 +13,7 @@
 	startup-delay-us = <20000>;
 };
 
-&main_uart2 {
+&uart2 {
 	bluetooth {
 		compatible = "nxp,88w8987-bt";
 		fw-init-baudrate = <3000000>;

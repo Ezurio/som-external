@@ -382,7 +382,7 @@
 
 &cpsw_port1 {
 	status = "disabled";
-	phy-mode = "rgmii-rxid";
+	phy-mode = "rgmii-id";
 
 	/delete-property/ mac-address;
 	/delete-property/ ti,syscon-efuse;
@@ -392,7 +392,7 @@
 
 &cpsw_port2 {
 	status = "disabled";
-	phy-mode = "rgmii-rxid";
+	phy-mode = "rgmii-id";
 
 	/delete-property/ mac-address;
 	/delete-property/ ti,syscon-efuse;

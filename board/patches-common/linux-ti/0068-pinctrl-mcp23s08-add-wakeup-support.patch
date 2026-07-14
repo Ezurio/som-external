@@ -32,8 +32,8 @@ diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s
 index 60fcd53830a7..ed3818a9553e 100644
 --- a/drivers/pinctrl/pinctrl-mcp23s08.c
 +++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -590,12 +590,33 @@
- 	seq_printf(p, dev_name(mcp->dev));
+@@ -596,12 +596,33 @@
+ 	seq_puts(p, dev_name(mcp->dev));
  }
  
 +static int mcp23s08_irq_set_wake(struct irq_data *data, unsigned int on)
@@ -66,7 +66,7 @@ index 60fcd53830a7..ed3818a9553e 100644
  	.irq_print_chip = mcp23s08_irq_print_chip,
  	.flags = IRQCHIP_IMMUTABLE,
  	GPIOCHIP_IRQ_RESOURCE_HELPERS,
-@@ -603,6 +624,42 @@
+@@ -609,6 +630,42 @@
  
  /*----------------------------------------------------------------------*/
  
@@ -109,7 +109,7 @@ index 60fcd53830a7..ed3818a9553e 100644
  int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
  		       unsigned int addr, unsigned int type, unsigned int base)
  {
-@@ -614,6 +671,7 @@
+@@ -620,6 +677,7 @@
  
  	mcp->dev = dev;
  	mcp->addr = addr;
@@ -117,7 +117,7 @@ index 60fcd53830a7..ed3818a9553e 100644
  
  	mcp->irq_active_high = false;
  
-@@ -713,6 +771,7 @@
+@@ -719,6 +777,7 @@
  		return dev_err_probe(dev, PTR_ERR(mcp->pctldev), "can't register controller\n");
  
  	if (mcp->irq) {

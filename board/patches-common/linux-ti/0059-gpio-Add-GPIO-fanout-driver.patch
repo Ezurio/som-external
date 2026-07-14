@@ -40,7 +40,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -1896,6 +1896,17 @@ config GPIO_SIM
+@@ -2016,6 +2016,17 @@ config GPIO_SIM
  	  This enables the GPIO simulator - a configfs-based GPIO testing
  	  driver.
  
@@ -60,7 +60,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  menu "GPIO Debugging utilities"
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
-@@ -63,6 +63,7 @@ obj-$(CONFIG_GPIO_SL28CPLD)		+= gpio-sl28cpld.o
+@@ -69,6 +69,7 @@ obj-$(CONFIG_GPIO_SL28CPLD)		+= gpio-sl28cpld.o
  obj-$(CONFIG_GPIO_EP93XX)		+= gpio-ep93xx.o
  obj-$(CONFIG_GPIO_EXAR)			+= gpio-exar.o
  obj-$(CONFIG_GPIO_F7188X)		+= gpio-f7188x.o
@@ -70,7 +70,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  obj-$(CONFIG_GPIO_GE_FPGA)		+= gpio-ge.o
 --- /dev/null
 +++ b/drivers/gpio/gpio-fanout.c
-@@ -0,0 +1,252 @@
+@@ -0,0 +1,249 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * GPIO Fanout Driver - Virtual GPIO chip that controls multiple physical GPIOs
@@ -132,13 +132,13 @@ Upstream-Status: Inappropriate No time for upstreaming
 + * Sets all output GPIOs to the requested value by updating the
 + * value bitmap and propagating changes via the GPIO array API.
 + */
-+static void gpio_fanout_set(struct gpio_chip *chip, unsigned int offset,
++static int gpio_fanout_set(struct gpio_chip *chip, unsigned int offset,
 +			    int value)
 +{
 +	struct gpio_fanout_data *data = gpiochip_get_data(chip);
 +
 +	if (offset >= chip->ngpio)
-+		return;
++		return -EINVAL;
 +
 +	data->output_values[offset] = value;
 +
@@ -151,13 +151,10 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	else
 +		bitmap_zero(data->value_bitmap, data->descs->ndescs);
 +
-+	gpiod_set_array_value_cansleep(data->descs->ndescs,
++	return gpiod_set_array_value_cansleep(data->descs->ndescs,
 +				       data->descs->desc,
 +				       NULL,
 +				       data->value_bitmap);
-+
-+	dev_dbg(data->dev, "All %d output GPIOs set to: %d\n",
-+		data->descs->ndescs, value);
 +}
 +
 +/**

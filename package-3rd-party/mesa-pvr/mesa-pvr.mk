@@ -5,7 +5,7 @@
 ################################################################################
 
 # corresponds to branch powervr/24.0.1
-MESA_PVR_VERSION = 82e6a9293c476267417c5b6b906b01fb73a34e38
+MESA_PVR_VERSION = 7c82c1eebc67f5a62a347a84d42fe795cf7f523b
 MESA_PVR_SOURCE = mesa-$(MESA_PVR_VERSION).tar.bz2
 MESA_PVR_SITE = https://gitlab.freedesktop.org/StaticRocket/mesa/-/archive/$(MESA_PVR_VERSION)
 MESA_PVR_LICENSE = MIT, SGI, Khronos
@@ -89,13 +89,6 @@ MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SGX)      += sgx
 # Vulkan Drivers
 MESA_PVR_VULKAN_DRIVERS-$(BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_SWRAST) += swrast
 MESA_PVR_VULKAN_DRIVERS-$(BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_ROGUE)  += pvr
-
-ifeq ($(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ROGUE),y)
-MESA_PVR_CONF_OPTS += -Dgallium-pvr-alias=tidss
-endif
-ifeq ($(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SGX),y)
-MESA_PVR_CONF_OPTS += -Dgallium-sgx-alias=tidss
-endif
 
 ifeq ($(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER),)
 MESA_PVR_CONF_OPTS += \

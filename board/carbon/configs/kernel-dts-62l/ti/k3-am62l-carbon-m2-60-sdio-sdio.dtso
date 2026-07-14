@@ -13,6 +13,6 @@
 	};
 };
 
-&main_uart2 {
+&uart2 {
 	status = "disabled";
 };
