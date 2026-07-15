@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chris Trowbridge <chris.trowbridge@ezurio.com>
+Date: Wed, 25 Jun 2026 00:00:00 +0000
+Subject: [PATCH 2/2] openssl: load config into private library context
+
+When the OPENSSL_CONF environment variable is set, load its configuration
+into CST's private OSSL_LIB_CTX. This allows external OpenSSL providers
+(such as pkcs11-provider for AWS KMS signing) to be activated without
+modifying CST's own code.
+
+The load is non-fatal: if the configuration file does not exist or does
+not contain provider sections, CST continues with only the default
+provider (i.e. normal filesystem-based key loading).
+
+This enables transparent PKCS#11/HSM-based signing when PEM wrapper files
+(containing PKCS#11 URIs) are placed at the expected private key paths.
+Without OPENSSL_CONF set, behavior is unchanged.
+
+Upstream-Status: Inappropriate [OE-specific]
+
+Signed-off-by: Chris Trowbridge <chris.trowbridge@ezurio.com>
+---
+ cst-4.0.1/src/lib/common/openssl_helper.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/cst-4.0.1/src/lib/common/openssl_helper.c b/cst-4.0.1/src/lib/common/openssl_helper.c
+index 1111111..2222222 100644
+--- a/cst-4.0.1/src/lib/common/openssl_helper.c
++++ b/cst-4.0.1/src/lib/common/openssl_helper.c
+@@ -192,5 +192,17 @@ void openssl_initialize(void)
+         error("Error loading default provider");
+     }
++
++    /* If OPENSSL_CONF is set, load its provider configuration into the
++     * private library context. This enables provider-based key loading
++     * (e.g. pkcs11-provider for HSM/KMS signing) without requiring
++     * changes to CST's signing logic. Non-fatal if config has no
++     * provider sections or the file is absent. */
++    const char *openssl_conf = getenv("OPENSSL_CONF");
++    if (openssl_conf) {
++        OSSL_LIB_CTX_load_config(g_libctx, openssl_conf);
++        ERR_clear_error();
++    }
++
+ #if CST_WITH_PQC
+     /* Load OQS provider */
+     if (OSSL_PROVIDER_add_builtin(g_libctx, "oqsprovider", oqs_provider_init) !=
+-- 
+2.44.0

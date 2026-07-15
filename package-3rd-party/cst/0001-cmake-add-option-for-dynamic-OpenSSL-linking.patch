@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chris Trowbridge <chris.trowbridge@ezurio.com>
+Date: Wed, 25 Jun 2026 00:00:00 +0000
+Subject: [PATCH 1/2] cmake: add option for dynamic OpenSSL linking
+
+Add a CST_OPENSSL_SHARED cmake option (default OFF) that, when enabled,
+allows CST to dynamically link against OpenSSL rather than requiring
+static libraries. This is needed for Yocto/OE builds where CST must use
+the sysroot's OpenSSL 3.x so that OpenSSL providers (e.g. pkcs11) loaded
+at runtime can intercept key operations.
+
+Upstream-Status: Inappropriate [OE-specific]
+
+Signed-off-by: Chris Trowbridge <chris.trowbridge@ezurio.com>
+---
+ cst-4.0.1/src/CMakeLists.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/cst-4.0.1/src/CMakeLists.txt b/cst-4.0.1/src/CMakeLists.txt
+index 1111111..2222222 100644
+--- a/cst-4.0.1/src/CMakeLists.txt
++++ b/cst-4.0.1/src/CMakeLists.txt
+@@ -3,8 +3,13 @@ project(CST VERSION 4.0.1 DESCRIPTION "" LANGUAGES C)
+ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+ 
+ option(CST_WITH_OPENSSL "Enable OpenSSL backend" ON)
++option(CST_OPENSSL_SHARED "Link OpenSSL dynamically instead of statically" OFF)
++
+ if (CST_WITH_OPENSSL)
+-  set(OPENSSL_USE_STATIC_LIBS TRUE)
++  if(NOT CST_OPENSSL_SHARED)
++    set(OPENSSL_USE_STATIC_LIBS TRUE)
++  endif()
++
+   find_package(OpenSSL 3.0.0 REQUIRED)
+   if(NOT OPENSSL_FOUND)
+       message(FATAL "Cannot find OpenSSL, please check environment")
+-- 
+2.44.0

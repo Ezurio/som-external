@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Chris Trowbridge <chris.trowbridge@ezurio.com>
+Date: Sun, 29 Jun 2026 00:00:00 +0000
+Subject: [PATCH] uri2pem: exit non-zero on verification failure
+
+When --verify is used and the OpenSSL pkey verification fails,
+exit with a non-zero status code so that callers can detect the
+failure programmatically.
+
+Previously the script would print a failure message but always
+exit 0, making it impossible for build systems to catch
+inaccessible PKCS#11 keys early.
+
+Upstream-Status: Inappropriate [OE-specific]
+
+Signed-off-by: Chris Trowbridge <chris.trowbridge@ezurio.com>
+---
+ tools/uri2pem.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/uri2pem.py b/tools/uri2pem.py
+index 1111111..2222222 100755
+--- a/tools/uri2pem.py
++++ b/tools/uri2pem.py
+@@ -70,6 +70,7 @@ if __name__ == "__main__":
+         ret = subprocess.run(["openssl", "pkey", "-in", str(out_file), "-pubout"])
+         print("===== END =====")
+         if ret.returncode != 0:
+             print(f"{sys.argv[0]}: verification of private key PEM({str(out_file)}) failed")
++            sys.exit(1)
+         else:
+             print(f"{sys.argv[0]}: verification of private key PEM({str(out_file)}) OK")
+ 
+-- 
+2.44.0

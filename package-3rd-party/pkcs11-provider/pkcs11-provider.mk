@@ -27,7 +27,7 @@ endef
 PKCS11_PROVIDER_POST_INSTALL_TARGET_HOOKS += PKCS11_PROVIDER_INSTALL_HOOK_CMDS
 
 define HOST_PKCS11_PROVIDER_INSTALL_CMDS
-	$(INSTALL) -D -t $(HOST_DIR)/usr/lib/ossl-modules -m 644 $(@D)/build/src/pkcs11.so
+	$(INSTALL) -D -t $(HOST_DIR)/usr/lib/ossl-modules -m 644 $(@D)/buildroot-build/src/pkcs11.so
 
 	$(INSTALL) -m 755 -D -t $(HOST_DIR)/opt/pkcs11-provider/ $(@D)/tools/uri2pem.py
 	$(INSTALL) -m 0644 -t $(HOST_DIR) \
