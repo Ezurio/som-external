@@ -250,7 +250,8 @@ done
 
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
-# Copy keys if present
+# Copy keys if present.  KEYS_DIR is materialized by the host-summit-key-provider
+# package build step (a dependency of U-Boot / TI R5), so it is already in place.
 if [ -f "${KEY_PATH}" ]; then
 	rm -rf "${BINARIES_DIR}/keys"
 	ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"

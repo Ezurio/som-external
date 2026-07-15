@@ -1,0 +1,47 @@
+Upstream-Status: Inappropriate [OE-specific]
+
+--- a/b/aws_kms_pkcs11.cpp	2026-06-04 11:16:02.143269041 -0400
++++ b/aws_kms_pkcs11.cpp	2026-06-04 11:16:24.650289261 -0400
+@@ -149,6 +149,7 @@
+                 string label;
+                 string kms_key_id;
+                 string aws_region = glob_aws_region;
++                bool slot_region_set = false;
+                 X509* certificate = NULL;
+                 if (json_object_object_get_ex(slot_item, "label", &val) && json_object_is_type(val, json_type_string)) {
+                     label = string(json_object_get_string(val));
+@@ -158,6 +159,34 @@
+                 }
+                 if (json_object_object_get_ex(slot_item, "aws_region", &val) && json_object_is_type(val, json_type_string)) {
+                     aws_region = string(json_object_get_string(val));
++                    slot_region_set = true;
++                }
++                if (json_object_object_get_ex(slot_item, "kms_key_arn", &val) && json_object_is_type(val, json_type_string)) {
++                    string arn = string(json_object_get_string(val));
++                    kms_key_id = arn;
++                    // Extract key ID from ARN for the slot label if not explicitly set
++                    if (label.empty()) {
++                        size_t key_pos = arn.find("/");
++                        if (key_pos != string::npos) {
++                            label = arn.substr(key_pos + 1);
++                        }
++                    }
++                    if (!slot_region_set) {
++                        // Extract region from ARN: arn:<partition>:kms:<region>:<account>:key/<key-id>
++                        size_t start = 0;
++                        int colon_count = 0;
++                        for (size_t j = 0; j < arn.length(); j++) {
++                            if (arn[j] == ':') {
++                                colon_count++;
++                                if (colon_count == 3) {
++                                    start = j + 1;
++                                } else if (colon_count == 4) {
++                                    aws_region = arn.substr(start, j - start);
++                                    break;
++                                }
++                            }
++                        }
++                    }
+                 }
+                 if (json_object_object_get_ex(slot_item, "certificate", &val) && json_object_is_type(val, json_type_string)) {
+                     debug("Parsing certificate for slot: %s", label.c_str());

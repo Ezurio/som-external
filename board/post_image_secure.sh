@@ -15,12 +15,6 @@ echo "${BR2_SUMMIT_PRODUCT^^} POST IMAGE SECURE script: starting..."
 ROOTFS_TYPE=$(sed -rn 's/BR2_TARGET_ROOTFS_([A-Z]+)=y/\L\1/p' "${BR2_CONFIG}" | head -n1)
 [ "${ROOTFS_TYPE}" != ext2 ] || ROOTFS_TYPE=ext4
 
-if [ -n "${AWS_KMS_SIGNING}" ] ; then
-    export AWS_KMS_SIGNING
-    export AWS_KMS_PKCS11_CONFIG=${HOST_DIR}/aws-kms-pkcs11-config.json
-    export OPENSSL_CONF=${HOST_DIR}/host_pkcs11config.cnf
-fi
-
 # Secure tooling checks
 mkimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkimage
 mkenvimage=${BUILD_DIR}/uboot-${UBOOT_VER}/tools/mkenvimage
@@ -111,16 +105,15 @@ case ${BUILD_TYPE} in
         ;;
 esac
 
-# Create Kernel FIT image, and store signature in u-boot
+# Create Kernel FIT image, and store signature in u-boot.
+# KEYS_DIR is materialized by summit-key-provider and holds the "dev"
+# signing key+cert (a local key or a PKCS#11 HSM wrapper).
 if ${SECURE_BOOT} ; then
-    if [ -n "${AWS_KMS_SIGNING}" ] ; then
-        cp "${AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH}" "keys/dev_pkcs11.pub"
-        #shellcheck disable=SC2086
-        ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -g "dev_pkcs11" -r kernel.itb
-    else
-        #shellcheck disable=SC2086
-        ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb -k keys -r kernel.itb
-    fi
+    # Key name is "dev": hardcoded as the key-name-hint in kernel.its
+    # (see UBOOT_SIGN_KEYNAME in post_build_common.sh).
+    #shellcheck disable=SC2086
+    ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its -F -K u-boot.dtb \
+        -k "${KEYS_DIR}" -g "dev" -r kernel.itb
 else
     #shellcheck disable=SC2086
     ${mkimage} -E ${MKIMAGE_OPT} -f kernel.its kernel.itb
@@ -260,7 +253,6 @@ som60*|ig60*|wb50n*)
 
 imx*)
     if ${SECURE_BOOT} ; then
-        export KEY_PATH
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
     fi
 
@@ -314,7 +306,6 @@ imx*)
 
 am6*)
     if ${SECURE_BOOT} ; then
-        export KEY_PATH
         make -C "${BASE_DIR}" uboot-rebuild EXT_DTB="${BINARIES_DIR}/u-boot.dtb"
         make -C "${BASE_DIR}" ti-k3-r5-loader-rebuild
 		if [ -n "${SECURE_TARGET_BUILD}" ]; then

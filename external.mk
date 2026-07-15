@@ -9,39 +9,18 @@ RFPROS_FILESHARE_AUTH ?= $(if $(RFPROS_FILESHARE_USER),$(RFPROS_FILESHARE_USER):
 export SUMMIT_SOM_URI_BASE_ARCHIVE  ?= https://github.com/Ezurio/wb-package-archive/releases/download/LRD-REL
 export SUMMIT_SOM_URI_BASE_INTERNAL ?= https://$(RFPROS_FILESHARE_AUTH)files.devops.rfpros.com/builds/linux
 
-ifeq ($(KEY_PATH),)
-ifeq ($(AWS_KMS_SIGNING),)
-ifneq ($(SECURE_TARGET_BUILD),)
-$(error KEY_PATH is not set for secure target build)
-endif
-endif
+# Package, 3rd-party package, and toolchain fragments.  The summit-key-provider
+# host package (package/summit-key-provider/) is discovered here like any other
+# package; it derives and exports the secure-boot signing variables
+# (KEY_PATH / KEYS_DIR / LOCAL_KEYS_DIR and, for Cloud HSM HAB builds, a
+# redirected SIG_DATA_PATH) and injects the U-Boot / TI R5 loader dependencies.
+include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
+include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
+include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))
 
-ifneq ($(AWS_KMS_SIGNING),)
-KEY_PATH = $(HOST_DIR)/dev_pkcs11.pem
-else ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
-KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys/dev.key
-else
-KEY_PATH = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/dev.key
-endif
-endif
-
-ifeq ($(AWS_KMS_SIGNING),)
-ifeq ($(wildcard $(KEY_PATH)),)
-$(error Key file not found: $(KEY_PATH))
-endif
-KEYS_DIR = $(dir $(KEY_PATH))
-else
-ifeq ($(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH),)
-$(error AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH is not set for AWS_KMS_SIGNING=y)
-endif
-KEYS_DIR = $(dir $(AWS_KMS_SIGNING_PKCS11_PUBLIC_CERT_PATH))
-endif
-
-ifeq ($(wildcard $(KEYS_DIR)),)
-$(error Keys directory not found: $(KEYS_DIR))
-endif
-
-export KEY_PATH KEYS_DIR
+# HAB / AHAB signing support.  These consume the variables derived and exported
+# by summit-key-provider above (notably the redirected SIG_DATA_PATH for Cloud
+# HSM HAB builds), so they must come after the wildcard include.
 
 # HAB signing support: make host-cst a dependency of U-Boot and export
 # SRK_TABLE/CSF_KEY/IMG_KEY so binman's nxp-imx8mcst etype can locate
@@ -70,7 +49,3 @@ SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
 
 export SIG_DATA_PATH
 endif
-
-include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
-include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
-include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))

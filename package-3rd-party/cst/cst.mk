@@ -15,11 +15,22 @@ CST_LICENSE_FILES = COPYING
 
 CST_STRIP_COMPONENTS = 0
 
-define HOST_CST_INSTALL_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/cst-$(CST_VERSION)/linux64/bin/cst \
-		$(HOST_DIR)/bin/cst
-	$(INSTALL) -D -m 0755 $(@D)/cst-$(CST_VERSION)/linux64/bin/srktool \
-		$(HOST_DIR)/bin/srktool
-endef
+# CMakeLists.txt is in the src/ subdirectory of the release tarball.
+CST_SUBDIR = cst-$(CST_VERSION)/src
 
-$(eval $(host-generic-package))
+HOST_CST_DEPENDENCIES = host-openssl host-json-c host-pkgconf
+
+# Upstream code has unused-result warnings that trip -Werror.
+HOST_CST_CONF_OPTS = \
+	-DCMAKE_C_FLAGS="$(HOST_CFLAGS) -Wno-error=unused-result" \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DCST_OPENSSL_SHARED=ON \
+	-DCST_WITH_PKCS11=OFF \
+	-DCST_WITH_PQC=OFF \
+	-DBUILD_HAB_LOG_PARSER=OFF \
+	-DBUILD_CST=ON \
+	-DBUILD_SRKTOOL=ON \
+	-DBUILD_XHAB_PKI_TREE=ON \
+	-DBUILD_AHAB_SIGNED_MESSAGE=ON
+
+$(eval $(host-cmake-package))
