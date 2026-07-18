@@ -2,10 +2,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/drivers/gpu/drm/imx/imx8mp-hdmi-pavi.c b/drivers/gpu/drm/imx/imx8mp-hdmi-pavi.c
-index d93694d80334..95c39b7149bf 100644
+index 215ea6bf0b34..524a3956e607 100644
 --- a/drivers/gpu/drm/imx/imx8mp-hdmi-pavi.c
 +++ b/drivers/gpu/drm/imx/imx8mp-hdmi-pavi.c
-@@ -131,8 +131,8 @@ static int imx8mp_hdmi_pavi_probe(struct platform_device *pdev)
+@@ -137,8 +137,8 @@ static int imx8mp_hdmi_pavi_probe(struct platform_device *pdev)
  
  	pavi->clk_apb = devm_clk_get(dev, NULL);
  	if (IS_ERR(pavi->clk_apb)) {

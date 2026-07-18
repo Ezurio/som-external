@@ -1,0 +1,173 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Fri, 17 Jul 2026 00:00:00 +0000
+Subject: [PATCH] media: imx7-media-csi: derive the capture pixel format from
+ the sink instead of letting userspace pick it
+
+The CSI bridge doesn't transcode: imx7_csi_configure() programs its
+sample packing from the sink's media bus code, not from whatever
+fourcc userspace requests. So there is exactly one valid pixel format
+per connected source, not an independent choice.
+
+pixel_formats[] lists V4L2_PIX_FMT_UYVY and V4L2_PIX_FMT_YUYV as if
+both were selectable, and enum/try/s_fmt never cross-check the table
+lookup against the sink's real code (the driver's own comment already
+flags this as a TODO). With a sensor that only reports
+MEDIA_BUS_FMT_UYVY8_1X16 (e.g. ov5645), userspace can still negotiate
+YUYV; the captured bytes stay U,Y,V,Y-ordered but get mislabeled, so
+any consumer trusting the reported format (e.g. Wayland dmabuf import)
+reads Y/U/V from the wrong phase, shifting the image.
+
+Per Documentation/userspace-api/media/v4l/vidioc-g-fmt.rst, TRY_FMT/
+S_FMT are supposed to adjust an unsuitable request to the closest
+achievable one rather than just accept or reject it, so add
+imx7_csi_sink_pixfmt(), a small shared helper that derives the pixel
+format from the sink's negotiated media bus code, and use it from both
+enum_fmt_vid_cap() and __imx7_csi_video_try_fmt() instead of
+duplicating the lookup, falling back to the table lookup by fourcc only
+while no sink format is negotiated yet.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+---
+ drivers/media/platform/nxp/imx7-media-csi.c | 66 ++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/media/platform/nxp/imx7-media-csi.c b/drivers/media/platform/nxp/imx7-media-csi.c
+index b15e841509f3..7ecdf210ee2a 100644
+--- a/drivers/media/platform/nxp/imx7-media-csi.c
++++ b/drivers/media/platform/nxp/imx7-media-csi.c
+@@ -1063,43 +1063,41 @@ static int imx7_csi_video_querycap(struct file *file, void *fh,
+ 	return 0;
+ }
+ 
++/*
++ * The CSI bridge doesn't transcode: the pixel format is entirely determined
++ * by the media bus code negotiated on the sink pad (see imx7_csi_configure()),
++ * not by whatever fourcc userspace requests. Return the one V4L2 pixel format
++ * that matches it, or NULL if no sink format is negotiated yet.
++ */
++static const struct imx7_csi_pixfmt *imx7_csi_sink_pixfmt(struct imx7_csi *csi)
++{
++	struct v4l2_subdev_state *sd_state;
++	const struct imx7_csi_pixfmt *cc = NULL;
++
++	sd_state = v4l2_subdev_lock_and_get_active_state(&csi->sd);
++	if (sd_state) {
++		const struct v4l2_mbus_framefmt *fmt =
++			v4l2_subdev_state_get_format(sd_state, IMX7_CSI_PAD_SINK);
++
++		if (fmt)
++			cc = imx7_csi_find_mbus_format(fmt->code);
++		v4l2_subdev_unlock_state(sd_state);
++	}
++
++	return cc;
++}
++
+ static int imx7_csi_video_enum_fmt_vid_cap(struct file *file, void *fh,
+ 					   struct v4l2_fmtdesc *f)
+ {
+-	unsigned int index = f->index;
+-	unsigned int i;
++	const struct imx7_csi_pixfmt *fmt;
+ 
+-	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
+-		const struct imx7_csi_pixfmt *fmt = &pixel_formats[i];
++	if (f->index > 0)
++		return -EINVAL;
+ 
+-		/*
+-		 * If a media bus code is specified, only consider formats that
+-		 * match it.
+-		 */
+-		if (f->mbus_code) {
+-			unsigned int j;
+-
+-			if (!fmt->codes)
+-				continue;
+-
+-			for (j = 0; fmt->codes[j]; j++) {
+-				if (f->mbus_code == fmt->codes[j])
+-					break;
+-			}
+-
+-			if (!fmt->codes[j])
+-				continue;
+-		}
+-
+-		if (index == 0) {
+-			f->pixelformat = fmt->fourcc;
+-			return 0;
+-		}
+-
+-		index--;
+-	}
+-
+-	return -EINVAL;
++	fmt = imx7_csi_sink_pixfmt(video_drvdata(file));
++	f->pixelformat = fmt ? fmt->fourcc : IMX7_CSI_DEF_PIX_FORMAT;
++	return 0;
+ }
+ 
+ static int imx7_csi_video_enum_framesizes(struct file *file, void *fh,
+@@ -1143,7 +1141,7 @@ static int imx7_csi_video_g_fmt_vid_cap(struct file *file, void *fh,
+ }
+ 
+ static const struct imx7_csi_pixfmt *
+-__imx7_csi_video_try_fmt(struct v4l2_pix_format *pixfmt,
++__imx7_csi_video_try_fmt(struct imx7_csi *csi, struct v4l2_pix_format *pixfmt,
+ 			 struct v4l2_rect *compose)
+ {
+ 	const struct imx7_csi_pixfmt *cc;
+@@ -1155,14 +1153,18 @@ __imx7_csi_video_try_fmt(struct v4l2_pix_format *pixfmt,
+ 	}
+ 
+ 	/*
+-	 * Find the pixel format, default to the first supported format if not
+-	 * found.
++	 * Derive the format from the sink, falling back to the requested (or
++	 * default) fourcc only while no sink format is negotiated yet.
+ 	 */
+-	cc = imx7_csi_find_pixel_format(pixfmt->pixelformat);
++	cc = imx7_csi_sink_pixfmt(csi);
+ 	if (!cc) {
+-		pixfmt->pixelformat = IMX7_CSI_DEF_PIX_FORMAT;
+ 		cc = imx7_csi_find_pixel_format(pixfmt->pixelformat);
++		if (!cc) {
++			pixfmt->pixelformat = IMX7_CSI_DEF_PIX_FORMAT;
++			cc = imx7_csi_find_pixel_format(pixfmt->pixelformat);
++		}
+ 	}
++	pixfmt->pixelformat = cc->fourcc;
+ 
+ 	/*
+ 	 * The width alignment is 8 bytes as indicated by the
+@@ -1185,7 +1187,7 @@ __imx7_csi_video_try_fmt(struct v4l2_pix_format *pixfmt,
+ static int imx7_csi_video_try_fmt_vid_cap(struct file *file, void *fh,
+ 					  struct v4l2_format *f)
+ {
+-	__imx7_csi_video_try_fmt(&f->fmt.pix, NULL);
++	__imx7_csi_video_try_fmt(video_drvdata(file), &f->fmt.pix, NULL);
+ 	return 0;
+ }
+ 
+@@ -1200,7 +1202,7 @@ static int imx7_csi_video_s_fmt_vid_cap(struct file *file, void *fh,
+ 		return -EBUSY;
+ 	}
+ 
+-	cc = __imx7_csi_video_try_fmt(&f->fmt.pix, &csi->vdev_compose);
++	cc = __imx7_csi_video_try_fmt(csi, &f->fmt.pix, &csi->vdev_compose);
+ 
+ 	csi->vdev_cc = cc;
+ 	csi->vdev_fmt = f->fmt.pix;
+@@ -1598,7 +1600,7 @@ static void imx7_csi_video_init_format(struct imx7_csi *csi)
+ 	pixfmt->width = IMX7_CSI_DEF_PIX_WIDTH;
+ 	pixfmt->height = IMX7_CSI_DEF_PIX_HEIGHT;
+ 
+-	csi->vdev_cc = __imx7_csi_video_try_fmt(pixfmt, &csi->vdev_compose);
++	csi->vdev_cc = __imx7_csi_video_try_fmt(csi, pixfmt, &csi->vdev_compose);
+ }
+ 
+ static int imx7_csi_video_register(struct imx7_csi *csi)
+-- 
+2.54.0

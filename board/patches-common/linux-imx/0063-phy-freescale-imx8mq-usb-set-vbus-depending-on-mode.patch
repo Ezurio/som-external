@@ -10,9 +10,11 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 
 Upstream-Status: Inappropriate No time for upstreaming 
 
+diff --git a/drivers/phy/freescale/phy-fsl-imx8mq-usb.c b/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
+index 559b8f9ef80a..7bf935f17af2 100644
 --- a/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
 +++ b/drivers/phy/freescale/phy-fsl-imx8mq-usb.c
-@@ -157,6 +157,7 @@ struct imx8mq_usb_phy {
+@@ -153,6 +153,7 @@ struct imx8mq_usb_phy {
  	struct dentry *debugfs;
  	u16	cr_access_base;
  	u16	cr_read_count;
@@ -20,7 +22,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  };
  
  
-@@ -864,10 +865,6 @@ static int imx8mq_phy_power_on(struct phy *phy)
+@@ -849,10 +850,6 @@ static int imx8mq_phy_power_on(struct phy *phy)
  	u32 value;
  	int ret;
  
@@ -31,7 +33,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	ret = clk_prepare_enable(imx_phy->clk);
  	if (ret)
  		return ret;
-@@ -898,7 +895,10 @@ static int imx8mq_phy_power_off(struct phy *phy)
+@@ -883,7 +880,10 @@ static int imx8mq_phy_power_off(struct phy *phy)
  
  	clk_disable_unprepare(imx_phy->alt_clk);
  	clk_disable_unprepare(imx_phy->clk);
@@ -43,7 +45,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
  	return 0;
  }
-@@ -1131,6 +1131,25 @@ static int imx8mq_phy_set_mode(struct phy *phy, enum phy_mode mode,
+@@ -1116,6 +1116,25 @@ static int imx8mq_phy_set_mode(struct phy *phy, enum phy_mode mode,
  {
  	struct imx8mq_usb_phy *imx_phy = phy_get_drvdata(phy);
  
@@ -69,7 +71,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	if (mode == PHY_MODE_USB_DEVICE)
  		return imx8mq_phy_charger_detect(imx_phy);
  
-@@ -1198,7 +1217,7 @@ static int imx8mq_usb_phy_probe(struct platform_device *pdev)
+@@ -1185,7 +1204,7 @@ static int imx8mq_usb_phy_probe(struct platform_device *pdev)
  	if (IS_ERR(imx_phy->phy))
  		return PTR_ERR(imx_phy->phy);
  

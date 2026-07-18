@@ -83,6 +83,11 @@
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
 
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&pinctrl_sn65dsi84_irq>;
+		//interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_LOW>;
+		//interrupt-names = "irq";
+
 		vcc-supply = <&vcc_dsi0>;
 
 		ports {
@@ -123,7 +128,7 @@
 		>;
 	};
 
-	pinctrl_sn65dsi83_irq: sn65dsi83-irqgrp {
+	pinctrl_sn65dsi84_irq: sn65dsi84-irqgrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06	0x1c0
 		>;
@@ -136,6 +141,21 @@
 
 &lcdif1 {
 	status = "okay";
+};
+
+&media_blk_ctrl {
+	/* currently it is not possible to let display clocks configure
+	 * automatically, so we need to set them manually
+	 */
+	assigned-clock-rates = <500000000>, <200000000>,
+		/* IMX8MP_CLK_MEDIA_DISP1_PIX - pixel clock = autoselect */
+		<0>,
+		/* IMX8MP_CLK_MEDIA_DISP2_PIX - pixel clock = autoselect */
+		<0>,
+		/* IMX8MP_VIDEO_PLL1 = pixel clk * 7, so DISP1_PIX divider
+		 * lands exactly on the requested pixel clock
+		 */
+		<504000000>;
 };
 
 &mipi_dsi {

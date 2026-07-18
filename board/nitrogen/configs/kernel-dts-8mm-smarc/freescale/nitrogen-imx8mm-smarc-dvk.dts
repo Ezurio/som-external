@@ -6,6 +6,7 @@
 /dts-v1/;
 
 #include "nitrogen-imx8mm-smarc.dtsi"
+#include "imx8mm-overdrive.dtsi"
 
 / {
 	aliases {

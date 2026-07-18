@@ -1,8 +1,11 @@
+
 Upstream-Status: Inappropriate No time for upstreaming  
 
+diff --git a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
+index 0fca33f54f6a..be9c584ccafd 100644
 --- a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
 +++ b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
-@@ -442,7 +442,8 @@
+@@ -561,7 +561,8 @@ dw_mipi_dsi_imx_bind(struct device *dev, struct device *master, void *data)
  
  	ret = drm_bridge_attach(&dsi->encoder, bridge, NULL, 0);
  	if (ret) {
@@ -12,7 +15,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  		return ret;
  	}
  
-@@ -516,7 +517,8 @@
+@@ -635,7 +636,8 @@ static int dw_mipi_dsi_imx_probe(struct platform_device *pdev)
  
  	ret = component_add(dev, &dw_mipi_dsi_imx_ops);
  	if (ret) {

@@ -15,7 +15,7 @@ index 275fd5b201ce..0bae14d24bcf 100644
  	 * Setup for headphone detection
  	 *
 diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
-index 0654e1bef0eb..afbc8efbb225 100644
+index e6525b4cedfb..3b7692876e6f 100644
 --- a/sound/soc/codecs/wm8960.c
 +++ b/sound/soc/codecs/wm8960.c
 @@ -1416,6 +1416,9 @@ static void wm8960_set_pdata_from_of(struct i2c_client *i2c,
@@ -28,7 +28,7 @@ index 0654e1bef0eb..afbc8efbb225 100644
  	of_property_read_u32_array(np, "wlf,gpio-cfg", pdata->gpio_cfg,
  				   ARRAY_SIZE(pdata->gpio_cfg));
  
-@@ -1527,6 +1530,10 @@ static int wm8960_i2c_probe(struct i2c_client *i2c,
+@@ -1527,6 +1530,10 @@ static int wm8960_i2c_probe(struct i2c_client *i2c)
  	regmap_update_bits(wm8960->regmap, WM8960_ADDCTL1, 3,
  			   wm8960->pdata.hp_cfg[2]);
  
@@ -40,10 +40,10 @@ index 0654e1bef0eb..afbc8efbb225 100644
  
  	ret = devm_snd_soc_register_component(&i2c->dev,
 diff --git a/sound/soc/fsl/fsl-asoc-card.c b/sound/soc/fsl/fsl-asoc-card.c
-index d886f46264fb..ab988f6189fc 100644
+index a5b0834e2e16..ef5520e87aab 100644
 --- a/sound/soc/fsl/fsl-asoc-card.c
 +++ b/sound/soc/fsl/fsl-asoc-card.c
-@@ -118,6 +118,7 @@ struct fsl_asoc_card_priv {
+@@ -122,6 +122,7 @@ struct fsl_asoc_card_priv {
  	struct codec_priv codec_priv[2];
  	struct cpu_priv cpu_priv;
  	struct snd_soc_card card;
@@ -51,10 +51,10 @@ index d886f46264fb..ab988f6189fc 100644
  	u8 streams;
  	u32 sample_rate;
  	snd_pcm_format_t sample_format;
-@@ -699,6 +700,29 @@ static int fsl_asoc_card_late_probe(struct snd_soc_card *card)
+@@ -772,6 +773,29 @@ static int fsl_asoc_card_late_probe(struct snd_soc_card *card)
  	return 0;
  }
-
+ 
 +static int fsl_jack_ts3a227_init(struct snd_soc_component *component)
 +{
 +	struct fsl_asoc_card_priv *priv = snd_soc_card_get_drvdata(component->card);
@@ -81,7 +81,7 @@ index d886f46264fb..ab988f6189fc 100644
  static int fsl_asoc_card_probe(struct platform_device *pdev)
  {
  	struct device_node *cpu_np, *asrc_np;
-@@ -1076,6 +1103,14 @@ static int fsl_asoc_card_probe(struct platform_device *pdev)
+@@ -1230,6 +1254,14 @@ static int fsl_asoc_card_probe(struct platform_device *pdev)
  		}
  	}
  
@@ -96,7 +96,7 @@ index d886f46264fb..ab988f6189fc 100644
  	/* Finish card registering */
  	platform_set_drvdata(pdev, priv);
  	snd_soc_card_set_drvdata(&priv->card, priv);
-@@ -1089,6 +1121,13 @@ static int fsl_asoc_card_probe(struct platform_device *pdev)
+@@ -1240,6 +1272,13 @@ static int fsl_asoc_card_probe(struct platform_device *pdev)
  		goto asrc_fail;
  	}
  

@@ -9,10 +9,10 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/drivers/media/platform/nxp/dwc-mipi-csi2.c b/drivers/media/platform/nxp/dwc-mipi-csi2.c
-index 68be53c4d740..29237268d952 100644
+index 0cf1eeb99cd4..c6a375df2787 100644
 --- a/drivers/media/platform/nxp/dwc-mipi-csi2.c
 +++ b/drivers/media/platform/nxp/dwc-mipi-csi2.c
-@@ -1322,11 +1322,41 @@ static int dwc_csi_notify_bound(struct v4l2_async_notifier *notifier,
+@@ -1306,11 +1306,41 @@ static int dwc_csi_notify_bound(struct v4l2_async_notifier *notifier,
  	struct dwc_csi_device *csidev = notifier_to_dwc_csi_device(notifier);
  	struct media_pad *sink = &csidev->sd.entity.pads[DWC_CSI2RX_PAD_SINK];
  

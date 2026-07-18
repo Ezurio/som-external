@@ -40,7 +40,7 @@ size_check () {
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 
 # Check if U-Boot environment is redundant
-if grep -qF "CONFIG_SYS_REDUNDAND_ENVIRONMENT=y" "${BUILD_DIR}/uboot-${UBOOT_VER}/.config"; then
+if grep -qF "CONFIG_ENV_REDUNDANT=y" "${BUILD_DIR}/uboot-${UBOOT_VER}/.config"; then
 MKENVIMGOPT=-r
 else
 MKENVIMGOPT=

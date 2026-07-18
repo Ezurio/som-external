@@ -1,6 +1,22 @@
 #!/bin/sh
 
-ID=${1:-/dev/media0}
+find_media_dev() {
+    for dev in /dev/media*; do
+        [ -e "${dev}" ] || continue
+        if media-ctl -d "${dev}" -p 2>/dev/null | grep -qE '^- entity [0-9]+: .* [0-9]+-[0-9a-f]+ \('; then
+            echo "${dev}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+if [ -n "$1" ]; then
+    ID="$1"
+else
+    ID=$(find_media_dev)
+    [ -n "${ID}" ] || ID=/dev/media0
+fi
 
 ls -d /sys/class/drm/card* >/dev/null 2>&1 || {
     echo "No display device found"

@@ -15,10 +15,10 @@ Signed-off-by: Simon Gaynor <simon.gaynor@ezurio.com>
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/Documentation/hwmon/ina2xx.rst b/Documentation/hwmon/ina2xx.rst
-index 7f1939b40f74f..5e985fe7d5246 100644
+index a3860aae444c..462e46ea1c19 100644
 --- a/Documentation/hwmon/ina2xx.rst
 +++ b/Documentation/hwmon/ina2xx.rst
-@@ -74,6 +74,16 @@ Supported chips:
+@@ -53,6 +53,16 @@ Supported chips:
  
  	       https://www.ti.com/
  
@@ -54,7 +54,7 @@ index 7f1939b40f74f..5e985fe7d5246 100644
  bus and shunt voltage conversion times multiplied by the averaging rate. We
  don't touch the conversion times and only modify the number of averages. The
 diff --git a/drivers/hwmon/ina2xx.c b/drivers/hwmon/ina2xx.c
-index f0fa6d073627f..65e20c1cc77e7 100644
+index bc3c1f7314b3..3a160c6fc422 100644
 --- a/drivers/hwmon/ina2xx.c
 +++ b/drivers/hwmon/ina2xx.c
 @@ -18,6 +18,10 @@

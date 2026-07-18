@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Wed, 15 Jul 2026 00:00:00 +0000
+Subject: [PATCH] media: imx8-isi-cap: tolerate optional get_frame_interval
+
+mxc_isi_cap_g_parm() treats any negative return from the remote
+subdev's pad->get_frame_interval() call as a hard failure, including
+-ENOIOCTLCMD, which simply means the sensor does not implement that
+optional pad op. Sensor drivers such as ov5645 only implement
+enum_mbus_code, enum_frame_size, get_fmt, set_fmt, get_selection,
+enable_streams and disable_streams, so VIDIOC_G_PARM always fails
+with:
+
+  isi-capture 32e00000.isi:cap_device: failed to call get_frame_interval
+
+Every other v4l2_subdev_call() site in this file already tolerates
+-ENOIOCTLCMD from optional remote subdev ops (see
+mxc_isi_source_fmt_init() and mxc_isi_cap_streamon()); apply the same
+convention here so VIDIOC_G_PARM no longer fails just because the
+sensor does not report an explicit frame interval.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
+---
+ drivers/staging/media/imx/imx8-isi-cap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
+index 053e1b4c06b1..c1b024f1a2d5 100644
+--- a/drivers/staging/media/imx/imx8-isi-cap.c
++++ b/drivers/staging/media/imx/imx8-isi-cap.c
+@@ -1077,7 +1077,7 @@ static int mxc_isi_cap_g_parm(struct file *file, void *fh,
+ 		return -ENODEV;
+ 
+ 	ret = v4l2_subdev_call(sd, pad, get_frame_interval, NULL, &ival);
+-	if (ret < 0) {
++	if (ret < 0 && ret != -ENOIOCTLCMD) {
+ 		dev_err(&isi_cap->pdev->dev, "failed to call get_frame_interval\n");
+ 		return ret;
+ 	}
+-- 
+2.53.0

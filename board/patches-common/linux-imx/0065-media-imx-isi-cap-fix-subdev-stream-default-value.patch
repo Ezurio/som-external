@@ -14,10 +14,10 @@ Upstream-Status: Inappropriate NXP proprietary driver
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
-index 0ca095866b2c..4fcac5e8acc1 100644
+index 1c4c7c5a2fcf..053e1b4c06b1 100644
 --- a/drivers/staging/media/imx/imx8-isi-cap.c
 +++ b/drivers/staging/media/imx/imx8-isi-cap.c
-@@ -976,6 +976,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
+@@ -972,6 +972,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
  	src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_1X16;
  	src_fmt.format.width = dst_f->width;
  	src_fmt.format.height = dst_f->height;

@@ -78,10 +78,6 @@
 	};
 };
 
-&dewarp {
-	status = "okay";
-};
-
 &cameradev {
 	status = "okay";
 };

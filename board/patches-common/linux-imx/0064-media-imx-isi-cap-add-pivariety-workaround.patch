@@ -13,10 +13,10 @@ Upstream-Status: Inappropriate NXP proprietary driver
  1 file changed, 13 insertions(+)
 
 diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
-index c3d6bbeed6a2..0ca095866b2c 100644
+index 5d8bb442fa56..1c4c7c5a2fcf 100644
 --- a/drivers/staging/media/imx/imx8-isi-cap.c
 +++ b/drivers/staging/media/imx/imx8-isi-cap.c
-@@ -120,6 +120,7 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
+@@ -116,6 +116,7 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
  	struct media_device *mdev = entity->graph_obj.mdev;
  	struct media_graph graph;
  	struct v4l2_subdev *subdev;
@@ -24,7 +24,7 @@ index c3d6bbeed6a2..0ca095866b2c 100644
  	int ret = 0;
  
  	mutex_lock(&mdev->graph_mutex);
-@@ -148,12 +149,24 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
+@@ -144,12 +145,24 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
  			continue;
  		}
  

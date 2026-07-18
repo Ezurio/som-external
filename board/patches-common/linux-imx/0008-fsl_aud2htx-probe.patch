@@ -2,10 +2,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/sound/soc/fsl/fsl_aud2htx.c b/sound/soc/fsl/fsl_aud2htx.c
-index 38f3863739f4..fe1aa6827c42 100644
+index da401561e2de..4ee8b8679eda 100644
 --- a/sound/soc/fsl/fsl_aud2htx.c
 +++ b/sound/soc/fsl/fsl_aud2htx.c
-@@ -221,7 +221,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+@@ -220,7 +220,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
  
  	aud2htx->bus_clk = devm_clk_get(&pdev->dev, "bus");
  	if (IS_ERR(aud2htx->bus_clk)) {
@@ -14,7 +14,7 @@ index 38f3863739f4..fe1aa6827c42 100644
  		return PTR_ERR(aud2htx->bus_clk);
  	}
  
-@@ -240,7 +240,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+@@ -239,7 +239,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
  	 */
  	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
  	if (ret) {
@@ -23,7 +23,7 @@ index 38f3863739f4..fe1aa6827c42 100644
  		pm_runtime_disable(&pdev->dev);
  		return ret;
  	}
-@@ -249,7 +249,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
+@@ -248,7 +248,7 @@ static int fsl_aud2htx_probe(struct platform_device *pdev)
  					      &fsl_aud2htx_component,
  					      &fsl_aud2htx_dai, 1);
  	if (ret) {

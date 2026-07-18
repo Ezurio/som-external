@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate No time for upstreaming 
 
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index d1887048fc85..88e8f3f2dfef 100644
 --- a/drivers/rtc/rtc-rv3028.c
 +++ b/drivers/rtc/rtc-rv3028.c
-@@ -811,13 +811,16 @@
+@@ -818,13 +818,16 @@ static int rv3028_clkout_register_clk(struct rv3028_data *rv3028,
  	struct clk *clk;
  	struct clk_init_data init;
  	struct device_node *node = client->dev.of_node;
@@ -21,7 +23,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	init.ops = &rv3028_clkout_ops;
  	init.flags = 0;
  	init.parent_names = NULL;
-@@ -1011,8 +1011,10 @@
+@@ -1018,8 +1021,10 @@ static int rv3028_probe(struct i2c_client *client)
  	if (ret)
  		return ret;
  

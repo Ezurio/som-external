@@ -1,0 +1,62 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Wed, 15 Jul 2026 00:00:00 +0000
+Subject: [PATCH] media: imx8-mipi-csi2-sam: fix s_power NULL pointer
+ dereference
+
+mipi_csis_s_power() dereferences sen_sd->ops->core->s_power without
+first checking that the remote sensor subdev actually implements the
+core ops structure. Modern sensor drivers such as ov5645 only
+implement .video and .pad ops and leave .core unset, so
+sen_sd->ops->core is NULL and the driver crashes with a NULL pointer
+dereference as soon as streaming is started:
+
+  Unable to handle kernel NULL pointer dereference at virtual
+  address 0000000000000048
+  ...
+  pc : mipi_csis_s_power+0x60/0xac [imx8_mipi_csi2_sam]
+  Call trace:
+   mipi_csis_s_power+0x60/0xac [imx8_mipi_csi2_sam]
+   mxc_isi_cap_streamon+0x13c/0x1dc [imx8_isi_capture]
+   v4l_streamon+0x20/0x28
+
+Use v4l2_subdev_call() directly, which already performs the required
+NULL checks on both csis->ops->core and csis->ops->core->s_power, and
+treat the optional -ENOIOCTLCMD return as success since s_power is not
+mandatory.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
+---
+ drivers/staging/media/imx/imx8-mipi-csi2-sam.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/staging/media/imx/imx8-mipi-csi2-sam.c b/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
+index f08d8c9f0a7b..05e081e47b13 100644
+--- a/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
++++ b/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
+@@ -1086,6 +1086,7 @@ static int mipi_csis_s_power(struct v4l2_subdev *mipi_sd, int on)
+ {
+ 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
+ 	struct v4l2_subdev *sen_sd;
++	int ret;
+ 
+ 	/* Get remote source pad subdev */
+ 	sen_sd = csis_get_remote_subdev(state, __func__);
+@@ -1094,10 +1095,9 @@ static int mipi_csis_s_power(struct v4l2_subdev *mipi_sd, int on)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (sen_sd->ops->core->s_power)
+-		return v4l2_subdev_call(sen_sd, core, s_power, on);
+-	else
+-		return 0;
++	ret = v4l2_subdev_call(sen_sd, core, s_power, on);
++
++	return (ret == -ENOIOCTLCMD) ? 0 : ret;
+ }
+ 
+ static int mipi_csis_s_stream(struct v4l2_subdev *mipi_sd, int enable)
+-- 
+2.53.0

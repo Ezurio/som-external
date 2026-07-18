@@ -18,7 +18,7 @@ Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Upstream-Status: Inappropriate No time for upstreaming 
 
 diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
-index a3b9402d39af..2ac5adf1cbbb 100644
+index b10d408034a1..30e312daade5 100644
 --- a/drivers/media/i2c/ov5645.c
 +++ b/drivers/media/i2c/ov5645.c
 @@ -28,6 +28,7 @@
@@ -29,7 +29,7 @@ index a3b9402d39af..2ac5adf1cbbb 100644
  #include <media/v4l2-ctrls.h>
  #include <media/v4l2-fwnode.h>
  #include <media/v4l2-subdev.h>
-@@ -819,6 +820,23 @@ static const struct v4l2_ctrl_ops ov5645_ctrl_ops = {
+@@ -817,6 +818,23 @@ static const struct v4l2_ctrl_ops ov5645_ctrl_ops = {
  	.s_ctrl = ov5645_s_ctrl,
  };
  
@@ -53,7 +53,7 @@ index a3b9402d39af..2ac5adf1cbbb 100644
  static int ov5645_enum_mbus_code(struct v4l2_subdev *sd,
  				 struct v4l2_subdev_state *sd_state,
  				 struct v4l2_subdev_mbus_code_enum *code)
-@@ -991,6 +1009,7 @@ static const struct v4l2_subdev_video_ops ov5645_video_ops = {
+@@ -988,6 +1006,7 @@ static const struct v4l2_subdev_video_ops ov5645_video_ops = {
  };
  
  static const struct v4l2_subdev_pad_ops ov5645_subdev_pad_ops = {

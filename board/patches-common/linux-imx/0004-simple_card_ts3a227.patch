@@ -1,6 +1,8 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index 5af6d1b308f2..fdf3a9909175 100644
 --- a/sound/soc/generic/simple-card.c
 +++ b/sound/soc/generic/simple-card.c
 @@ -16,6 +16,7 @@
@@ -11,7 +13,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
  #define DPCM_SELECTABLE 1
  
-@@ -529,6 +530,35 @@
+@@ -519,6 +520,35 @@ static int simple_populate_aux(struct simple_util_priv *priv)
  	return simple_ret(priv, ret);
  }
  
@@ -47,7 +49,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  static int simple_parse_of(struct simple_util_priv *priv, struct link_info *li)
  {
  	struct snd_soc_card *card = simple_priv_to_card(priv);
-@@ -563,6 +587,18 @@
+@@ -553,6 +583,18 @@ static int simple_parse_of(struct simple_util_priv *priv, struct link_info *li)
  		goto end;
  
  	ret = snd_soc_of_parse_aux_devs(card, PREFIX "aux-devs");

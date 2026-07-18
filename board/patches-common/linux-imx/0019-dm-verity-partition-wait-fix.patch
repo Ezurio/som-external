@@ -2,10 +2,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/drivers/md/dm-init.c b/drivers/md/dm-init.c
-index c5220547ea54..915ac9e2a473 100644
+index b37bbe762500..86ad1cdc2155 100644
 --- a/drivers/md/dm-init.c
 +++ b/drivers/md/dm-init.c
-@@ -296,7 +296,7 @@ static int __init dm_init_init(void)
+@@ -298,7 +298,7 @@ static int __init dm_init_init(void)
  			dev_t dev;
  
  			DMINFO("waiting for device %s ...", waitfor[i]);

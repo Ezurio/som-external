@@ -111,15 +111,18 @@
 };
 
 &media_blk_ctrl {
-	/* currently it is not possible to let display clocks confugure
+	/* currently it is not possible to let display clocks configure
 	 * automatically, so we need to set them manually
 	 */
-	assigned-clock-rates = <500000000>, <200000000>, <0>,
-		/* IMX8MP_CLK_MEDIA_DISP2_PIX = pixelclk of lvds panel */
-		<72000000>,
-		<500000000>,
-		/* IMX8MP_VIDEO_PLL1 = IMX8MP_CLK_MEDIA_LDB * 7 */
-		<506800000>;
+	assigned-clock-rates = <500000000>, <200000000>,
+		/* IMX8MP_CLK_MEDIA_DISP1_PIX - pixel clock = autoselect */
+		<0>,
+		/* IMX8MP_CLK_MEDIA_DISP2_PIX - pixel clock = autoselect */
+		<0>,
+		/* IMX8MP_VIDEO_PLL1 = pixel clk * 7, so DISP1_PIX divider
+		 * lands exactly on the requested pixel clock
+		 */
+		<504000000>;
 };
 
 &ldb_phy {

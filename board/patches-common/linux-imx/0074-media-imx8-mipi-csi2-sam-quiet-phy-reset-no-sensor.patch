@@ -1,0 +1,70 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Wed, 15 Jul 2026 00:00:00 +0000
+Subject: [PATCH] media: imx8-mipi-csi2-sam: don't warn about missing sensor
+ during PHY reset
+
+mipi_csis_imx8mp_phy_reset() calls csis_get_remote_subdev(), which
+unconditionally logs "No remote pad found!" / "No remote subdev
+found!" whenever the sensor isn't bound yet.
+
+mipi_csis_probe() calls mipi_csis_imx8mp_phy_reset() before
+mipi_csis_subdev_init()/media_entity_pads_init() run, so the CSIS
+entity has zero pads at that point and the sensor can never be found.
+mipi_csis_imx8mp_phy_reset() already handles this gracefully (it falls
+back to a default RAW12 configuration via csi_phy_initial_cfg), so
+this is not an error condition, yet it always prints:
+
+  mipi_csis_imx8mp_phy_reset, No remote pad found!
+
+on every boot, regardless of whether the sensor is present, wired, or
+working correctly, which is misleading.
+
+Look up the remote subdev directly with csis_get_remote_sensor_pad()
+and media_entity_to_v4l2_subdev() instead of via the logging wrapper
+csis_get_remote_subdev(), since a missing sensor is an expected,
+already-handled case here. The other call sites of
+csis_get_remote_subdev() (mipi_csis_s_power(), mipi_csis_set_fmt(),
+etc.) are left unchanged, since a missing sensor there does indicate a
+real problem.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
+---
+ drivers/staging/media/imx/imx8-mipi-csi2-sam.c | 13 +++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/media/imx/imx8-mipi-csi2-sam.c b/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
+index 05e081e47b13..65ff1667bb08 100644
+--- a/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
++++ b/drivers/staging/media/imx/imx8-mipi-csi2-sam.c
+@@ -1723,6 +1723,7 @@ static void mipi_csis_imx8mp_phy_reset(struct csi_state *state)
+ {
+ 	int ret = 0;
+ 	struct v4l2_subdev *sen_sd;
++	struct media_pad *source_pad;
+ 	struct reset_control *reset = state->mipi_reset;
+ 
+ 	struct v4l2_subdev_mbus_code_enum code = {
+@@ -1735,7 +1736,17 @@ static void mipi_csis_imx8mp_phy_reset(struct csi_state *state)
+ 	reset_control_deassert(reset);
+ 	usleep_range(10, 20);
+ 
+-	sen_sd = csis_get_remote_subdev(state, __func__);
++	/*
++	 * The sensor may legitimately not be bound yet at this point (e.g.
++	 * during initial probe(), before the media pads even exist), so
++	 * look up the remote subdev directly instead of via
++	 * csis_get_remote_subdev() to avoid its "No remote pad/subdev
++	 * found!" error log, which would be misleading here: this reset
++	 * only uses the sensor's format as an optional hint and already
++	 * falls back to a sane default when it is absent.
++	 */
++	source_pad = csis_get_remote_sensor_pad(state);
++	sen_sd = source_pad ? media_entity_to_v4l2_subdev(source_pad->entity) : NULL;
+ 	if (!sen_sd)
+ 		goto csi_phy_initial_cfg;
+ 
+-- 
+2.53.0

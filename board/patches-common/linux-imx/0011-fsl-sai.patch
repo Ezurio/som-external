@@ -2,10 +2,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
-index 5e3253cfc790..a1a288c40b05 100644
+index 911c6d229e01..a187e92d2756 100644
 --- a/sound/soc/fsl/fsl_sai.c
 +++ b/sound/soc/fsl/fsl_sai.c
-@@ -1373,10 +1373,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
+@@ -1498,10 +1498,8 @@ static int fsl_sai_probe(struct platform_device *pdev)
  	if (IS_ERR(sai->bus_clk) && PTR_ERR(sai->bus_clk) != -EPROBE_DEFER)
  		sai->bus_clk = devm_clk_get(dev, "sai");
  	if (IS_ERR(sai->bus_clk)) {

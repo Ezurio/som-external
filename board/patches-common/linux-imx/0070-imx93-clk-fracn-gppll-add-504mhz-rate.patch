@@ -1,0 +1,12 @@
+diff --git a/drivers/clk/imx/clk-fracn-gppll.c b/drivers/clk/imx/clk-fracn-gppll.c
+index 7301887d27e4..f8a3cebd83cd 100644
+--- a/drivers/clk/imx/clk-fracn-gppll.c
++++ b/drivers/clk/imx/clk-fracn-gppll.c
+@@ -86,6 +86,7 @@ static const struct imx_fracn_gppll_rate_table fracn_tbl[] = {
+ 	PLL_FRACN_GP(551250000U, 206, 69, 400, 1, 9),
+ 	PLL_FRACN_GP(519750000U, 173, 1, 4, 1, 8),
+ 	PLL_FRACN_GP(519232000U, 129, 101, 125, 1, 6),
++	PLL_FRACN_GP(504000000U, 168, 0, 1, 0, 8),
+ 	PLL_FRACN_GP(498000000U, 166, 0, 1, 0, 8),
+ 	PLL_FRACN_GP(497000000U, 144, 23, 24, 1, 7),
+ 	PLL_FRACN_GP(484000000U, 121, 0, 1, 0, 6),

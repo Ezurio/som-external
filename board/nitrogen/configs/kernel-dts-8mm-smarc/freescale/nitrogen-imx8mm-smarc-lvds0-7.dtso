@@ -107,6 +107,10 @@
 	status = "okay";
 };
 
+&imx8_gpu_ss {
+	status = "okay";
+};
+
 &gpu_3d {
 	status = "okay";
 };

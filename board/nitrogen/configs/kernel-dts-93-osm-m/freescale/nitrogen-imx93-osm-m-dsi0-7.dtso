@@ -87,6 +87,10 @@
 	sn65dsi84_dsi0: sn65dsi84-dsi0@2c {
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
+
+		interrupts-extended = <&exp2 15 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
 		vcc-supply = <&vcc_dsi0>;
 
 		ports {
@@ -118,7 +122,6 @@
 };
 
 &lcdif {
-	assigned-clock-rates = <576000000>, <144000000>, <400000000>, <133333333>;
 	status = "okay";
 };
 

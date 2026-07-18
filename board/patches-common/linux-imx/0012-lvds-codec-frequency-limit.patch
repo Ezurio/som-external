@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/drivers/gpu/drm/bridge/lvds-codec.c b/drivers/gpu/drm/bridge/lvds-codec.c
+index f45dbcc7d420..3ff22f5548fc 100644
 --- a/drivers/gpu/drm/bridge/lvds-codec.c
 +++ b/drivers/gpu/drm/bridge/lvds-codec.c
-@@ -25,6 +25,8 @@
+@@ -25,6 +25,8 @@ struct lvds_codec {
  	struct regulator *vcc;
  	struct gpio_desc *powerdown_gpio;
  	u32 connector_type;
@@ -12,7 +14,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	unsigned int bus_format;
  };
  
-@@ -97,7 +99,23 @@
+@@ -98,7 +100,23 @@ lvds_codec_atomic_get_input_bus_fmts(struct drm_bridge *bridge,
  	return input_fmts;
  }
  
@@ -36,7 +38,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  	.attach = lvds_codec_attach,
  	.enable = lvds_codec_enable,
  	.disable = lvds_codec_disable,
-@@ -188,6 +206,14 @@
+@@ -188,6 +206,14 @@ static int lvds_codec_probe(struct platform_device *pdev)
  			DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE;
  	}
  

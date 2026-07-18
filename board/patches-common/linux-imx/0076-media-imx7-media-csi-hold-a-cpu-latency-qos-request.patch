@@ -1,0 +1,115 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Fri, 17 Jul 2026 00:00:00 +0000
+Subject: [PATCH] media: imx7-media-csi: hold a CPU latency QoS request while
+ streaming
+
+imx7_csi_irq_handler() relies on the CSI bridge asserting
+BIT_STATFF_INT alongside every frame-done interrupt to confirm its
+internal base-address-switch bookkeeping is still in sync:
+
+  if (!(status & BIT_STATFF_INT)) {
+	  dev_warn(csi->dev, "Stat fifo is not full\n");
+	  imx7_csi_error_recovery(csi);
+	  csi->frame_skip++;
+  }
+  ...
+  if (csi->frame_skip) {
+	  dev_warn(csi->dev, "skip frame: %d\n", csi->frame_skip);
+	  csi->frame_skip--;
+	  goto out;
+  }
+
+When that status bit is missed, the driver does a full capture
+pipeline reset (disable, clear the Rx FIFO, reflash the DMA
+controller, re-enable) and drops the next captured frame outright.
+This has been observed to fire repeatedly while a Wayland compositor
+is actively driving the GPU, producing a stream of "Stat fifo is not
+full" / "skip frame: N" warnings and visibly corrupted/shifted frames,
+without any change in the CSI bridge or interrupt handler code itself.
+
+The CSI bridge only gives a narrow window to sample this status before
+the next frame overwrites it. Entering a deep CPU idle state between
+interrupts adds enough wake-up latency to occasionally miss that
+window, and this class of hardware needs a bounded interrupt handling
+latency while actively capturing. Other V4L2 capture drivers with the
+same requirement already solve this with a CPU latency QoS request
+held for the duration of streaming, e.g. drivers/media/platform/via/
+via-camera.c:
+
+  /*
+   * Enable clocks and set up the controller registers ... This is
+   * the point where the controller goes into full active mode ...
+   * we need a bounded interrupt latency to keep the FIFOs from
+   * overrunning ... keep the CPU out of the deeper sleep states.
+   */
+  cpu_latency_qos_add_request(&cam->qos_request, 50);
+
+Do the same here: acquire a 50us CPU latency QoS request in
+imx7_csi_video_start_streaming() and release it in
+imx7_csi_video_stop_streaming() (and on the streaming start error
+path), so the CSI bridge's status FIFO is reliably sampled in time
+regardless of what else is keeping the system busy.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+---
+ drivers/media/platform/nxp/imx7-media-csi.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/media/platform/nxp/imx7-media-csi.c b/drivers/media/platform/nxp/imx7-media-csi.c
+index b15e841509f3..5e03280900a4 100644
+--- a/drivers/media/platform/nxp/imx7-media-csi.c
++++ b/drivers/media/platform/nxp/imx7-media-csi.c
+@@ -23,6 +23,7 @@
+ #include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_qos.h>
+ #include <linux/property.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+@@ -269,6 +270,16 @@ struct imx7_csi {
+ 	bool last_eof;
+ 	struct completion last_eof_completion;
+ 
++	/*
++	 * The CSI bridge reports frame completion through a status FIFO that
++	 * must be sampled within a tight window of the frame-done interrupt
++	 * (see imx7_csi_irq_handler()). Deep CPU idle states add enough
++	 * interrupt handling latency to miss that window, causing spurious
++	 * capture pipeline resets and dropped frames. Keep the CPU out of
++	 * deep idle states while actively streaming.
++	 */
++	struct pm_qos_request qos_request;
++
+ 	enum imx_csi_model model;
+ };
+ 
+@@ -1456,6 +1467,8 @@ static int imx7_csi_video_start_streaming(struct vb2_queue *vq,
+ 		goto err_buffers;
+ 	}
+ 
++	cpu_latency_qos_add_request(&csi->qos_request, 50);
++
+ 	mutex_lock(&csi->mdev.graph_mutex);
+ 
+ 	ret = __video_device_pipeline_start(csi->vdev, &csi->pipe);
+@@ -1474,6 +1487,7 @@ static int imx7_csi_video_start_streaming(struct vb2_queue *vq,
+ 	__video_device_pipeline_stop(csi->vdev);
+ err_unlock:
+ 	mutex_unlock(&csi->mdev.graph_mutex);
++	cpu_latency_qos_remove_request(&csi->qos_request);
+ 	dev_err(csi->dev, "pipeline start failed with %d\n", ret);
+ err_buffers:
+ 	spin_lock_irqsave(&csi->q_lock, flags);
+@@ -1497,6 +1511,8 @@ static void imx7_csi_video_stop_streaming(struct vb2_queue *vq)
+ 	__video_device_pipeline_stop(csi->vdev);
+ 	mutex_unlock(&csi->mdev.graph_mutex);
+ 
++	cpu_latency_qos_remove_request(&csi->qos_request);
++
+ 	/* release all active buffers */
+ 	spin_lock_irqsave(&csi->q_lock, flags);
+ 	list_for_each_entry_safe(frame, tmp, &csi->ready_q, list) {
+-- 
+2.54.0

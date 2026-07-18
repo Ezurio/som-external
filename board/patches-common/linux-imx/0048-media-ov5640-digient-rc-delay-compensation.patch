@@ -1,8 +1,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index c59eaaa024b6..9d3eedcef321 100644
 --- a/drivers/media/i2c/ov5640.c
 +++ b/drivers/media/i2c/ov5640.c
-@@ -2458,9 +2458,9 @@
+@@ -2476,9 +2476,9 @@ static void ov5640_powerup_sequence(struct ov5640_dev *sensor)
  
  		/* camera power cycle */
  		ov5640_power(sensor, false);
@@ -11,6 +13,6 @@ Upstream-Status: Inappropriate No time for upstreaming
  		ov5640_power(sensor, true);
 -		usleep_range(1000, 2000);	/* t3 */
 +		usleep_range(11000, 12000);	/* t3 */
-
+ 
  		gpiod_set_value_cansleep(sensor->reset_gpio, 0);
  	} else {

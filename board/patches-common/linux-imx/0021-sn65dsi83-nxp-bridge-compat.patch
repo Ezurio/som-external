@@ -1,8 +1,11 @@
+
 Upstream-Status: Inappropriate No time for upstreaming  
 
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi83.c b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+index 43344c2e15b7..27e5530f1cc0 100644
 --- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c 
-@@ -242,12 +242,19 @@
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+@@ -289,11 +289,18 @@ static struct sn65dsi83 *bridge_to_sn65dsi83(struct drm_bridge *bridge)
  	return container_of(bridge, struct sn65dsi83, bridge);
  }
  
@@ -14,25 +17,24 @@ Upstream-Status: Inappropriate No time for upstreaming
  {
  	struct sn65dsi83 *ctx = bridge_to_sn65dsi83(bridge);
 +	int ret;
- 
++
 +	ret = sn65dsi83_host_attach(ctx);
 +	if (ret)
 +		return ret;
-+
+ 
  	return drm_bridge_attach(encoder, ctx->panel_bridge,
  				 &ctx->bridge, flags);
- }
-@@ -257,6 +264,9 @@
- 
+@@ -306,6 +313,9 @@ static void sn65dsi83_detach(struct drm_bridge *bridge)
  	if (!ctx->dsi)
  		return;
-+
+ 
 +	mipi_dsi_detach(ctx->dsi);
 +	mipi_dsi_device_unregister(ctx->dsi);
- 
++
  	ctx->dsi = NULL;
  }
-@@ -639,8 +649,10 @@
+ 
+@@ -905,8 +915,10 @@ static int sn65dsi83_host_attach(struct sn65dsi83 *ctx)
  	of_node_put(host_node);
  	of_node_put(endpoint);
  
@@ -45,7 +47,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
  	if (dsi_lanes < 0)
  		return dsi_lanes;
-@@ -712,17 +725,7 @@
+@@ -996,17 +1008,7 @@ static int sn65dsi83_probe(struct i2c_client *client)
  	ctx->bridge.type = DRM_MODE_CONNECTOR_LVDS;
  	drm_bridge_add(&ctx->bridge);
  

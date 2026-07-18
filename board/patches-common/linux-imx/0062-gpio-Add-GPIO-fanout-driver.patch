@@ -38,9 +38,11 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 
 Upstream-Status: Inappropriate No time for upstreaming
 
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index f400d56d9365..05953f447bff 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -1896,6 +1896,17 @@ config GPIO_SIM
+@@ -2042,6 +2042,17 @@ config GPIO_SIM
  	  This enables the GPIO simulator - a configfs-based GPIO testing
  	  driver.
  
@@ -58,9 +60,11 @@ Upstream-Status: Inappropriate No time for upstreaming
  endmenu
  
  menu "GPIO Debugging utilities"
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 0e155dad1d8f..3dc164fa9373 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
-@@ -63,6 +63,7 @@ obj-$(CONFIG_GPIO_SL28CPLD)		+= gpio-sl28cpld.o
+@@ -69,6 +69,7 @@ obj-$(CONFIG_GPIO_EN7523)		+= gpio-en7523.o
  obj-$(CONFIG_GPIO_EP93XX)		+= gpio-ep93xx.o
  obj-$(CONFIG_GPIO_EXAR)			+= gpio-exar.o
  obj-$(CONFIG_GPIO_F7188X)		+= gpio-f7188x.o

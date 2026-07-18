@@ -2,10 +2,10 @@
 Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 8e53c1949bdf..c6e494b4ffdf 100644
+index b189aab8dd94..2fedbe3d0ee5 100644
 --- a/drivers/dma/imx-sdma.c
 +++ b/drivers/dma/imx-sdma.c
-@@ -1286,6 +1286,9 @@ static int sdma_load_context(struct sdma_channel *sdmac)
+@@ -1300,6 +1300,9 @@ static int sdma_load_context(struct sdma_channel *sdmac)
  	int ret;
  	unsigned long flags;
  

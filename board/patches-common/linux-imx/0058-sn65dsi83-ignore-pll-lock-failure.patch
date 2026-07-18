@@ -1,9 +1,11 @@
 
 Upstream-Status: Inappropriate Fixes issue in NXP driver
 
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi83.c b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+index 27e5530f1cc0..2e740e377f0c 100644
 --- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
 +++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
-@@ -485,10 +485,10 @@
+@@ -640,10 +640,10 @@ static void sn65dsi83_atomic_pre_enable(struct drm_bridge *bridge,
  				       pval & REG_RC_LVDS_PLL_PLL_EN_STAT,
  				       1000, 100000);
  	if (ret) {

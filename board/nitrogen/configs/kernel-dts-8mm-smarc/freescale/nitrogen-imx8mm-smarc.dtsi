@@ -818,6 +818,11 @@
 };
 
 &pgc_gpu {
+	assigned-clocks = <&clk IMX8MM_CLK_GPU_AXI>,
+			 <&clk IMX8MM_CLK_GPU_AHB>;
+	assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_800M>,
+				 <&clk IMX8MM_SYS_PLL1_800M>;
+	assigned-clock-rates = <800000000>, <400000000>;
 	/delete-property/ power-domains;
 };
 
@@ -979,6 +984,9 @@
 	status = "okay";
 };
 
+&imx8_gpu_ss {
+	status = "disabled";
+};
 &gpu_3d {
 	status = "disabled";
 };

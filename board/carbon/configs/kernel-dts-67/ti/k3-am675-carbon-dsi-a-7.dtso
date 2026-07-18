@@ -130,6 +130,10 @@
 	dsi0_sn65dsi84: bridge@2c {
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
+
+		interrupts-extended = <&exp2 15 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
 		vcc-supply = <&reg_dsi_a>;
 
 		ports {
