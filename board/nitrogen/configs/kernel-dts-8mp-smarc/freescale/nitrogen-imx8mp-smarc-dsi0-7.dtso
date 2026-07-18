@@ -83,10 +83,10 @@
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
 
-		//pinctrl-names = "default";
-		//pinctrl-0 = <&pinctrl_sn65dsi84_irq>;
-		//interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_LOW>;
-		//interrupt-names = "irq";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sn65dsi84_irq>;
+		interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "irq";
 
 		vcc-supply = <&vcc_dsi0>;
 

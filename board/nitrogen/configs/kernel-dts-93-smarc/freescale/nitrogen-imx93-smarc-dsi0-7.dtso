@@ -95,8 +95,8 @@
 		compatible = "ti,sn65dsi84";
 		reg = <0x2c>;
 
-		//interrupts-extended = <&pcal6534 18 IRQ_TYPE_EDGE_FALLING>;
-		//interrupt-names = "irq";
+		interrupts-extended = <&pcal6534 18 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
 
 		vcc-supply = <&vcc_dsi0>;
 
