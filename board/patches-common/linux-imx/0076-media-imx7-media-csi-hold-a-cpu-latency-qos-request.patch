@@ -52,6 +52,8 @@ path), so the CSI bridge's status FIFO is reliably sampled in time
 regardless of what else is keeping the system busy.
 
 Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate NXP proprietary driver
 ---
  drivers/media/platform/nxp/imx7-media-csi.c | 16 ++++++++++++++++
  1 file changed, 16 insertions(+)

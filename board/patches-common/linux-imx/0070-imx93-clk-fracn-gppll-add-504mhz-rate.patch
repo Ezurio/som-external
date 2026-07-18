@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate NXP proprietary driver
+
 diff --git a/drivers/clk/imx/clk-fracn-gppll.c b/drivers/clk/imx/clk-fracn-gppll.c
 index 7301887d27e4..f8a3cebd83cd 100644
 --- a/drivers/clk/imx/clk-fracn-gppll.c

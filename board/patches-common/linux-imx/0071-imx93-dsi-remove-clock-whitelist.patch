@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate NXP proprietary driver
+
 diff --git a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
 index be9c584ccafd..139ababf4fa5 100644
 --- a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
