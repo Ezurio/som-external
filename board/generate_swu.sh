@@ -47,7 +47,7 @@ while read -r token ; do
 	fi
 
 	case "${op}" in
-		file_size_bytes)
+		size)
 			value=$(stat -Lc '%s' "${file}") || die "failed to get file size for ${file}"
 			;;
 		*)

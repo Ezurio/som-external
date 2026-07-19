@@ -369,13 +369,13 @@ software =
 				{
 					filename = "copy_partitions.sh";
 					type = "postinstall";
-					data = "kernel_a kernel_b $swupdate_get_file_size_bytes(kernel.itb) $swupdate_get_sha256(kernel.itb)";
+					data = "kernel_a kernel_b $swupdate_get_size(kernel.itb) $swupdate_get_sha256(kernel.itb)";
 					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
 				},
 				{
 					filename = "copy_partitions.sh";
 					type = "postinstall";
-					data = "rootfs_a rootfs_b $swupdate_get_file_size_bytes(rootfs.bin) $swupdate_get_sha256(rootfs.bin)";
+					data = "rootfs_a rootfs_b $swupdate_get_size(rootfs.bin) $swupdate_get_sha256(rootfs.bin)";
 					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
 				},
 				{
