@@ -223,6 +223,14 @@
 	vref-supply = <&reg_vdd_1v8>;
 };
 
+&netc_blk_ctrl {
+	status = "okay";
+};
+
+&netc_timer {
+	status = "okay";
+};
+
 &enetc_port0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enetc0>;
