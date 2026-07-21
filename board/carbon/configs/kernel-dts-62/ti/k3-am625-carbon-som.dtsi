@@ -1388,10 +1388,6 @@
 	status = "disabled";
 };
 
-&pru0 {
-	status = "disabled";
-};
-
-&pru1 {
+&pruss {
 	status = "disabled";
 };
