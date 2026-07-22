@@ -1,5 +1,5 @@
-# From https://www.openssl.org/source/openssl-3.5.6.tar.gz.sha256
-sha256  deae7c80cba99c4b4f940ecadb3c3338b13cb77418409238e57d7f31f2a3b736  openssl-3.5.6.tar.gz
+# From https://www.openssl.org/source/openssl-3.5.7.tar.gz.sha256
+sha256  a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8  openssl-3.5.7.tar.gz
 # From https://www.openssl.org/source/openssl-3.2.0.tar.gz.sha256
 sha256  14c826f07c7e433706fb5c69fa9e25dab95684844b4c962a2cf1bf183eb4690e  openssl-3.2.0.tar.gz
 
