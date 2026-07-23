@@ -1,0 +1,19 @@
+Upstream-Status: Inappropriate No time for upstreaming 
+
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -1015,6 +1015,14 @@
+ 	if (ret)
+ 		return ret;
+ 
++	if (device_property_read_bool(&client->dev, "backup-switchover-dsm")) {
++		ret = rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_BSM,
++					FIELD_PREP(RV3028_BACKUP_BSM,
++						RV3028_BACKUP_BSM_DSM));
++		if (ret)
++			return ret;
++	}
++
+ 	ret = rtc_add_group(rv3028->rtc, &rv3028_attr_group);
+ 	if (ret)
+ 		return ret;

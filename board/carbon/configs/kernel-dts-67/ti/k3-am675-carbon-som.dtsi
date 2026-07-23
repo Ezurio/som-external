@@ -562,6 +562,7 @@
 		compatible = "microcrystal,rv3028";
 		reg = <0x52>;
 
+		backup-switchover-dsm;
 		pinctrl-names = "default";
 		pinctrl-0 = <&rtc_pins_default>;
 		interrupts-extended = <&main_gpio0 22 IRQ_TYPE_EDGE_FALLING>;

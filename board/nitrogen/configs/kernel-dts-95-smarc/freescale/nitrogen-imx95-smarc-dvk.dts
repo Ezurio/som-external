@@ -187,6 +187,7 @@
 				compatible = "microcrystal,rv3028";
 				reg = <0x52>;
 
+				backup-switchover-dsm;
 				#clock-cells = <0>;
 
 				pinctrl-names = "default";
