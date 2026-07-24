@@ -837,7 +837,8 @@ test_image() {
       await $! "$et" _ && wait
       test -n "$(sed -n '/^State:.*OK/,${/^0x......../p}' "$FWU_UBIFS")"
     else
-      md5=$(nanddump -ql $sz --omitoob --bb=skipbad /dev/"$tp" 2>>"$FWU_ERR" \
+      md5=$(nanddump -ql "$sz" --omitoob --bb=skipbad /dev/"$tp" 2>>"$FWU_ERR" \
+        | head -c "$sz" 2>/dev/null \
         | md5sum | awk '{print $1}') || error=$?
       [ "$md5" = "$1" ]
     fi
