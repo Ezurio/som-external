@@ -1,0 +1,16 @@
+Allow using mtdname as device name for UBI partitions when device field is not set.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/parser/parser.c
++++ b/parser/parser.c
+@@ -602,6 +602,9 @@ static int parse_partitions(parsertype p, void *cfg, struct swupdate_cfg *swcfg)
+ 			continue;
+ 		}
+
++		if(!strlen(partition->device) && strlen(partition->mtdname))
++			snprintf(partition->device, MAX_VOLNAME, "%s", partition->mtdname);
++
+ 		if ((!strlen(partition->volname) && !strcmp(partition->type, "ubipartition")) ||
+ 				!strlen(partition->device)) {
+ 			ERROR("Partition incompleted in description file");

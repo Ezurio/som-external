@@ -1,0 +1,277 @@
+diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
+--- a/drivers/atmodem/gprs.c	2021-05-05 05:06:20.000000000 -0400
++++ b/drivers/atmodem/gprs.c	2023-12-13 11:44:30.369031228 -0500
+@@ -47,6 +47,7 @@
+ #define MAX_CONTEXTS 255
+ 
+ static const char *cgreg_prefix[] = { "+CGREG:", NULL };
++static const char *cereg_prefix[] = { "+CEREG:", NULL };
+ static const char *cgerep_prefix[] = { "+CGEREP:", NULL };
+ static const char *cgdcont_prefix[] = { "+CGDCONT:", NULL };
+ static const char *cgact_prefix[] = { "+CGACT:", NULL };
+@@ -58,6 +59,9 @@ struct gprs_data {
+ 	int last_auto_context_id;
+ 	gboolean telit_try_reattach;
+ 	int attached;
++	gboolean have_cereg;
++	int cgreg_status;
++	int cereg_status;
+ };
+ 
+ struct list_contexts_data
+@@ -132,6 +136,49 @@ static void at_gprs_set_attached(struct
+ 	CALLBACK_WITH_FAILURE(cb, data);
+ }
+ 
++static int combine_3g_lte_status(struct gprs_data *gd)
++{
++	if (gd->cgreg_status == NETWORK_REGISTRATION_STATUS_REGISTERED ||
++	    gd->cereg_status == NETWORK_REGISTRATION_STATUS_REGISTERED) {
++		/* Either registered */
++		return NETWORK_REGISTRATION_STATUS_REGISTERED;
++	} else if (gd->cgreg_status == NETWORK_REGISTRATION_STATUS_UNKNOWN &&
++		   gd->cereg_status != NETWORK_REGISTRATION_STATUS_UNKNOWN) {
++		/* Use LTE status if not unknown */
++		return gd->cereg_status;
++	} else {
++		/* Use 3G status if LTE status unknown */
++		return gd->cgreg_status;
++	}
++}
++
++static void at_cereg_cb(gboolean ok, GAtResult *result, gpointer user_data)
++{
++	struct cb_data *cbd = user_data;
++	ofono_gprs_status_cb_t cb = cbd->cb;
++	struct ofono_error error;
++	int status;
++	struct gprs_data *gd = cbd->user;
++
++	decode_at_error(&error, g_at_result_final_response(result));
++
++	if (!ok) {
++		cb(&error, -1, cbd->data);
++		return;
++	}
++
++	if (at_util_parse_reg(result, "+CEREG:", NULL, &status,
++		NULL, NULL, NULL, gd->vendor) == FALSE) {
++		CALLBACK_WITH_FAILURE(cb, -1, cbd->data);
++		g_free(cbd);
++		return;
++	}
++
++	gd->cereg_status = status;
++
++	cb(&error, combine_3g_lte_status(gd), cbd->data);
++}
++
+ static void at_cgreg_cb(gboolean ok, GAtResult *result, gpointer user_data)
+ {
+ 	struct cb_data *cbd = user_data;
+@@ -150,10 +197,22 @@ static void at_cgreg_cb(gboolean ok, GAt
+ 	if (at_util_parse_reg(result, "+CGREG:", NULL, &status,
+ 				NULL, NULL, NULL, gd->vendor) == FALSE) {
+ 		CALLBACK_WITH_FAILURE(cb, -1, cbd->data);
++		g_free(cbd);
+ 		return;
+ 	}
+ 
+-	cb(&error, status, cbd->data);
++	gd->cgreg_status = status;
++
++	if (gd->have_cereg) {
++		if (g_at_chat_send(gd->chat, "AT+CEREG?", cereg_prefix,
++		    at_cereg_cb, cbd, g_free) == FALSE) {
++			CALLBACK_WITH_FAILURE(cb, -1, cbd->data);
++			g_free(cbd);
++		}
++	} else {
++		cb(&error, gd->cgreg_status, cbd->data);
++		g_free(cbd);
++	}
+ }
+ 
+ static void at_gprs_registration_status(struct ofono_gprs *gprs,
+@@ -185,7 +244,7 @@ static void at_gprs_registration_status(
+ 	}
+ 
+ 	if (g_at_chat_send(gd->chat, "AT+CGREG?", cgreg_prefix,
+-				at_cgreg_cb, cbd, g_free) > 0)
++				at_cgreg_cb, cbd, NULL) > 0)
+ 		return;
+ 
+ 	g_free(cbd);
+@@ -374,7 +433,24 @@ static void cgreg_notify(GAtResult *resu
+ 		gd->telit_try_reattach = FALSE;
+ 	}
+ 
+-	ofono_gprs_status_notify(gprs, status);
++	gd->cgreg_status = status;
++
++	ofono_gprs_status_notify(gprs, combine_3g_lte_status(gd));
++}
++
++static void cereg_notify(GAtResult *result, gpointer user_data)
++{
++	struct ofono_gprs *gprs = user_data;
++	int status;
++	struct gprs_data *gd = ofono_gprs_get_data(gprs);
++
++	if (at_util_parse_reg_unsolicited(result, "+CEREG:", &status,
++		NULL, NULL, NULL, gd->vendor) == FALSE)
++		return;
++
++	gd->cereg_status = status;
++
++	ofono_gprs_status_notify(gprs, combine_3g_lte_status(gd));
+ }
+ 
+ static void cgev_notify(GAtResult *result, gpointer user_data)
+@@ -653,9 +729,14 @@ static void gprs_initialized(gboolean ok
+ 	struct gprs_data *gd = ofono_gprs_get_data(gprs);
+ 
+ 	g_at_chat_register(gd->chat, "+CGEV:", cgev_notify, FALSE, gprs, NULL);
++	
+ 	g_at_chat_register(gd->chat, "+CGREG:", cgreg_notify,
+ 						FALSE, gprs, NULL);
+ 
++	if (gd->have_cereg)
++		g_at_chat_register(gd->chat, "+CEREG:", cereg_notify,
++						FALSE, gprs, NULL);
++
+ 	switch (gd->vendor) {
+ 	case OFONO_VENDOR_HUAWEI:
+ 		g_at_chat_register(gd->chat, "^MODE:", huawei_mode_notify,
+@@ -877,6 +958,10 @@ static void at_cgdcont_test_cb(gboolean
+ 	if (found == FALSE)
+ 		goto error;
+ 
++	/* In case of LTE modem reserve lowest cid for Initial PDN */
++	if (gd->have_cereg)
++		min++;
++
+ 	ofono_gprs_set_cid_range(gprs, min, max);
+ 
+ 	g_at_chat_send(gd->chat, "AT+CGREG=?", cgreg_prefix,
+@@ -889,6 +974,54 @@ error:
+ 	ofono_gprs_remove(gprs);
+ }
+ 
++
++static void at_cereg_test_cb(gboolean ok, GAtResult *result,
++	gpointer user_data)
++{
++	struct ofono_gprs *gprs = user_data;
++	struct gprs_data *gd = ofono_gprs_get_data(gprs);
++	gint range[2];
++	GAtResultIter iter;
++	int cereg1 = 0;
++	int cereg2 = 0;
++	const char *cmd;
++
++	if (!ok)
++		goto test_cgdcont;
++
++	g_at_result_iter_init(&iter, result);
++
++	if (!g_at_result_iter_next(&iter, "+CEREG:"))
++		goto test_cgdcont;
++
++	if (!g_at_result_iter_open_list(&iter))
++		goto test_cgdcont;
++
++	while (g_at_result_iter_next_range(&iter, &range[0], &range[1])) {
++		if (1 >= range[0] && 1 <= range[1])
++			cereg1 = 1;
++		if (2 >= range[0] && 2 <= range[1])
++		cereg2 = 1;
++	}
++
++	g_at_result_iter_close_list(&iter);
++
++	if (cereg2)
++		cmd = "AT+CEREG=2";
++	else if (cereg1)
++		cmd = "AT+CEREG=1";
++	else
++		goto test_cgdcont;
++
++	gd->have_cereg = TRUE;
++
++	g_at_chat_send(gd->chat, cmd, none_prefix, NULL, NULL, NULL);
++
++test_cgdcont:
++	g_at_chat_send(gd->chat, "AT+CGDCONT=?", cgdcont_prefix,
++		at_cgdcont_test_cb, gprs, NULL);
++}
++
+ static int at_gprs_probe(struct ofono_gprs *gprs,
+ 					unsigned int vendor, void *data)
+ {
+@@ -905,8 +1038,8 @@ static int at_gprs_probe(struct ofono_gp
+ 
+ 	ofono_gprs_set_data(gprs, gd);
+ 
+-	g_at_chat_send(gd->chat, "AT+CGDCONT=?", cgdcont_prefix,
+-			at_cgdcont_test_cb, gprs, NULL);
++	g_at_chat_send(gd->chat, "AT+CEREG=?", cereg_prefix,
++			at_cereg_test_cb, gprs, NULL);
+ 
+ 	return 0;
+ }
+diff -Naur a/drivers/atmodem/network-registration.c b/drivers/atmodem/network-registration.c
+--- a/drivers/atmodem/network-registration.c	2021-05-05 05:06:20.000000000 -0400
++++ b/drivers/atmodem/network-registration.c	2023-12-13 11:43:26.013913664 -0500
+@@ -1581,8 +1581,22 @@
+ 				&lac, &ci, &tech, nd->vendor) == FALSE)
+ 		return;
+ 
+-	if (status != 1 && status != 5)
+-		goto notify;
++	/*
++	 * LTE attach can cause +CREG to report registered (1) followed
++	 * by denied (3), then registered; if registered on LTE,
++	 * ignore the denied state.
++	 */
++	if (status != 1 && status != 5) {
++		if (status == 3 && nd->ltereg) {
++			return;
++		} else {
++			nd->ltereg = FALSE;
++			goto notify;
++		}
++	}
++
++	if (tech == 7)
++		nd->ltereg = TRUE;
+ 
+ 	tq = g_try_new0(struct tech_query, 1);
+ 	if (tq == NULL)
+diff -Naur a/drivers/atmodem/network-registration.h b/drivers/atmodem/network-registration.h
+--- a/drivers/atmodem/network-registration.h	2019-10-31 04:09:40.000000000 -0400
++++ b/drivers/atmodem/network-registration.h	2023-12-13 11:43:26.013913664 -0500
+@@ -11,6 +11,7 @@
+ 	struct ofono_network_time time;
+ 	guint nitz_timeout;
+ 	unsigned int vendor;
++	gboolean ltereg;
+ };
+ 
+ void at_registration_status(struct ofono_netreg *netreg,
+diff -Naur a/drivers/gemaltomodem/gprs-context.c b/drivers/gemaltomodem/gprs-context.c
+--- a/drivers/gemaltomodem/gprs-context.c	2023-12-13 11:41:35.983430581 -0500
++++ b/drivers/gemaltomodem/gprs-context.c	2023-12-13 11:43:26.013913664 -0500
+@@ -563,6 +563,12 @@
+ 	gcd->chat = g_at_chat_clone(chat);
+ 
+ 	ofono_gprs_context_set_data(gc, gcd);
++	
++    /* Enable NW auto-attach, recommended by vendor for 3G sunset issue */
++	g_at_chat_send(chat, "AT^SCFG=\"GPRS/AutoAttach\",\"enabled\"", none_prefix,
++			NULL, NULL, NULL);
++	g_at_chat_send(chat, "AT+CGATT=0", none_prefix, NULL, NULL, NULL);
++	
+ 	g_at_chat_register(chat, "+CGEV:", cgev_notify, FALSE, gc, NULL);
+ 
+ 	return 0;

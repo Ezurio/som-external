@@ -1,0 +1,17 @@
+Prevent premature abort on write errors, allow recovery mechanisms to handle failures.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/ipc/network_ipc-if.c
++++ b/ipc/network_ipc-if.c
+@@ -192,9 +192,7 @@ int ipc_send_data(int connfd, swupdate_request *rq)
+ 		rq->wr(&pbuf, &size);
+ 		if (size) {
+ 			if (swupdate_image_write(pbuf, size) != size) {
+-				perror("swupdate_image_write failed");
+-				swupdate_result = FAILURE;
+-				goto out;
++				break;
+ 			}
+ 		}
+ 		/* Consume progress events so that the pipe does not get full

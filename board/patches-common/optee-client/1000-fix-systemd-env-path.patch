@@ -1,0 +1,11 @@
+--- a/tee-supplicant/tee-supplicant@.service.in
++++ b/tee-supplicant/tee-supplicant@.service.in
+@@ -11,7 +11,7 @@
+ Type=notify
+ User=@CFG_TEE_SUPPL_USER@
+ Group=@CFG_TEE_SUPPL_GROUP@
+-EnvironmentFile=-@CMAKE_INSTALL_SYSCONFDIR@/default/tee-supplicant
++EnvironmentFile=-/@CMAKE_INSTALL_SYSCONFDIR@/default/tee-supplicant
+ ExecStart=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_SBINDIR@/tee-supplicant $OPTARGS /dev/%I
+ # Workaround for fTPM TA: stop kernel module before tee-supplicant
+ ExecStop=-/bin/sh -c "/sbin/modprobe -v -r tpm_ftpm_tee ; /bin/kill $MAINPID"

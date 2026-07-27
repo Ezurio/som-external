@@ -1,0 +1,254 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/include/swupdate_image.h b/include/swupdate_image.h
+index fb54ace55c..d1d3517daf 100644
+--- a/include/swupdate_image.h
++++ b/include/swupdate_image.h
+@@ -48,6 +48,7 @@ struct img_type {
+ 	char device[MAX_VOLNAME];	/* device associated with image if any */
+ 	char path[MAX_IMAGE_FNAME];	/* Path where image must be installed */
+ 	char mtdname[MAX_IMAGE_FNAME];	/* MTD device where image must be installed */
++	char transform[SWUPDATE_GENERAL_STRING_SIZE];	/* Transformation to apply to data, if any */
+ 	char type_data[SWUPDATE_GENERAL_STRING_SIZE];	/* Data for handler */
+ 	char extract_file[MAX_IMAGE_FNAME];
+ 	char filesystem[MAX_IMAGE_FNAME];
+diff --git a/parser/parser.c b/parser/parser.c
+index f9da567a0c..d934a3678e 100644
+--- a/parser/parser.c
++++ b/parser/parser.c
+@@ -479,6 +479,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
+ 	GET_FIELD_STRING(p, elem, "volume", image->volname);
+ 	GET_FIELD_STRING(p, elem, "device", image->device);
+ 	GET_FIELD_STRING(p, elem, "mtdname", image->mtdname);
++	GET_FIELD_STRING(p, elem, "transform", image->transform);
+ 	GET_FIELD_STRING(p, elem, "filesystem", image->filesystem);
+ 	GET_FIELD_STRING(p, elem, "type", image->type);
+ 	GET_FIELD_STRING(p, elem, "data", image->type_data);
+diff --git a/handlers/flash_handler.c b/handlers/flash_handler.c
+index dc829bab02..02e0c43937 100644
+--- a/handlers/flash_handler.c
++++ b/handlers/flash_handler.c
+@@ -35,6 +35,16 @@
+ #define PROCMTD	"/proc/mtd"
+ #define LINESIZE	80
+ 
++#define SYSFS_ROOT				"/sys"
++#define ATMEL_HEADER_KEY			0xC
++#define ATMEL_HEADER_KEY_OFFSET			28
++#define ATMEL_HEADER_ECC_OFFSET_OFFSET		18
++#define ATMEL_HEADER_SECTOR_SIZE_OFFSET		16
++#define ATMEL_HEADER_ECC_BIT_REQ_OFFSET		13
++#define ATMEL_HEADER_SPARE_SIZE_OFFSET		4
++#define ATMEL_HEADER_SECTOR_PER_PAGE_OFFSET	1
++#define ATMEL_HEADER_USE_PMECC_OFFSET		0
++
+ static inline int mtd_error(int mtdnum, const char *func, int eb)
+ {
+ 	int code = errno;
+@@ -137,6 +147,193 @@
+ 	unsigned char *readout_buf; /* a buffer to read erase block into */
+ };
+ 
++static int read_sysfs(const char * name, int mtdnum)
++{
++	char node_name[256];
++	char in_line[256];
++	int fd = -1;
++	int ret = -1;
++	size_t n = 0;
++
++	in_line[0] = '\0';
++	sprintf(node_name, SYSFS_ROOT "/class/mtd/mtd%d/%s", mtdnum, name);
++
++	if ((fd = open(node_name, O_RDONLY)) < 0) {
++		ERROR( "%s: %s", node_name, strerror(errno));
++		return -1;
++	}
++
++	while ((n = read(fd, in_line, sizeof(in_line)))) {
++		if (n < 0) {
++			if (errno == EAGAIN)
++				continue;
++			ERROR("%s: %s", node_name, strerror(errno));
++			close(fd);
++			return -1;
++		}
++		break;
++	}
++
++	in_line[n < sizeof(in_line) ? n : sizeof(in_line) - 1] = '\0';
++	ret = atoi(in_line);
++	close(fd);
++
++	return ret;
++}
++
++static int create_atmel_header_word(int use_pmecc, int sector_per_page,
++		int sector_size, int spare_size, int ecc_bits, int ecc_offset)
++{
++	__u32 sector_size_code;
++	__u32 sector_per_page_code;
++	__u32 ecc_bits_req;
++
++	sector_per_page_code = ffs(sector_per_page) - 1;
++	if ((1 << sector_per_page_code) != sector_per_page)	{
++		ERROR("Sector_per_page %d unsupported", sector_per_page);
++		return 0;
++	}
++
++	switch(sector_size) {
++	case 512:
++		sector_size_code = 0;
++		break;
++	case 1024:
++		sector_size_code = 1;
++		break;
++	default:
++		ERROR("Sector_size %d unsupported", sector_size);
++		return 0;
++	}
++
++	switch(ecc_bits) {
++	case 2:
++		ecc_bits_req = 0;
++		break;
++	case 4:
++		ecc_bits_req = 1;
++		break;
++	case 8:
++		ecc_bits_req = 2;
++		break;
++	case 12:
++		ecc_bits_req = 3;
++		break;
++	case 24:
++		ecc_bits_req = 4;
++		break;
++	default:
++		ERROR("ecc_bits %d unsupported", ecc_bits);
++		return 0;
++	}
++
++	return ATMEL_HEADER_KEY << ATMEL_HEADER_KEY_OFFSET |
++		ecc_offset << ATMEL_HEADER_ECC_OFFSET_OFFSET |
++		sector_size_code << ATMEL_HEADER_SECTOR_SIZE_OFFSET |
++		ecc_bits_req << ATMEL_HEADER_ECC_BIT_REQ_OFFSET |
++		spare_size << ATMEL_HEADER_SPARE_SIZE_OFFSET |
++		sector_per_page_code << ATMEL_HEADER_SECTOR_PER_PAGE_OFFSET |
++		use_pmecc << ATMEL_HEADER_USE_PMECC_OFFSET;
++}
++
++static int pmecc_get_ecc_bytes(int cap, int sector_size)
++{
++	int m = 12 + sector_size / 512;
++	return (m * cap + 7) / 8;
++}
++
++static bool atmel_pmecc_header_update(struct mtd_dev_info *mtd, unsigned char *writebuf)
++{
++	__u32 atmel_nand_parameter_header_word = 0;
++	int ecc_bits = 8;
++	int sector_size = 0;
++	int sector_per_page = 0;
++	int ecc_offset = 0;
++	sector_size = read_sysfs("ecc_step_size", mtd->mtd_num);
++	if (sector_size != -1)
++	{
++		/* Calculations - see atmel_pmecc_params.c */
++		if (mtd->subpage_size % sector_size != 0)
++		{
++			ERROR("Sector_per_page not a whole number");
++			return false;
++		}
++		sector_per_page = mtd->subpage_size / sector_size;
++		ecc_offset = mtd->oob_size -
++			pmecc_get_ecc_bytes(ecc_bits, sector_size) * sector_per_page;
++		atmel_nand_parameter_header_word = create_atmel_header_word(1, sector_per_page,
++				sector_size, mtd->oob_size, ecc_bits, ecc_offset);
++	}
++	if (atmel_nand_parameter_header_word)
++	{
++		__u32* rewrite = (__u32*) writebuf;
++		/* "The header is made of 52 times the same 32-bit word (for redundancy reasons)" */
++		for (int i = 0; i < 52; i++)
++			*rewrite++ = atmel_nand_parameter_header_word;
++	}
++	else
++	{
++		ERROR("Failed to build atmel header word");
++		return false;
++	}
++	return true;
++}
++
++/*
++ * Post-processing function to update Atmel PMECC header after flash write.
++ * Reads first erase block, updates header if changed, and writes back.
++ */
++static int update_atmel_pmecc_header_post_write(struct flash_priv *priv,
++		struct img_type *img, unsigned char *block_buf)
++{
++	unsigned char header_backup[208]; /* 52 * 4 bytes */
++	int start_eb;
++	int ret;
++
++	TRACE("Post-processing: Updating Atmel PMECC header for %s", img->mtdname);
++
++	/* Calculate starting erase block */
++	start_eb = (int)(img->seek / priv->mtd->eb_size);
++
++	/* Read the first erase block */
++	ret = mtd_read(priv->mtd, priv->fdout, start_eb, 0,
++	               block_buf, priv->mtd->eb_size);
++	if (ret)
++		return mtd_error(priv->mtdnum, "read", start_eb);
++
++	/* Backup current header */
++	memcpy(header_backup, block_buf, sizeof(header_backup));
++
++	/* Update header with generated Atmel PMECC header */
++	if (!atmel_pmecc_header_update(priv->mtd, block_buf)) {
++		ERROR("Failed to generate Atmel PMECC header");
++		return -EINVAL;
++	}
++
++	/* Check if header changed */
++	if (memcmp(header_backup, block_buf, sizeof(header_backup)) != 0) {
++		TRACE("Header changed, erasing and rewriting block %d", start_eb);
++
++		/* Erase the block */
++		ret = mtd_erase(priv->libmtd, priv->mtd, priv->fdout, start_eb);
++		if (ret)
++			return mtd_error(priv->mtdnum, "erase", start_eb);
++
++		/* Write the block back with updated header */
++		ret = mtd_write(priv->libmtd, priv->mtd, priv->fdout,
++		                start_eb, 0, block_buf,
++		                priv->mtd->eb_size, NULL, 0, MTD_OPS_PLACE_OOB);
++		if (ret)
++			return mtd_error(priv->mtdnum, "write", start_eb);
++
++		TRACE("Successfully updated Atmel PMECC header in block %d", start_eb);
++	} else {
++		TRACE("Header unchanged, no rewrite needed");
++	}
++
++	return 0;
++}
++
+ static int erase_block(struct flash_priv *priv)
+ {
+ 	int ret;
+@@ -825,6 +1012,11 @@
+ 		priv.readout_buf = priv.filebuf + priv.filebuf_size;
+ 
+ 	ret = copyimage(&priv, img, flash_write);
++
++	/* Post-processing based on transform type */
++	if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0)
++		ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
++
+ 	free(priv.filebuf);
+ 
+ end:

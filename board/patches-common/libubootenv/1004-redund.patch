@@ -1,0 +1,44 @@
+--- a/src/uboot_env.c
++++ b/src/uboot_env.c
+@@ -602,18 +602,23 @@ int libuboot_env_store(struct uboot_ctx *ctx)
+ 
+ 	copy = ctx->redundant ? (ctx->current ? 0 : 1) : 0;
+ 	ret = devwrite(ctx, copy, image);
+-	free(image);
+-
+ 	if (ret == ctx->size)
+ 		ret = 0;
+ 
+-	if (ctx->redundant && !ret) {
+-		if (ctx->envdevs[ctx->current].flagstype == FLAGS_BOOLEAN)
+-			ret = libubootenv_set_obsolete_flag(&ctx->envdevs[ctx->current]);
++	if (ctx->redundant) {
++		if (ret) {
++			ret = devwrite(ctx, ctx->current, image);
++			if (ret == ctx->size)
++				ret = 0;
++		} else {
++			if (ctx->envdevs[ctx->current].flagstype == FLAGS_BOOLEAN)
++				ret = libubootenv_set_obsolete_flag(&ctx->envdevs[ctx->current]);
++
++			ctx->current = copy;
++		}
+ 	}
+ 
+-	if (!ret)
+-		ctx->current = ctx->current ? 0 : 1;
++	free(image);
+ 
+ 	return ret;
+ }
+@@ -657,8 +662,8 @@ static int libuboot_load(struct uboot_ctx *ctx)
+ 		dev = &ctx->envdevs[i];
+ 		ret = devread(ctx, i, buf[i]);
+ 		if (ret != ctx->size) {
+-			free(buf[0]);
+-			return -EIO;
++			crcenv[i] = 0;
++			continue;
+ 		}
+ 		crc = *(uint32_t *)(buf[i] + offsetcrc);
+ 		dev->crc = crc32(0, (uint8_t *)data, usable_envsize);

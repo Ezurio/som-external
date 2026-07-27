@@ -1,0 +1,15 @@
+Add support for configurable timeout in hawkbit/suricatta configuration.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/corelib/server_utils.c
++++ b/corelib/server_utils.c
+@@ -25,6 +25,8 @@ channel_op_res_t channel_set_options(channel_t *this, channel_data_t *channel_d
+ 	GET_FIELD_INT(LIBCFG_PARSER, elem, "retry",
+ 		(int *)&chan->retries);
+ 
++	GET_FIELD_INT(LIBCFG_PARSER, elem, "timeout", (int *)&chan->low_speed_timeout);
++
+ 	GET_FIELD_STRING_RESET(LIBCFG_PARSER, elem, "max-download-speed", tmp);
+ 	if (strlen(tmp)) {
+ 		chan->max_download_speed = (unsigned int)ustrtoull(tmp, NULL, 10);

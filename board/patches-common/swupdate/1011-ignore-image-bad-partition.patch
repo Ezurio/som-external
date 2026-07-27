@@ -1,0 +1,16 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/handlers/flash_handler.c b/handlers/flash_handler.c
+index 02e0c43937..ce9f01bb68 100644
+--- a/handlers/flash_handler.c
++++ b/handlers/flash_handler.c
+@@ -829,6 +829,8 @@
+ 	/* Post-processing based on transform type */
+ 	if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0)
+ 		ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
++	else if (!strcmp(img->transform, "ignore_bad"))
++		ret = 0; /* Ignore errors related to bad blocks. */
+ 
+ 	free(priv.filebuf);
+ 

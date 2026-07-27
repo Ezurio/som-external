@@ -1,0 +1,24 @@
+From 32ee3a5c4f20bd925a76810bf291219542de77a0 Mon Sep 17 00:00:00 2001
+From: Vladimir Petko <vpetko@openjdk.org>
+Date: Tue, 4 Nov 2025 19:18:34 +0000
+Subject: [PATCH] 8369450: [Ubuntu 25.10] openjdk fails to build due to
+ rust-coreutils date
+
+Backport-of: b73228b51c1b1c59c8cd8ee7b14522edc12d564a
+---
+ make/autoconf/basic_tools.m4 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/make/autoconf/basic_tools.m4 b/make/autoconf/basic_tools.m4
+index 92a4582ecdd..3ad7d778be1 100644
+--- a/make/autoconf/basic_tools.m4
++++ b/make/autoconf/basic_tools.m4
+@@ -378,7 +378,7 @@ AC_DEFUN_ONCE([BASIC_SETUP_COMPLEX_TOOLS],
+ 
+   # Check if it's a GNU date compatible version
+   AC_MSG_CHECKING([if date is a GNU compatible version])
+-  check_date=`$DATE --version 2>&1 | $GREP "GNU\|BusyBox"`
++  check_date=`$DATE --version 2>&1 | $GREP "GNU\|BusyBox\|uutils"`
+   if test "x$check_date" != x; then
+     AC_MSG_RESULT([yes])
+     IS_GNU_DATE=yes

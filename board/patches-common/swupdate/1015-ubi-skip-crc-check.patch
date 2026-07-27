@@ -1,0 +1,27 @@
+Add support for skip-check property on UBI volumes to disable CRC checking.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/handlers/ubivol_handler.c
++++ b/handlers/ubivol_handler.c
+@@ -303,6 +303,12 @@ static int swap_volnames(libubi_t libubi,
+ 	return err;
+ }
+ 
++static bool check_ubi_skipcheck(struct img_type *img)
++{
++	return !strcmp(img->type_data, "static") &&
++ 		strtobool(dict_get_value(&img->properties, "skip-check"));
++}
++
+ static int resize_volume(struct img_type *cfg, long long size)
+ {
+ 	struct flash_description *nandubi = get_flash_info();
+@@ -408,6 +414,7 @@ static int resize_volume(struct img_type *cfg, long long size)
+ 		req.alignment = 1;
+ 		req.bytes = size;
+ 		req.name = cfg->volname;
++		req.flags = check_ubi_skipcheck(cfg) ? UBI_VOL_SKIP_CRC_CHECK_FLG : 0;
+ 		err = ubi_mkvol(nandubi->libubi, node, &req);
+ 		if (err < 0) {
+ 			ERROR("cannot create %s UBI volume %s of %lld bytes",

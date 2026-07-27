@@ -1,0 +1,25 @@
+Add notification message when installing flash images to show progress.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/handlers/flash_handler.c
++++ b/handlers/flash_handler.c
+@@ -649,6 +649,7 @@ static int install_flash_image(struct img_type *img,
+ 	void __attribute__ ((__unused__)) *data)
+ {
+ 	int ret, mtdnum;
++	char sbuf[128];
+ 
+ 	if (strlen(img->mtdname))
+ 		mtdnum = get_mtd_from_name(img->mtdname);
+@@ -659,6 +660,10 @@ static int install_flash_image(struct img_type *img,
+ 			strlen(img->mtdname) ? img->mtdname : img->device);
+ 		return -EINVAL;
+ 	}
++
++	snprintf(sbuf, sizeof(sbuf), "Installing image %s into /dev/mtd%d(%s)",
++		img->fname, mtdnum, img->mtdname);
++	notify(RUN, RECOVERY_NO_ERROR, INFOLEVEL, sbuf);
+ 
+ 	TRACE("Copying %s into /dev/mtd%d", img->fname, mtdnum);
+ 	ret = flash_write_image(mtdnum, img);

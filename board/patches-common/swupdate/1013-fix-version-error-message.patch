@@ -1,0 +1,15 @@
+Fix version parsing to avoid false error messages when version is valid.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/core/artifacts_versions.c
++++ b/core/artifacts_versions.c
+@@ -165,7 +165,7 @@ int64_t parse_version(const char *version_string)
+ 		}
+ 		version = (version << 16) | fld;
+ 	}
+-	if (count > 4) {
++	if (*ver != NULL && count >= 4) {
+ 		DEBUG("Version %s had more than 4 numbers, trailing numbers will be ignored",
+ 		      version_string);
+ 	} else if (count > 0) {

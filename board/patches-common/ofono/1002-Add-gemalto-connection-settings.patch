@@ -1,0 +1,288 @@
+diff -Naur a/drivers/gemaltomodem/gprs-context.c b/drivers/gemaltomodem/gprs-context.c
+--- a/drivers/gemaltomodem/gprs-context.c	2021-05-05 05:06:20.000000000 -0400
++++ b/drivers/gemaltomodem/gprs-context.c	2023-11-09 09:42:57.817025753 -0500
+@@ -28,6 +28,12 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <sys/stat.h>
++#include <arpa/inet.h>
++#include <sys/socket.h>
++#include <netdb.h>
++#include <ifaddrs.h>
++#include <unistd.h>
++#include <linux/if_link.h>
+ 
+ #include <glib.h>
+ 
+@@ -42,6 +48,8 @@
+ #include "gattty.h"
+ 
+ static const char *none_prefix[] = { NULL };
++static const char *cgpaddr_prefix[] = { "+CGPADDR:", NULL };
++static const char *cgcontrdp_prefix[] = { "+CGCONTRDP:", NULL };
+ 
+ struct gprs_context_data {
+ 	GAtChat *chat;
+@@ -67,21 +75,253 @@
+ 	ofono_gprs_context_set_ipv4_address(gc, NULL, 0);
+ }
+ 
++static void failed_setup(struct ofono_gprs_context *gc,
++				GAtResult *result, gboolean deactivate)
++{
++	struct gprs_context_data *gcd = ofono_gprs_context_get_data(gc);
++	struct ofono_error error;
++	char buf[64];
++
++	DBG("deactivate %d", deactivate);
++
++	if (deactivate == TRUE) {
++		snprintf(buf, sizeof(buf), "AT^SWWAN=0,%u", gcd->active_context);
++		g_at_chat_send(gcd->chat, buf, none_prefix, NULL, NULL, NULL);
++	}
++
++	gcd->active_context = 0;
++
++	if (result == NULL) {
++		CALLBACK_WITH_FAILURE(gcd->cb, gcd->cb_data);
++		return;
++	}
++
++	decode_at_error(&error, g_at_result_final_response(result));
++	gcd->cb(&error, gcd->cb_data);
++}
++
++/*
++ * Gemalto AT commands do not completely describe the IPv6 address,
++ * so get it from the device interface.
++ */
++static void v6addr_from_device(struct ofono_gprs_context *gc, char *addr,
++	int count)
++{
++	struct gprs_context_data *gcd = ofono_gprs_context_get_data(gc);
++	struct ofono_modem *modem;
++	const char *interface;
++	struct ifaddrs *ifaddr, *ifa;
++
++	modem = ofono_gprs_context_get_modem(gc);
++	interface = ofono_modem_get_string(modem, "NetworkInterface");
++
++	if (getifaddrs(&ifaddr) == -1) {
++		return;
++	}
++
++	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
++		/* Look for the IPV6 address on our device interface */
++		if (ifa->ifa_addr == NULL ||
++		    ifa->ifa_addr->sa_family != AF_INET6 ||
++		    g_strcmp0(interface, ifa->ifa_name) != 0)
++			continue;
++
++		if (getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in6),
++			addr, count,
++			NULL, 0, NI_NUMERICHOST) == 0) {
++				break;
++		}
++	}
++	freeifaddrs(ifaddr);
++}
++
++static gboolean dec_string_to_addr_mask(const char *str,
++	unsigned char *addr_bytes, int addr_count,
++	unsigned char *mask_bytes, int mask_count)
++{
++	gchar **list;
++	int n = 0, d;
++
++	list = g_strsplit(str, ".", 17);
++	while (list && list[n] && n < addr_count) {
++		if (addr_bytes) addr_bytes[n] = (unsigned char)atoi(list[n]);
++		n++;
++	}
++	while (list && list[n] && n - addr_count < mask_count) {
++		if (mask_bytes) mask_bytes[n - addr_count] = (unsigned char)atoi(list[n]);
++		n++;
++	}
++	g_strfreev(list);
++	if (n == addr_count + mask_count) {
++		return TRUE;
++	} else {
++		return FALSE;
++	}
++}
++
++static int prefix_length_from_mask(unsigned char *mask, int mask_count)
++{
++	int i;
++	int n = 0;
++	int prefix_length = 0;
++
++	while (n < mask_count) {
++		if (mask[n] == 255) {
++			prefix_length += 8;
++		} else {
++			for (i = 7; i >= 8; i++) {
++				if (mask[n] & (1 << i)) {
++					prefix_length++;
++				} else {
++					break;
++				}
++			}
++		}
++		n++;
++	}
++	return prefix_length;
++}
++
++static void contrdp_cb(gboolean ok, GAtResult *result, gpointer user_data)
++{
++	struct ofono_gprs_context *gc = user_data;
++	struct gprs_context_data *gcd = ofono_gprs_context_get_data(gc);
++	struct ofono_modem *modem;
++	const char *interface;
++	int cid, bearer_id;
++	const char *s_apn, *s_ip_mask, *s_gw;
++	const char *s_dns1, *s_dns2;
++	const char *dns[3];
++	unsigned char ipbytes[16], maskbytes[16];
++	char addr[64], netmask[64], gw[64];
++	char dns1[64], dns2[64];
++	int dns_count;
++	int prefix_len;
++	GAtResultIter iter;
++
++	DBG("ok %d", ok);
++
++	if (!ok) {
++		ofono_error("Unable to get context dynamic parameters");
++		failed_setup(gc, result, TRUE);
++		return;
++	}
++
++	modem = ofono_gprs_context_get_modem(gc);
++	interface = ofono_modem_get_string(modem, "NetworkInterface");
++	ofono_info("Interface: %s", interface);
++	ofono_gprs_context_set_interface(gc, interface);
++
++	g_at_result_iter_init(&iter, result);
++
++	if (!g_at_result_iter_next(&iter, "+CGCONTRDP:"))
++		goto error;
++
++	/* First response is IPv4 parameters */
++	if (g_at_result_iter_next_number(&iter, &cid) &&
++	    g_at_result_iter_next_number(&iter, &bearer_id) &&
++	    g_at_result_iter_next_string(&iter, &s_apn) &&
++	    g_at_result_iter_next_string(&iter, &s_ip_mask) &&
++	    g_at_result_iter_next_string(&iter, &s_gw) &&
++	    g_at_result_iter_next_string(&iter, &s_dns1) &&
++	    g_at_result_iter_next_string(&iter, &s_dns2)) {
++		if (dec_string_to_addr_mask(s_ip_mask, ipbytes, 4, maskbytes, 4)) {
++			inet_ntop(AF_INET, ipbytes, addr, sizeof(addr));
++			inet_ntop(AF_INET, maskbytes, netmask, sizeof(netmask));
++			ofono_gprs_context_set_ipv4_address(gc, addr, TRUE);
++			ofono_gprs_context_set_ipv4_netmask(gc, netmask);
++			ofono_info("IPv4, mask: %s, %s", addr, netmask);
++		}
++		if (dec_string_to_addr_mask(s_gw, ipbytes, 4, NULL, 0)) {
++			inet_ntop(AF_INET, ipbytes, gw, sizeof(gw));
++			ofono_gprs_context_set_ipv4_gateway(gc, gw);
++			ofono_info("GW[v4]: %s", gw);
++		}
++		dns_count = 0;
++		if (dec_string_to_addr_mask(s_dns1, ipbytes, 4, NULL, 0)) {
++			inet_ntop(AF_INET, ipbytes, dns1, sizeof(dns1));
++			dns[dns_count++] = dns1;
++			ofono_info("DNS1[v4]: %s", dns1);
++		}
++		if (dec_string_to_addr_mask(s_dns2, ipbytes, 4, NULL, 0)) {
++			inet_ntop(AF_INET, ipbytes, dns2, sizeof(dns2));
++			ofono_info("DNS2[v4]: %s", dns2);
++		}
++		if (dns_count > 0) {
++			dns[dns_count] = NULL;
++			ofono_gprs_context_set_ipv4_dns_servers(gc, dns);
++		}
++	} else {
++		goto error;
++	}
++
++	/* Second response is IPv6 parameters */
++	if (g_at_result_iter_next(&iter, "+CGCONTRDP:") &&
++	    g_at_result_iter_next_number(&iter, &cid) &&
++	    g_at_result_iter_next_number(&iter, &bearer_id) &&
++	    g_at_result_iter_next_string(&iter, &s_apn) &&
++	    g_at_result_iter_next_string(&iter, &s_ip_mask) &&
++	    g_at_result_iter_next_string(&iter, &s_gw) &&
++	    g_at_result_iter_next_string(&iter, &s_dns1) &&
++	    g_at_result_iter_next_string(&iter, &s_dns2)) {
++		if (dec_string_to_addr_mask(s_ip_mask, ipbytes, 16, maskbytes, 16)) {
++			v6addr_from_device(gc, addr, sizeof(addr));
++			ofono_gprs_context_set_ipv6_address(gc, addr);
++			prefix_len = prefix_length_from_mask(maskbytes, 16);
++			ofono_gprs_context_set_ipv6_prefix_length(gc, prefix_len);
++			ofono_info("IPv6, prefix len: %s, %s", addr, prefix_len);
++		}
++		if (dec_string_to_addr_mask(s_gw, ipbytes, 16, NULL, 0)) {
++			inet_ntop(AF_INET6, ipbytes, gw, sizeof(gw));
++			ofono_gprs_context_set_ipv6_gateway(gc, gw);
++			ofono_info("GW[v6]: %s", gw);
++		}
++		dns_count = 0;
++		if (dec_string_to_addr_mask(s_dns1, ipbytes, 16, NULL, 0)) {
++			inet_ntop(AF_INET6, ipbytes, dns1, sizeof(dns1));
++			dns[dns_count++] = dns1;
++			ofono_info("DNS1[v6]: %s", dns1);
++		}
++		if (dec_string_to_addr_mask(s_dns2, ipbytes, 16, NULL, 0)) {
++			inet_ntop(AF_INET6, ipbytes, dns2, sizeof(dns2));
++			dns[dns_count++] = dns2;
++			ofono_info("DNS2[v6]: %s", dns2);
++		}
++		if (dns_count > 0) {
++			dns[dns_count] = NULL;
++			ofono_gprs_context_set_ipv6_dns_servers(gc, dns);
++		}
++	}
++
++	CALLBACK_WITH_SUCCESS(gcd->cb, gcd->cb_data);
++	return;
++
++error:
++	failed_setup(gc, NULL, TRUE);
++}
++
+ static void swwan_cb(gboolean ok, GAtResult *result, gpointer user_data)
+ {
+ 	struct ofono_gprs_context *gc = user_data;
+ 	struct gprs_context_data *gcd = ofono_gprs_context_get_data(gc);
+ 	struct ofono_error error;
++	char buf[64];
+ 
+ 	DBG("ok %d", ok);
+ 
++	if (ok) {
++		snprintf(buf, sizeof(buf), "AT+CGCONTRDP=%d", gcd->active_context);
++		if (g_at_chat_send(gcd->chat, buf, cgcontrdp_prefix,
++						contrdp_cb, gc, NULL) <= 0)
++			ok = 0;
++	}
++
+ 	if (!ok) {
+ 		ofono_error("Unable to activate context");
+ 		ofono_gprs_context_deactivated(gc, gcd->active_context);
+ 		gcd->active_context = 0;
+ 		decode_at_error(&error, g_at_result_final_response(result));
+ 		gcd->cb(&error, gcd->cb_data);
+-		return;
+ 	}
+ }
+ 
+@@ -270,7 +510,6 @@
+ 	if (g_at_chat_send(gcd->chat, buf, none_prefix, swwan_cb, gc, NULL)) {
+ 		set_gprs_context_interface(gc);
+ 
+-		CALLBACK_WITH_SUCCESS(gcd->cb, gcd->cb_data);
+ 		return;
+ 	}
+ 

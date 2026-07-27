@@ -1,0 +1,49 @@
+--- a/src/uboot_env.c	2022-03-28 18:27:35.000000000 
++++ b/src/uboot_env.c	2022-03-29 01:29:24.000000000 
+@@ -31,7 +31,6 @@
+ #include <sys/stat.h>
+ #include <sys/wait.h>
+ #include <sys/ioctl.h>
+-#include <zlib.h>
+ 
+ #include "uboot_private.h"
+ #include "common.h"
+@@ -511,6 +510,19 @@
+ 	return &libinfo;
+ }
+ 
++static uint32_t crc32(uint32_t crc, const uint8_t *buf, size_t len)
++{
++    int k;
++
++    crc = ~crc;
++    while (len--) {
++        crc ^= *buf++;
++        for (k = 0; k < 8; k++)
++            crc = crc & 1 ? (crc >> 1) ^ 0xedb88320 : crc >> 1;
++    }
++    return ~crc;
++}
++
+ int libuboot_env_store(struct uboot_ctx *ctx)
+ {
+ 	struct var_entry *entry;
+--- a/src/CMakeLists.txt	2022-03-29 01:36:47.000000000 
++++ b/src/CMakeLists.txt	2022-03-29 12:21:41.000000000 
+@@ -23,7 +23,6 @@
+ SET_TARGET_PROPERTIES(ubootenv PROPERTIES VERSION ${VERSION} SOVERSION ${SOVERSION})
+ 
+ add_executable(fw_printenv fw_printenv.c)
+-target_link_libraries(ubootenv z)
+ if (NOT NO_YML_SUPPORT)
+ target_link_libraries(ubootenv yaml)
+ endif(NOT NO_YML_SUPPORT)
+--- a/src/libubootenv.pc.in	2021-11-02 11:11:40.000000000 
++++ b/src/libubootenv.pc.in	2022-08-26 12:36:07.000000000 
+@@ -10,5 +10,5 @@
+ Name: libubootenv
+ Description: Library to access U-Boot environment
+ Version: @VERSION@
+-Libs: -L${libdir} -lubootenv -lz
++Libs: -L${libdir} -lubootenv
+ Cflags: -I${includedir}

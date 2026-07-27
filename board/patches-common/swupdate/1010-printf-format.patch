@@ -1,0 +1,18 @@
+Fix printf format for inode when __USE_FILE_OFFSET64 is defined.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/core/notifier.c
++++ b/core/notifier.c
+@@ -538,7 +538,11 @@ static int notifier_init(struct notifier *notifier)
+ 	if (sd_booted() && getenv("JOURNAL_STREAM") != NULL) {
+ 		dev_t device;
+ 		ino_t inode;
++#ifdef __USE_FILE_OFFSET64
++		if (sscanf(getenv("JOURNAL_STREAM"), "%" SCNu64 ":%" PRIu64, &device, &inode) == 2) {
++#else
+ 		if (sscanf(getenv("JOURNAL_STREAM"), "%" SCNu64 ":%lu", &device, &inode) == 2) {
++#endif
+ 			struct stat statbuffer;
+ 			if (fstat(fileno(stderr), &statbuffer) == 0) {
+ 				if (inode == statbuffer.st_ino && device == statbuffer.st_dev) {

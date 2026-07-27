@@ -1,0 +1,15 @@
+diff -Naur a/plugins/udevng.c b/plugins/udevng.c
+--- a/plugins/udevng.c	2021-05-05 09:06:20.000000000 +0000
++++ b/plugins/udevng.c	2022-06-15 13:44:49.923586247 +0000
+@@ -1356,8 +1356,9 @@
+ 				qmi = info->devnode;
+ 		}
+ 
+-		/* Cinterion ALS3, PLS8-E, PLS8-X, EHS5-E */
+-		if (g_strcmp0(info->interface, "2/2/1") == 0) {
++		/* Cinterion ALS3, PLS8-E, PLS8-X, EHS5-E, PLS62-W */
++		if (g_strcmp0(info->interface, "2/2/1") == 0 ||
++		    g_strcmp0(info->interface, "2/2/0") == 0) {
+ 			if (g_strcmp0(info->number, "00") == 0)
+ 				mdm = info->devnode;
+ 			else if (g_strcmp0(info->number, "02") == 0)

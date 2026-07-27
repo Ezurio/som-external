@@ -1,0 +1,44 @@
+--- a/Modules/_ssl.c	2022-11-08 07:33:30.492048888 -0500
++++ b/Modules/_ssl.c	2022-11-08 08:37:20.371879471 -0500
+@@ -282,7 +282,8 @@
+ enum py_ssl_cert_requirements {
+     PY_SSL_CERT_NONE,
+     PY_SSL_CERT_OPTIONAL,
+-    PY_SSL_CERT_REQUIRED
++    PY_SSL_CERT_REQUIRED,
++    PY_SSL_CERT_REQUIRED_NO_CHECK_TIME
+ };
+ 
+ enum py_ssl_version {
+@@ -3085,6 +3086,20 @@
+  * _SSLContext objects
+  */
+ 
++static int no_check_time_verify_callback(int ok, X509_STORE_CTX *ctx)
++{
++    /* For error codes, see http://www.openssl.org/docs/apps/verify.html  */
++    int err = X509_STORE_CTX_get_error(ctx);
++
++    /* Ignore expired or not yet valid errors */
++    if (err == X509_V_ERR_CERT_HAS_EXPIRED || err == X509_V_ERR_CERT_NOT_YET_VALID) {
++        X509_STORE_CTX_set_error(ctx, X509_V_OK);
++        ok = 1;
++    }
++
++    return ok;
++}
++
+ static int
+ _set_verify_mode(PySSLContext *self, enum py_ssl_cert_requirements n)
+ {
+@@ -3101,6 +3116,10 @@
+     case PY_SSL_CERT_REQUIRED:
+         mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+         break;
++    case PY_SSL_CERT_REQUIRED_NO_CHECK_TIME:
++        mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
++        SSL_CTX_set_verify(self->ctx, mode, no_check_time_verify_callback);
++        return 0;
+     default:
+          PyErr_SetString(PyExc_ValueError,
+                         "invalid value for verify_mode");

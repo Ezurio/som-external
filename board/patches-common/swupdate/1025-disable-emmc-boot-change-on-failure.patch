@@ -1,0 +1,15 @@
+Only update eMMC boot configuration on successful installation (POSTINSTALL).
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/handlers/emmc_csd_handler.c
++++ b/handlers/emmc_csd_handler.c
+@@ -50,7 +50,7 @@ static int emmc_csd_write_bootpart_number(struct img_type *img, void *data)
+ 	if (!script_data)
+ 		return -EINVAL;
+ 
+-	if (script_data->scriptfn == PREINSTALL)
++	if (script_data->scriptfn != POSTINSTALL)
+ 		return 0;
+ 	
+ 	strlcpy(tmpdev, img->device, sizeof(tmpdev));

@@ -1,0 +1,13 @@
+--- a/src/setuptools_scm/_integration/setuptools.py	2024-05-06 11:02:12.000000000 -0400
++++ b/src/setuptools_scm/_integration/setuptools.py	2025-05-16 08:28:55.211143519 -0400
+@@ -27,6 +27,10 @@
+ 
+ 
+ def _warn_on_old_setuptools(_version: str = setuptools.__version__) -> None:
++    import os
++    _version_override = os.environ.get("HOST_PYTHON_SETUPTOOLS_VERSION")
++    if _version_override:
++        _version = _version_override
+     if int(_version.split(".")[0]) < 61:
+         warnings.warn(
+             RuntimeWarning(

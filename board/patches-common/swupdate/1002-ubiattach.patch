@@ -1,0 +1,62 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+Auto-attach UBI devices when needed during volume operations.
+Export scan_ubi_partitions for use in ubivol_handler.
+
+--- a/corelib/mtd-interface.c
++++ b/corelib/mtd-interface.c
+@@ -342,8 +342,7 @@ static void scan_for_ubi_devices(void)
+ 	}
+ }
+ 
+-#if defined(CONFIG_UBIATTACH)
+-static void scan_ubi_partitions(int mtd)
++void scan_ubi_partitions(int mtd)
+ {
+ 	struct flash_description *flash = get_flash_info();
+ 	libubi_t libubi = flash->libubi;
+@@ -405,7 +404,6 @@ static void scan_ubi_partitions(int mtd)
+ 
+ 	scan_ubi_volumes(mtd_info);
+ }
+-#endif
+ #endif
+ 
+ int scan_mtd_devices (void)
+--- a/handlers/ubivol_handler.c
++++ b/handlers/ubivol_handler.c
+@@ -313,6 +313,7 @@ static int resize_volume(struct img_type *cfg, long long size)
+ 	int req_vol_id = UBI_VOL_NUM_AUTO;
+ 	char node[64];
+ 	int err;
++	int dev_num;
+ 	struct flash_description *flash = get_flash_info();
+ 
+ 	/* determine the requested volume type */
+@@ -335,6 +336,15 @@ static int resize_volume(struct img_type *cfg, long long size)
+ 			cfg->device);
+ 		return -ENODEV;
+ 	}
++
++	/* Check if UBI device is attached, and if not attach it */
++	if (mtd_num2ubi_dev(nandubi->libubi, mtdnum, &dev_num)) {
++		scan_ubi_partitions(mtdnum);
++		if (mtd_num2ubi_dev(nandubi->libubi, mtdnum, &dev_num)) {
++			ERROR("UBI device on  MTD%d not found", mtdnum);
++			return -1;
++		}
++	}
+ 
+ 	mtd_info = &nandubi->mtd_info[mtdnum];
+ 
+--- a/include/flash.h
++++ b/include/flash.h
+@@ -48,6 +48,7 @@ struct flash_description *get_flash_info(void);
+ void mtd_set_ubiblacklist(char *mtdlist);
+ void ubi_init(void);
+ int scan_mtd_devices (void);
++void scan_ubi_partitions(int mtd);
+ void mtd_cleanup (void);
+ int get_mtd_from_device(char *s);
+ int get_mtd_from_name(const char *s);

@@ -1,0 +1,17 @@
+Support raw file paths that may or may not start with leading slash.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/handlers/raw_handler.c
++++ b/handlers/raw_handler.c
+@@ -162,8 +162,8 @@ static int install_raw_file(struct img_type *img,
+ 			return -1;
+ 		}
+ 
+-		if (snprintf(path, sizeof(path), "%s%s",
+-					 DATADST_DIR, img->path) >= (int)sizeof(path)) {
++		if (snprintf(path, sizeof(path), "%s%s%s",
++			DATADST_DIR, img->path[0] != '/' ? "/" : "", img->path) >= (int)sizeof(path)) {
+ 			ERROR("Path too long: %s%s", DATADST_DIR, img->path);
+ 			goto cleanup;
+ 		}

@@ -1,0 +1,14 @@
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/handlers/shell_scripthandler.c
++++ b/handlers/shell_scripthandler.c
+@@ -39,7 +39,7 @@ static int execute_shell_script(struct img_type *img, const char *fnname)
+ 		return -1;
+ 	}
+ 	snprintf(shellscript, sizeof(shellscript),
+-		 "%s%s %s %s", tmp, img->fname, fnname, img->type_data);
++		 "/bin/sh %s%s %s %s", tmp, img->fname, fnname, img->type_data);
+ 
+ 	ret = run_system_cmd(shellscript);
+ 

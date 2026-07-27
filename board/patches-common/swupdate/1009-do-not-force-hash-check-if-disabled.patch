@@ -1,0 +1,24 @@
+Disable hash verification check enforcement when CONFIG_HASH_VERIFY is disabled.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/core/parser.c
++++ b/core/parser.c
+@@ -43,7 +43,7 @@ static int check_missing_hash(struct imglist *list)
+ }
+ 
+ 
+-#ifndef CONFIG_HASH_VERIFY
++#if 0 /* CONFIG_HASH_VERIFY */
+ static int check_hash_absent(struct imglist *list)
+ {
+ 	struct img_type *image;
+@@ -221,7 +221,7 @@ int check_hw_compatibility(struct swupdate_cfg *cfg)
+ 		check_missing_hash(&sw->scripts))
+ 		ret = -EINVAL;
+ #else
+-#ifndef CONFIG_HASH_VERIFY
++#if 0 /* CONFIG_HASH_VERIFY */
+ 	if (check_hash_absent(&sw->images) ||
+ 		check_hash_absent(&sw->scripts))
+ 		ret = -EINVAL;

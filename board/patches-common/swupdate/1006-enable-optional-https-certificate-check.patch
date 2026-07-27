@@ -1,0 +1,65 @@
+From 5f2b5c633f164888fe7c620ecdfed0f31370fff1 Mon Sep 17 00:00:00 2001
+From: 
+Date: Tue, 15 Sep 2020 06:35:51 +0000
+Subject: [PATCH 1/1] Added support for https certificate verification in
+ download mode (if parameter is not passed, certificates will not be verified)
+
+---
+ corelib/channel_curl.c | 9 +++++++++
+ corelib/downloader.c   | 7 ++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/corelib/channel_curl.c b/corelib/channel_curl.c
+index 48e6853..cb788b6 100644
+--- a/corelib/channel_curl.c
++++ b/corelib/channel_curl.c
+@@ -1345,6 +1345,15 @@ channel_op_res_t channel_get_file(channel_t *this, void *data)
+ 		goto cleanup_header;
+ 	}
+ 
++	if (channel_data->cafile != NULL) {
++		if ((curl_easy_setopt(channel_curl->handle, CURLOPT_CAPATH, channel_data->cafile) != CURLE_OK) ||
++			(curl_easy_setopt(channel_curl->handle, CURLOPT_SSL_VERIFYPEER, true) != CURLE_OK)) {
++			result = CHANNEL_EINIT;
++			goto cleanup_file;
++		}
++
++	}
++
+ 	write_callback_t wrdata = { .this = this };
+ 	wrdata.channel_data = channel_data;
+ 	if (!channel_data->noipc) {
+diff --git a/corelib/downloader.c b/corelib/downloader.c
+index fc754fa..62f5ecd 100644
+--- a/corelib/downloader.c
++++ b/corelib/downloader.c
+@@ -36,6 +36,7 @@ static struct option long_options[] = {
+     {"retrywait", required_argument, NULL, 'w'},
+     {"timeout", required_argument, NULL, 't'},
+     {"authentication", required_argument, NULL, 'a'},
++    {"https-ca-file", optional_argument, NULL, 'h'},
+     {"max-download-speed", required_argument, NULL, 'n'},
+     {NULL, 0, NULL, 0}};
+ 
+@@ -203,6 +204,7 @@ void download_print_help(void)
+ 	    "\t  -w, --retrywait      timeout to wait before retrying retries (default: %d)\n"
+ 	    "\t  -t, --timeout          timeout to check if a connection is lost (default: %d)\n"
+ 	    "\t  -a, --authentication   authentication information as username:password\n"
++	    "\t  --https-ca-file        ca certificate for https download\n"
+ 	    "\t  -n, --max-download-speed <limit>    Set download speed limit.\n"
+ 	    "\t                Example: -n 100k; -n 1M; -n 100; -n 1G (default: no limit)\n",
+ 	    DL_DEFAULT_RETRIES, DL_LOWSPEED_TIME, CHANNEL_DEFAULT_RESUME_DELAY);
+@@ -249,6 +251,9 @@ int start_download(const char *fname, int argc, char *argv[])
+ 				return -1;
+ 			}
+ 			break;
++		case 'h':
++			SETSTRING(channel_options.cafile, optarg);
++			break;
+ 		case '?':
+ 		default:
+ 			return -EINVAL;
+-- 
+2.17.1

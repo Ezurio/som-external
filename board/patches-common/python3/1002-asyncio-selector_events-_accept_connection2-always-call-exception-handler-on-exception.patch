@@ -1,0 +1,30 @@
+--- a/Lib/asyncio/selector_events.py	2025-04-08 10:15:29.000000000 -0400
++++ b/Lib/asyncio/selector_events.py	2025-05-29 16:11:47.982350550 -0400
+@@ -232,17 +232,16 @@
+         except (SystemExit, KeyboardInterrupt):
+             raise
+         except BaseException as exc:
+-            if self._debug:
+-                context = {
+-                    'message':
+-                        'Error on transport creation for incoming connection',
+-                    'exception': exc,
+-                }
+-                if protocol is not None:
+-                    context['protocol'] = protocol
+-                if transport is not None:
+-                    context['transport'] = transport
+-                self.call_exception_handler(context)
++            context = {
++                'message':
++                    'Error on transport creation for incoming connection',
++                'exception': exc,
++            }
++            if protocol is not None:
++                context['protocol'] = protocol
++            if transport is not None:
++                context['transport'] = transport
++            self.call_exception_handler(context)
+ 
+     def _ensure_fd_no_transport(self, fd):
+         fileno = fd

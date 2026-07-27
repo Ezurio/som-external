@@ -1,0 +1,11 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -240,7 +240,7 @@ if test "$GCC" = "yes" || test "$GCC" =
+ 	case "$CLANG_VER" in
+ 	apple-15*) OSSH_CHECK_CFLAG_LINK([-fzero-call-used-regs=used]) ;;
+ 	17*)	;;
+-	*)	OSSH_CHECK_CFLAG_LINK([-fzero-call-used-regs=used]) ;;
++	*)	OSSH_CHECK_CFLAG_LINK([-fzero-call-used-regs=all]) ;;
+ 	esac
+ 	OSSH_CHECK_CFLAG_COMPILE([-ftrivial-auto-var-init=zero])
+     fi

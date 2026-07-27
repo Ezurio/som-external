@@ -1,0 +1,28 @@
+From be121dd33aa5d3af4eb1db83e7a3b6d1b9fc7410 Mon Sep 17 00:00:00 2001
+From: Don Ferencz <Donald.Ferencz@lairdconnect.com>
+Date: Thu, 4 Aug 2022 13:39:05 +0000
+Subject: [PATCH] gprs: Clean up active contexts when de-registered
+
+On LTE, the default context will automatically activate
+when the network re-registers; however, it needs to be
+cleaned up otherwise the GPRS logic will not properly
+detect it.
+---
+ src/gprs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gprs.c b/src/gprs.c
+index 950b40fc..475e49d9 100644
+--- a/src/gprs.c
++++ b/src/gprs.c
+@@ -2605,6 +2605,7 @@ void ofono_gprs_detached_notify(struct ofono_gprs *gprs)
+ 
+ 	gprs->driver_attached = FALSE;
+ 	gprs_attached_update(gprs);
++	detach_active_contexts(gprs);
+ 
+ 	/*
+ 	 * TODO: The network forced a detach, we should wait for some time
+-- 
+2.17.1
+
