@@ -126,6 +126,8 @@
 
 &oldi1_dss1 {
 	status = "okay";
+	/* upstream moved this phandle to per-display overlays */
+	ti,oldi-io-ctrl = <&dss_oldi_io_ctrl>;
 };
 
 &oldi1_dss1_ports {
