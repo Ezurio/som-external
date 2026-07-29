@@ -321,9 +321,10 @@ Upstream-Status: Inappropriate No time for upstreaming
 +	struct format_bridge *fmt_bridge;
 +	int ret;
 +
-+	fmt_bridge = devm_kzalloc(dev, sizeof(*fmt_bridge), GFP_KERNEL);
-+	if (!fmt_bridge)
-+		return -ENOMEM;
++	fmt_bridge = devm_drm_bridge_alloc(dev, struct format_bridge, bridge,
++					    &format_bridge_funcs);
++	if (IS_ERR(fmt_bridge))
++		return PTR_ERR(fmt_bridge);
 +
 +	/* Set default formats */
 +	fmt_bridge->input_format = default_format;
@@ -348,7 +349,6 @@ Upstream-Status: Inappropriate No time for upstreaming
 +
 +	platform_set_drvdata(pdev, fmt_bridge);
 +
-+	fmt_bridge->bridge.funcs = &format_bridge_funcs;
 +	fmt_bridge->bridge.of_node = dev->of_node;
 +
 +	drm_bridge_add(&fmt_bridge->bridge);
