@@ -113,7 +113,7 @@ case "${1}" in
         # configuration string
         # Validate all names at once
         _invalid=$(printf '%s\n' "${@}" | grep -oE '[^+-].*' | grep -vFx "${params}")
-        [ -z "${_invalid}" ] || die "Invalid mode: $(echo "${_invalid}" | head -1)"
+        [ -z "${_invalid}" ] || die "Invalid mode: $(printf '%s\n' "${_invalid}" | sed -n '1p')"
 
         for i in "${@}" ; do
             case "${i}" in
