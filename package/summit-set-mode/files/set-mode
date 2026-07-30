@@ -8,7 +8,7 @@ die() {
 }
 
 # shellcheck disable=SC1091
-. /usr/bin/boot-rootfs.sh
+. /usr/sbin/boot-rootfs.sh
 
 # Find kernel FIT Image
 case "${rootDevType:?}" in
@@ -31,7 +31,7 @@ case "${rootDevType:?}" in
 esac
 
 # Retrieve all configurations from FIT Image
-confs=$(dumpimage -l ${kernel} | grep -F 'Configuration')
+confs=$(dumpimage -l "${kernel}" | grep -F 'Configuration')
 
 # Find default configuration
 default=$(echo "${confs}" | grep -m1 -o 'conf-.*\.dtb')
