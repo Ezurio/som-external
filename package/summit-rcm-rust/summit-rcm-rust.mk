@@ -11,7 +11,8 @@ SUMMIT_RCM_RUST_SITE_METHOD = local
 SUMMIT_RCM_RUST_LICENSE = Ezurio
 SUMMIT_RCM_RUST_LICENSE_FILES = LICENSE.ezurio
 
-SUMMIT_RCM_RUST_DEPENDENCIES += openssl
+SUMMIT_RCM_RUST_DEPENDENCIES += openssl \
+	$(if $(BR2_PACKAGE_SUMMIT_RCM_RUST_PLUGIN_UPDATE),swupdate,)
 
 # ---------------------------------------------------------------------------
 # Build up --features list from Kconfig options.
@@ -67,6 +68,7 @@ SUMMIT_RCM_RUST_CARGO_INSTALL_OPTS = $(SUMMIT_RCM_RUST_CARGO_BUILD_OPTS) --profi
 # shipped artifacts do not expose absolute Buildroot paths.
 SUMMIT_RCM_RUST_CARGO_ENV += \
 	RUSTFLAGS="--remap-path-prefix=$(SUMMIT_RCM_RUST_SRCDIR)=." \
+	SWUPDATE_INCLUDE_DIR="$(STAGING_DIR)/usr/include" \
 	CARGO_PROFILE_RELEASE_LTO="true"
 
 # ---------------------------------------------------------------------------
