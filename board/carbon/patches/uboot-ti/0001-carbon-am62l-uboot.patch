@@ -1,3 +1,6 @@
+
+Upstream-Status: Inappropriate No time for upstreaming 
+
 diff --git a/arch/arm/dts/k3-am62l-carbon-binman.dtsi b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
 new file mode 100644
 index 00000000000..0d3648c0505
@@ -237,7 +240,7 @@ new file mode 100644
 index 00000000000..bd016d100cd
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,233 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -290,6 +293,10 @@ index 00000000000..bd016d100cd
 +	bootph-all;
 +	sd-uhs-sdr104;
 +	sd-uhs-ddr50;
++};
++
++&elm0 {
++	bootph-all;
 +};
 +
 +&gpmc0 {
