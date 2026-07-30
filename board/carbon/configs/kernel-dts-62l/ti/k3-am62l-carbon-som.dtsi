@@ -538,16 +538,16 @@
 	status = "disabled";
 	phy-mode = "rgmii-id";
 
-	//nvmem-cells = <&eth_mac0>;
-	//nvmem-cell-names = "mac-address";
+	nvmem-cells = <&eth_mac0>;
+	nvmem-cell-names = "mac-address";
 };
 
 &cpsw_port2 {
 	status = "disabled";
 	phy-mode = "rgmii-id";
 
-	//nvmem-cells = <&eth_mac1>;
-	//nvmem-cell-names = "mac-address";
+	nvmem-cells = <&eth_mac1>;
+	nvmem-cell-names = "mac-address";
 };
 
 &cpsw3g_mdio {
