@@ -321,10 +321,18 @@ software =
 				},
 				{
 					filename = "uboot.env";
-					mtdname = "u-boot-env-b";
+					mtdname = "u-boot-env-a";
+					transform = "ignore_bad";
 					type = "flash";
 					name = "u-boot-env";
-					installed-directly = true;
+					sha256 = "$swupdate_get_sha256(uboot.env)";
+				},
+				{
+					filename = "uboot.env";
+					mtdname = "u-boot-env-b";
+					transform = "ignore_bad";
+					type = "flash";
+					name = "u-boot-env";
 					sha256 = "$swupdate_get_sha256(uboot.env)";
 				},
 				{
@@ -362,12 +370,6 @@ software =
 					filename = "copy_partitions.sh";
 					type = "postinstall";
 					data = "u-boot.backup u-boot $swupdate_get_size(u-boot.img) $swupdate_get_sha256(u-boot.img)";
-					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
-				},
-				{
-					filename = "copy_partitions.sh";
-					type = "postinstall";
-					data = "u-boot-env-b u-boot-env-a $swupdate_get_size(uboot.env) $swupdate_get_sha256(uboot.env)";
 					sha256 = "$swupdate_get_sha256(copy_partitions.sh)";
 				},
 				{

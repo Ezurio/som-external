@@ -56,8 +56,10 @@ getSide
 [ "${bootside:?}" = "a" ] && o_side=b || o_side=a
 
 [ "${rootDevType:?}" = "SD" ] && run_on_sd=true || run_on_sd=false
+[ "${rootDevType:?}" = "initramfs" ] && run_on_initramfs=true || run_on_initramfs=false
 
 ${run_on_sd} && o_method=complete || o_method=full
+${run_on_initramfs} && o_method=complete
 
 if grep -qF '"ubi"' /proc/mtd 2>/dev/null; then
     # shellcheck source=/dev/null
@@ -84,10 +86,12 @@ shift $((OPTIND - 1))
 url="${1}"
 
 if [ "${o_method}" = complete ]; then
-    ${run_on_sd} || die "only 'full' or 'main' update methods supported when booting from NAND/eMMC"
+    ! ${run_on_sd} && ! ${run_on_initramfs} && \
+        die "only 'full' or 'main' update methods supported when booting from NAND/eMMC"
     p_method=${o_method}
 else
     ! ${run_on_sd} || die "only 'complete' update method supported when booting from SD card"
+    ! ${run_on_initramfs} || die "only 'complete' update method supported when booting from initramfs"
     p_method=${o_method}-${o_side}
 fi
 
@@ -190,7 +194,7 @@ sync
 notify complete
 echo "Firmware update succeeded" >&2
 
-if ${o_restart} && ! ${run_on_sd}; then
+if ${o_restart} && ! ${run_on_sd} && ! ${run_on_initramfs}; then
     sleep 1
     reboot
 fi

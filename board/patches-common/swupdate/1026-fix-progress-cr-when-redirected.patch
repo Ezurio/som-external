@@ -1,0 +1,29 @@
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Subject: [PATCH] swupdate-progress: avoid \r in redirected output
+
+When stdout is redirected (e.g. captured by systemd), the progress line
+is terminated with \r\n instead of plain \n, causing the carriage return
+to appear as a literal character in the journal.  Emit \r only when
+writing to a terminal.
+
+Upstream-Status: Pending
+
+--- a/tools/swupdate-progress.c	2026-07-30 10:42:54.168757248 -0400
++++ b/tools/swupdate-progress.c	2026-07-30 10:42:54.167603885 -0400
+@@ -404,13 +404,12 @@
+ 				fill_progress_bar(bar, sizeof(bar), msg.cur_percent);
+ 
+ 				if (!silent) {
+-					fprintf(stdout, "[ %.*s ] %d of %d %d%% (%s), dwl %d%% of %llu bytes\r",
++					fprintf(stdout, "[ %.*s ] %d of %d %d%% (%s), dwl %d%% of %llu bytes%s",
+ 						bar_len,
+ 						bar,
+ 						msg.cur_step, msg.nsteps, msg.cur_percent,
+-						msg.cur_image, msg.dwl_percent, msg.dwl_bytes);
+-					if (redirected)
+-						fprintf(stdout, "\n");
++						msg.cur_image, msg.dwl_percent, msg.dwl_bytes,
++						redirected ? "\n" : "\r");
+ 					fflush(stdout);
+ 				}
+ 
