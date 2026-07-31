@@ -15,7 +15,6 @@ vendor = 0x1fa3
 product = 0x0002
 manufacturer = "Ezurio"
 product_name_source = "model"
-serial_source = "auto"
 
 [[config]]
 description = "USB Composite Configuration"
