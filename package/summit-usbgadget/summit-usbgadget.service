@@ -8,6 +8,9 @@ ExecStart=/usr/bin/summit-usbgadget
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=summit-usbgadget
+# Fixes -EL2HLT loss issue 
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_SYS_BOOT CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_MODULE
+AmbientCapabilities=
 
 [Install]
 WantedBy=multi-user.target

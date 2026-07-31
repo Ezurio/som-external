@@ -47,6 +47,7 @@ download = "swupdate"
 [[config.function]]
 type = "dfu"
 download = "swupdate"
+upload = "sysinfo"
 
 # Socket-based update listener
 # When enabled, firmware can be streamed into SWUpdate over TCP or TLS socket.
