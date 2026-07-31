@@ -987,6 +987,7 @@
 &imx8_gpu_ss {
 	status = "disabled";
 };
+
 &gpu_3d {
 	status = "disabled";
 };
