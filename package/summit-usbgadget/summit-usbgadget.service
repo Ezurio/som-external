@@ -9,7 +9,7 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=summit-usbgadget
 # Fixes -EL2HLT loss issue 
-CapabilityBoundingSet=CAP_SYS_ADMIN CAP_SYS_BOOT CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RAWIO
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_SYS_BOOT CAP_SYS_MODULE CAP_SYS_RAWIO CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH
 AmbientCapabilities=
 
 [Install]
