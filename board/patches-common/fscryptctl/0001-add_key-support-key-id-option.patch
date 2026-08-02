@@ -1,0 +1,103 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Sun, 2 Aug 2026 00:00:00 -0400
+Subject: [PATCH] add_key: support --key-id option
+
+Add an optional --key-id=<serial> option to the add_key command.
+When given, the raw key is not read from stdin; instead the kernel
+looks up the raw key material from the Linux keyring key identified
+by <serial> (e.g. a "trusted" key, when the running kernel accepts
+that key type for FS_IOC_ADD_ENCRYPTION_KEY's key_id field).
+
+This lets a persistently-sealed keyring key be used as an fscrypt v2
+master key without the raw key ever passing through this program's
+memory or stdin.
+
+Upstream-Status: Inappropriate Local requirement
+---
+ fscryptctl.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/fscryptctl.c b/fscryptctl.c
+index 4e8e82a9ccf9..384d21f97be1 100644
+--- a/fscryptctl.c
++++ b/fscryptctl.c
+@@ -112,6 +112,7 @@ enum {
+   OPT_HW_WRAPPED_KEY,
+   OPT_IV_INO_LBLK_32,
+   OPT_IV_INO_LBLK_64,
++  OPT_KEY_ID,
+   OPT_PADDING,
+ };
+ 
+@@ -121,9 +122,11 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+       "\nUsage:\n"
+       "  fscryptctl <command> [arguments] [options]\n"
+       "\nCommands:\n"
+-      "  fscryptctl add_key <mountpoint>\n"
++      "  fscryptctl add_key [--key-id=<serial>] <mountpoint>\n"
+       "    Read a key from stdin, add it to the specified mounted filesystem,\n"
+-      "    and print its identifier.\n"
++      "    and print its identifier.  With --key-id, use the raw key\n"
++      "    already loaded into the given Linux keyring key (e.g. a\n"
++      "    \"trusted\" key) instead of reading stdin.\n"
+       "  fscryptctl remove_key <key identifier> <mountpoint>\n"
+       "    Remove the key with the specified identifier from the specified\n"
+       "    mounted filesystem.\n"
+@@ -150,6 +153,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+       "    add_key\n"
+       "        --hw-wrapped-key\n"
+       "            add a hardware-wrapped key (rather than a raw key)\n"
++      "        --key-id=<serial>\n"
++      "            use the raw key from Linux keyring key <serial> instead\n"
++      "            of reading a raw key from stdin\n"
+       "    remove_key\n"
+       "        --all-users\n"
+       "            force-remove all users' claims to the key (requires root)\n"
+@@ -439,9 +445,11 @@ static bool set_policy(const char *path,
+ static int cmd_add_key(int argc, char *const argv[]) {
+   static const struct option add_key_options[] = {
+       {"hw-wrapped-key", no_argument, NULL, OPT_HW_WRAPPED_KEY},
++      {"key-id", required_argument, NULL, OPT_KEY_ID},
+       {NULL, 0, NULL, 0}};
+   int max_size = FSCRYPT_MAX_KEY_SIZE;
+   __u32 flags = 0;
++  unsigned long key_id = 0;
+ 
+   int ch;
+   while ((ch = getopt_long(argc, argv, "", add_key_options, NULL)) != -1) {
+@@ -450,6 +458,15 @@ static int cmd_add_key(int argc, char *const argv[]) {
+         flags |= FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED;
+         max_size = MAX_WRAPPED_KEY_SIZE;
+         break;
++      case OPT_KEY_ID: {
++        char *endptr;
++        key_id = strtoul(optarg, &endptr, 10);
++        if (*optarg == '\0' || *endptr != '\0') {
++          fprintf(stderr, "error: invalid --key-id: %s\n", optarg);
++          return EXIT_FAILURE;
++        }
++        break;
++      }
+       default:
+         usage(stderr);
+     }
+@@ -464,9 +481,13 @@ static int cmd_add_key(int argc, char *const argv[]) {
+ 
+   struct fscrypt_add_key_arg *arg = xzalloc(sizeof(*arg) + max_size);
+   int status = EXIT_FAILURE;
+-  arg->raw_size = read_key(arg->raw, max_size);
+-  if (arg->raw_size == 0) {
+-    goto cleanup;
++  if (key_id != 0) {
++    arg->key_id = key_id;
++  } else {
++    arg->raw_size = read_key(arg->raw, max_size);
++    if (arg->raw_size == 0) {
++      goto cleanup;
++    }
+   }
+   arg->flags = flags;
+   arg->key_spec.type = FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER;
+-- 
+2.43.0

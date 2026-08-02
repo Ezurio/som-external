@@ -6,8 +6,10 @@ set -e
 
 DATA_MOUNT=/data
 DATA_SECRET=${DATA_MOUNT}/secret
+FSCRYPT_V2_KEY=/perm/caam/fscrypt-data.key
+FSCRYPT_V2_TRUSTED_KEY=fscrypt-data
 
-mount_fscrypt() {
+mount_fscrypt_v1() {
 	FSCRYPT_KEY=ffffffffffffffff
 
 	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
@@ -23,9 +25,64 @@ mount_fscrypt() {
 		{ /usr/bin/umount ${DATA_MOUNT}; exit 1; }
 }
 
+mount_fscrypt_v2() {
+	/usr/bin/mount -o noatime,nodev,nosuid,noexec -t "${mountFsType:?}" \
+		"${DATA_DEVICE}" "${DATA_MOUNT}" || return 1
+
+	mkdir -p -m 700 /perm/caam || {
+		/usr/bin/umount "${DATA_MOUNT}"
+		return 1
+	}
+	chmod 700 /perm/caam
+
+	if [ -f "${FSCRYPT_V2_KEY}" ]; then
+		TRUSTED_KEY_ID=$(/usr/bin/keyctl add trusted "${FSCRYPT_V2_TRUSTED_KEY}" \
+			"load $(cat "${FSCRYPT_V2_KEY}")" @s) || {
+			/usr/bin/umount "${DATA_MOUNT}"
+			return 1
+		}
+	else
+		TRUSTED_KEY_ID=$(/usr/bin/keyctl add trusted "${FSCRYPT_V2_TRUSTED_KEY}" \
+			"new 64" @s) || {
+			/usr/bin/umount "${DATA_MOUNT}"
+			return 1
+		}
+		(umask 077; /usr/bin/keyctl pipe "${TRUSTED_KEY_ID}" > "${FSCRYPT_V2_KEY}") || {
+			/usr/bin/umount "${DATA_MOUNT}"
+			return 1
+		}
+	fi
+	chmod 600 "${FSCRYPT_V2_KEY}"
+
+	# fscryptctl reads the raw key material from the trusted key's
+	# in-kernel payload by ID; it never transits userspace.
+	FSCRYPT_KEY=$(/usr/bin/fscryptctl add_key --key-id="${TRUSTED_KEY_ID}" "${DATA_MOUNT}") || {
+		/usr/bin/umount "${DATA_MOUNT}"
+		return 1
+	}
+
+	mkdir -p "${DATA_SECRET}" || {
+		/usr/bin/umount "${DATA_MOUNT}"
+		return 1
+	}
+
+	/usr/bin/fscryptctl set_policy "${FSCRYPT_KEY}" "${DATA_SECRET}" >/dev/null || {
+		/usr/bin/umount "${DATA_MOUNT}"
+		return 1
+	}
+}
+
 umount_fscrypt() {
 	/usr/bin/umount ${DATA_MOUNT}
 	echo 3 >/proc/sys/vm/drop_caches
+}
+
+umount_fscrypt_v1() {
+	umount_fscrypt
+}
+
+umount_fscrypt_v2() {
+	umount_fscrypt
 }
 
 mount_dmcrypt() {
@@ -79,15 +136,21 @@ umount_dmcrypt() {
 }
 
 anymount() {
-	case "${soc_id:?}" in
-		sama5d3*)
-			"${1}_fscrypt"
+	case "${rootDevType:?}" in
+		ubi)
+			case "${soc_id:?}" in
+				sama5d3*)
+					# sama5d3 lacks trusted-key support; it relies on a u-boot-
+					# provisioned key in the logon keyring, so it must use v1.
+					"${1}_fscrypt_v1"
+					;;
+				*)
+					"${1}_fscrypt_v2"
+					;;
+			esac
 			;;
 		*)
-			case "${rootDevType:?}" in
-				ubi) "${1}_fscrypt" ;;
-				*) "${1}_dmcrypt" ;;
-			esac
+			"${1}_dmcrypt"
 			;;
 	esac
 }

@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Sun, 2 Aug 2026 00:00:00 -0400
+Subject: [PATCH] fs_crypt: accept trusted keys via key_id
+
+FS_IOC_ADD_ENCRYPTION_KEY already supports specifying a master key by
+Linux keyring ID (key_id) instead of raw bytes, but only accepts keys
+of type "fscrypt-provisioning", whose payload must already contain
+raw key bytes supplied by userspace.
+
+Widen this to also accept Linux "trusted" keys (TPM- or TEE-sealed).
+A trusted key never exposes its raw payload to userspace via keyctl
+(read/pipe/print all return only the sealed export blob), so this
+allows a persistently-sealed trusted key to be used as an fscrypt v2
+master key while the raw key material never leaves kernel space.
+
+Reject hardware-bound trusted keys (is_hw_bound) since their payload
+is not a directly-usable raw key, and bound the accepted key size to
+fscrypt's actual raw-key limits (FSCRYPT_MIN_KEY_SIZE..
+FSCRYPT_MAX_RAW_KEY_SIZE) rather than the secret buffer's storage
+size, which is sized for the larger of raw or hardware-wrapped keys.
+
+PROD-62700
+---
+ fs/crypto/keyring.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+Upstream-Status: Inappropriate Local requirement
+
+--- a/fs/crypto/keyring.c	2026-08-02 02:31:17.183248839 -0400
++++ b/fs/crypto/keyring.c	2026-08-02 02:31:27.972657667 -0400
+@@ -25,6 +25,7 @@
+ #include <linux/random.h>
+ #include <linux/seq_file.h>
+ #include <linux/unaligned.h>
++#include <keys/trusted-type.h>
+ 
+ #include "fscrypt_private.h"
+ 
+@@ -701,6 +702,31 @@
+ 		return PTR_ERR(ref);
+ 	key = key_ref_to_ptr(ref);
+ 
++	/*
++	 * Allow a Linux "trusted" key (e.g. TPM- or TEE-sealed) to be used
++	 * directly as a v2 fscrypt master key, in addition to the normal
++	 * "fscrypt-provisioning" key type.  Trusted keys never expose their
++	 * raw payload to userspace, so the raw key never leaves the kernel.
++	 * Only allow this for non-hardware-wrapped v2 keys, since trusted
++	 * keys are not hardware-wrapped keys in the fscrypt sense.
++	 */
++	if (key->type == &key_type_trusted) {
++		const struct trusted_key_payload *tpayload;
++
++		if (type != FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER || flags != 0)
++			goto bad_key;
++		tpayload = key->payload.data[0];
++		if (tpayload->is_hw_bound)
++			goto bad_key;
++		if (tpayload->key_len < FSCRYPT_MIN_KEY_SIZE ||
++		    tpayload->key_len > FSCRYPT_MAX_RAW_KEY_SIZE)
++			goto bad_key;
++		secret->size = tpayload->key_len;
++		memcpy(secret->bytes, tpayload->key, secret->size);
++		err = 0;
++		goto out_put;
++	}
++
+ 	if (key->type != &key_type_fscrypt_provisioning)
+ 		goto bad_key;
+ 	payload = key->payload.data[0];
+-- 
+2.43.0
