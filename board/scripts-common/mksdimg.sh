@@ -276,13 +276,13 @@ if command -v bmaptool > /dev/null; then
 fi
 
 echo "[Compressing SD card image...]"
-xz -9cqT 0 "${TARGET}" > "${TARGET_FINAL}.xz"
+bzip2 -9c "${TARGET}" > "${TARGET_FINAL}.bz2"
 
-echo "[Image file: ${TARGET}.xz]"
+echo "[Image file: ${TARGET}.bz2]"
 echo "SD Card Programming, example using dd or bmaptool:"
-echo "  umount /dev/sdX? ; xz -dc ${TARGET_FINAL}.xz | sudo dd of=/dev/sdX bs=4M conv=fsync"
+echo "  umount /dev/sdX? ; bzip2 -dc ${TARGET_FINAL}.bz2 | sudo dd of=/dev/sdX bs=4M conv=fsync"
 if [ -f "${TARGET_FINAL}.bmap" ]; then
-	echo "  umount /dev/sdX? ; sudo bmaptool copy ${TARGET_FINAL}.xz /dev/sdX"
+	echo "  umount /dev/sdX? ; sudo bmaptool copy ${TARGET_FINAL}.bz2 /dev/sdX"
 fi
 
 # Flush file system buffers
