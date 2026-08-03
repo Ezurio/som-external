@@ -19,7 +19,7 @@ usage() {
 	echo "  -b: boot size in MiB" >&2
 	echo "  -p: perm size in MiB" >&2
 	echo "  -w: swap size in MiB" >&2
-	echo "  -u: add swu file to rootfs_data" >&2
+	echo "  -u: add swu file to rootfs_data (will be located in /rw)" >&2
 	echo "  -h: Show this help" >&2
 	echo "  <device> is the SD card to be programmed (e.g., /dev/sdc)"
 	exit 1
@@ -215,8 +215,8 @@ create_boot_partition() {
 		if [ -f "${SRCDIR}/tiboot3.bin.kw" ]; then
 			cp -t "${BOOT_PART}" "${SRCDIR}/tiboot3.bin.kw"
 		fi
-		if [ -f "${SRCDIR}/prov_data.tar.zst_sign_enc.bin" ]; then
-			cp -t "${BOOT_PART}" "${SRCDIR}/prov_data.tar.zst_sign_enc.bin"
+		if [ -f "${SRCDIR}/prov_data.tar.gz_sign_enc.bin" ]; then
+			cp -t "${BOOT_PART}" "${SRCDIR}/prov_data.tar.gz_sign_enc.bin"
 		fi
 	elif [ -f "${SRCDIR}/flash.bin" ]; then
 		if strings "${SRCDIR}/flash.bin" | grep -xq 'fsl,imx8m[mq]'; then

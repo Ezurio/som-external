@@ -5,9 +5,9 @@
 # This script provisions keys and certificates into the OP-TEE secure storage using
 # the pkcs11-tool utility and also copies provisioning data files to /data/prov directory.
 #
-# The prov_data.tar.zst is expected to have the following structure:
+# The prov_data.tar.gz is expected to have the following structure:
 #
-# prov_data.tar.zst
+# prov_data.tar.gz
 # ├── keystore
 # │   ├── 01
 # │   │   ├── cert
@@ -30,9 +30,9 @@
 set -e
 
 SUMMIT_PROV_MODULE="summit_prov"
-INPUT_FILE="/boot/prov_data.tar.zst_sign_enc.bin"
+INPUT_FILE="/boot/prov_data.tar.gz_sign_enc.bin"
 WORKDIR_TMP=$(mktemp -d -t import-keys.XXXXXX)
-OUTPUT_FILE="${WORKDIR_TMP}/prov_data.tar.zst"
+OUTPUT_FILE="${WORKDIR_TMP}/prov_data.tar.gz"
 P11_TOOL="/usr/bin/pkcs11-tool --module /usr/lib/libckteec.so"
 TOKEN_LABEL="summit-keystore"
 SO_PIN="1234567890"
@@ -159,7 +159,7 @@ if [ ! -f "${OUTPUT_FILE}" ]; then
     exit 1
 fi
 
-# Extract the certificates and private keys from decrypted keystore tar.zst
+# Extract the certificates and private keys from decrypted keystore tar.gz
 zstd -fdc "${OUTPUT_FILE}" | tar -xpf - -C "${WORKDIR_TMP}" || {
     echo "Failed to extract the decrypted keystore!"
     exit 1

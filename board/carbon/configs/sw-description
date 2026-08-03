@@ -78,12 +78,12 @@ software =
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
-					filename = "prov_data.tar.zst_sign_enc.bin";
-					path = "/prov_data.tar.zst_sign_enc.bin";
+					filename = "prov_data.tar.gz_sign_enc.bin";
+					path = "/prov_data.tar.gz_sign_enc.bin";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
 					installed-directly = true;
-					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
+					sha256 = "$swupdate_get_sha256(prov_data.tar.gz_sign_enc.bin)";
 				}
 			);
 
@@ -174,12 +174,12 @@ software =
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
-					filename = "prov_data.tar.zst_sign_enc.bin";
-					path = "/prov_data.tar.zst_sign_enc.bin";
+					filename = "prov_data.tar.gz_sign_enc.bin";
+					path = "/prov_data.tar.gz_sign_enc.bin";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
 					installed-directly = true;
-					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
+					sha256 = "$swupdate_get_sha256(prov_data.tar.gz_sign_enc.bin)";
 				}
 			);
 
@@ -318,18 +318,18 @@ software =
 					sha256 = "$swupdate_get_sha256(kernel.itb)";
 				},
 				{
-					filename = "prov_data.tar.zst_sign_enc.bin";
-					path = "/prov_data.tar.zst_sign_enc.bin";
+					filename = "prov_data.tar.gz_sign_enc.bin";
+					path = "/prov_data.tar.gz_sign_enc.bin";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@p1";
 					filesystem = "vfat";
-					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
+					sha256 = "$swupdate_get_sha256(prov_data.tar.gz_sign_enc.bin)";
 				},
 				{
-					filename = "prov_data.tar.zst_sign_enc.bin";
-					path = "/prov_data.tar.zst_sign_enc.bin";
+					filename = "prov_data.tar.gz_sign_enc.bin";
+					path = "/prov_data.tar.gz_sign_enc.bin";
 					device = "/dev/mmcblk@@EMMC_DEVICE@@p4";
 					filesystem = "vfat";
-					sha256 = "$swupdate_get_sha256(prov_data.tar.zst_sign_enc.bin)";
+					sha256 = "$swupdate_get_sha256(prov_data.tar.gz_sign_enc.bin)";
 				}
 			);
 
