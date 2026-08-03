@@ -37,7 +37,7 @@ Upstream-Status: Inappropriate Local requirement
  
  #include "fscrypt_private.h"
  
-@@ -701,6 +702,31 @@
+@@ -701,6 +702,29 @@
  		return PTR_ERR(ref);
  	key = key_ref_to_ptr(ref);
  
@@ -55,8 +55,6 @@ Upstream-Status: Inappropriate Local requirement
 +		if (type != FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER || flags != 0)
 +			goto bad_key;
 +		tpayload = key->payload.data[0];
-+		if (tpayload->is_hw_bound)
-+			goto bad_key;
 +		if (tpayload->key_len < FSCRYPT_MIN_KEY_SIZE ||
 +		    tpayload->key_len > FSCRYPT_MAX_RAW_KEY_SIZE)
 +			goto bad_key;

@@ -1,0 +1,84 @@
+From c7ccc95ecb767d4a204fef3a7436d67e49cbc795 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Thu, 2 Apr 2026 02:35:40 -0400
+Subject: [PATCH] fs_crypt: dm_crypt: Restored use of crypto engines
+
+armv7 CPUs do not have crypto hardware and require use of external
+crypto engines to be reasonable for crypto operations
+
+PROD-62700
+---
+ drivers/md/dm-crypt.c       | 10 +++++-----
+ fs/crypto/fscrypt_private.h |  5 ++++-
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index 5ef43231fe77..cdf14c4506b8 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -484,7 +484,7 @@ static int crypt_iv_lmk_ctr(struct crypt_config *cc, struct dm_target *ti,
+ 	}
+ 
+ 	lmk->hash_tfm = crypto_alloc_shash("md5", 0,
+-					   CRYPTO_ALG_ALLOCATES_MEMORY);
++					   0);
+ 	if (IS_ERR(lmk->hash_tfm)) {
+ 		ti->error = "Error initializing LMK hash";
+ 		return PTR_ERR(lmk->hash_tfm);
+@@ -818,7 +818,7 @@ static int crypt_iv_elephant_ctr(struct crypt_config *cc, struct dm_target *ti,
+ 	int r;
+ 
+ 	elephant->tfm = crypto_alloc_skcipher("ecb(aes)", 0,
+-					      CRYPTO_ALG_ALLOCATES_MEMORY);
++					      0);
+ 	if (IS_ERR(elephant->tfm)) {
+ 		r = PTR_ERR(elephant->tfm);
+ 		elephant->tfm = NULL;
+@@ -2382,7 +2382,7 @@ static int crypt_alloc_tfms_skcipher(struct crypt_config *cc, char *ciphermode)
+ 
+ 	for (i = 0; i < cc->tfms_count; i++) {
+ 		cc->cipher_tfm.tfms[i] = crypto_alloc_skcipher(ciphermode, 0,
+-						CRYPTO_ALG_ALLOCATES_MEMORY);
++						0);
+ 		if (IS_ERR(cc->cipher_tfm.tfms[i])) {
+ 			err = PTR_ERR(cc->cipher_tfm.tfms[i]);
+ 			crypt_free_tfms(cc);
+@@ -2409,7 +2409,7 @@ static int crypt_alloc_tfms_aead(struct crypt_config *cc, char *ciphermode)
+ 		return -ENOMEM;
+ 
+ 	cc->cipher_tfm.tfms_aead[0] = crypto_alloc_aead(ciphermode, 0,
+-						CRYPTO_ALG_ALLOCATES_MEMORY);
++						0);
+ 	if (IS_ERR(cc->cipher_tfm.tfms_aead[0])) {
+ 		err = PTR_ERR(cc->cipher_tfm.tfms_aead[0]);
+ 		crypt_free_tfms(cc);
+@@ -2918,7 +2918,7 @@ static int crypt_ctr_auth_cipher(struct crypt_config *cc, char *cipher_api)
+ 	if (!mac_alg)
+ 		return -ENOMEM;
+ 
+-	mac = crypto_alloc_ahash(mac_alg, 0, CRYPTO_ALG_ALLOCATES_MEMORY);
++	mac = crypto_alloc_ahash(mac_alg, 0, 0);
+ 	kfree(mac_alg);
+ 
+ 	if (IS_ERR(mac))
+diff --git a/fs/crypto/fscrypt_private.h b/fs/crypto/fscrypt_private.h
+index 4e8e82a9ccf9..384d21f97be1 100644
+--- a/fs/crypto/fscrypt_private.h
++++ b/fs/crypto/fscrypt_private.h
+@@ -59,9 +59,12 @@
+  * Note that fscrypt also supports inline crypto engines.  Those don't use the
+  * Crypto API and work much better than the old-style (non-inline) engines.
+  */
+-#define FSCRYPT_CRYPTOAPI_MASK                            \
++/*
++ #define FSCRYPT_CRYPTOAPI_MASK                            \
+ 	(CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY | \
+ 	 CRYPTO_ALG_KERN_DRIVER_ONLY)
++*/
++#define FSCRYPT_CRYPTOAPI_MASK 0
+ 
+ #define FSCRYPT_CONTEXT_V1	1
+ #define FSCRYPT_CONTEXT_V2	2
+-- 
+2.54.0
+

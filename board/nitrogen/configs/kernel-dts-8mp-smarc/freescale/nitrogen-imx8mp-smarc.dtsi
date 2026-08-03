@@ -229,7 +229,7 @@
 		#size-cells = <0>;
 
 		ethphy1: ethernet-phy@3 {
-			reg = <3>;			
+			reg = <3>;
 			compatible = "ethernet-phy-ieee802.3-c22";
 			interrupts-extended = <&gpio1 7 IRQ_TYPE_LEVEL_LOW>;
 		};
@@ -427,16 +427,16 @@
 	mcp23018: gpio@20 {
 		compatible = "microchip,mcp23018";
 		reg = <0x20>;
-		
+
 		gpio-controller;
 		#gpio-cells = <2>;
-		
+
 		interrupts-extended = <&gpio4 22 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
-		
+
 		microchip,irq-mirror;
-		
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c6_mcp23018>, <&mcp_pullups>;
 		reset-gpios = <&gpio4 27 GPIO_ACTIVE_LOW>;
@@ -996,6 +996,10 @@
 	fsl,ext-reset-output;
 
 	status = "okay";
+};
+
+&sec_jr2 {
+    status = "reserved";  // Job Ring 2 is used by OPTEE
 };
 
 &gpu3d {

@@ -71,12 +71,14 @@ index 559b8f9ef80a..7bf935f17af2 100644
  	if (mode == PHY_MODE_USB_DEVICE)
  		return imx8mq_phy_charger_detect(imx_phy);
  
-@@ -1185,7 +1204,7 @@ static int imx8mq_usb_phy_probe(struct platform_device *pdev)
+@@ -1185,8 +1204,8 @@ static int imx8mq_usb_phy_probe(struct platform_device *pdev)
  	if (IS_ERR(imx_phy->phy))
  		return PTR_ERR(imx_phy->phy);
  
 -	imx_phy->vbus = devm_regulator_get(dev, "vbus");
+-	if (IS_ERR(imx_phy->vbus))
 +	imx_phy->vbus = devm_regulator_get_optional(dev, "vbus");
- 	if (IS_ERR(imx_phy->vbus))
++	if (IS_ERR(imx_phy->vbus) && PTR_ERR(imx_phy->vbus) != -ENODEV)
  		return dev_err_probe(dev, PTR_ERR(imx_phy->vbus), "failed to get vbus\n");
  
+ 	phy_set_drvdata(imx_phy->phy, imx_phy);
