@@ -50,5 +50,5 @@ done
 /bin/umount ${OVERLAY_ROOT}${OVERLAY_ROOT}
 /bin/umount ${OVERLAY_ROOT}
 
-exec /bin/pre-systemd-init.sh restart
+exec /sbin/pre-systemd-init.sh restart
 "

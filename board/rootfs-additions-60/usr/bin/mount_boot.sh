@@ -14,7 +14,7 @@ die () {
 case "${1}" in
 start)
 	# shellcheck source=/dev/null
-	. /usr/bin/boot-rootfs.sh
+	. /usr/sbin/boot-rootfs.sh
 
 	case "${rootDevType:?}" in
 	SD|MMC)
