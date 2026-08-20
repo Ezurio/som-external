@@ -2,10 +2,12 @@
 Description=Summit Provisioning Service
 After=mount_boot.service
 Requires=mount_boot.service
+After=tee-supplicant@teepriv0.service
+Wants=tee-supplicant@teepriv0.service
 
 [Service]
 RemainAfterExit=yes
-ExecStart=/usr/bin/summit-prov.sh
+ExecStart=/usr/sbin/summit-prov.sh
 
 [Install]
 WantedBy=multi-user.target

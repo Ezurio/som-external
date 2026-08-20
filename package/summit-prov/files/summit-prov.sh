@@ -33,7 +33,7 @@ SUMMIT_PROV_MODULE="summit_prov"
 INPUT_FILE="/boot/prov_data.tar.gz_sign_enc.bin"
 WORKDIR_TMP=$(mktemp -d -t import-keys.XXXXXX)
 OUTPUT_FILE="${WORKDIR_TMP}/prov_data.tar.gz"
-P11_TOOL="/usr/bin/pkcs11-tool --module /usr/lib/libckteec.so"
+P11_TOOL="/usr/bin/pkcs11-tool --module /usr/lib/libckteec.so.0"
 TOKEN_LABEL="summit-keystore"
 SO_PIN="1234567890"
 PIN="12345"
@@ -44,11 +44,10 @@ PROVISIONING_DATA_DIR="/data/prov"
 DECRYPT_KEY=""
 DECRYPT_IV=""
 
-# shellcheck disable=SC2329
+#shellcheck disable=SC2329
 exit_on_error() {
     rm -rf "${WORKDIR_TMP}"
 }
-
 trap exit_on_error EXIT
 
 import_cert() {
@@ -149,7 +148,7 @@ if [ -n "${DECRYPT_KEY}" ]; then
     }
 fi
 
-/usr/bin/modprobe "${SUMMIT_PROV_MODULE}" input_file="${INPUT_FILE}" output_file="${OUTPUT_FILE}" use_ti_sci=${use_ti_sci} || {
+/usr/sbin/modprobe "${SUMMIT_PROV_MODULE}" input_file="${INPUT_FILE}" output_file="${OUTPUT_FILE}" use_ti_sci=${use_ti_sci} || {
     echo "Failed to load module ${SUMMIT_PROV_MODULE} for decryption!"
     exit 1
 }
@@ -160,7 +159,7 @@ if [ ! -f "${OUTPUT_FILE}" ]; then
 fi
 
 # Extract the certificates and private keys from decrypted keystore tar.gz
-zstd -fdc "${OUTPUT_FILE}" | tar -xpf - -C "${WORKDIR_TMP}" || {
+tar -xzpf "${OUTPUT_FILE}" -C "${WORKDIR_TMP}" || {
     echo "Failed to extract the decrypted keystore!"
     exit 1
 }
@@ -195,5 +194,5 @@ rm -rf "${INPUT_FILE}" "${WORKDIR_TMP}"
 # Mark device as provisioned
 mkdir -p /data
 touch "${PROVISIONED_FLAG}"
+sync
 echo "Provisioning completed successfully."
-exit 0

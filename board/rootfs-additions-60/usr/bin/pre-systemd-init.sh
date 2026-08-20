@@ -40,7 +40,7 @@ if [ "${1}" != "restart" ]; then
 		esac
 	fi
 
-	if ${overlay} && [ -x /usr/bin/init-overlay.sh ]; then
+	if ${overlay} && [ -x /usr/sbin/init-overlay.sh ]; then
 		# shellcheck source=/dev/null
 		. /usr/sbin/init-overlay.sh
 		exit 0
@@ -49,7 +49,7 @@ fi
 
 FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled || true)
 
-if [ "${FIPS_ENABLED:-0}" -eq 1 ] && [ -x /usr/bin/init-fips.sh ]; then
+if [ "${FIPS_ENABLED:-0}" -eq 1 ] && [ -x /usr/sbin/init-fips.sh ]; then
 	# shellcheck source=/dev/null
 	. /usr/sbin/init-fips.sh
 fi
@@ -68,7 +68,7 @@ PERM_DEVICE=/dev/$(getPart perm)
 /usr/bin/mount -t "${mountFsType:?}" -o "${PERM_MOUNT_OPTS}" "${PERM_DEVICE}" ${PERM_MOUNT} ||
 	die "Failed to mount ${PERM_DEVICE} on ${PERM_MOUNT}"
 
-if [ -f /etc/machine-id ]; then 
+if [ -f /etc/machine-id ]; then
 	# Make sure there is at least an empty machine-id file
 	# (Referenced from symlink on the rootfs)
 	if [ ! -f "${PERM_MOUNT}/etc/machine-id" ]; then
