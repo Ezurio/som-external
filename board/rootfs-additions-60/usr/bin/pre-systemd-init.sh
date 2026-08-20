@@ -72,7 +72,7 @@ PERM_DEVICE=/dev/$(getPart perm)
 # (Referenced from symlink on the rootfs)
 if [ ! -f "${PERM_MOUNT}/etc/machine-id" ]; then
 	mkdir -p "${PERM_MOUNT}/etc"
-	/usr/bin/hexdump -n 16 -e '1/1 "%02x"' /dev/urandom > "${PERM_MOUNT}/etc/machine-id"
+	od -An -t x1 -N 16 -w 16 /dev/urandom | tr -d ' \n' > "${PERM_MOUNT}/etc/machine-id"
 fi
 
 /usr/bin/mount --bind "${PERM_MOUNT}/etc/machine-id" /etc/machine-id
