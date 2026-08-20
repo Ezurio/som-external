@@ -18,7 +18,7 @@ die() {
 }
 
 # shellcheck source=/dev/null
-. /usr/bin/boot-rootfs.sh || die
+. /usr/sbin/boot-rootfs.sh || die
 
 if [ "${1}" != "restart" ]; then
 	mount /run 2> /dev/null || mount -t tmpfs tmpfs /run -o mode=0755,nodev,nosuid
@@ -42,7 +42,7 @@ if [ "${1}" != "restart" ]; then
 
 	if ${overlay} && [ -x /usr/bin/init-overlay.sh ]; then
 		# shellcheck source=/dev/null
-		. /usr/bin/init-overlay.sh
+		. /usr/sbin/init-overlay.sh
 		exit 0
 	fi
 fi
@@ -51,7 +51,7 @@ FIPS_ENABLED=$(/usr/sbin/sysctl -en crypto.fips_enabled || true)
 
 if [ "${FIPS_ENABLED:-0}" -eq 1 ] && [ -x /usr/bin/init-fips.sh ]; then
 	# shellcheck source=/dev/null
-	. /usr/bin/init-fips.sh
+	. /usr/sbin/init-fips.sh
 fi
 
 if [ -x /usr/bin/psplash ] && [ -e /dev/fb0 ]; then
@@ -68,11 +68,13 @@ PERM_DEVICE=/dev/$(getPart perm)
 /usr/bin/mount -t "${mountFsType:?}" -o "${PERM_MOUNT_OPTS}" "${PERM_DEVICE}" ${PERM_MOUNT} ||
 	die "Failed to mount ${PERM_DEVICE} on ${PERM_MOUNT}"
 
-# Make sure there is at least an empty machine-id file
-# (Referenced from symlink on the rootfs)
-if [ ! -f "${PERM_MOUNT}/etc/machine-id" ]; then
-	mkdir -p "${PERM_MOUNT}/etc"
-	od -An -t x1 -N16 -w16 /dev/urandom | tr -d ' \n' > "${PERM_MOUNT}/etc/machine-id"
+if [ -f /etc/machine-id ]; then 
+	# Make sure there is at least an empty machine-id file
+	# (Referenced from symlink on the rootfs)
+	if [ ! -f "${PERM_MOUNT}/etc/machine-id" ]; then
+		mkdir -p "${PERM_MOUNT}/etc"
+		od -An -t x1 -N 16 /dev/urandom | tr -d ' \n' > "${PERM_MOUNT}/etc/machine-id"
+	fi
 fi
 
 /usr/bin/mount --bind "${PERM_MOUNT}/etc/machine-id" /etc/machine-id

@@ -67,6 +67,10 @@ case "${rootDevActual}" in
 		rootDevType=ubi
 		mountFsType=ubifs
 		;;
+	ram0*)
+		rootDevType=initramfs
+		mountFsType=initramfs
+		;;
 	*)
 		die "ERROR: unsupported root device: ${rootDevActual}"
 		;;
@@ -115,6 +119,9 @@ getPart() {
 
 	ubi)
 		find_ubi_device "${part}"
+		;;
+	initramfs)
+		die "No partitions available when booting from initramfs"
 		;;
 	esac
 }

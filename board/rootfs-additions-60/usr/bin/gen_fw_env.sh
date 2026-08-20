@@ -7,7 +7,7 @@ set -e
 case "${1}" in
 start)
 	# shellcheck source=/dev/null
-	. /usr/bin/boot-rootfs.sh
+	. /usr/sbin/boot-rootfs.sh
 
 	case "${rootDevType:?}" in
 	MMC)
@@ -19,6 +19,9 @@ start)
 		;;
 	ubi)
 		fwenv=flash
+		;;
+	initramfs)
+		fwenv=initramfs
 		;;
 	esac
 	mount --bind "/etc/fw_env_${fwenv}.config" /etc/fw_env.config
