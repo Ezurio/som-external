@@ -79,6 +79,16 @@ endef
 LIBOPENSSL_3_0_POST_PATCH_HOOKS += LIBOPENSSL_3_0_POST_PATCH_CMD
 endif
 
+define HOST_LIBOPENSSL_3_0_POST_PATCH_CONFIG
+	printf '\n.include $(HOST_DIR)/etc/ssl/openssl.cnf.d\n' >> $(@D)/apps/openssl.cnf
+endef
+HOST_LIBOPENSSL_3_0_POST_PATCH_HOOKS += HOST_LIBOPENSSL_3_0_POST_PATCH_CONFIG
+
+define LIBOPENSSL_3_0_POST_PATCH_CONFIG
+	printf '\n.include /etc/ssl/openssl.cnf.d\n' >> $(@D)/apps/openssl.cnf
+endef
+LIBOPENSSL_3_0_POST_PATCH_HOOKS += LIBOPENSSL_3_0_POST_PATCH_CONFIG
+
 define HOST_LIBOPENSSL_3_0_CONFIGURE_CMDS
 	cd $(@D); \
 		$(HOST_CONFIGURE_OPTS) \
@@ -161,6 +171,7 @@ endef
 
 define HOST_LIBOPENSSL_3_0_INSTALL_CMDS
 	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) install
+	$(INSTALL) -d -m 0755 $(HOST_DIR)/etc/ssl/openssl.cnf.d
 endef
 
 define LIBOPENSSL_3_0_INSTALL_TARGET_CMDS
@@ -168,7 +179,8 @@ define LIBOPENSSL_3_0_INSTALL_TARGET_CMDS
 	rm -rf $(TARGET_DIR)/usr/lib/ssl
 	rm -f $(TARGET_DIR)/usr/bin/c_rehash
 	$(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc/ssl \
-		$(@D)/apps/openssl.cnf $(LIBOPENSSL_3_0_PKGDIR)/fipsmodule.cnf
+		$(@D)/apps/openssl.cnf
+	$(INSTALL) -d -m 0755 $(TARGET_DIR)/etc/ssl/openssl.cnf.d
 endef
 
 # libdl has no business in a static build
@@ -201,14 +213,6 @@ define LIBOPENSSL_3_0_REMOVE_LIBOPENSSL_3_0_ENGINES
 	rm -rf $(TARGET_DIR)/usr/lib/engines-3
 endef
 LIBOPENSSL_3_0_POST_INSTALL_TARGET_HOOKS += LIBOPENSSL_3_0_REMOVE_LIBOPENSSL_3_0_ENGINES
-endif
-
-ifeq ($(BR2_PACKAGE_PKCS11_PROVIDER),y)
-define LIBOPENSSL_3_0_INSTALL_PKCS11_MODULE_CNFS
-	$(SED) '/# pkcs11 = pkcs11_sect/c\pkcs11 = pkcs11_sect' \
-		$(TARGET_DIR)/etc/ssl/openssl.cnf
-endef
-LIBOPENSSL_3_0_POST_INSTALL_TARGET_HOOKS += LIBOPENSSL_3_0_INSTALL_PKCS11_MODULE_CNFS
 endif
 
 $(eval $(generic-package))

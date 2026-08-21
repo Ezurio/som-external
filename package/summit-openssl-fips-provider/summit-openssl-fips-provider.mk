@@ -19,8 +19,12 @@ else
   SUMMIT_OPENSSL_FIPS_PROVIDER_SITE = https://github.com/Ezurio/summit_openssl_fips_provider/releases/download/LRD-REL-$(SUMMIT_OPENSSL_FIPS_PROVIDER_VERSION)
 endif
 
+SUMMIT_OPENSSL_FIPS_PROVIDER_DEPENDENCIES = libopenssl_3_0
+
 define SUMMIT_OPENSSL_FIPS_PROVIDER_INSTALL_TARGET_CMDS
   rsync -rlpDWK --no-perms  $(@D)/usr $(TARGET_DIR)
+  $(INSTALL) -D -m 0644 -t $(TARGET_DIR)/etc/ssl/openssl.cnf.d \
+	  $(SUMMIT_OPENSSL_FIPS_PROVIDER_PKGDIR)/fips.cnf
 endef
 
 $(eval $(generic-package))

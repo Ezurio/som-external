@@ -1,12 +1,4 @@
-HOME = .
-
-openssl_conf = openssl_init
-
-[openssl_init]
-providers = provider_sect
-
 [provider_sect]
-default = default_sect
 pkcs11 = pkcs11_sect
 
 [pkcs11_sect]

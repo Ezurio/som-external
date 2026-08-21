@@ -6,3 +6,9 @@ security-checks = 1
 tls1-prf-ems-check = 0
 drbg-no-trunc-md = 1
 module-mac = fipscheck
+
+[provider_sect]
+fips = fips_sect
+
+[default_sect]
+activate = 1

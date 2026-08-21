@@ -1,3 +1,6 @@
+[provider_sect]
+pkcs11 = pkcs11_sect
+
 [pkcs11_sect]
 module = /usr/lib/ossl-modules/pkcs11.so
 pkcs11-module-path = /usr/lib/libckteec.so
