@@ -75,9 +75,9 @@ if [ -f /etc/machine-id ]; then
 		mkdir -p "${PERM_MOUNT}/etc"
 		od -An -t x1 -N 16 /dev/urandom | tr -d ' \n' > "${PERM_MOUNT}/etc/machine-id"
 	fi
-fi
 
-/usr/bin/mount --bind "${PERM_MOUNT}/etc/machine-id" /etc/machine-id
+	/usr/bin/mount --bind "${PERM_MOUNT}/etc/machine-id" /etc/machine-id
+fi
 
 [ ! -e /lib/systemd/systemd ] ||
 	mkdir -p "${PERM_MOUNT}/log/journal"
