@@ -1,0 +1,46 @@
+media: nxp: dwc-mipi-csi2: don't require clock lane stop state for continuous clock sensors
+
+dwc_csi_wait_for_phy_stopstate() unconditionally waits for the clock
+lane to reach stop state along with the data lanes, causing stream
+enable to fail:
+
+  dwc-mipi-csi2 4ad30000.csi: Lanes are not in stop state(0xf)
+  mxc-isi 4ad50000.isi: Failed to enable pipe 0
+
+The check is waiting for something that legitimately doesn't happen
+with this sensor, not a real link/wiring/timing fault: sensors using
+a continuous clock (the default per the CSI-2 spec unless the
+"clock-noncontinuous" endpoint property is present) keep the clock
+lane in HS mode for as long as they are streaming and never return
+it to stop state, while the data lanes idle normally between bursts.
+
+Only require the clock lane stop state when the source endpoint is
+configured for a non-continuous clock.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/drivers/media/platform/nxp/dwc-mipi-csi2.c b/drivers/media/platform/nxp/dwc-mipi-csi2.c
+index c6a375df2787..1a2b3c4d5e6f 100644
+--- a/drivers/media/platform/nxp/dwc-mipi-csi2.c
++++ b/drivers/media/platform/nxp/dwc-mipi-csi2.c
+@@ -708,9 +708,15 @@ static int dwc_csi_wait_for_phy_stopstate(struct dwc_csi_device *csidev)
+ 	u32 val;
+ 	int ret;
+ 
+-	/* Check if lanes are in stop state */
+-	phy_stopstate = CSI2RX_DPHY_STOPSTATE_CLK_LANE;
+-	phy_stopstate |= GENMASK(csidev->bus.num_data_lanes - 1, 0);
++	/*
++	 * Check if lanes are in stop state. The clock lane only enters
++	 * stop state between frames for sensors using a non-continuous
++	 * clock; continuous-clock sensors keep it in HS mode.
++	 */
++	phy_stopstate = GENMASK(csidev->bus.num_data_lanes - 1, 0);
++	if (csidev->bus.flags & V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK)
++		phy_stopstate |= CSI2RX_DPHY_STOPSTATE_CLK_LANE;
++
+ 	ret = readl_poll_timeout(csidev->regs + CSI2RX_DPHY_STOPSTATE,
+ 				 val, (val & phy_stopstate) == phy_stopstate,
+ 				 10, 10000);
