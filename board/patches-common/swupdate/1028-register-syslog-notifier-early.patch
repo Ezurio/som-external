@@ -1,0 +1,44 @@
+Register the syslog notifier as early as possible in main(), right after
+command-line/config-file parsing completes, instead of just before update
+processing begins. Previously, startup messages emitted between argument
+parsing and that later point (banner, registered update types, registered
+crypto providers, registered handlers, bootloader interface selection)
+were only sent to console_notifier and never reached syslog, even with
+-L/--syslog or syslog=true set, since syslog_notifier had not yet been
+registered when those notify() calls fired.
+
+Upstream-Status: Inappropriate [distro-specific logging behavior]
+Signed-off-by: Ezurio
+
+--- a/core/swupdate.c
++++ b/core/swupdate.c
+@@ -950,6 +950,17 @@
+ 	}
+ 
+ 	/*
++	 * Register syslog notifier as early as possible so that startup
++	 * messages (registered handlers, bootloader selection, etc.) are
++	 * also sent to syslog when -L/--syslog or syslog=true is set.
++	 */
++	if (swcfg.syslog_enabled) {
++		if (syslog_init()) {
++			ERROR("failed to initialize syslog notifier");
++		}
++	}
++
++	/*
+ 	 * Parameters are parsed: now performs plausibility
+ 	 * tests before starting processes and threads
+ 	 */
+@@ -1082,11 +1093,6 @@
+ 		INFO("Running on %s Revision %s", swcfg.hw.boardname, swcfg.hw.revision);
+ 
+ 	print_registered_handlers(true);
+-	if (swcfg.syslog_enabled) {
+-		if (syslog_init()) {
+-			ERROR("failed to initialize syslog notifier");
+-		}
+-	}
+ 
+ 	if (opt_e) {
+ 		if (parse_image_selector(software_select, &swcfg)) {
