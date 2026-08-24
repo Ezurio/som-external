@@ -66,10 +66,10 @@ software =
 
 			scripts: (
 				{
-					filename = "erase_data.sh";
+					filename = "erase_data_emmc.sh";
 					type = "postinstall";
 					data = "/dev/mmcblk@@EMMC_DEVICE@@p6 /dev/mmcblk@@EMMC_DEVICE@@p3";
-					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+					sha256 = "$swupdate_get_sha256(erase_data_emmc.sh)";
 				},
 				{
 					type = "emmc_boot";
@@ -139,10 +139,10 @@ software =
 
 			scripts: (
 				{
-					filename = "erase_data.sh";
+					filename = "erase_data_emmc.sh";
 					type = "postinstall";
 					data = "/dev/mmcblk@@EMMC_DEVICE@@p3 /dev/mmcblk@@EMMC_DEVICE@@p6";
-					sha256 = "$swupdate_get_sha256(erase_data.sh)";
+					sha256 = "$swupdate_get_sha256(erase_data_emmc.sh)";
 				},
 				{
 					type = "emmc_boot";
