@@ -12,11 +12,6 @@ export BUILD_TYPE="${2}"
 
 echo "${BR2_SUMMIT_PRODUCT^^} POST BUILD COMMON script: starting..."
 
-case "${BUILD_TYPE}" in
-*sd) SD=true  ;;
-  *) SD=false ;;
-esac
-
 # Determine if encrypted image being built
 grep -qF "BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT=y" "${BR2_CONFIG}" \
 	&& ENCRYPTED_TOOLKIT=true || ENCRYPTED_TOOLKIT=false
@@ -186,12 +181,7 @@ fi
 
 rm -rf "${TARGET_DIR}/var/www/swupdate"
 rm -f "${TARGET_DIR}/usr/lib/swupdate/conf.d/90-start-progress"
-
-if ${SD} && ! ${ENCRYPTED_TOOLKIT}; then
-	echo 'export TMPDIR=/opt/swupdate' > \
-		"${TARGET_DIR}/etc/swupdate/conf.d/90-tmpdir.conf"
-	mkdir -p "${TARGET_DIR}/opt/swupdate"
-fi
+mkdir -p "${TARGET_DIR}/opt/swupdate"
 
 if [ -x "${TARGET_DIR}/usr/lib/systemd/systemd" ]; then
 	rm -rf "${TARGET_DIR}/etc/init.d"
@@ -330,7 +320,7 @@ emmc_common_params() {
 
 		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
-		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data.sh"
+		ln -rsf "${CSCRIPT_DIR}/erase_data_emmc.sh" "${BINARIES_DIR}/erase_data_emmc.sh"
 
 		export linux_comp='zstd'
 		export UBOOT_ARCH='arm64'
@@ -376,7 +366,8 @@ case "${BUILD_TYPE}" in
 				;;
 		esac
 
-		if ${SD} ; then
+		case "${BUILD_TYPE}" in
+		*sd) 
 			if ! ${ENCRYPTED_TOOLKIT} && ! grep -qF "swap" "${TARGET_DIR}/etc/fstab"; then
 				echo '/dev/mmcblk0p2 none swap defaults 0 0' >> "${TARGET_DIR}/etc/fstab"
 			fi
@@ -387,10 +378,12 @@ case "${BUILD_TYPE}" in
 			# Copy mksdcard.sh and mksdimg.sh to images
 			ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 			ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
-		else
+			;;
+		*)
 			ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
 			ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
-		fi
+			;;
+		esac
 
 		export linux_comp='gzip'
 		export UBOOT_LOADADDRESS=0x20008000
@@ -431,11 +424,9 @@ case "${BUILD_TYPE}" in
 	am6*)
 		emmc_common_params
 
-		if grep -qF "BR2_PACKAGE_MTD=y" "${BR2_CONFIG}"; then
-			create_fw_env_flash
-			ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
-			ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
-		fi
+		create_fw_env_flash
+		ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
+		ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
 
 		export UBOOT_LOADADDRESS=0x82000000
 		export UBOOT_ENTRYPOINT=0x82000000
