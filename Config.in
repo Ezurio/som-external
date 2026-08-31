@@ -52,6 +52,19 @@ config BR2_SUMMIT_IMX_AHAB_FAMILY
 		  i.MX93  -> mimx9352
 		  i.MX95  -> mimx9596
 
+config BR2_SUMMIT_IMX_AHAB_AUTO_LOCK
+	bool "Advance ELE lifecycle to OEM locked"
+	depends on BR2_SUMMIT_SECURE_BOOT
+	depends on BR2_SUMMIT_IMX_AHAB
+	help
+		Once the device has reached OEM closed, ask the ELE to advance
+		to OEM locked and reset. This occurs on the boot after the one
+		that moved the device to OEM closed, not the first boot.
+
+		OEM locked enforces the full set of security policies and is
+		irreversible. Do not enable this until the OEM closed state has
+		been validated on the target hardware.
+
 config BR2_SUMMIT_LINUX_CUSTOM_DTB_FILTER
 	string "Custom device tree blobs filter"
 	help
