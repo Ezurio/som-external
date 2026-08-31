@@ -38,6 +38,13 @@ generate_custom_encrypted_filesystem() {
         customer_data_dir="${ENCRYPTED_FILESYSTEM_DATA_DIR}/"
     fi
 
+    # Skip the default example server cert/key in rodata when provisioning is enabled
+    if grep -qF "BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN=y" "${BR2_CONFIG}"; then
+        provisioning_enabled="true"
+    else
+        provisioning_enabled="false"
+    fi
+
     RODATA_DIR="${TARGET_DIR}/etc/rodata"
     mkdir -p "${RODATA_DIR}" || die "Failed to create ${RODATA_DIR}"
 
@@ -49,7 +56,8 @@ generate_custom_encrypted_filesystem() {
         "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.crt" \
         "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/server.key" \
         "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/configs-common/keys/rest-server/ca.crt" \
-        "${customer_data_dir}"
+        "${customer_data_dir}" \
+        "${provisioning_enabled}"
 
     [ -f "${RODATA_DIR}/rodata.img" ] || \
         die "Failed to generate encrypted filesystem"

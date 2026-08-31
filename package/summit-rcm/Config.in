@@ -40,27 +40,6 @@ config BR2_PACKAGE_SUMMIT_RCM_HTTPS_PORT
 	help
 		HTTPS port number for the Summit RCM REST API
 
-config BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE
-	string "REST API Server SSL Certificate"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
-	default "/etc/summit-rcm/ssl/server.crt"
-	help
-		Server SSL certificate for the Summit RCM REST API
-
-config BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_PRIVATE_KEY
-	string "REST API Server SSL Private Key"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
-	default "/etc/summit-rcm/ssl/server.key"
-	help
-		Server SSL private key for the Summit RCM REST API
-
-config BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE_CHAIN
-	string "REST API Server SSL Certificate Chain"
-	depends on BR2_PACKAGE_SUMMIT_RCM_REST_API
-	default "/etc/summit-rcm/ssl/ca.crt"
-	help
-		Server SSL certificate chain for the Summit RCM REST API
-
 config BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE
 	bool "AT Interface"
 	select BR2_PACKAGE_PYTHON_SERIAL_ASYNCIO

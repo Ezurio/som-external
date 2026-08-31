@@ -44,8 +44,9 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 	fi
 
 	# Factory data is only used with LCM/RCM
+	# (summit-rcm data is installed directly by summit-rcm.mk)
 	if [ -x $(TARGET_DIR)/usr/bin/summit-rcm ]; then \
-		for BACKUP_TARGET in "modem" "stunnel" "chrony" "summit-rcm"; do
+		for BACKUP_TARGET in "modem" "stunnel" "chrony"; do
 			if [ -d $(TARGET_DIR)/etc/"$${BACKUP_TARGET}" ];then \
 				mv $(TARGET_DIR)/etc/$${BACKUP_TARGET}/ $(BACKUP_SECRET_DIR); \
 				ln -sf /data/secret/$${BACKUP_TARGET} $(TARGET_DIR)/etc/$${BACKUP_TARGET}; \
@@ -86,17 +87,5 @@ define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
 endef
 
 SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOK
-
-ifneq ($(BR2_PACKAGE_SUMMIT_PROV),y)
-define SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_SUMMIT_RCM_RODATA_ROOTFS_PRE_CMD_HOOK
-	set -x
-
-	if [ -d $(BACKUP_SECRET_DIR)/summit-rcm/ssl ]; then \
-		rm -rf $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
-		ln -sf /rodata/secret/rest-server/ssl $(BACKUP_SECRET_DIR)/summit-rcm/ssl; \
-	fi
-endef
-SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_ROOTFS_PRE_CMD_HOOKS += SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_SUMMIT_RCM_RODATA_ROOTFS_PRE_CMD_HOOK
-endif
 
 $(eval $(generic-package))

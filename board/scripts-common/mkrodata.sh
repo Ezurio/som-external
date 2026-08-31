@@ -2,12 +2,12 @@
 #
 # mkrodata.sh - Create read-only factory data image
 #
-# usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>
+# usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data> <provisioning enabled>
 #
 # The optional customer data should be a directory containing anything a customer may require in rodata.
 # This provides a way to copy in data living in a custom br2-external.
 
-[ $# -lt 6 ] && echo "usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data>" && exit 1
+[ $# -lt 6 ] && echo "usage: mkrodata.sh <working_dir> <fscrypt_key> <update_pub_cert> <rest_server_cert> <rest_server_priv_key> <rest_server_certificate_chain> <optional customer data> <provisioning enabled>" && exit 1
 
 WORKING_DIR="${1:-.}"
 KEY_BIN="${2}"
@@ -16,6 +16,7 @@ REST_SERVER_CERT="${4}"
 REST_SERVER_PRIV_KEY="${5}"
 REST_SERVER_CERT_CHAIN="${6}"
 CUSTOMER_DIR="${7}"
+PROVISIONING_ENABLED="${8:-false}"
 
 RODATA_MNT_DIR="${WORKING_DIR}/mnt/rodata"
 SECRET_DIR="${RODATA_MNT_DIR}/secret"
@@ -78,19 +79,19 @@ fi
 mkdir -p "${SECRET_DIR}" || die "Failed to create ${SECRET_DIR}"
 
 #
-# Create and populate REST server certificate and key under encrypted directory
+# Create and populate REST server certificates and key under encrypted directory
 #
 mkdir -p "${REST_SERVER_SSL_DIR}" || die "Failed to create ${REST_SERVER_SSL_DIR}"
-cp "${REST_SERVER_CERT}" "${REST_SERVER_CERT_DEST}" || die "Failed to populate REST server certficate"
-cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_KEY_DEST}" || die "Failed to populate REST server key"
+if [ "${PROVISIONING_ENABLED}" = "true" ]; then
+  # Provisioning issues the server cert/key at runtime; bake the bootstrap trio instead
+  cp "${REST_SERVER_CERT}" "${REST_SERVER_PROVISIONING_CERT_DEST}" || die "Failed to populate REST server provisioning certficate"
+  cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_PROVISIONING_KEY_DEST}" || die "Failed to populate REST server provisioning key"
+  cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST}" || die "Failed to populate REST server provisioning certificate chain"
+else
+  cp "${REST_SERVER_CERT}" "${REST_SERVER_CERT_DEST}" || die "Failed to populate REST server certficate"
+  cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_KEY_DEST}" || die "Failed to populate REST server key"
+fi
 cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_CERT_CHAIN_DEST}" || die "Failed to populate REST server certificate chain"
-
-#
-# Populate REST server provisioning certificates and key under encrypted directory
-#
-cp "${REST_SERVER_CERT}" "${REST_SERVER_PROVISIONING_CERT_DEST}" || die "Failed to populate REST server provisioning certficate"
-cp "${REST_SERVER_PRIV_KEY}" "${REST_SERVER_PROVISIONING_KEY_DEST}" || die "Failed to populate REST server provisioning key"
-cp "${REST_SERVER_CERT_CHAIN}" "${REST_SERVER_PROVISIONING_CERT_CHAIN_DEST}" || die "Failed to populate REST server provisioning certificate chain"
 
 #
 # Create and populate update public certificate

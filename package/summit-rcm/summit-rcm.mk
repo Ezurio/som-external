@@ -40,7 +40,6 @@ endif
 
 ifneq ($(BR2_PACKAGE_SUMMIT_RCM_REST_API_V2_ROUTES)$(BR2_PACKAGE_SUMMIT_RCM_REST_API_LEGACY_ROUTES),)
 	SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/rest_api/services
-
 endif
 
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_AT_INTERFACE),y)
@@ -54,26 +53,38 @@ SUMMIT_RCM_EXTRA_PACKAGES += summit_rcm/services
 
 SUMMIT_RCM_ENV = SUMMIT_RCM_EXTRA_PACKAGES='$(SUMMIT_RCM_EXTRA_PACKAGES)'
 
-define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
-	$(INSTALL) -d $(TARGET_DIR)/etc/summit-rcm
+ifeq ($(BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT),y)
+SUMMIT_RCM_SETTINGS_INSTALL_PATH = /usr/share/factory/etc/secret/summit-rcm/summit-rcm-settings.ini
+else
+SUMMIT_RCM_SETTINGS_INSTALL_PATH = /etc/summit-rcm/summit-rcm-settings.ini
+endif
 
+define SUMMIT_RCM_POST_INSTALL_TARGET_HOOK_CMDS
 	$(INSTALL) -D -t $(TARGET_DIR)/etc -m 644 $(@D)/summit-rcm.ini
 
-	$(INSTALL) -D -t $(TARGET_DIR)/etc/summit-rcm/ssl -m 644 \
-		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.key \
-		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.crt \
-		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt
+	$(INSTALL) -D -m 644 $(@D)/summit-rcm-settings.txt \
+		$(TARGET_DIR)$(SUMMIT_RCM_SETTINGS_INSTALL_PATH)
 
-	$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin $(SUMMIT_RCM_PKGDIR)/factory_powerup_summit-rcm.sh
+	if [ "$(BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT_CREATE_RODATA)" = "y" ]; then \
+		$(INSTALL) -D -m 644 $(SUMMIT_RCM_PKGDIR)/ini.d/10-encrypted-storage-rodata.conf \
+			$(TARGET_DIR)/etc/summit-rcm.ini.d/10-encrypted-storage-rodata.conf; \
+		if [ "$(BR2_PACKAGE_SUMMIT_RCM_CERTIFICATE_PROVISIONING_PLUGIN)" = "y" ]; then \
+			$(INSTALL) -D -m 644 $(SUMMIT_RCM_PKGDIR)/ini.d/15-provisioning.conf \
+				$(TARGET_DIR)/etc/summit-rcm.ini.d/15-provisioning.conf; \
+		fi; \
+	else \
+		$(INSTALL) -D -m 644 $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.crt $(TARGET_DIR)/etc/summit-rcm/ssl/server.crt; \
+		$(INSTALL) -D -m 644 $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/server.key $(TARGET_DIR)/etc/summit-rcm/ssl/server.key; \
+		$(INSTALL) -D -m 644 $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/rest-server/ca.crt $(TARGET_DIR)/etc/summit-rcm/ssl/ca.crt; \
+	fi
+
+	if [ "$(BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT)" = "y" ]; then \
+		$(INSTALL) -D -m 755 -t $(TARGET_DIR)/sbin $(SUMMIT_RCM_PKGDIR)/factory_powerup_summit-rcm.sh; \
+		$(INSTALL) -D -m 644 $(SUMMIT_RCM_PKGDIR)/ini.d/10-encrypted-storage.conf \
+			$(TARGET_DIR)/etc/summit-rcm.ini.d/10-encrypted-storage.conf; \
+	fi
 
 	$(SED) '/^default_/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^server.ssl_certificate/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^server.ssl_private_key/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/^server.ssl_certificate_chain/d' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_certificate: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_private_key: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_PRIVATE_KEY)' $(TARGET_DIR)/etc/summit-rcm.ini
-	$(SED) '/\[global\]/a server.ssl_certificate_chain: $(BR2_PACKAGE_SUMMIT_RCM_SERVER_SSL_CERTIFICATE_CHAIN)' $(TARGET_DIR)/etc/summit-rcm.ini
-
 	$(SED) '/\[summit-rcm\]/a default_password: \"$(SUMMIT_RCM_DEFAULT_PASSWORD)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 	$(SED) '/\[summit-rcm\]/a default_username: \"$(SUMMIT_RCM_DEFAULT_USERNAME)\"' $(TARGET_DIR)/etc/summit-rcm.ini
 
