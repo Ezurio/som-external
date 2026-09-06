@@ -1,0 +1,701 @@
+state.titac5x1xsoundc {
+	control.1 {
+		iface CARD
+		name 'ts3a227e.2-003b-jack Jack'
+		value true
+		comment {
+			access read
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'ADC1 Common-mode Tolerance'
+		value 'AC/DC Coupled with 1Vpp'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'AC Coupled with 100mVpp'
+			item.1 'AC/DC Coupled with 1Vpp'
+			item.2 'AC/DC Coupled with Rail-to-rail'
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'ADC2 Common-mode Tolerance'
+		value 'AC/DC Coupled with 1Vpp'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'AC Coupled with 100mVpp'
+			item.1 'AC/DC Coupled with 1Vpp'
+			item.2 'AC/DC Coupled with Rail-to-rail'
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Playback Decimation Filter'
+		value 'Linear Phase'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Linear Phase'
+			item.1 'Low Latency'
+			item.2 'Ultra-low Latency'
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'DAC1 Audio BW'
+		value 'Audio BW 24-kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Audio BW 24-kHz'
+			item.1 'Wide BW 96-kHz'
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'OUT1P Analog Level Playback Volume'
+		value 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 6'
+			dbmin -1200
+			dbmax 2400
+			dbvalue.0 0
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'OUT1M Analog Level Playback Volume'
+		value 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 6'
+			dbmin -1200
+			dbmax 2400
+			dbvalue.0 0
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'DAC1 CHA Digital Playback Volume'
+		value 201
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -10000
+			dbmax 2750
+			dbvalue.0 50
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'DAC1 CHB Digital Playback Volume'
+		value 201
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -10000
+			dbmax 2750
+			dbvalue.0 50
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'DAC1 CHA Gain Calibration Playback Volume'
+		value 8
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 0
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'DAC1 CHB Gain Calibration Playback Volume'
+		value 8
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 0
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'ASI_RX_CH3_EN Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'ASI_RX_CH4_EN Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'ASI_RX_CH5_EN Playback'
+		value Disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disable
+			item.1 'DAC channel data'
+			item.2 'ADC channel output loopback'
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'ASI_RX_CH6_EN Playback'
+		value Disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disable
+			item.1 'DAC channel data'
+			item.2 'ADC channel output loopback'
+			item.3 'Channel Input to ICLA device'
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'ASI_RX_CH7_EN Playback'
+		value Disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disable
+			item.1 'DAC channel data'
+			item.2 'ADC channel output loopback'
+			item.3 'Channel Input to ICLA device'
+		}
+	}
+	control.17 {
+		iface MIXER
+		name 'ASI_RX_CH8_EN Playback'
+		value Disable
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disable
+			item.1 'DAC channel data'
+			item.2 'ADC channel output loopback'
+			item.3 'Channel Input to ICLA device'
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'ADC2 Audio BW'
+		value 'Audio BW 24-kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Audio BW 24-kHz'
+			item.1 'Wide BW 96-kHz'
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'ADC2 Digital Capture Volume'
+		value 161
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -8000
+			dbmax 4750
+			dbvalue.0 50
+		}
+	}
+	control.20 {
+		iface MIXER
+		name 'ADC2 Fine Capture Volume'
+		value 128
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 -5
+		}
+	}
+	control.21 {
+		iface MIXER
+		name 'ADC2 Phase Capture Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+		}
+	}
+	control.22 {
+		iface MIXER
+		name 'OUT2P Analog Level Playback Volume'
+		value 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 6'
+			dbmin -1200
+			dbmax 2400
+			dbvalue.0 0
+		}
+	}
+	control.23 {
+		iface MIXER
+		name 'OUT2M Analog Level Playback Volume'
+		value 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 6'
+			dbmin -1200
+			dbmax 2400
+			dbvalue.0 0
+		}
+	}
+	control.24 {
+		iface MIXER
+		name 'DAC2 CHA Digital Playback Volume'
+		value 201
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -10000
+			dbmax 2750
+			dbvalue.0 50
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'DAC2 CHB Digital Playback Volume'
+		value 201
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -10000
+			dbmax 2750
+			dbvalue.0 50
+		}
+	}
+	control.26 {
+		iface MIXER
+		name 'DAC2 CHA Gain Calibration Playback Volume'
+		value 8
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 0
+		}
+	}
+	control.27 {
+		iface MIXER
+		name 'DAC2 CHB Gain Calibration Playback Volume'
+		value 8
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 0
+		}
+	}
+	control.28 {
+		iface MIXER
+		name 'DAC2 Audio BW'
+		value 'Audio BW 24-kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Audio BW 24-kHz'
+			item.1 'Wide BW 96-kHz'
+		}
+	}
+	control.29 {
+		iface MIXER
+		name 'Record Decimation Filter'
+		value 'Linear Phase'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Linear Phase'
+			item.1 'Low Latency'
+			item.2 'Ultra-low Latency'
+		}
+	}
+	control.30 {
+		iface MIXER
+		name 'ADC1 Audio BW'
+		value 'Audio BW 24-kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Audio BW 24-kHz'
+			item.1 'Wide BW 96-kHz'
+		}
+	}
+	control.31 {
+		iface MIXER
+		name 'ADC1 Digital Capture Volume'
+		value 161
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -8000
+			dbmax 4750
+			dbvalue.0 50
+		}
+	}
+	control.32 {
+		iface MIXER
+		name 'ADC1 Fine Capture Volume'
+		value 128
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+			dbmin -80
+			dbmax 70
+			dbvalue.0 -5
+		}
+	}
+	control.33 {
+		iface MIXER
+		name 'ADC1 Phase Capture Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 63'
+		}
+	}
+	control.34 {
+		iface MIXER
+		name ASI_TX_CH5_CFG
+		value Tristate
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Tristate
+			item.1 'Input Channel Loopback data'
+			item.2 'Echo reference Channel data'
+		}
+	}
+	control.35 {
+		iface MIXER
+		name ASI_TX_CH6_CFG
+		value Tristate
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Tristate
+			item.1 'Input Channel Loopback data'
+			item.2 'Echo reference Channel data'
+		}
+	}
+	control.36 {
+		iface MIXER
+		name ASI_TX_CH7_CFG
+		value Tristate
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Tristate
+			item.1 'Vbat_Wlby2,Temp_Wlby2'
+			item.2 'echo_ref_ch1,echo_ref_ch2'
+		}
+	}
+	control.37 {
+		iface MIXER
+		name ASI_TX_CH8_CFG
+		value Tristate
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Tristate
+			item.1 'ICLA data'
+		}
+	}
+	control.38 {
+		iface CARD
+		name 'Headphone Jack'
+		value true
+		comment {
+			access read
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.39 {
+		iface MIXER
+		name 'ADC1 Full-Scale'
+		value '2/10-VRMS'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '2/10-VRMS'
+			item.1 '4/5-VRMS'
+		}
+	}
+	control.40 {
+		iface MIXER
+		name 'ADC1 Config'
+		value Single-ended
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Differential
+			item.1 Single-ended
+			item.2 'Single-ended mux INxP'
+			item.3 'Single-ended mux INxM'
+		}
+	}
+	control.41 {
+		iface MIXER
+		name 'ASI_TX_CH1_EN Capture Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.42 {
+		iface MIXER
+		name 'ASI_TX_CH2_EN Capture Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.43 {
+		iface MIXER
+		name 'OUT1x Source'
+		value 'DAC Input'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disabled
+			item.1 'DAC Input'
+			item.2 'Analog Bypass'
+			item.3 'DAC + Analog Bypass Mix'
+			item.4 'DAC -> OUTxP, INxP -> OUTxM'
+			item.5 'INxM -> OUTxP, DAC -> OUTxM'
+		}
+	}
+	control.44 {
+		iface MIXER
+		name 'OUT1x Config'
+		value 'Mono Single-ended at OUTxP only'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Differential
+			item.1 'Stereo Single-ended'
+			item.2 'Mono Single-ended at OUTxP only'
+			item.3 'Mono Single-ended at OUTxM only'
+			item.4 'Pseudo differential with OUTxM as VCOM'
+			item.5 'Pseudo differential with OUTxM as external sensing'
+			item.6 'Pseudo differential with OUTxP as VCOM'
+		}
+	}
+	control.45 {
+		iface MIXER
+		name 'OUT1x Driver'
+		value Line-out
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Line-out
+			item.1 Headphone
+			item.2 '4 ohm'
+			item.3 'FD Receiver/Debug'
+		}
+	}
+	control.46 {
+		iface MIXER
+		name 'ASI_RX_CH1_EN Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.47 {
+		iface MIXER
+		name 'OUT2x Source'
+		value 'DAC Input'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Disabled
+			item.1 'DAC Input'
+			item.2 'Analog Bypass'
+			item.3 'DAC + Analog Bypass Mix'
+			item.4 'DAC -> OUTxP, INxP -> OUTxM'
+			item.5 'INxM -> OUTxP, DAC -> OUTxM'
+		}
+	}
+	control.48 {
+		iface MIXER
+		name 'OUT2x Config'
+		value 'Mono Single-ended at OUTxP only'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Differential
+			item.1 'Stereo Single-ended'
+			item.2 'Mono Single-ended at OUTxP only'
+			item.3 'Mono Single-ended at OUTxM only'
+			item.4 'Pseudo differential with OUTxM as VCOM'
+			item.5 'Pseudo differential with OUTxP as VCOM'
+		}
+	}
+	control.49 {
+		iface MIXER
+		name 'OUT2x Driver'
+		value Line-out
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Line-out
+			item.1 Headphone
+			item.2 '4 ohm'
+			item.3 'FD Receiver/Debug'
+		}
+	}
+	control.50 {
+		iface MIXER
+		name 'ASI_RX_CH2_EN Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.51 {
+		iface MIXER
+		name 'ADC2 Full-Scale'
+		value '2/10-VRMS'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '2/10-VRMS'
+			item.1 '4/5-VRMS'
+		}
+	}
+	control.52 {
+		iface MIXER
+		name 'ADC2 Config'
+		value Differential
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Differential
+			item.1 Single-ended
+		}
+	}
+	control.53 {
+		iface MIXER
+		name 'IN1 Source Mux'
+		value Analog
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Analog
+			item.1 PDM
+		}
+	}
+	control.54 {
+		iface MIXER
+		name 'IN2 Source Mux'
+		value Analog
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Analog
+			item.1 PDM
+		}
+	}
+}

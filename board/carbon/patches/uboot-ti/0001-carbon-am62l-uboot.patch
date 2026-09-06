@@ -6,7 +6,7 @@ new file mode 100644
 index 00000000000..0d3648c0505
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
-@@ -0,0 +1,228 @@
+@@ -0,0 +1,247 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -160,6 +160,7 @@ index 00000000000..0d3648c0505
 +		tee: tee-os {
 +		};
 +
++#if IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)
 +		spl: section {
 +			u-boot-spl-nodtb {
 +			};
@@ -170,6 +171,11 @@ index 00000000000..0d3648c0505
 +				key-name-hint = "custMpk";
 +			};
 +		};
++#else
++		spl: u-boot-spl {
++			no-expanded;
++		};
++#endif
 +
 +	};
 +
@@ -179,7 +185,10 @@ index 00000000000..0d3648c0505
 +
 +		fit {
 +			description = "U-Boot fitImage for AM62Lx Carbon";
++
++#if IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)
 +			fit,sign;
++#endif
 +
 +			images {
 +				uboot {
@@ -190,12 +199,17 @@ index 00000000000..0d3648c0505
 +					compression = "none";
 +					load = <CONFIG_TEXT_BASE>;
 +
-+					blob {
++					ti-secure {
++						content = <&u_boot_nodtb>;
++						keyfile = "custMpk.pem";
++					};
++
++					u_boot_nodtb: blob {
 +						filename = "u-boot-nodtb.bin";
 +					};
 +
 +					hash {
-+						algo = "sha256";
++						algo = "sha512";
 +					};
 +				};
 +
@@ -204,13 +218,16 @@ index 00000000000..0d3648c0505
 +					type = "flat_dt";
 +					arch = "arm";
 +					compression = "none";
-+
++					ti-secure {
++						content = <&am62lx_carbon_dtb>;
++						keyfile = "custMpk.pem";
++					};
 +					am62lx_carbon_dtb: blob-ext {
 +						filename = "u-boot.dtb";
 +					};
 +
 +					hash {
-+						algo = "sha256";
++						algo = "sha512";
 +					};
 +				};
 +			};
@@ -224,11 +241,13 @@ index 00000000000..0d3648c0505
 +					loadables = "uboot";
 +					fdt = "fdt-0";
 +
++#if IS_ENABLED(CONFIG_SPL_FIT_SIGNATURE)
 +					signature {
 +						algo = "sha512,rsa4096";
 +						key-name-hint = "custMpk";
 +						sign-images = "firmware", "loadables", "fdt";
 +					};
++#endif
 +				};
 +
 +			};
@@ -240,7 +259,7 @@ new file mode 100644
 index 00000000000..bd016d100cd
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
-@@ -0,0 +1,233 @@
+@@ -0,0 +1,225 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -265,6 +284,14 @@ index 00000000000..bd016d100cd
 +
 +&memory {
 +	bootph-all;
++};
++
++&cbass_main {
++	system-controller {
++		compatible = "ti,am62l-sci";
++		ti,host-id = <12>;
++		bootph-all;
++	};
 +};
 +
 +&gpio0 {
@@ -413,22 +440,6 @@ index 00000000000..bd016d100cd
 +		gpios = <15 GPIO_ACTIVE_HIGH>;
 +		input;
 +	};
-+};
-+
-+&eth_mac0 {
-+	bootph-all;
-+};
-+
-+&eth_mac1 {
-+	bootph-all;
-+};
-+
-+&ram_type {
-+	bootph-all;
-+};
-+
-+&radio_type {
-+	bootph-all;
 +};
 +
 +&uart0_tx_pins_default {
@@ -1675,7 +1686,7 @@ diff --git a/arch/arm/mach-k3/am62lx/Kconfig b/arch/arm/mach-k3/am62lx/Kconfig
 index 1d89fe4e0b0..d2b6c5efcac 100644
 --- a/arch/arm/mach-k3/am62lx/Kconfig
 +++ b/arch/arm/mach-k3/am62lx/Kconfig
-@@ -16,8 +16,15 @@ config TARGET_AM62L3_EVM
+@@ -16,9 +16,16 @@ config TARGET_AM62L3_EVM
  	select OF_UPSTREAM
  	select OF_SYSTEM_SETUP
  
@@ -1687,6 +1698,7 @@ index 1d89fe4e0b0..d2b6c5efcac 100644
 +
  endchoice
  
+ source "board/beagle/beaglebadge/Kconfig"
  source "board/ti/am62lx/Kconfig"
 +source "board/summit/carbon-am62l/Kconfig"
  

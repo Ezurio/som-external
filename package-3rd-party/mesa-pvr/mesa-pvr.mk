@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-# corresponds to branch powervr/24.0.1
-MESA_PVR_VERSION = 7c82c1eebc67f5a62a347a84d42fe795cf7f523b
-MESA_PVR_SOURCE = mesa-$(MESA_PVR_VERSION).tar.bz2
-MESA_PVR_SITE = https://gitlab.freedesktop.org/StaticRocket/mesa/-/archive/$(MESA_PVR_VERSION)
+# corresponds to branch powervr/25.2.8
+MESA_PVR_VERSION = 0cb5bad52580f156b02125f4c7121ca7198e1489
+MESA_PVR_SOURCE = $(MESA_PVR_VERSION).tar.gz
+MESA_PVR_SITE = https://github.com/TexasInstruments/mesa/archive
 MESA_PVR_LICENSE = MIT, SGI, Khronos
 MESA_PVR_LICENSE_FILES = docs/license.rst
-MESA_PVR_CVE_VERSION = 24.0.1
+MESA_PVR_CVE_VERSION = 25.2.8
 MESA_PVR_CPE_ID_VENDOR = mesa3d
 MESA_PVR_CPE_ID_PRODUCT = mesa
 
@@ -22,20 +22,33 @@ MESA_PVR_DEPENDENCIES = \
 	host-bison \
 	host-flex \
 	host-python-mako \
+	host-python-pyyaml \
 	expat \
 	libdrm \
 	zlib
 
 MESA_PVR_CONF_OPTS = \
-	-Dgallium-omx=disabled \
-	-Dpower8=disabled \
 	-Dvideo-codecs=
 
-ifeq ($(BR2_PACKAGE_MESA_PVR_DRIVER)$(BR2_PACKAGE_XORG7),yy)
-MESA_PVR_CONF_OPTS += -Ddri3=enabled
-MESA_PVR_DEPENDENCIES += xlib_libxshmfence
+ifeq ($(BR2_PACKAGE_MESA_PVR_OPENCL),y)
+MESA_PVR_PROVIDES += libopencl
+MESA_PVR_DEPENDENCIES += \
+	host-rustc \
+	host-rust-bindgen \
+	clang \
+	libclc \
+	spirv-tools \
+	spirv-llvm-translator \
+	opencl-icd-loader
+MESA_PVR_CONF_OPTS += \
+	-Dgallium-rusticl=true \
+	-Drust_std=2021 \
+	-Dmesa-clc-bundle-headers=enabled
+MESA_PVR_MESON_EXTRA_BINARIES += \
+	rust=['$(HOST_DIR)/bin/rustc','--target=$(RUSTC_TARGET_NAME)'] \
+	rust_ld='$(TARGET_CROSS)gcc'
 else
-MESA_PVR_CONF_OPTS += -Ddri3=disabled
+MESA_PVR_CONF_OPTS += -Dgallium-rusticl=false
 endif
 
 ifeq ($(BR2_PACKAGE_MESA_PVR_LLVM),y)
@@ -59,29 +72,20 @@ endif
 ifeq ($(BR2_PACKAGE_MESA_PVR_OPENGL_GLX),y)
 # Disable-mangling not yet supported by meson build system.
 # glx:
-#  dri          : dri based GLX requires at least one DRI driver || dri based GLX requires shared-glapi
+#  dri          : dri based GLX requires at least one DRI driver
 #  xlib         : xlib conflicts with any dri driver
 # Always enable glx-direct; without it, many GLX applications don't work.
 MESA_PVR_CONF_OPTS += \
 	-Dglx=dri \
-	-Dglx-read-only-text=true \
 	-Dglx-direct=true
-ifeq ($(BR2_PACKAGE_MESA_PVR_NEEDS_XA),y)
-MESA_PVR_CONF_OPTS += -Dgallium-xa=enabled
 else
-MESA_PVR_CONF_OPTS += -Dgallium-xa=disabled
-endif
-else
-MESA_PVR_CONF_OPTS += \
-	-Dglx=disabled \
-	-Dgallium-xa=disabled
+MESA_PVR_CONF_OPTS += -Dglx=disabled
 endif
 
 # Drivers
 
-#Gallium Drivers
-MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SWRAST)   += swrast
-MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_VIRGL)    += virgl
+# Gallium Drivers
+MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_LLVMPIPE) += llvmpipe
 MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ZINK)     += zink
 MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ROGUE)    += pvr
 MESA_PVR_GALLIUM_DRIVERS-$(BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SGX)      += sgx
@@ -96,7 +100,6 @@ MESA_PVR_CONF_OPTS += \
 	-Dgallium-extra-hud=false
 else
 MESA_PVR_CONF_OPTS += \
-	-Dshared-glapi=enabled \
 	-Dgallium-drivers=$(subst $(space),$(comma),$(MESA_PVR_GALLIUM_DRIVERS-y)) \
 	-Dgallium-extra-hud=true
 endif
@@ -111,12 +114,6 @@ MESA_PVR_CONF_OPTS += \
 endif
 
 # APIs
-
-ifeq ($(BR2_PACKAGE_MESA_PVR_OSMESA_GALLIUM),y)
-MESA_PVR_CONF_OPTS += -Dosmesa=true
-else
-MESA_PVR_CONF_OPTS += -Dosmesa=false
-endif
 
 # Always enable OpenGL:
 #   - Building OpenGL ES without OpenGL is not supported, so always keep opengl enabled.
@@ -221,10 +218,10 @@ ifneq ($(BR2_PACKAGE_MESA_PVR_OPENGL_GLX)$(BR2_PACKAGE_MESA_PVR_OPENGL_EGL),)
 MESA_PVR_DEPENDENCIES += libglvnd
 MESA_PVR_CONF_OPTS += -Dglvnd=true
 else
-MESA_PVR_CONF_OPTS += -Dglvnd=false
+MESA_PVR_CONF_OPTS += -Dglvnd=disabled
 endif
 else
-MESA_PVR_CONF_OPTS += -Dglvnd=false
+MESA_PVR_CONF_OPTS += -Dglvnd=disabled
 endif
 
 $(eval $(meson-package))

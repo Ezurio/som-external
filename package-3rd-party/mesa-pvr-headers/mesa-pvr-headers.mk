@@ -12,13 +12,13 @@ endif
 
 # Not possible to directly refer to mesa3d variables, because of
 # first/second expansion trickery...
-MESA_PVR_HEADERS_VERSION = 82e6a9293c476267417c5b6b906b01fb73a34e38
-MESA_PVR_SOURCE = mesa-$(MESA_PVR_HEADERS_VERSION).tar.bz2
-MESA_PVR_HEADERS_SITE = https://gitlab.freedesktop.org/StaticRocket/mesa/-/archive/$(MESA_PVR_VERSION)
+MESA_PVR_HEADERS_VERSION = 0cb5bad52580f156b02125f4c7121ca7198e1489
+MESA_PVR_HEADERS_SOURCE = $(MESA_PVR_HEADERS_VERSION).tar.gz
+MESA_PVR_HEADERS_SITE = https://github.com/TexasInstruments/mesa/archive
 MESA_PVR_HEADERS_DL_SUBDIR = mesa-pvr
 MESA_PVR_HEADERS_LICENSE = MIT, SGI, Khronos
 MESA_PVR_HEADERS_LICENSE_FILES = docs/license.rst
-MESA_PVR_HEADERS_CVE_VERSION = 24.0.1
+MESA_PVR_HEADERS_CVE_VERSION = 25.2.8
 MESA_PVR_HEADERS_CPE_ID_VENDOR = mesa3d
 MESA_PVR_HEADERS_CPE_ID_PRODUCT = mesa
 

@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-# 25.2.6850647
-TI_ROGUE_UM_VERSION = 2ecc98c61aedd931d8acf6fb4a1150ebf57fb178
+# 26.1.6967606
+TI_ROGUE_UM_VERSION = a59e0e6b92dfee7aad046b839cf6ae644355b89d
 TI_ROGUE_UM_SITE = $(call github,TexasInstruments,ti-img-rogue-umlibs,$(TI_ROGUE_UM_VERSION))
 TI_ROGUE_UM_LICENSE = TI TSPA License
 TI_ROGUE_UM_LICENSE_FILES = LICENSE

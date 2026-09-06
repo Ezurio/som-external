@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/rtc/rtc-rv3028.c
 +++ b/drivers/rtc/rtc-rv3028.c
-@@ -1015,6 +1015,14 @@
+@@ -1012,6 +1012,14 @@
  	if (ret)
  		return ret;
  

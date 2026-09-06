@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnov@summit-som.com>
+Date: Mon, 31 Aug 2026 00:00:00 +0000
+Subject: [PATCH] net: ti: keep CPSW ALE in the NUSS module
+
+Keep the CPSW ALE and switch-layer objects in the NUSS module so its
+policer symbols are available when the driver is built as a module.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnov@summit-som.com>
+---
+ drivers/net/ethernet/ti/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/ethernet/ti/Makefile
++++ b/drivers/net/ethernet/ti/Makefile
+@@ -35,2 +35,3 @@
+-obj-$(CONFIG_TI_K3_AM65_CPSW_NUSS) += ti-am65-cpsw-nuss.o ti-cpsw-sl.o ti-cpsw-ale.o
++obj-$(CONFIG_TI_K3_AM65_CPSW_NUSS) += ti-am65-cpsw-nuss.o
+ ti-am65-cpsw-nuss-y := am65-cpsw-nuss.o am65-cpsw-ethtool.o am65-cpsw-xdp.o
++ti-am65-cpsw-nuss-y += cpsw_sl.o cpsw_ale.o
+-- 
+2.39.5

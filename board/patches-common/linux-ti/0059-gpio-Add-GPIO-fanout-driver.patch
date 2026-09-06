@@ -40,7 +40,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -2016,6 +2016,17 @@ config GPIO_SIM
+@@ -2015,6 +2015,17 @@ config GPIO_SIM
  	  This enables the GPIO simulator - a configfs-based GPIO testing
  	  driver.
  
