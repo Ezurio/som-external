@@ -9,6 +9,7 @@
 /plugin/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 
 &reg_wifi_en {
 	startup-delay-us = <10000>;
