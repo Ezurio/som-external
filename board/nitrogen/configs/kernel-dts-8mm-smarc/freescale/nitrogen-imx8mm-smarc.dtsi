@@ -156,6 +156,33 @@
 		enable-active-high;
 	};
 
+	wifi_wakeup: wifi-wakeup {
+		compatible = "gpio-keys";
+
+		status = "disabled";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wifi_wake>, <&pinctrl_bt_wake>;
+
+		wifi-wake {
+			label = "Wi-Fi Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&gpio1 12 IRQ_TYPE_EDGE_FALLING>;	/* WIFI_SDIO_WAKE */
+			interrupt-names = "irq";
+		};
+
+		bt-wake {
+			label = "BT Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&gpio3 14 IRQ_TYPE_EDGE_FALLING>;	/* BT_HOST_WAKE */
+			interrupt-names = "irq";
+		};
+	};
+
 	display-subsystem {
 		status = "disabled";
 	};
@@ -815,6 +842,19 @@
 			MX8MM_IOMUXC_GPIO1_IO00_ANAMIX_REF_CLK_32K	0x03
 		>;
 	};
+
+	pinctrl_wifi_wake: wifi-wakegrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x1c0	/* WIFI_SDIO_WAKE */
+		>;
+	};
+
+	pinctrl_bt_wake: bt-wakegrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_NAND_DQS_GPIO3_IO14	0x1c0	/* BT_HOST_WAKE */
+		>;
+	};
+
 };
 
 &pgc_gpu {

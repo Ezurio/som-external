@@ -51,18 +51,18 @@
 	};
 
 	memory@80000000 {
-		device_type = "memory";
 		reg = <0x0 0x80000000 0 0x80000000>;
 	};
 
 	reserved-memory {
 		ranges;
+
 		#address-cells = <2>;
 		#size-cells = <2>;
 
 		linux_cma: linux,cma {
 			compatible = "shared-dma-pool";
-			alloc-ranges = <0 0x80000000 0 0x7F000000>;
+			alloc-ranges = <0 0x80000000 0 0x7f000000>;
 			reusable;
 			size = <0 0x3c000000>;
 			linux,cma-default;
@@ -73,7 +73,7 @@
 			no-map;
 		};
 
-		mali_protected: mali_protected {
+		mali_protected: mali_protected@a0100000 {
 			reg = <0 0xa0100000 0 0x1000000>;
 			no-map;
 		};
@@ -86,8 +86,8 @@
 	};
 
 	mali_pma: protected-memory-allocator {
-		 compatible = "arm,protected-memory-allocator";
-		 memory-region = <&mali_protected>;
+		compatible = "arm,protected-memory-allocator";
+		memory-region = <&mali_protected>;
 	};
 
 	reset_ctrl {
@@ -208,6 +208,33 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_ethphy0_reset>, <&pinctrl_ethphy1_reset>;
 		gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>, <&gpio2 18 GPIO_ACTIVE_HIGH>;
+	};
+
+	wifi_wakeup: wifi-wakeup {
+		compatible = "gpio-keys";
+
+		status = "disabled";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_bt_wake>;
+
+		wifi-wake {
+			label = "Wi-Fi Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&pcal6524 0 IRQ_TYPE_EDGE_FALLING>;	/* WIFI_SDIO_WAKE */
+			interrupt-names = "irq";
+		};
+
+		bt-wake {
+			label = "BT Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&gpio5 3 IRQ_TYPE_EDGE_FALLING>;	/* BT_HOST_WAKE */
+			interrupt-names = "irq";
+		};
 	};
 };
 
@@ -680,8 +707,6 @@
 		fsl,pins = <
 			IMX95_PAD_I2C2_SCL__AONMIX_TOP_LPI2C2_SCL	0x40000b9e
 			IMX95_PAD_I2C2_SDA__AONMIX_TOP_LPI2C2_SDA	0x40000b9e
-			IMX95_PAD_GPIO_IO34__GPIO5_IO_BIT14		0x31e
-			IMX95_PAD_GPIO_IO35__GPIO5_IO_BIT15		0x31e
 		>;
 	};
 
@@ -915,6 +940,12 @@
 		fsl,pins = <
 			IMX95_PAD_GPIO_IO34__GPIO5_IO_BIT14		0x31e
 			IMX95_PAD_GPIO_IO35__GPIO5_IO_BIT15		0x131e
+		>;
+	};
+
+	pinctrl_bt_wake: bt-wake {
+		fsl,pins = <
+			IMX95_PAD_XSPI1_DATA3__GPIO5_IO_BIT3		0x131e
 		>;
 	};
 };

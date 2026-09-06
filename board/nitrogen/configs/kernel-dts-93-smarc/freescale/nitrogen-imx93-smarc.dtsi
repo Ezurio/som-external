@@ -149,6 +149,30 @@
 		enable-active-high;
 	};
 
+	wifi_wakeup: wifi-wakeup {
+		compatible = "gpio-keys";
+
+		status = "disabled";
+
+		wifi-wake {
+			label = "Wi-Fi Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&pcal6534 3 IRQ_TYPE_EDGE_FALLING>;	/* WIFI_SDIO_WAKE */
+			interrupt-names = "irq";
+		};
+
+		bt-wake {
+			label = "BT Wake Up";
+			linux,code = <KEY_WAKEUP>;
+			wakeup-source;
+
+			interrupts-extended = <&pcal6534 6 IRQ_TYPE_EDGE_FALLING>;	/* BT_HOST_WAKE */
+			interrupt-names = "irq";
+		};
+	};
+
 	display-subsystem {
 		status = "disabled";
 	};
