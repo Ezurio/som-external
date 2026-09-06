@@ -1,0 +1,176 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D/E Dual Lane to HDMI LT2611UXD expansion board for Carbon AM67x
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&{/} {
+	hdmi_connector_d: hdmi-connector-d {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_d_in: endpoint {
+				remote-endpoint = <&hdmi_bridge_d_out_ep>;
+			};
+		};
+	};
+
+	reg_lvds_d: regulator-lvds-d {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_lvds_d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3_carrier>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_d_power_default>;
+		gpios = <&main_gpio0 51 GPIO_ACTIVE_HIGH>;  /* GPIO_B_6 / LVDS_D_VDD_EN */
+		enable-active-high;
+		startup-delay-us = <10000>;
+		regulator-always-on;
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss0 {
+	status = "okay";
+};
+
+&dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi0_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_0_in>;
+		};
+
+		dpi0_out1: endpoint@1 {
+			reg = <1>;
+			remote-endpoint = <&oldi_1_in>;
+		};
+	};
+};
+
+&oldi0_dss0 {
+	status = "okay";
+	ti,oldi-io-ctrl = <&dss_oldi_io_ctrl>;
+	ti,companion-oldi = <&oldi1_dss0>;
+};
+
+&oldi0_dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+
+		oldi_0_in: endpoint {
+			remote-endpoint = <&dpi0_out0>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+
+		oldi_0_out: endpoint {
+			remote-endpoint = <&hdmi_bridge_d_in_ep>;
+		};
+	};
+};
+
+&oldi1_dss0 {
+	status = "okay";
+	ti,secondary-oldi;
+	ti,companion-oldi = <&oldi0_dss0>;
+};
+
+&oldi1_dss0_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+
+		oldi_1_in: endpoint {
+			remote-endpoint = <&dpi0_out1>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+
+		oldi_1_out: endpoint {
+			remote-endpoint = <&hdmi_bridge_e_in_ep>;
+		};
+	};
+};
+
+&i2c_port_d {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hdmi-bridge-d@41 {
+		compatible = "lontium,lt2611uxd";
+		reg = <0x41>;
+
+		interrupts-extended = <&exp2 2 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
+		reset-gpios = <&exp2 3 GPIO_ACTIVE_LOW>;
+
+		vdd-supply = <&reg_1v8_carrier>;
+		vcc-supply = <&reg_lvds_d>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				dual-lvds-odd-pixels;
+
+				hdmi_bridge_d_in_ep: endpoint {
+					remote-endpoint = <&oldi_0_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				dual-lvds-even-pixels;
+
+				hdmi_bridge_e_in_ep: endpoint {
+					remote-endpoint = <&oldi_1_out>;
+				};
+			};
+
+			port@4 {
+				reg = <4>;
+
+				hdmi_bridge_d_out_ep: endpoint {
+					remote-endpoint = <&hdmi_connector_d_in>;
+				};
+			};
+		};
+	};
+};

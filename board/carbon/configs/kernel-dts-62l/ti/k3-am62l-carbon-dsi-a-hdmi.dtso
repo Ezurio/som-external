@@ -1,0 +1,97 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * DSI A to HDMI LT9611UXD Expansion Board for Carbon AM62Lx
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&{/} {
+	hdmi-connector-a {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_a_in: endpoint {
+				remote-endpoint = <&lt9611uxd_out>;
+			};
+		};
+	};
+
+	reg_dsi_a: regulator-dsi-a {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_dsi_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3_carrier>;
+
+		gpios = <&exp0 14 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <20000>;
+		regulator-always-on;
+	};
+};
+
+&dss {
+	status = "okay";
+};
+
+&dphy_tx0 {
+	status = "okay";
+};
+
+&dsi0_out {
+	remote-endpoint = <&lt9611uxd_in>;
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hdmi-bridge-dsi-a@4f {
+		compatible = "lontium,lt9611uxd";
+		reg = <0x4f>;
+
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_LOW>;
+
+		interrupts-extended = <&exp2 15 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "irq";
+
+		vdd-supply = <&reg_1v8>;
+		vcc-supply = <&reg_dsi_a>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				lt9611uxd_in: endpoint {
+					remote-endpoint = <&dsi0_out>;
+					data-lanes = <1 2 3 4>;
+					clock-lanes = <0>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				lt9611uxd_out: endpoint {
+					remote-endpoint = <&hdmi_connector_a_in>;
+				};
+			};
+		};
+	};
+};

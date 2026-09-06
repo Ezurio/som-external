@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Wed, 26 Aug 2026 12:00:00 +0000
+Subject: [PATCH] drm/imx: dw_mipi_dsi: defer component_add to host attach
+
+Move component_add() / component_del() from probe/remove to host
+attach/detach. This ensures that downstream bridges (such as I2C-based
+bridge chips like LT9611C) have probed, registered their drm_bridge, and
+attached to the DSI host before imx-drm-core attempts to bind the display
+pipeline and look up downstream bridges.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+---
+ drivers/gpu/drm/imx/dw_mipi_dsi-imx.c | 30 ++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
+--- a/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
++++ b/drivers/gpu/drm/imx/dw_mipi_dsi-imx.c
+@@ -416,19 +416,38 @@ static const struct dw_mipi_dsi_phy_ops dw_mipi_dsi_imx_phy_ops = {
+ 	.get_timing = dw_mipi_dsi_phy_get_timing,
+ };
+ 
++static const struct component_ops dw_mipi_dsi_imx_ops;
++
+ static int dw_mipi_dsi_imx_host_attach(void *priv_data,
+ 				       struct mipi_dsi_device *device)
+ {
+ 	struct dw_mipi_dsi_imx *dsi = priv_data;
++	int ret;
+ 
+ 	dsi->lanes = device->lanes;
+ 	dsi->format = device->format;
+ 
++	ret = component_add(dsi->dev, &dw_mipi_dsi_imx_ops);
++	if (ret) {
++		if (ret != -EPROBE_DEFER)
++			DRM_DEV_ERROR(dsi->dev, "failed to register component: %d\n", ret);
++	}
++
++	return ret;
++}
++
++static int dw_mipi_dsi_imx_host_detach(void *priv_data,
++				       struct mipi_dsi_device *device)
++{
++	struct dw_mipi_dsi_imx *dsi = priv_data;
++
++	component_del(dsi->dev, &dw_mipi_dsi_imx_ops);
+ 	return 0;
+ }
+ 
+ static const struct dw_mipi_dsi_host_ops dw_mipi_dsi_imx_host_ops = {
+ 	.attach = dw_mipi_dsi_imx_host_attach,
++	.detach = dw_mipi_dsi_imx_host_detach,
+ };
+ 
+ static int
+@@ -607,22 +626,13 @@ static int dw_mipi_dsi_imx_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = component_add(dev, &dw_mipi_dsi_imx_ops);
+-	if (ret) {
+-		if (ret != -EPROBE_DEFER)
+-			DRM_DEV_ERROR(dev, "failed to register component: %d\n", ret);
+-		dw_mipi_dsi_remove(dsi->dmd);
+-	}
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static void dw_mipi_dsi_imx_remove(struct platform_device *pdev)
+ {
+ 	struct dw_mipi_dsi_imx *dsi = platform_get_drvdata(pdev);
+ 
+-	component_del(dsi->dev, &dw_mipi_dsi_imx_ops);
+-
+ 	dw_mipi_dsi_remove(dsi->dmd);
+ 
+ 	clk_disable_unprepare(dsi->byte_clk);
+-- 
+2.55.0

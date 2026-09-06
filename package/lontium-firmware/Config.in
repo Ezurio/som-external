@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LONTIUM_FIRMWARE
+	bool "Lontium bridge firmware"
+	help
+	  Firmware files for Lontium LT2611UXD/UXE and LT9611C/UXD
+	  display bridge devices.

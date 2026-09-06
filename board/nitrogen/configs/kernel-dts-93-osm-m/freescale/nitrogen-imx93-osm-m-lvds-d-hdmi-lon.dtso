@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D to HDMI LT2611UXD expansion board for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "nitrogen-imx93-bd-panel.dtsi"
+
+&{/} {
+	hdmi_connector_d: hdmi-connector-d {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_d_in: endpoint {
+				remote-endpoint = <&hdmi_bridge_d_out_ep>;
+			};
+		};
+	};
+
+	reg_lvds_d: regulator-lvds-d {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_lvds_d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3>;
+
+		gpio = <&exp0 20 GPIO_ACTIVE_HIGH>; /* GPIO_B_6 / LVDS_D_VDD_EN */
+		enable-active-high;
+		startup-delay-us = <10000>;
+		regulator-always-on;
+	};
+
+	display-subsystem {
+		status = "okay";
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	lvds-channel@0 {
+		status = "okay";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			reg = <1>;
+
+			lvds_d_out_ep: endpoint {
+				remote-endpoint = <&hdmi_bridge_d_in_ep>;
+			};
+		};
+	};
+};
+
+&ldb_phy {
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&lcdif {
+	assigned-clock-rates = <519750000>, <74250000>, <400000000>, <133333333>;
+	status = "okay";
+};
+
+&i2c_port_d {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hdmi-bridge-d@41 {
+		compatible = "lontium,lt2611uxd";
+		reg = <0x41>;
+
+		interrupts-extended = <&exp2 2 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
+		reset-gpios = <&exp2 3 GPIO_ACTIVE_LOW>;
+
+		vdd-supply = <&reg_1v8>;
+		vcc-supply = <&reg_lvds_d>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				hdmi_bridge_d_in_ep: endpoint {
+					remote-endpoint = <&lvds_d_out_ep>;
+				};
+			};
+
+			port@4 {
+				reg = <4>;
+
+				hdmi_bridge_d_out_ep: endpoint {
+					remote-endpoint = <&hdmi_connector_d_in>;
+				};
+			};
+		};
+	};
+};

@@ -114,6 +114,7 @@
 	/* Video Port 1 Output to OLDI */
 	port@0 {
 		reg = <0>;
+
 		#address-cells = <1>;
 		#size-cells = <0>;
 

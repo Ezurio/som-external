@@ -1,0 +1,147 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * LVDS-D to HDMI LT2611UXD expansion board for Carbon AM62x
+ *
+ * Copyright 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&{/} {
+	hdmi_connector_e: hdmi-connector-e {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_e_in: endpoint {
+				remote-endpoint = <&hdmi_bridge_e_out_ep>;
+			};
+		};
+	};
+
+	reg_lvds_e: regulator-lvds-e {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_lvds_d";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3_carrier>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&main_lvds_e_power_default>;
+		gpios = <&main_gpio0 49 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <10000>;
+		regulator-always-on;
+	};
+};
+
+&gpu {
+	status = "okay";
+};
+
+&dss1 {
+	status = "okay";
+
+	/* Separate PCLK for each independent display required,
+	 *  only PLL 18 is connected to DSS1 OLDI
+	 */
+	assigned-clocks =
+		<&k3_clks 241 0>,	/* DSS1-VP0 */
+		<&k3_clks 240 0>,	/* DSS1-VP1 */
+		<&k3_clks 235 7>;	/* OLDI TX 1 */
+
+	assigned-clock-parents =
+		<&k3_clks 241 1>,	/* PLL 18 OLDI */
+		<&k3_clks 240 2>,	/* PLL 17 DSI */
+		<&k3_clks 235 9>;	/* PLL 18 OLDI */
+};
+
+&dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Video Port 1 Output to OLDI */
+	port@0 {
+		reg = <0>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpi1_out0: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&oldi_1_in>;
+		};
+	};
+};
+
+&oldi1_dss1 {
+	status = "okay";
+	/* upstream moved this phandle to per-display overlays */
+	ti,oldi-io-ctrl = <&dss_oldi_io_ctrl>;
+};
+
+&oldi1_dss1_ports {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	port@0 {
+		reg = <0>;
+
+		oldi_1_in: endpoint {
+			remote-endpoint = <&dpi1_out0>;
+		};
+	};
+
+	port@1 {
+		reg = <1>;
+
+		oldi_1_out: endpoint {
+			remote-endpoint = <&hdmi_bridge_e_in_ep>;
+		};
+	};
+};
+
+&i2c_port_e {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hdmi-bridge-e@41 {
+		compatible = "lontium,lt2611uxd";
+		reg = <0x41>;
+
+		interrupts-extended = <&exp2 4 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
+		reset-gpios = <&exp2 5 GPIO_ACTIVE_LOW>;
+
+		vdd-supply = <&reg_1v8_carrier>;
+		vcc-supply = <&reg_lvds_e>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				hdmi_bridge_e_in_ep: endpoint {
+					remote-endpoint = <&oldi_1_out>;
+				};
+			};
+
+			port@4 {
+				reg = <4>;
+
+				hdmi_bridge_e_out_ep: endpoint {
+					remote-endpoint = <&hdmi_connector_e_in>;
+				};
+			};
+		};
+	};
+};
