@@ -1,0 +1,35 @@
+ASoC: fsl: Distinguish EASRC debugfs components
+
+Avoid a debugfs name collision when the EASRC registers both its DAI
+component and the shared ASRC PCM component on the same device.
+
+Both components otherwise inherit the platform device name, such as
+30c90000.easrc, and are attached to the same ASoC card debugfs directory.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
+--- a/sound/soc/fsl/fsl_asrc_dma.c
++++ b/sound/soc/fsl/fsl_asrc_dma.c
+@@ -507,5 +507,8 @@
+ 	.pointer	= fsl_asrc_dma_pcm_pointer,
+ 	.pcm_construct	= fsl_asrc_dma_pcm_new,
+ 	.legacy_dai_naming = 1,
++#ifdef CONFIG_DEBUG_FS
++	.debugfs_prefix = "asrc",
++#endif
+ };
+ EXPORT_SYMBOL_GPL(fsl_asrc_component);
+diff --git a/sound/soc/fsl/fsl_easrc.c b/sound/soc/fsl/fsl_easrc.c
+--- a/sound/soc/fsl/fsl_easrc.c
++++ b/sound/soc/fsl/fsl_easrc.c
+@@ -1636,6 +1636,9 @@
+ 	.controls		= fsl_easrc_snd_controls,
+ 	.num_controls		= ARRAY_SIZE(fsl_easrc_snd_controls),
+ 	.legacy_dai_naming	= 1,
++#ifdef CONFIG_DEBUG_FS
++	.debugfs_prefix		= "easrc",
++#endif
+ };
+ 
+ static const struct reg_default fsl_easrc_reg_defaults[] = {
