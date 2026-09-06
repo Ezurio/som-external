@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Nitrogen i.MX95 SMARC board revision 2
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "imx95-pinfunc.h"
+
+&pcal6524 {
+	pcie-clk-req-hog {
+		status = "disabled";
+	};
+};
+
+&pcie0 {
+	pinctrl-0 = <&pinctrl_pcie0>;
+	pinctrl-names = "default";
+};
+
+&pcie1 {
+	pinctrl-0 = <&pinctrl_pcie1>;
+	pinctrl-names = "default";
+};
+
+&pinctrl_pcal6524 {
+	fsl,pins = <
+		IMX95_PAD_GPIO_IO34__GPIO5_IO_BIT14			0x31e
+		IMX95_PAD_XSPI1_DATA5__GPIO5_IO_BIT5			0x131e
+	>;
+};
+
+&scmi_iomuxc {
+	pinctrl_pcie0: pcie0grp {
+		fsl,pins = <
+			IMX95_PAD_GPIO_IO32__HSIOMIX_TOP_PCIE1_CLKREQ_B	0x31e
+		>;
+	};
+
+	pinctrl_pcie1: pcie1grp {
+		fsl,pins = <
+			IMX95_PAD_GPIO_IO35__HSIOMIX_TOP_PCIE2_CLKREQ_B	0x31e
+		>;
+	};
+};
