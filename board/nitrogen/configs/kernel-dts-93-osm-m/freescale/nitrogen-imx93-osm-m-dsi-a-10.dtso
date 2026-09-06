@@ -8,17 +8,17 @@
 /dts-v1/;
 /plugin/;
 
-#include "nitrogen-imx93-osm-m-dsi0-7.dtso"
+#include "nitrogen-imx93-osm-m-dsi-a-7.dtso"
 
-&backlight_dsi0 {
+&backlight_dsi_a {
 	pwms = <&tpm5 1 100000 0>;
 };
 
-&display_dsi0 {
+&display_dsi_a {
 	width-mm = <217>;
 	height-mm = <136>;
 };
 
-&touchscreen_dsi0 {
+&touchscreen_dsi_a {
 	compatible = "goodix,gt9271";
 };
