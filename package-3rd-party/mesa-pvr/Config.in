@@ -44,15 +44,23 @@ comment "llvm support needs a toolchain not affected by GCC bug 64735"
 	depends on BR2_PACKAGE_LLVM_ARCH_SUPPORTS
 	depends on BR2_TOOLCHAIN_HAS_GCC_BUG_64735
 
-# clang and libclc dependencies are satisfied by
-# BR2_PACKAGE_MESA_PVR_LLVM
 config BR2_PACKAGE_MESA_PVR_OPENCL
-	bool "OpenCL support"
-	depends on BR2_PACKAGE_MESA3D_LLVM
+	bool "OpenCL support (RustiCL)"
+	depends on BR2_PACKAGE_MESA_PVR_LLVM
+	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
+	depends on BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
+	select BR2_PACKAGE_HOST_RUSTC
 	select BR2_PACKAGE_LLVM_RTTI
+	select BR2_PACKAGE_LLVM_DUMP
+	select BR2_PACKAGE_SPIRV_TOOLS
+	select BR2_PACKAGE_SPIRV_LLVM_TRANSLATOR
+	select BR2_PACKAGE_OPENCL_ICD_LOADER
 	select BR2_PACKAGE_CLANG
 	select BR2_PACKAGE_LIBCLC
 	select BR2_PACKAGE_HAS_LIBOPENCL
+	help
+	  Enable OpenCL through Mesa's RustiCL implementation.
+	  This requires LLVM and Rust support and is disabled by default.
 
 # inform the .mk file of gallium or vulkan driver selection
 config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
@@ -67,13 +75,7 @@ config BR2_PACKAGE_MESA_PVR_DRIVER
 	bool
 	select BR2_PACKAGE_XLIB_LIBXSHMFENCE if BR2_PACKAGE_XORG7
 
-# Gallium xa state tracker.
-# Quote from MESA_PVR meson.build: "XA state tracker requires at least
-# one of the following gallium drivers: nouveau, freedreno, i915, svga.
-config BR2_PACKAGE_MESA_PVR_NEEDS_XA
-	bool
-
-# OpenGL GLX and Gallium VDPAU both needs X11
+# OpenGL GLX needs X11
 config BR2_PACKAGE_MESA_PVR_NEEDS_X11
 	bool
 	depends on BR2_PACKAGE_XORG7
@@ -88,12 +90,13 @@ config BR2_PACKAGE_MESA_PVR_NEEDS_X11
 
 comment "Gallium drivers"
 
-config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SWRAST
-	bool "Gallium swrast driver"
+config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_LLVMPIPE
+	bool "Gallium llvmpipe driver"
+	depends on BR2_PACKAGE_MESA_PVR_LLVM
 	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER
 	help
-	  This is a software opengl implementation using the Gallium3D
-	  infrastructure.
+	  This is the LLVM-based software OpenGL implementation using the
+	  Gallium3D infrastructure.
 
 config BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_ZINK
 	bool "Gallium Zink driver"
@@ -124,7 +127,7 @@ comment "Vulkan drivers"
 config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_SWRAST
 	bool "Vulkan swrast driver"
 	depends on BR2_PACKAGE_MESA_PVR_LLVM
-	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SWRAST
+	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_LLVMPIPE
 	select BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER
 	help
 	  Vulkan swrast driver.
@@ -132,18 +135,10 @@ config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_SWRAST
 config BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER_ROGUE
 	bool "Vulkan PowerVR Rogue driver"
 	depends on BR2_arm || BR2_aarch64
-	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # dri3/libxshmfence
+	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # libxshmfence
 	select BR2_PACKAGE_MESA_PVR_VULKAN_DRIVER
 	help
 	  Vulkan PowerVR driver.
-
-comment "Off-screen Rendering"
-
-config BR2_PACKAGE_MESA_PVR_OSMESA_GALLIUM
-	bool "OSMesa (Gallium) library"
-	select BR2_PACKAGE_MESA_PVR_GALLIUM_DRIVER_SWRAST
-	help
-	  The OSMesa API provides functions for off-screen rendering.
 
 if BR2_PACKAGE_MESA_PVR_DRIVER
 
@@ -205,9 +200,6 @@ config BR2_PACKAGE_PROVIDES_LIBEGL
 
 config BR2_PACKAGE_PROVIDES_LIBGLES
 	default "mesa-pvr" if BR2_PACKAGE_MESA_PVR_OPENGL_ES && !BR2_PACKAGE_LIBGLVND
-
-config BR2_PACKAGE_PROVIDES_LIBOPENCL
-	default "mesa-pvr" if BR2_PACKAGE_MESA3D_OPENCL
 
 endif # BR2_PACKAGE_MESA_PVR
 

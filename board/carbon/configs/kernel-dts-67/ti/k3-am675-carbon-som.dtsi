@@ -50,7 +50,6 @@
 	};
 
 	memory@80000000 {
-		device_type = "memory";
 		/* 4G RAM */
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>,
 		      <0x00000008 0x80000000 0x00000000 0x80000000>;
@@ -1223,7 +1222,7 @@
 
 &mcu_gpio0 {
 	status = "okay";
-	gpio-line-names = 
+	gpio-line-names =
 		"","WAKEUP","","","",				/* 0 - 4 */
 		"","","","","",
 		"","","VPP_EN","GPIO_D_6","",					/* 10 - 14 */
