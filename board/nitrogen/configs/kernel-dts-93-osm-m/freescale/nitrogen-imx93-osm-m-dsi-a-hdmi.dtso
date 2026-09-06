@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * DSI A to HDMI LT9611UXD Expansion Board for Nitrogen i.MX93 OSM-M
+ *
+ * Copyright (C) 2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&{/} {
+	hdmi-connector-a {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "a";
+
+		port {
+			hdmi_connector_a_in: endpoint {
+				remote-endpoint = <&lt9611uxd_out>;
+			};
+		};
+	};
+
+	reg_dsi_a: regulator-dsi-a {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_dsi_a";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&reg_3v3>;
+		gpio = <&exp0 28 GPIO_ACTIVE_HIGH>; /* DSI_A_VDD_EN / GPIO_C_4 */
+		enable-active-high;
+		startup-delay-us = <20000>;
+		regulator-always-on;
+	};
+
+	display-subsystem {
+		status = "okay";
+	};
+};
+
+&dsi_out_ep {
+	remote-endpoint = <&lt9611uxd_in>;
+	attach-bridge;
+};
+
+&dphy {
+	status = "okay";
+};
+
+&dsi {
+	status = "okay";
+};
+
+&epxp {
+	status = "okay";
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&i2c_port_a {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hdmi-bridge-dsi-a@4f {
+		compatible = "lontium,lt9611uxd";
+		reg = <0x4f>;
+
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_LOW>;
+
+		interrupts-extended = <&exp2 15 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
+		vdd-supply = <&reg_1v8>;
+		vcc-supply = <&reg_dsi_a>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				lt9611uxd_in: endpoint {
+					remote-endpoint = <&dsi_out_ep>;
+					data-lanes = <1 2 3 4>;
+					clock-lanes = <0>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				lt9611uxd_out: endpoint {
+					remote-endpoint = <&hdmi_connector_a_in>;
+				};
+			};
+		};
+	};
+};
+
