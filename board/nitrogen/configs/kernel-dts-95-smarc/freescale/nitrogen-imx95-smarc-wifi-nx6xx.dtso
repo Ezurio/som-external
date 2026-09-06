@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2024 Ezurio
+ * On-SOM SDIO NX6xx Wi-Fi/BT
+ *
+ * Copyright 2024 Ezurio LLC
  */
 
 /dts-v1/;
@@ -26,4 +28,8 @@
 		fw-init-baudrate = <3000000>;
 		vcc-supply = <&reg_vdd_3v3>;
 	};
+};
+
+&wifi_wakeup {
+	status = "okay";
 };

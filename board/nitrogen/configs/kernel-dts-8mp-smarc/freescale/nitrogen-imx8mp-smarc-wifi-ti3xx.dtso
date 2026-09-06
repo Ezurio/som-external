@@ -34,11 +34,15 @@
 	wifi@2 {
 		reg = <2>;
 		compatible = "ti,cc33xx";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wifi_wake>;
+		//interrupts-extended = <&gpio3 14 IRQ_TYPE_EDGE_RISING>;
 	};
 };
 
 &uart1 {
- 	status = "okay";
+	status = "okay";
 
 	bluetooth {
 		compatible = "ti,cc33xx-bt";
@@ -50,11 +54,3 @@
 		host-wakeup-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
 	};
 };
-
-&iomuxc {
-	pinctrl_bt_wake: bt-wakegrp {
-		fsl,pins = <
-			MX8MP_IOMUXC_SAI5_RXD0__GPIO3_IO21	0x1c0
-		>;
-	};
-};	

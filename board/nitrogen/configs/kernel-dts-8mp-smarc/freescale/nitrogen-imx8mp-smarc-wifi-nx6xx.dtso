@@ -29,3 +29,7 @@
 		vcc-supply = <&reg_vdd_3v3>;
 	};
 };
+
+&wifi_wakeup {
+	status = "okay";
+};

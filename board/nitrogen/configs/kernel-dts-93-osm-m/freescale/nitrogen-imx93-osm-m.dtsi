@@ -165,7 +165,7 @@
 		status = "disabled";
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_wifi_wakeup>;
+		pinctrl-0 = <&pinctrl_wifi_wake>, <&pinctrl_bt_wake>;
 
 		wifi-wake {
 			label = "Wi-Fi Wake Up";
@@ -413,7 +413,6 @@
 			};
 		};
 	};
-
 };
 
 &lpi2c3 {
@@ -724,10 +723,15 @@
 		>;
 	};
 
-	pinctrl_wifi_wakeup: wifiwakeupgrp {
+	pinctrl_wifi_wake: wifiwakeupgrp {
+		fsl,pins = <
+			MX93_PAD_GPIO_IO09__GPIO2_IO09				0x131e	/* WIFI_SDIO_WAKE */
+		>;
+	};
+
+	pinctrl_bt_wake: btwakegrp {
 		fsl,pins = <
 			MX93_PAD_GPIO_IO08__GPIO2_IO08				0x131e	/* BT_HOST_WAKE */
-			MX93_PAD_GPIO_IO09__GPIO2_IO09				0x131e	/* WIFI_SDIO_WAKE */
 		>;
 	};
 

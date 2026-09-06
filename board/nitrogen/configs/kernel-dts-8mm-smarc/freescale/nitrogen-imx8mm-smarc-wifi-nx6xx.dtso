@@ -9,6 +9,7 @@
 /plugin/;
 
 &reg_wifi_en {
+	// NX6xx has slow clock unconnected, so do not activate it
 	vin-supply = <&reg_vdd_3v3>;
 
 	startup-delay-us = <20000>;
@@ -27,4 +28,8 @@
 		fw-init-baudrate = <3000000>;
 		vcc-supply = <&reg_vdd_3v3>;
 	};
+};
+
+&wifi_wakeup {
+	status = "okay";
 };
