@@ -3,7 +3,7 @@
 # pkcs11-provider
 #
 ################################################################################
-PKCS11_PROVIDER_VERSION = 1.1.0
+PKCS11_PROVIDER_VERSION = 1.2.0
 PKCS11_PROVIDER_SITE = $(call github,latchset,pkcs11-provider,v$(PKCS11_PROVIDER_VERSION))
 PKCS11_PROVIDER_LICENSE = Apache-2.0
 PKCS11_PROVIDER_LICENSE_FILES = LICENSES/Apache-2.0.txt

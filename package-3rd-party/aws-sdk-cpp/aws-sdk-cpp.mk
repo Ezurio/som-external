@@ -1,13 +1,12 @@
 ################################################################################
 # aws-sdk-cpp
 ################################################################################
-AWS_SDK_CPP_VERSION = 1.11.845
-AWS_SDK_CPP_SITE_METHOD = git
-AWS_SDK_CPP_SITE = https://github.com/aws/aws-sdk-cpp.git
-HOST_AWS_SDK_CPP_DEPENDENCIES = host-cmake host-openssl host-util-linux
+AWS_SDK_CPP_VERSION = 1.11.887
+AWS_SDK_CPP_SITE = $(call github,aws,aws-sdk-cpp,$(AWS_SDK_CPP_VERSION))
 AWS_SDK_CPP_LICENSE = Apache-2.0
 AWS_SDK_CPP_LICENSE_FILES = LICENSE
-AWS_SDK_CPP_SUPPORTS_IN_SOURCE_BUILD = NO
+
+HOST_AWS_SDK_CPP_DEPENDENCIES = host-openssl
 
 HOST_AWS_SDK_CPP_CONF_OPTS += \
 	-DCMAKE_BUILD_TYPE=Release \

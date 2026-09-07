@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-PYTHON_AWSCRT_VERSION = 0.35.0
+PYTHON_AWSCRT_VERSION = 0.36.2
 PYTHON_AWSCRT_SOURCE = awscrt-$(PYTHON_AWSCRT_VERSION).tar.gz
-PYTHON_AWSCRT_SITE = https://files.pythonhosted.org/packages/e8/8a/294c2f6cdda8f386057a5f6b349fec9f4838b9c25a98cb67dc503bb80514
+PYTHON_AWSCRT_SITE = https://files.pythonhosted.org/packages/fd/d5/7bb52ee6dfcb36abfc787d5512c8d11fb231f1a7caac7c52479d98ed8dd6
 PYTHON_AWSCRT_SETUP_TYPE = setuptools
 PYTHON_AWSCRT_LICENSE = Apache-2.0
 PYTHON_AWSCRT_LICENSE_FILES = LICENSE crt/aws-c-common/LICENSE crt/aws-lc/LICENSE crt/aws-lc/third_party/fiat/LICENSE crt/aws-c-mqtt/LICENSE crt/aws-c-io/LICENSE crt/aws-c-sdkutils/LICENSE crt/s2n/LICENSE crt/aws-checksums/LICENSE crt/aws-c-cal/LICENSE crt/aws-c-auth/LICENSE crt/aws-c-s3/LICENSE crt/aws-c-event-stream/LICENSE crt/aws-c-http/LICENSE crt/aws-c-compression/LICENSE
