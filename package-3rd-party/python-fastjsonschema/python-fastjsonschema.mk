@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PYTHON_FASTJSONSCHEMA_VERSION = 2.21.1
+PYTHON_FASTJSONSCHEMA_VERSION = 2.22.2
 PYTHON_FASTJSONSCHEMA_SOURCE = fastjsonschema-$(PYTHON_FASTJSONSCHEMA_VERSION).tar.gz
 PYTHON_FASTJSONSCHEMA_SITE = https://files.pythonhosted.org/packages/source/f/fastjsonschema
 PYTHON_FASTJSONSCHEMA_SETUP_TYPE = setuptools

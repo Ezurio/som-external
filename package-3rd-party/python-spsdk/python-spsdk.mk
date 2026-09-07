@@ -7,7 +7,7 @@
 #
 ################################################################################
 
-PYTHON_SPSDK_VERSION = 3.7.0
+PYTHON_SPSDK_VERSION = 3.11.0
 PYTHON_SPSDK_SOURCE = spsdk-$(PYTHON_SPSDK_VERSION).tar.gz
 PYTHON_SPSDK_SITE = https://files.pythonhosted.org/packages/source/s/spsdk
 PYTHON_SPSDK_SETUP_TYPE = setuptools

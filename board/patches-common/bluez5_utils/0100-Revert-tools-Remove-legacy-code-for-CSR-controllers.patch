@@ -35,7 +35,7 @@ diff --git a/Makefile.tools b/Makefile.tools
 index b7d893248..8b32a57f1 100644
 --- a/Makefile.tools
 +++ b/Makefile.tools
-@@ -225,7 +225,7 @@ endif
+@@ -236,7 +236,7 @@
  
  if TOOLS
  bin_PROGRAMS += tools/rctest tools/l2test tools/l2ping tools/bluemoon \
@@ -43,8 +43,8 @@ index b7d893248..8b32a57f1 100644
 +		tools/hex2hcd tools/mpris-proxy tools/btattach tools/isotest tools/bccmd
  
  noinst_PROGRAMS += tools/bdaddr tools/avinfo tools/avtest \
- 			tools/scotest tools/amptest tools/hwdb \
-@@ -325,6 +325,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
+			tools/scotest tools/hwdb \
+@@ -326,6 +326,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
  
  tools_l2ping_LDADD = lib/libbluetooth-internal.la
  
@@ -57,17 +57,17 @@ index b7d893248..8b32a57f1 100644
  tools_bluemoon_SOURCES = tools/bluemoon.c monitor/bt.h
  tools_bluemoon_LDADD = src/libshared-mainloop.la
  
-@@ -346,7 +352,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
+@@ -350,7 +350,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
  profiles_iap_iapd_LDADD = gdbus/libgdbus-internal.la $(GLIB_LIBS) $(DBUS_LIBS)
  
  if MANPAGES
--man_MANS += tools/rctest.1 tools/l2ping.1 tools/btattach.1 tools/isotest.1 \
-+man_MANS += tools/rctest.1 tools/l2ping.1 tools/btattach.1 tools/isotest.1 tools/bccmd.1 \
- 		tools/btmgmt.1 client/bluetoothctl.1 \
- 		client/bluetoothctl-mgmt.1 \
- 		client/bluetoothctl-monitor.1 client/bluetoothctl-admin.1 \
-@@ -424,7 +430,7 @@ tools_hciattach_SOURCES = tools/hciattach.c tools/hciattach.h \
- 						tools/hciattach_bcm43xx.c
+-man_MANS += doc/rctest.1 doc/l2ping.1 doc/btattach.1 doc/isotest.1 \
++man_MANS += doc/rctest.1 doc/l2ping.1 doc/btattach.1 doc/isotest.1 doc/bccmd.1 \
+		doc/bluetoothctl.1 \
+		doc/bluetoothctl-mgmt.1 \
+		doc/bluetoothctl-monitor.1 doc/bluetoothctl-admin.1 \
+@@ -420,7 +420,7 @@ tools_hciattach_SOURCES = tools/hciattach.c tools/hciattach.h \
+						tools/hciattach_bcm43xx.c
  tools_hciattach_LDADD = lib/libbluetooth-internal.la
  
 -tools_hciconfig_SOURCES = tools/hciconfig.c
@@ -75,15 +75,15 @@ index b7d893248..8b32a57f1 100644
  tools_hciconfig_LDADD = lib/libbluetooth-internal.la
  
  tools_hcitool_SOURCES = tools/hcitool.c src/oui.h src/oui.c
-@@ -475,7 +481,7 @@ manual_pages += tools/hciattach.1 tools/hciconfig.1 \
- 			tools/hcitool.1 tools/hcidump.1 \
- 			tools/rfcomm.1 tools/sdptool.1 tools/ciptool.1 \
- 			tools/rctest.1 tools/l2ping.1 tools/btattach.1 \
--			tools/bdaddr.1 tools/isotest.1 tools/btmgmt.1 \
-+			tools/bdaddr.1 tools/isotest.1 tools/btmgmt.1 tools/bccmd.1 \
- 			client/bluetoothctl.1 \
- 			client/bluetoothctl-mgmt.1 \
- 			client/bluetoothctl-monitor.1 \
+@@ -477,7 +477,7 @@
+			doc/hcitool.1 doc/hcidump.1 \
+			doc/rfcomm.1 doc/sdptool.1 doc/ciptool.1 \
+			doc/rctest.1 doc/l2ping.1 doc/btattach.1 \
+-			doc/bdaddr.1 doc/isotest.1 doc/btmgmt.1 \
++			doc/bdaddr.1 doc/isotest.1 doc/btmgmt.1 doc/bccmd.1 \
+			doc/bluetoothctl.1 \
+			doc/bluetoothctl-mgmt.1 \
+ 			doc/bluetoothctl-monitor.1 \
 diff --git a/tools/bccmd.1 b/tools/bccmd.1
 new file mode 100644
 index 000000000..26c83a6a2
@@ -261,9 +261,9 @@ index 000000000..2c215ace7
 +#include <sys/socket.h>
 +#include <unistd.h>
 +
-+#include "lib/bluetooth.h"
-+#include "lib/hci.h"
-+#include "lib/hci_lib.h"
++#include "bluetooth/bluetooth.h"
++#include "bluetooth/hci.h"
++#include "bluetooth/hci_lib.h"
 +
 +#include "src/shared/tty.h"
 +
@@ -1518,9 +1518,9 @@ index 000000000..61bdaa0cf
 +#include <sys/mman.h>
 +#include <sys/socket.h>
 +
-+#include "lib/bluetooth.h"
-+#include "lib/hci.h"
-+#include "lib/hci_lib.h"
++#include "bluetooth/bluetooth.h"
++#include "bluetooth/hci.h"
++#include "bluetooth/hci_lib.h"
 +
 +#include "csr.h"
 +
@@ -5438,9 +5438,9 @@ index 000000000..d2e4ab9c6
 +#include <string.h>
 +#include <sys/socket.h>
 +
-+#include "lib/bluetooth.h"
-+#include "lib/hci.h"
-+#include "lib/hci_lib.h"
++#include "bluetooth/bluetooth.h"
++#include "bluetooth/hci.h"
++#include "bluetooth/hci_lib.h"
 +
 +#include "csr.h"
 +

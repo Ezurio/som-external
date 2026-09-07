@@ -23,7 +23,7 @@ diff --git a/tools/btattach.c b/tools/btattach.c
 index 1111111..2222222 100644
 --- a/tools/btattach.c
 +++ b/tools/btattach.c
-@@ -46,7 +46,13 @@ static int open_serial(const char *path, unsigned int speed, bool flowctl)
+@@ -64,7 +64,13 @@ static int open_serial(const char *path, unsigned int speed, bool flowctl)
  	memset(&ti, 0, sizeof(ti));
  	cfmakeraw(&ti);
  
