@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TI_MCU_PLUS_SDK_VERSION = 11.02.00.23
+TI_MCU_PLUS_SDK_VERSION = 12.01.00.31
 TI_MCU_PLUS_SDK_NAME = mcu_plus_sdk_am62x_$(subst .,_,$(TI_MCU_PLUS_SDK_VERSION))
 TI_MCU_PLUS_SDK_SOURCE = $(TI_MCU_PLUS_SDK_NAME)-linux-x64-installer.run
 TI_MCU_PLUS_SDK_SITE = https://dr-download.ti.com/software-development/software-development-kit-sdk/MD-IIN1zFBAlS/$(TI_MCU_PLUS_SDK_VERSION)
