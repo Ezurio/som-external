@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Ezurio <support@ezurio.com>
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 Date: Tue, 1 Sep 2026 00:00:00 +0000
 Subject: [PATCH] drm: bridge: add independent Lontium drivers
 
@@ -7,18 +7,18 @@ Add independent LT9611C and LT2611UXD bridge drivers. Each driver
 privately links the shared LT96xx implementation, so no shared module
 lifecycle or exported shared symbols are required.
 
-Signed-off-by: Ezurio <support@ezurio.com>
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 
  Documentation/ABI/testing/sysfs-lontium-firmware   |   10 +
  .../bindings/display/bridge/lontium,lt2611uxd.yaml |  147 +++
  .../bindings/display/bridge/lontium,lt9611.yaml    |   25 +
  drivers/gpu/drm/bridge/Kconfig                     |   29 +
  drivers/gpu/drm/bridge/Makefile                    |    4 +
- drivers/gpu/drm/bridge/lontium-lt2611uxd.c         |  506 +++++++++
- drivers/gpu/drm/bridge/lontium-lt9611c.c           |  384 ++++++
- drivers/gpu/drm/bridge/lontium-lt96xx.c            | 1218 ++++++++++++++++++++
- drivers/gpu/drm/bridge/lontium-lt96xx.h            |  211 ++++
-9 files changed, 2534 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt2611uxd.c         |  449 ++++++++
+ drivers/gpu/drm/bridge/lontium-lt9611c.c           |  350 ++++++
+ drivers/gpu/drm/bridge/lontium-lt96xx.c            | 1282 ++++++++++++++++++++
+ drivers/gpu/drm/bridge/lontium-lt96xx.h            |  209 ++++
+9 files changed, 2505 insertions(+)
 
 diff --git a/Documentation/ABI/testing/sysfs-lontium-firmware b/Documentation/ABI/testing/sysfs-lontium-firmware
 new file mode 100644
@@ -301,7 +301,7 @@ diff --git a/drivers/gpu/drm/bridge/lontium-lt2611uxd.c b/drivers/gpu/drm/bridge
 new file mode 100644
 --- /dev/null
 +++ b/drivers/gpu/drm/bridge/lontium-lt2611uxd.c
-@@ -0,0 +1,506 @@
+@@ -0,0 +1,449 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2026 Ezurio, LLC.
@@ -364,7 +364,6 @@ new file mode 100644
 +	struct lt96xx_common common;
 +	const struct lt2611uxd_chip_data *cdata;
 +	unsigned int num_ports;
-+	/* Fixed media bus format from DT data-mapping, if any */
 +	/* LVDS Ports Select Y1 byte: physical port carrying each logical port */
 +	u8 lvds_port_swap;
 +};
@@ -379,10 +378,6 @@ new file mode 100644
 +	return container_of(bridge_to_lt96xx(bridge), struct lt2611uxd, common);
 +}
 +
-+static const struct lt96xx_ops lt2611uxd_ops = {
-+	.fw_file = LT2611UXD_FW_FILE,
-+};
-+
 +static int lt2611uxd_lvds_select_ports(struct lt2611uxd *lt2611uxd)
 +{
 +	return lt96xx_select_ports(&lt2611uxd->common, LT2611UXD_TYPE_LVDS,
@@ -391,7 +386,7 @@ new file mode 100644
 +}
 +
 +static int lt2611uxd_lvds_set_format(struct device *dev,
-+				     struct lt2611uxd *lt2611uxd, int mapping)
++				     struct lt2611uxd *lt2611uxd, u32 mapping)
 +{
 +	struct lt96xx_rsp rsp = {};
 +	u8 format;
@@ -459,7 +454,7 @@ new file mode 100644
 +	struct drm_connector_state *conn_state;
 +	struct drm_crtc_state *crtc_state;
 +	struct drm_bridge_state *bridge_state;
-+	int mapping;
++	u32 mapping;
 +	int ret;
 +
 +	connector = drm_atomic_get_new_connector_for_encoder(state,
@@ -580,59 +575,6 @@ new file mode 100644
 +	return input_fmts;
 +}
 +
-+/*
-+ * DRM/HDR (type 0x03) infoframe support and the explicit infoframe-clear
-+ * command are left out pending confirmation from the LT2611UXD/UXE user
-+ * guide/firmware of what is actually implemented (see lontium-lt9611c.c
-+ * for the equivalent open item on the DSI side).
-+ */
-+static int lt2611uxd_infoframe_reg_type(enum hdmi_infoframe_type type)
-+{
-+	switch (type) {
-+	case HDMI_INFOFRAME_TYPE_AVI:
-+		return 0x01;
-+	case HDMI_INFOFRAME_TYPE_AUDIO:
-+		return 0x02;
-+	case HDMI_INFOFRAME_TYPE_DRM:
-+		return 0x03;
-+	case HDMI_INFOFRAME_TYPE_VENDOR:
-+		return 0x04;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static int lt2611uxd_hdmi_write_infoframe(struct drm_bridge *bridge,
-+					  enum hdmi_infoframe_type type,
-+					  const u8 *buffer, size_t len)
-+{
-+	int reg_type = lt2611uxd_infoframe_reg_type(type);
-+
-+	if (reg_type < 0)
-+		return reg_type;
-+
-+	/*
-+	 * The MCU command only carries a fixed Y0-Y15 payload; the LT2611 UXD/UXE
-+	 * User Guide truncates AVI/Audio/HDR/VSIF payloads to 16 bytes.
-+	 */
-+	len = min_t(size_t, len, LT96XX_INFOFRAME_MAX_SIZE);
-+
-+	return lt96xx_write_infoframe(bridge_to_lt96xx(bridge), reg_type,
-+				      buffer, len);
-+}
-+
-+static int lt2611uxd_hdmi_clear_infoframe(struct drm_bridge *bridge,
-+					  enum hdmi_infoframe_type type)
-+{
-+	int reg_type = lt2611uxd_infoframe_reg_type(type);
-+
-+	if (reg_type < 0)
-+		return reg_type;
-+
-+	/* No documented command to stop sending a packet once set. */
-+	return 0;
-+}
-+
 +static int lt2611uxd_bridge_atomic_check(struct drm_bridge *bridge,
 +					 struct drm_bridge_state *bridge_state,
 +					 struct drm_crtc_state *crtc_state,
@@ -658,8 +600,8 @@ new file mode 100644
 +	.atomic_reset = drm_atomic_helper_bridge_reset,
 +
 +	.hdmi_tmds_char_rate_valid = lt96xx_hdmi_tmds_char_rate_valid,
-+	.hdmi_write_infoframe = lt2611uxd_hdmi_write_infoframe,
-+	.hdmi_clear_infoframe = lt2611uxd_hdmi_clear_infoframe,
++	.hdmi_write_infoframe = lt96xx_hdmi_write_infoframe,
++	.hdmi_clear_infoframe = lt96xx_hdmi_clear_infoframe,
 +	.hdmi_audio_prepare = lt96xx_hdmi_audio_prepare,
 +	.hdmi_audio_shutdown = lt96xx_hdmi_audio_shutdown,
 +};
@@ -673,7 +615,7 @@ new file mode 100644
 +
 +	/* Read data-mapping from the bridge node during probe. */
 +	mapping = drm_of_lvds_get_data_mapping(dev->of_node);
-+	if (mapping != -ENODEV)
++	if (mapping > 0)
 +		lt2611uxd->common.bus_format = mapping;
 +
 +	for (i = 0; i < lt2611uxd->cdata->max_ports; i++) {
@@ -743,7 +685,8 @@ new file mode 100644
 +	common = &lt2611uxd->common;
 +	common->dev = dev;
 +	common->client = client;
-+	common->ops = &lt2611uxd_ops;
++	common->fw_file = LT2611UXD_FW_FILE;
++	common->infoframe_clear_supported = false;
 +	common->max_tmds_rate = lt2611uxd->cdata->max_tmds_rate;
 +	common->bridge.product = lt2611uxd->cdata->product;
 +	common->bridge.timings = &lt2611uxd_default_timings;
@@ -812,7 +755,7 @@ diff --git a/drivers/gpu/drm/bridge/lontium-lt9611c.c b/drivers/gpu/drm/bridge/l
 new file mode 100644
 --- /dev/null
 +++ b/drivers/gpu/drm/bridge/lontium-lt9611c.c
-@@ -0,0 +1,384 @@
+@@ -0,0 +1,350 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2026 Lontium Semiconductor, Inc.
@@ -845,8 +788,7 @@ new file mode 100644
 +#define LT9611C_MAX_MIPI_PORTS 2
 +#define LT9611C_MIPI_VIDEO_LEN LT96XX_VIDEO_TIMING_LEN
 +
-+/* HDMI-type command sequence number specific to this chip family */
-+#define LT9611C_HDMI_SEQ_CLEAR_INFOFRAME 0x42
++#define LT9611C_FW_FILE "lt9611c_fw.bin"
 +
 +enum lt9611_chip_type {
 +	CHIP_LT9611C = 0,
@@ -880,32 +822,34 @@ new file mode 100644
 +	return container_of(bridge_to_lt96xx(bridge), struct lt9611c, common);
 +}
 +
-+static const struct lt96xx_ops lt9611c_ops = {
-+	.fw_file = "lt9611c_fw.bin",
-+};
-+
-+static struct mipi_dsi_device *lt9611c_attach_dsi(struct lt9611c *lt9611c)
++static int lt9611c_attach_dsi(struct lt9611c *lt9611c)
 +{
 +	const struct mipi_dsi_device_info info = { "lt9611c", 0, NULL };
 +	struct device *dev = lt9611c->common.dev;
 +	struct mipi_dsi_device *dsi;
++	unsigned int i;
 +	int ret;
 +
-+	dsi = devm_mipi_dsi_device_register_full(dev, lt9611c->dsi_hosts[0],
-+						 &info);
-+	if (IS_ERR(dsi))
-+		return ERR_PTR(dev_err_probe(dev, PTR_ERR(dsi), "failed to create dsi device\n"));
++	for (i = 0; i < lt9611c->num_ports; i++) {
++		dsi = devm_mipi_dsi_device_register_full(dev, lt9611c->dsi_hosts[i],
++							 &info);
++		if (IS_ERR(dsi))
++			return dev_err_probe(dev, PTR_ERR(dsi),
++					     "failed to create dsi device for port %u\n", i);
 +
-+	dsi->lanes = lt9611c->lanes;
-+	dsi->format = MIPI_DSI_FMT_RGB888;
-+	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
-+			 MIPI_DSI_MODE_VIDEO_HSE;
++		dsi->lanes = lt9611c->lanes;
++		dsi->format = MIPI_DSI_FMT_RGB888;
++		dsi->mode_flags = MIPI_DSI_MODE_VIDEO |
++				  MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
++				  MIPI_DSI_MODE_VIDEO_HSE;
 +
-+	ret = devm_mipi_dsi_attach(dev, dsi);
-+	if (ret < 0)
-+		return ERR_PTR(dev_err_probe(dev, ret, "failed to attach dsi to host\n"));
++		ret = devm_mipi_dsi_attach(dev, dsi);
++		if (ret < 0)
++			return dev_err_probe(dev, ret,
++					     "failed to attach dsi device for port %u\n", i);
++	}
 +
-+	return dsi;
++	return 0;
 +}
 +
 +static int lt9611c_video_setup(struct lt9611c *lt9611c,
@@ -984,59 +928,6 @@ new file mode 100644
 +		dev_err(dev, "failed to disable HDMI output\n");
 +}
 +
-+/*
-+ * DRM/HDR (type 0x03) infoframe support is left out pending confirmation
-+ * of the exact command mapping from the LT9611UXD user guide/firmware.
-+ */
-+static int lt9611c_infoframe_reg_type(enum hdmi_infoframe_type type)
-+{
-+	switch (type) {
-+	case HDMI_INFOFRAME_TYPE_AVI:
-+		return 0x01;
-+	case HDMI_INFOFRAME_TYPE_VENDOR:
-+		return 0x04;
-+	case HDMI_INFOFRAME_TYPE_AUDIO:
-+		return 0x02;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static int lt9611c_hdmi_write_infoframe(struct drm_bridge *bridge,
-+					enum hdmi_infoframe_type type,
-+					const u8 *buffer, size_t len)
-+{
-+	int reg_type = lt9611c_infoframe_reg_type(type);
-+
-+	if (reg_type < 0)
-+		return reg_type;
-+
-+	return lt96xx_write_infoframe(bridge_to_lt96xx(bridge), reg_type,
-+				      buffer, len);
-+}
-+
-+static int lt9611c_hdmi_clear_infoframe(struct drm_bridge *bridge,
-+					enum hdmi_infoframe_type type)
-+{
-+	struct lt96xx_common *common = bridge_to_lt96xx(bridge);
-+	u8 clear_data;
-+	struct lt96xx_cmd cmd = {
-+		.hdr = { LT96XX_FUNC_WRITE, LT96XX_TYPE_HDMI,
-+			 LT9611C_HDMI_SEQ_CLEAR_INFOFRAME, LT96XX_CMD_SEP },
-+		.data = &clear_data,
-+		.data_len = 1,
-+	};
-+	struct lt96xx_rsp rsp = {};
-+	int reg_type = lt9611c_infoframe_reg_type(type);
-+
-+	if (reg_type < 0)
-+		return reg_type;
-+
-+	clear_data = reg_type;
-+
-+	return lt96xx_read_write_flow(common, &cmd, &rsp);
-+}
-+
 +static const struct drm_bridge_funcs lt9611c_bridge_funcs = {
 +	.get_modes = lt96xx_bridge_get_modes,
 +	.attach = lt96xx_bridge_attach,
@@ -1049,8 +940,8 @@ new file mode 100644
 +	.atomic_reset = drm_atomic_helper_bridge_reset,
 +
 +	.hdmi_tmds_char_rate_valid = lt96xx_hdmi_tmds_char_rate_valid,
-+	.hdmi_write_infoframe = lt9611c_hdmi_write_infoframe,
-+	.hdmi_clear_infoframe = lt9611c_hdmi_clear_infoframe,
++	.hdmi_write_infoframe = lt96xx_hdmi_write_infoframe,
++	.hdmi_clear_infoframe = lt96xx_hdmi_clear_infoframe,
 +
 +	.hdmi_audio_prepare = lt96xx_hdmi_audio_prepare,
 +	.hdmi_audio_shutdown = lt96xx_hdmi_audio_shutdown,
@@ -1123,7 +1014,6 @@ new file mode 100644
 +{
 +	struct lt9611c *lt9611c;
 +	struct lt96xx_common *common;
-+	struct mipi_dsi_device *dsi;
 +	struct device *dev = &client->dev;
 +	int ret;
 +
@@ -1135,11 +1025,12 @@ new file mode 100644
 +	lt9611c->cdata = i2c_get_match_data(client);
 +	if (!lt9611c->cdata)
 +		return dev_err_probe(dev, -EINVAL, "no match data for device\n");
-+	
++
 +	common = &lt9611c->common;
 +	common->dev = dev;
 +	common->client = client;
-+	common->ops = &lt9611c_ops;
++	common->fw_file = LT9611C_FW_FILE;
++	common->infoframe_clear_supported = true;
 +	common->max_tmds_rate = lt9611c->cdata->max_tmds_rate;
 +	common->bridge.product = lt9611c->cdata->product;
 +
@@ -1152,9 +1043,8 @@ new file mode 100644
 +		return ret;
 +
 +	/* A dual-port LT9611C uses one DSI device; port 1 is the slave link. */
-+	dsi = lt9611c_attach_dsi(lt9611c);
-+	if (IS_ERR(dsi)) {
-+		ret = PTR_ERR(dsi);
++	ret = lt9611c_attach_dsi(lt9611c);
++	if (ret) {
 +		lt96xx_remove_common(client);
 +		return ret;
 +	}
@@ -1165,17 +1055,35 @@ new file mode 100644
 +	return 0;
 +}
 +
-+static struct i2c_device_id lt9611c_id[] = {
-+	{ "lontium,lt9611c",   (kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611C]   },
-+	{ "lontium,lt9611ex",  (kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611EX]  },
-+	{ "lontium,lt9611uxd", (kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611UXD] },
++static const struct i2c_device_id lt9611c_id[] = {
++	{
++		"lontium,lt9611c",
++		(kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611C]
++	},
++	{
++		"lontium,lt9611ex",
++		(kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611EX]
++	},
++	{
++		"lontium,lt9611uxd",
++		(kernel_ulong_t)&lt9611c_chip_data[CHIP_LT9611UXD]
++	},
 +	{ /* sentinel */ }
 +};
 +
 +static const struct of_device_id lt9611c_match_table[] = {
-+	{ .compatible = "lontium,lt9611c",   .data = &lt9611c_chip_data[CHIP_LT9611C]   },
-+	{ .compatible = "lontium,lt9611ex",  .data = &lt9611c_chip_data[CHIP_LT9611EX]  },
-+	{ .compatible = "lontium,lt9611uxd", .data = &lt9611c_chip_data[CHIP_LT9611UXD] },
++	{
++		.compatible = "lontium,lt9611c",
++		.data = &lt9611c_chip_data[CHIP_LT9611C]
++	},
++	{
++		.compatible = "lontium,lt9611ex",
++		.data = &lt9611c_chip_data[CHIP_LT9611EX]
++	},
++	{
++		.compatible = "lontium,lt9611uxd",
++		.data = &lt9611c_chip_data[CHIP_LT9611UXD]
++	},
 +	{ /* sentinel */ }
 +};
 +MODULE_DEVICE_TABLE(of, lt9611c_match_table);
@@ -1193,6 +1101,7 @@ new file mode 100644
 +};
 +module_i2c_driver(lt9611c_driver);
 +
++MODULE_FIRMWARE(LT9611C_FW_FILE);
 +MODULE_AUTHOR("SunYun Yang <syyang@lontium.com>");
 +MODULE_AUTHOR("Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>");
 +MODULE_DESCRIPTION("Lontium LT9611C(EX/UXD) MIPI DSI to HDMI bridge");
@@ -1201,7 +1110,7 @@ diff --git a/drivers/gpu/drm/bridge/lontium-lt96xx.c b/drivers/gpu/drm/bridge/lo
 new file mode 100644
 --- /dev/null
 +++ b/drivers/gpu/drm/bridge/lontium-lt96xx.c
-@@ -0,0 +1,1218 @@
+@@ -0,0 +1,1282 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2026 Lontium Semiconductor, Inc.
@@ -1245,7 +1154,9 @@ new file mode 100644
 +
 +	guard(mutex)(&common->mcu_lock);
 +
-+	regmap_write(common->regmap, 0xe0de, 0x01);
++	ret = regmap_write(common->regmap, 0xe0de, 0x01);
++	if (ret)
++		return ret;
 +
 +	ret = regmap_read_poll_timeout(common->regmap, 0xe0ae, temp,
 +				       temp == 0x01, 1000, 100 * 1000);
@@ -1259,11 +1170,16 @@ new file mode 100644
 +
 +	for (i = 0; cmd->data && i < cmd->data_len &&
 +		    (LT96XX_CMD_HDR_SIZE + i) < max_params;
-+	     i++)
-+		regmap_write(common->regmap,
-+			     0xe0b0 + LT96XX_CMD_HDR_SIZE + i, cmd->data[i]);
++	     i++) {
++		ret = regmap_write(common->regmap,
++				   0xe0b0 + LT96XX_CMD_HDR_SIZE + i, cmd->data[i]);
++		if (ret)
++			return ret;
++	}
 +
-+	regmap_write(common->regmap, 0xe0de, 0x02);
++	ret = regmap_write(common->regmap, 0xe0de, 0x02);
++	if (ret)
++		return ret;
 +
 +	ret = regmap_read_poll_timeout(common->regmap, 0xe0ae, temp,
 +				       temp == 0x02, 1000, 100 * 1000);
@@ -1557,16 +1473,13 @@ new file mode 100644
 +	if (fw->size > total_size) {
 +		dev_err(dev, "firmware too large (%zu > %zu)\n", fw->size,
 +			total_size);
-+		ret = -EINVAL;
-+		goto out;
++		return -EINVAL;
 +	}
 +	dev_dbg(dev, "firmware size: %zu bytes\n", fw->size);
 +
-+	buffer = kzalloc(total_size, GFP_KERNEL);
-+	if (!buffer) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
++	buffer = kmalloc(total_size, GFP_KERNEL);
++	if (!buffer)
++		return -ENOMEM;
 +
 +	memcpy(buffer, fw->data, fw->size);
 +	memset(buffer + fw->size, 0xff, total_size - fw->size);
@@ -1577,6 +1490,10 @@ new file mode 100644
 +	dev_info(dev,
 +		 "starting firmware upgrade, size: %zu bytes, crc: 0x%02x\n",
 +		 fw->size, fw_crc);
++
++	/* No HPD processing while the flash sequence below is in progress */
++	disable_irq(common->client->irq);
++	cancel_work_sync(&common->work);
 +
 +	/* hardware access requires mcu_lock */
 +	guard(mutex)(&common->mcu_lock);
@@ -1595,18 +1512,20 @@ new file mode 100644
 +	}
 +
 +	ret = lt96xx_write_crc(common, fw_crc, LT96XX_FW_SIZE - 1);
-+	if (ret < 0) {
++	if (ret < 0)
 +		dev_err(dev, "failed to write firmware crc\n");
-+		goto out;
-+	}
-+
-+	/* This implicitly switches i2c to normal mode */
-+	lt96xx_reset(common);
-+
-+	ret = lt96xx_upgrade_result(common, fw_crc);
 +
 +out:
-+	return ret;
++	/* Finish the firmware upgrade sequence by holding reset, 
++	 * re-enabling the HPD interrupt, and then releasing reset.
++	 */
++	gpiod_set_value_cansleep(common->reset_gpio, 1);
++	msleep(1);
++	enable_irq(common->client->irq);
++	/* This implicitly switches i2c back to normal mode */
++	lt96xx_reset(common);
++
++	return ret < 0 ? ret : lt96xx_upgrade_result(common, fw_crc);
 +}
 +
 +int lt96xx_read_chipid(struct lt96xx_common *common)
@@ -1757,18 +1676,6 @@ new file mode 100644
 +/* Hardware/pin Channel to Physical Port mapping */
 +const u8 lt96xx_port_map[4] = { 0b01, 0b11, 0b00, 0b10 };
 +
-+static void lt96xx_irq_enable(struct lt96xx_common *common)
-+{
-+	if (common->initialized)
-+		enable_irq(common->client->irq);
-+}
-+
-+static void lt96xx_irq_disable(struct lt96xx_common *common)
-+{
-+	if (common->initialized)
-+		disable_irq(common->client->irq);
-+}
-+
 +static void lt96xx_fw_loaded(const struct firmware *fw, void *context)
 +{
 +	struct lt96xx_common *common = context;
@@ -1776,8 +1683,8 @@ new file mode 100644
 +	int ret;
 +
 +	if (!fw) {
-+		dev_err(dev, "failed reading firmware file '%s'\n", common->ops->fw_file);
-+		goto err_disable_regulators;
++		dev_err(dev, "failed reading firmware file '%s'\n", common->fw_file);
++		goto fail;
 +	}
 +
 +	ret = lt96xx_firmware_upgrade_fw(common, fw);
@@ -1785,18 +1692,18 @@ new file mode 100644
 +	release_firmware(fw);
 +
 +	if (ret < 0)
-+		goto err_disable_regulators;
++		goto fail;
 +
 +	ret = lt96xx_read_fw_version(common);
 +	if (ret <= 0)
-+		goto err_disable_regulators;
++		goto fail;
 +
 +	common->fw_version = ret;
 +
 +	dev_dbg(dev, "current version: 0x%04x\n", common->fw_version);
 +	return;
 +
-+err_disable_regulators:
++fail:
 +	dev_err(dev, "firmware update failed\n"
 +		"update need to be performed manually, by issuing\n"
 +		"'echo 1 > /sys/bus/i2c/devices/%s/firmware'\n", 
@@ -1827,9 +1734,11 @@ new file mode 100644
 +		return dev_err_probe(dev, PTR_ERR(common->regmap),
 +				     "regmap i2c init failed\n");
 +
++	/* keep ic in reset until interrupts enabled */
 +	common->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
 +	if (IS_ERR(common->reset_gpio))
-+		return PTR_ERR(common->reset_gpio);
++		return dev_err_probe(dev, PTR_ERR(common->reset_gpio),
++				     "failed to get reset gpio\n");
 +
 +	common->supplies[0].supply = "vcc";
 +	common->supplies[1].supply = "vdd";
@@ -1838,53 +1747,35 @@ new file mode 100644
 +	if (ret)
 +		return ret;
 +
-+	ret = regulator_bulk_enable(ARRAY_SIZE(common->supplies), common->supplies);
-+	if (ret)
-+		return ret;
-+
 +	INIT_WORK(&common->work, lt96xx_hpd_work);
 +
 +	ret = devm_request_threaded_irq(dev, common->client->irq, NULL,
 +					lt96xx_irq_thread_handler,
-+					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++					IRQF_TRIGGER_FALLING | IRQF_ONESHOT | IRQF_NO_AUTOEN,
 +					dev_name(dev), common);
-+	if (ret) {
-+		dev_err(dev, "failed to request irq\n");
-+		goto err_disable_regulators;
-+	}
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to request irq\n");
 +
-+	lt96xx_reset(common);
++	ret = regulator_bulk_enable(ARRAY_SIZE(common->supplies), common->supplies);
++	if (ret)
++		return ret;
 +
-+	ret = lt96xx_read_chipid(common);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to read chip id.\n");
-+		goto err_disable_regulators;
-+	}
-+
-+	ret = lt96xx_read_fw_version(common);
-+	if (ret > 0) {
-+		common->fw_version = ret;
-+	} else {
-+		dev_warn(dev, "no firmware programmed, requesting the update\n");
-+		ret = request_firmware_nowait(THIS_MODULE, false,
-+					      common->ops->fw_file, dev, GFP_KERNEL,
-+					      common, lt96xx_fw_loaded);
-+		if (ret)
-+			goto err_disable_regulators;
-+	}
-+
++	/*
++	 * Add the bridge before any slow I2C traffic below (reset, chip ID,
++	 * firmware version) so a spurious HPD interrupt racing that sequence
++	 * always has an added bridge to notify instead of one that isn't
++	 * registered yet.
++	 */
 +	common->bridge.of_node = dev->of_node;
 +	common->bridge.ops = 
 +			DRM_BRIDGE_OP_DETECT | 
-+			DRM_BRIDGE_OP_EDID |
 +			DRM_BRIDGE_OP_HPD |
 +			DRM_BRIDGE_OP_HDMI |
 +			DRM_BRIDGE_OP_HDMI_AUDIO;
 +	
-+	if (common->timing_valid) {
-+		common->bridge.ops &= ~DRM_BRIDGE_OP_EDID;
-+		common->bridge.ops |= DRM_BRIDGE_OP_MODES;
-+	}
++	common->bridge.ops |= common->timing_valid ? 
++		DRM_BRIDGE_OP_MODES : DRM_BRIDGE_OP_EDID;
++
 +	common->bridge.type = DRM_MODE_CONNECTOR_HDMIA;
 +	common->bridge.vendor = "Lontium";
 +	common->bridge.hdmi_audio_dev = dev;
@@ -1892,28 +1783,46 @@ new file mode 100644
 +	common->bridge.hdmi_audio_dai_port = 2;
 +	drm_bridge_add(&common->bridge);
 +
-+	common->initialized = true;
++	enable_irq(common->client->irq);
++
++	/* release the reset */
++	lt96xx_reset(common);
++
++	/* chip id check is a sanity check will never fail with proper integration */
++	ret = lt96xx_read_chipid(common);
++	if (ret < 0) {
++		dev_err(dev, "failed to read chip id.\n");
++		lt96xx_remove_common(common->client);
++		return ret;
++	}
++
++	ret = lt96xx_read_fw_version(common);
++	if (ret <= 0) {
++		dev_warn(dev, "no firmware programmed, requesting the update\n");
++		ret = request_firmware_nowait(THIS_MODULE, false,
++					      common->fw_file, dev, GFP_KERNEL,
++					      common, lt96xx_fw_loaded);
++		if (ret)
++			dev_warn(dev,
++				"failed to request firmware update, retry manually via sysfs\n");
++	} else {
++		common->fw_version = ret;
++	}
 +
 +	return 0;
-+
-+err_disable_regulators:
-+	regulator_bulk_disable(ARRAY_SIZE(common->supplies), common->supplies);
-+	return ret;
 +}
 +
 +void lt96xx_remove_common(struct i2c_client *client)
 +{
 +	struct lt96xx_common *common = i2c_get_clientdata(client);
 +
-+	lt96xx_irq_disable(common);
++	disable_irq(common->client->irq);
 +	cancel_work_sync(&common->work);
 +	drm_bridge_remove(&common->bridge);
 +	regulator_bulk_disable(ARRAY_SIZE(common->supplies), common->supplies);
 +
 +	drm_edid_free(common->cached_edid);
 +	common->cached_edid = NULL;
-+
-+	common->initialized = false;
 +}
 +
 +struct lt96xx_common *bridge_to_lt96xx(struct drm_bridge *bridge)
@@ -1974,6 +1883,10 @@ new file mode 100644
 +	return IRQ_HANDLED;
 +}
 +
++/* EDID base block + reasonable number of extension blocks; caps a corrupted
++ * block-0 extension count from driving excessive slow MCU-mailbox reads. */
++#define LT96XX_EDID_MAX_BLOCKS 4
++
 +static int lt96xx_get_edid_block(void *data, u8 *buf, unsigned int block,
 +				 size_t len)
 +{
@@ -1982,7 +1895,7 @@ new file mode 100644
 +	
 +	u8 edid_raw[LT96XX_CMD_Y0_SIZE + LT96XX_EDID_BUF_SIZE];
 +	u8 y0;
-+	int ret, i, offset = 0;
++	int ret, i, offset = 0, attempt;
 +	
 +	struct lt96xx_cmd cmd = {
 +		.hdr = { LT96XX_FUNC_READ, LT96XX_TYPE_HDMI,
@@ -2003,7 +1916,7 @@ new file mode 100644
 +		cmd.data = &y0;
 +		cmd.data_len = 1;
 +
-+		for (int attempt = 0; attempt < 3; attempt++) {
++		for (attempt = 0; attempt < 3; attempt++) {
 +			ret = lt96xx_read_write_flow(common, &cmd, &rsp);
 +			if (!ret)
 +				break;
@@ -2033,13 +1946,11 @@ new file mode 100644
 +		return NULL;
 +
 +	edid = (struct edid *)buf;
-+	num_blocks = edid->extensions + 1;
++	num_blocks = min_t(int, edid->extensions + 1, LT96XX_EDID_MAX_BLOCKS);
 +
-+	edid = kmalloc(num_blocks * EDID_LENGTH, GFP_KERNEL);
++	edid = kmemdup(buf, num_blocks * EDID_LENGTH, GFP_KERNEL);
 +	if (!edid)
 +		return NULL;
-+
-+	memcpy(edid, buf, EDID_LENGTH);
 +
 +	for (i = 1; i < num_blocks; i++) {
 +		ret = lt96xx_get_edid_block(common, (u8 *)edid + i * EDID_LENGTH,
@@ -2085,7 +1996,7 @@ new file mode 100644
 +	status = ret ? connector_status_connected :
 +		connector_status_disconnected;
 +
-+	if (status == connector_status_connected) {
++	if (status == connector_status_connected && !common->timing_valid) {
 +		/* Reading EDID takes long time, so do it before updating states */
 +		const struct drm_edid *new_edid = lt96xx_read_edid(common);
 +
@@ -2207,13 +2118,67 @@ new file mode 100644
 +			 LT96XX_HDMI_SEQ_INFOFRAME, LT96XX_CMD_SEP },
 +	};
 +
-+	if (WARN_ON(len > LT96XX_INFOFRAME_MAX_SIZE))
++	if (len > LT96XX_INFOFRAME_MAX_SIZE)
 +		return -EINVAL;
 +
 +	extra[0] = reg_type;
 +	memcpy(&extra[1], buffer, len);
 +	cmd.data = extra;
 +	cmd.data_len = 1 + len;
++
++	return lt96xx_read_write_flow(common, &cmd, &rsp);
++}
++
++static int lt96xx_infoframe_reg_type(enum hdmi_infoframe_type type)
++{
++	switch (type) {
++	case HDMI_INFOFRAME_TYPE_AVI:
++		return 0x01;
++	case HDMI_INFOFRAME_TYPE_AUDIO:
++		return 0x02;
++	case HDMI_INFOFRAME_TYPE_DRM:
++		return 0x03;
++	case HDMI_INFOFRAME_TYPE_VENDOR:
++		return 0x04;
++	default:
++		return -EINVAL;
++	}
++}
++
++int lt96xx_hdmi_write_infoframe(struct drm_bridge *bridge,
++				 enum hdmi_infoframe_type type,
++				 const u8 *buffer, size_t len)
++{
++	struct lt96xx_common *common = bridge_to_lt96xx(bridge);
++	int reg_type = lt96xx_infoframe_reg_type(type);
++
++	if (reg_type < 0)
++		return reg_type;
++
++	return lt96xx_write_infoframe(common, reg_type, buffer, len);
++}
++
++int lt96xx_hdmi_clear_infoframe(struct drm_bridge *bridge,
++				 enum hdmi_infoframe_type type)
++{
++	struct lt96xx_common *common = bridge_to_lt96xx(bridge);
++	u8 clear_data;
++	struct lt96xx_cmd cmd = {
++		.hdr = { LT96XX_FUNC_WRITE, LT96XX_TYPE_HDMI,
++			 LT96XX_HDMI_SEQ_CLEAR_INFOFRAME, LT96XX_CMD_SEP },
++		.data = &clear_data,
++		.data_len = 1,
++	};
++	struct lt96xx_rsp rsp = {};
++	int reg_type = lt96xx_infoframe_reg_type(type);
++
++	if (reg_type < 0)
++		return reg_type;
++
++	if (!common->infoframe_clear_supported)
++		return -EOPNOTSUPP;
++
++	clear_data = reg_type;
 +
 +	return lt96xx_read_write_flow(common, &cmd, &rsp);
 +}
@@ -2311,7 +2276,7 @@ new file mode 100644
 +	struct lt96xx_common *common = dev_get_drvdata(dev);
 +	int ret;
 +
-+	lt96xx_irq_disable(common);
++	disable_irq(common->client->irq);
 +	cancel_work_sync(&common->work);
 +
 +	guard(mutex)(&common->mcu_lock);
@@ -2323,7 +2288,7 @@ new file mode 100644
 +	if (ret) {
 +		dev_err(common->dev, "regulator bulk disable failed.\n");
 +		gpiod_set_value_cansleep(common->reset_gpio, 0);
-+		lt96xx_irq_enable(common);
++		enable_irq(common->client->irq);
 +		return ret;
 +	}
 +
@@ -2343,7 +2308,7 @@ new file mode 100644
 +		dev_err(common->dev, "regulator bulk enable failed.\n");
 +		return ret;
 +	}
-+	lt96xx_irq_enable(common);
++	enable_irq(common->client->irq);
 +	lt96xx_reset(common);
 +
 +	return ret;
@@ -2364,13 +2329,17 @@ new file mode 100644
 +	dev_warn(dev, "starting firmware upgrade - display will be disrupted\n");
 +
 +	/* load firmware — must happen outside the mcu_lock */
-+	ret = request_firmware_direct(&fw, common->ops->fw_file, dev);
++	ret = request_firmware_direct(&fw, common->fw_file, dev);
 +	if (ret) {
-+		dev_err(common->dev, "failed to load '%s'\n", common->ops->fw_file);
++		dev_err(common->dev, "failed to load '%s'\n", common->fw_file);
 +		return ret;
 +	}
 +
-+	/* Save and disable the complete DRM state before entering bootloader. */
++	/*
++	 * Save and disable the complete DRM state before entering bootloader.
++	 * Best effort only: the upgrade proceeds even if this fails, since the
++	 * chip must still be reflashed once a manual upgrade has been requested.
++	 */
 +	state = drm_atomic_helper_suspend(common->bridge.dev);
 +	if (IS_ERR(state))
 +		dev_err_probe(dev, PTR_ERR(state), "failed to suspend DRM state\n");
@@ -2378,6 +2347,9 @@ new file mode 100644
 +	ret = lt96xx_firmware_upgrade_fw(common, fw);
 +
 +	release_firmware(fw);
++
++	if (ret)
++		goto resume;
 +
 +	ret = lt96xx_read_fw_version(common);
 +	if (ret < 0) {
@@ -2388,6 +2360,7 @@ new file mode 100644
 +		dev_info(dev, "firmware upgrade succeeded, version: 0x%04x\n", ret);
 +	}
 +
++resume:
 +	if (!IS_ERR(state)) {
 +		resume_ret = drm_atomic_helper_resume(common->bridge.dev, state);
 +		if (resume_ret)
@@ -2424,7 +2397,7 @@ diff --git a/drivers/gpu/drm/bridge/lontium-lt96xx.h b/drivers/gpu/drm/bridge/lo
 new file mode 100644
 --- /dev/null
 +++ b/drivers/gpu/drm/bridge/lontium-lt96xx.h
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,209 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2026 Lontium Semiconductor, Inc.
@@ -2495,6 +2468,7 @@ new file mode 100644
 +#define LT96XX_HDMI_SEQ_OUTPUT_FORMAT 0x33
 +#define LT96XX_HDMI_SEQ_INFOFRAME 0x35
 +#define LT96XX_HDMI_SEQ_AUDIO 0x36
++#define LT96XX_HDMI_SEQ_CLEAR_INFOFRAME 0x42
 +
 +/* MIPI/LVDS Ports Select command (seq 0x31): Y0=port count, Y1=port-swap byte;
 + * only the command type byte (M vs L) differs between chip families. */
@@ -2522,13 +2496,6 @@ new file mode 100644
 +	unsigned int data_len;
 +};
 +
-+struct lt96xx_common;
-+
-+/* The only per-variant hook the shared firmware/sysfs code needs. */
-+struct lt96xx_ops {
-+	const char *fw_file;
-+};
-+
 +/*
 + * Embedded as the first member of each driver's own bridge struct, so
 + * shared callbacks can recover it from &bridge via container_of()
@@ -2545,16 +2512,16 @@ new file mode 100644
 +	struct work_struct work;
 +	struct gpio_desc *reset_gpio;
 +	struct regulator_bulk_data supplies[2];
-+	const struct lt96xx_ops *ops;
++	const char *fw_file;
++	bool infoframe_clear_supported;
 +	int fw_version;
 +	unsigned long long max_tmds_rate;
-+	int bus_format;
++	u32 bus_format;
 +	struct drm_display_mode timing_mode;
 +	enum drm_connector_status hdmi_connected;
 +	const struct drm_edid *cached_edid;
 +	u32 timing_bus_flags;
 +	bool timing_valid;
-+	bool initialized;
 +};
 +
 +struct __packed lt96xx_video_timing {
@@ -2578,7 +2545,6 @@ new file mode 100644
 +			   const struct lt96xx_cmd *cmd,
 +			   struct lt96xx_rsp *rsp);
 +
-+int lt96xx_firmware_upgrade(struct lt96xx_common *common);
 +void lt96xx_reset(struct lt96xx_common *common);
 +int lt96xx_read_chipid(struct lt96xx_common *common);
 +int lt96xx_read_fw_version(struct lt96xx_common *common);
@@ -2621,6 +2587,11 @@ new file mode 100644
 +
 +int lt96xx_write_infoframe(struct lt96xx_common *common, u8 reg_type,
 +			   const u8 *buffer, size_t len);
++int lt96xx_hdmi_write_infoframe(struct drm_bridge *bridge,
++				 enum hdmi_infoframe_type type,
++				 const u8 *buffer, size_t len);
++int lt96xx_hdmi_clear_infoframe(struct drm_bridge *bridge,
++				 enum hdmi_infoframe_type type);
 +int lt96xx_hdmi_audio_prepare(struct drm_bridge *bridge,
 +			     struct drm_connector *connector,
 +			     struct hdmi_codec_daifmt *fmt,
