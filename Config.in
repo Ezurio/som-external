@@ -10,6 +10,11 @@ config BR2_SUMMIT_IMX_HAB
 	bool "i.MX HAB Signed Boot (CST)"
 	select BR2_PACKAGE_HOST_CST
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	depends on BR2_SUMMIT_SECURE_BOOT
+	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MM || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MN || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MP
+	default y
 	help
 		Enable NXP HABv4 (High Assurance Boot) signing for i.MX8M
 		platforms. When enabled, U-Boot's binman uses the NXP Code
@@ -26,6 +31,16 @@ config BR2_SUMMIT_IMX_AHAB
 	bool "i.MX AHAB Signed Boot (SPSDK)"
 	select BR2_PACKAGE_HOST_PYTHON_SPSDK
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
+	depends on BR2_SUMMIT_SECURE_BOOT
+	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8 || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8X || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8DXL || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8ULP || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX91 || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX93 || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX94 || \
+		   BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX95
+	default y
 	help
 		Enable NXP AHAB (Advanced High Assurance Boot) signing for
 		i.MX9x platforms. After U-Boot builds flash.bin, the SPSDK
@@ -45,12 +60,15 @@ config BR2_SUMMIT_IMX_AHAB
 config BR2_SUMMIT_IMX_AHAB_FAMILY
 	string "SPSDK family name"
 	depends on BR2_SUMMIT_IMX_AHAB
+	default "mx91" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX91
+	default "mx93" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX93
+	default "mx95" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX95
+	default "mimx8ulp" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8ULP
+	default "mimx8dxl" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8DXL
+	default "mimx8qm" if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8
 	help
 		SPSDK family identifier for the target SoC, used by
-		nxpimage ahab sign. Examples:
-		  i.MX91  -> mimx9131
-		  i.MX93  -> mimx9352
-		  i.MX95  -> mimx9596
+		nxpimage ahab sign. 
 
 config BR2_SUMMIT_IMX_AHAB_AUTO_LOCK
 	bool "Advance ELE lifecycle to OEM locked"

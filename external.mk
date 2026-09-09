@@ -28,9 +28,7 @@ include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))
 ifeq ($(BR2_PACKAGE_HOST_CST),y)
 UBOOT_DEPENDENCIES += host-cst
 
-ifeq ($(SIG_DATA_PATH),)
-$(error SIG_DATA_PATH is not set for HAB signing (BR2_SUMMIT_IMX_HAB=y))
-endif
+SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/hab4
 
 SRK_TABLE ?= $(SIG_DATA_PATH)/crts/SRK_1_2_3_4_table.bin
 CSF_KEY ?= $(SIG_DATA_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
