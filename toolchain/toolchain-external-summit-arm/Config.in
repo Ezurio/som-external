@@ -23,7 +23,7 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_14
 	select BR2_TOOLCHAIN_GCC_AT_LEAST_15
 	select BR2_TOOLCHAIN_HAS_OPENMP
 	help
-		GCC 15.3.0, GDB 15.0.0, glibc-2.43+, headers-6.18.0, binutils 2.45.1
+		GCC 15.3.0, GDB 16.3.0, glibc-2.44+, headers-6.18.0, binutils 2.45.1
 
 endchoice
 
@@ -39,6 +39,6 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_ID
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_VERSION
 	string
-	default 14.0.0.16
+	default 14.0.0.37
 
 endif
