@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Fri, 11 Sep 2026 00:00:00 +0000
+Subject: [PATCH] usb: common: usb-conn-gpio: reassert role unconditionally on
+ resume
+
+dwc3 (this board runs it in OTG dr_mode) reconnects on its own system
+resume using whatever role it had before suspend, without consulting
+this connector at all -- dwc3_set_mode()/__dwc3_set_mode() never dedup
+a role-switch call at that level, since the controller's
+current_dr_role stays OTG.
+
+usb_conn_resume() re-read the ID/VBUS GPIOs after resuming, but
+usb_conn_detect_cable()'s "repeated role" dedup then swallowed the
+call to usb_role_switch_set_role() whenever the resolved role matched
+the last one -- which is the common case across a suspend/resume
+cycle. So dwc3 was left standing on its own premature, blind
+reconnect, and nothing ever told it to redo that reconnect against the
+now-confirmed-stable CC/ID state, leading to unreliable reconnection
+after resume.
+
+Fix it by marking the resume-triggered detection the same way the
+driver already marks its initial post-probe detection: both are cases
+where the role must be (re-)applied even if it happens to match
+info->last_role, since in neither case has this driver actually told
+the role switch about it yet for the current system state.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Upstream-Status: Pending
+---
+ drivers/usb/common/usb-conn-gpio.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/usb/common/usb-conn-gpio.c
++++ b/drivers/usb/common/usb-conn-gpio.c
+@@ -344,6 +344,7 @@ static int __maybe_unused usb_conn_resume(struct device *dev)
+ 	if (info->vbus_gpiod)
+ 		enable_irq(info->vbus_irq);
+ 
++	info->initial_detection = true;
+ 	usb_conn_queue_dwork(info, 0);
+ 
+ 	return 0;
+-- 
+2.39.5
+

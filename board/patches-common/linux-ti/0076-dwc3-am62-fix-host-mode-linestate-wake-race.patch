@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Fri, 11 Sep 2026 00:00:00 +0000
+Subject: [PATCH] usb: dwc3: dwc3-am62: fix spurious wake immediately after
+ suspend in host mode
+
+dwc3_ti_suspend_common() unconditionally armed USBSS_WAKEUP_CFG_LINESTATE_EN
+whenever the port was in host mode. LINESTATE reflects the raw D+/D- line
+state, and nothing in this glue driver verifies the link has actually
+settled into U2/L3 (suspended) before that bit is armed -- the accompanying
+comment even says as much ("causes spurious wake-up"), but it was attached
+to the wrong branch and never enforced. In practice this fires the moment
+WAKEUP_CONFIG is written, waking the system right back up on entry to
+suspend whenever the port is in host mode.
+
+AM62 also has no overcurrent-sense pin routed for this port, so
+USBSS_WAKEUP_CFG_OVERCURRENT_EN is a harmless no-op here, but it's kept so
+host mode still has a (currently unused) wakeup source instead of none, in
+case a future board revision wires it up.
+
+Since LINESTATE can't be safely gated from this glue, drop it from the
+host-mode wakeup config entirely. Also log USBSS_WAKEUP_STAT on resume so
+the responsible bit is visible in dmesg if a spurious wake reappears.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Upstream-Status: Pending
+---
+ drivers/usb/dwc3/dwc3-am62.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/drivers/usb/dwc3/dwc3-am62.c
++++ b/drivers/usb/dwc3/dwc3-am62.c
+@@ -337,7 +337,7 @@ static int dwc3_ti_suspend_common(struct
+ 		/* Set wakeup config enable bits */
+ 		reg = dwc3_ti_readl(am62, USBSS_WAKEUP_CONFIG);
+ 		if (current_prtcap_dir == DWC3_GCTL_PRTCAP_HOST) {
+-			reg = USBSS_WAKEUP_CFG_LINESTATE_EN | USBSS_WAKEUP_CFG_OVERCURRENT_EN;
++			reg = USBSS_WAKEUP_CFG_OVERCURRENT_EN;
+ 		} else {
+ 			reg = USBSS_WAKEUP_CFG_VBUSVALID_EN | USBSS_WAKEUP_CFG_SESSVALID_EN;
+ 			/*
+@@ -380,6 +380,13 @@ static int dwc3_ti_resume_common(struct
+ 	reg = dwc3_ti_readl(am62, USBSS_WAKEUP_STAT);
+ 	am62->wakeup_stat = reg;
+ 
++	if (reg)
++		dev_info(dev, "wakeup_stat: 0x%x%s%s%s%s\n", reg,
++			reg & USBSS_WAKEUP_STAT_OVERCURRENT ? " OVERCURRENT" : "",
++			reg & USBSS_WAKEUP_STAT_LINESTATE ? " LINESTATE" : "",
++			reg & USBSS_WAKEUP_STAT_SESSVALID ? " SESSVALID" : "",
++			reg & USBSS_WAKEUP_STAT_VBUSVALID ? " VBUSVALID" : "");
++
+ 	return 0;
+ }
+ 
+-- 
+2.39.5

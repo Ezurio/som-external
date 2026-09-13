@@ -11,7 +11,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pwm/pwm.h>
-#include "k3-pinctrl.h"
 
 #include "k3-am62l-carbon-bd-panel.dtsi"
 
