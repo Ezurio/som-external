@@ -11,6 +11,8 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/input/gpio-keys.h>
 
+#include "k3-timesync-router.h"
+
 #include "k3-am625.dtsi"
 
 / {
@@ -48,6 +50,7 @@
 	};
 
 	memory: memory@80000000 {
+		device_type = "memory";
 		/* 2G RAM */
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>,
 		      <0x00000008 0x80000000 0x00000000 0x00000000>;
@@ -368,6 +371,13 @@
 &cpsw3g_mdio {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_mdio0_pins_default>;
+};
+
+&timesync_router {
+	mux-reg-mask-val = <
+		K3_TS_OFFSET(12, 0xff, 17)
+		>;
+	idle-states = <0x1>;
 };
 
 &epwm0 { /* PWM_0 */
@@ -1336,6 +1346,24 @@
 	status = "reserved";
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
+};
+
+&usbss0 {
+	ti,vbus-divider;
+};
+
+&usbss1 {
+	ti,vbus-divider;
+};
+
+&usb0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usb0_en_pins_default>;
+};
+
+&usb1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_usb1_en_pins_default>;
 };
 
 &gpu {

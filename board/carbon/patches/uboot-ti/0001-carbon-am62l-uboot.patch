@@ -3,7 +3,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 diff --git a/arch/arm/dts/k3-am62l-carbon-binman.dtsi b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
 new file mode 100644
-index 00000000000..0d3648c0505
+index 00000000000..21a3aea6551
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
 @@ -0,0 +1,247 @@
@@ -60,7 +60,7 @@ index 00000000000..0d3648c0505
 +			schema = "arch/arm/mach-k3/am62lx/schema.yaml";
 +		};
 +	};
-+	
++
 +	combined-tifs-cfg {
 +		filename = "combined-tifs-cfg.bin";
 +
@@ -256,15 +256,15 @@ index 00000000000..0d3648c0505
 +};
 diff --git a/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
 new file mode 100644
-index 00000000000..bd016d100cd
+index 00000000000..a6a2c8d5860
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,142 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
 + */
-+ 
++
 +#include "k3-am62l-carbon-binman.dtsi"
 +
 +/ {
@@ -340,7 +340,6 @@ index 00000000000..bd016d100cd
 +
 +&exp0 {
 +	bootph-all;
-+	compatible = "ti,tca6416";
 +
 +	wifi_en {
 +		bootph-all;
@@ -361,84 +360,6 @@ index 00000000000..bd016d100cd
 +		gpio-hog;
 +		gpios = <2 GPIO_ACTIVE_HIGH>;
 +		output-high;
-+	};
-+
-+	gpio3 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <3 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio4 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <4 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio5 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <5 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio6 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <6 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio7 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <7 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio8 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <8 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio9 {
-+		gpio-hog;
-+		gpios = <9 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio10 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <10 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio11 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <11 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio12 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <12 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio13 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <13 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio14 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <14 GPIO_ACTIVE_HIGH>;
-+		input;
-+	};
-+	gpio15 {
-+		bootph-all;
-+		gpio-hog;
-+		gpios = <15 GPIO_ACTIVE_HIGH>;
-+		input;
 +	};
 +};
 +
@@ -470,10 +391,6 @@ index 00000000000..bd016d100cd
 +	bootph-all;
 +};
 +
-+&usb0 {
-+	/delete-property/ bootph-all;
-+};
-+
 +&dphy_tx0 {
 +	/delete-property/ bootph-all;
 +};
@@ -487,10 +404,10 @@ index 00000000000..bd016d100cd
 +};
 diff --git a/arch/arm/dts/k3-am62l-carbon-minimal.dts b/arch/arm/dts/k3-am62l-carbon-minimal.dts
 new file mode 100644
-index 00000000000..b77202334d7
+index 00000000000..c14f4e0b468
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal.dts
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,26 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 +/*
 + * Copyright 2026 Ezurio LLC
@@ -513,12 +430,16 @@ index 00000000000..b77202334d7
 +&sdhci1 { /* SDIO_A uSD */
 +	status = "okay";
 +};
++
++&usbss0 {
++	status = "okay";
++};
 diff --git a/arch/arm/dts/k3-am62l-carbon-som.dtsi b/arch/arm/dts/k3-am62l-carbon-som.dtsi
 new file mode 100644
-index 00000000000..439f963f50e
+index 00000000000..a1c753a44bc
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-som.dtsi
-@@ -0,0 +1,1163 @@
+@@ -0,0 +1,1208 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * AM62L Carbon SOM
@@ -571,9 +492,24 @@ index 00000000000..439f963f50e
 +	};
 +
 +	memory: memory@80000000 {
-+		device_type = "memory";
 +		/* 2G RAM */
 +		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
++	};
++
++	thermal-zones {
++		wkup0-thermal {
++			polling-delay-passive = <250>;	/* milliSeconds */
++			polling-delay = <500>;		/* milliSeconds */
++			thermal-sensors = <&vtm0 0>;
++
++			trips {
++				crit0 {
++					temperature = <125000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
++		};
 +	};
 +
 +	reserved_memory: reserved-memory {
@@ -839,7 +775,7 @@ index 00000000000..439f963f50e
 +			"W_DISABLE1", "W_DISABLE2", "CARRIER_PWR_EN",
 +			"BT_DEVICE_WAKE", "WL_DEVICE_WAKE", "GPIO_C_2",
 +			"CARRIER_STBY", "SDIO_B_PWR_EN", "GPIO_B_6",
-+			"GPIO_B_7", "USB_A_ID","USB_A_OC",
++			"GPIO_B_7", "USB_A_ID", "USB_B_ID",
 +			"ETH_B_RST", "ETH_B_INT", "GPIO_C_4",
 +			"GPIO_C_5";
 +
@@ -849,6 +785,7 @@ index 00000000000..439f963f50e
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&exp0_pins_default>;
 +		interrupts-extended = <&gpio0 102 IRQ_TYPE_EDGE_FALLING>;
++		wakeup-source;
 +	};
 +
 +	tps65214: pmic@30 {
@@ -911,6 +848,7 @@ index 00000000000..439f963f50e
 +		compatible = "microcrystal,rv3028";
 +		reg = <0x52>;
 +
++		backup-switchover-dsm;
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&rtc_pins_default>;
 +		interrupts-extended = <&gpio0 103 IRQ_TYPE_EDGE_FALLING>;
@@ -975,6 +913,24 @@ index 00000000000..439f963f50e
 +
 +&gpio0 {
 +	status = "okay";
++
++	gpio-line-names =
++		"GPIO_B_3", "", "", "GPIO_A_5", "GPIO_A_3", "BT_HOST_WAKE", "VPP_EN", "", /* 0 - 7 */
++		"", "", "", "GPIO_C_6", "GPIO_B_2", "GPIO_A_6", "GPIO_A_4", "", /* 8 - 15 */
++		"", "", "", "", "", "", "", "", /* 16 - 23 */
++		"", "", "", "", "", "", "", "", /* 24 - 31 */
++		"", "", "", "", "", "", "", "", /* 32 - 39 */
++		"", "", "", "GPIO_B_4", "GPIO_B_5", "", "", "", /* 40 - 47 */
++		"", "", "", "MMC1_POWER_EN", "EMMC_RESET#", "", "", "", /* 48 - 55 */
++		"", "", "", "", "", "", "", "", /* 56 - 63 */
++		"", "", "", "", "", "", "", "", /* 64 - 71 */
++		"", "", "", "", "", "", "", "", /* 72 - 79 */
++		"", "", "SDIO_WAKE#", "ETH_A_RST", "", "", "", "", /* 80 - 87 */
++		"GPIO_A_7", "", "", "", "", "", "", "", /* 88 - 95 */
++		"", "", "", "", "", "", "EXP0_INT", "RTC_INT", /* 96 - 103 */
++		"ETH_A_INT", "", "", "", "", "", "", "", /* 104 - 111 */
++		"", "", "", "", "", "", "", "", /* 112 - 119 */
++		"", "", "SDIO_A_CD", "GPIO_C_3", "USB_A_EN", "USB_B_EN", "", ""; /* 120 - 127 */
 +};
 +
 +&gpio2 {
@@ -1040,7 +996,7 @@ index 00000000000..439f963f50e
 +
 +&cpsw_port1 {
 +	status = "disabled";
-+	phy-mode = "rgmii-rxid";
++	phy-mode = "rgmii-id";
 +
 +	//nvmem-cells = <&eth_mac0>;
 +	//nvmem-cell-names = "mac-address";
@@ -1048,7 +1004,7 @@ index 00000000000..439f963f50e
 +
 +&cpsw_port2 {
 +	status = "disabled";
-+	phy-mode = "rgmii-rxid";
++	phy-mode = "rgmii-id";
 +
 +	//nvmem-cells = <&eth_mac1>;
 +	//nvmem-cell-names = "mac-address";
@@ -1104,10 +1060,10 @@ index 00000000000..439f963f50e
 +
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&gpmc0_pins_default>;
-+	
++
 +	#address-cells = <2>;
 +	#size-cells = <1>;
-+	
++
 +	ranges = <0 0 0x00 0x51000000 0x01000000>; /* CS0 space. Min partition = 16MB */
 +
 +	nand@0,0 {
@@ -1193,6 +1149,16 @@ index 00000000000..439f963f50e
 +
 +&usbss1 {
 +	ti,vbus-divider;
++};
++
++&usb0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb0_en_pins_default>;
++};
++
++&usb1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb1_en_pins_default>;
 +};
 +
 +&mcasp2 {
@@ -1495,19 +1461,19 @@ index 00000000000..439f963f50e
 +
 +	rgmii_phy0_irq_pins_default: rgmii-phy0-irq-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x0194, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (B11) MCASP0_AFSX.GPIO0_84 */
++			AM62LX_IOPAD(0x01e4, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (D16) EXT_REFCLK1.GPIO0_104 */
 +		>;
 +	};
 +
 +	usb0_en_pins_default: usb0-en-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x0244, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_A_EN (C6) USB0_DRVVBUS */
++			AM62LX_IOPAD(0x0244, PIN_INPUT, 0) /* USB_A_EN (C6) USB0_DRVVBUS */
 +		>;
 +	};
 +
 +	usb1_en_pins_default: usb1-en-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x0248, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_B_EN (A5) USB1_DRVVBUS */
++			AM62LX_IOPAD(0x0248, PIN_INPUT, 0) /* USB_B_EN (A5) USB1_DRVVBUS */
 +		>;
 +	};
 +
@@ -1534,7 +1500,7 @@ index 00000000000..439f963f50e
 +
 +	mcasp2_mclk_pins_default: mcasp2-mclk-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x01e4, PIN_OUTPUT, 3) /* I2S_AB_MCLK (D16) EXT_REFCLK1 */
++			AM62LX_IOPAD(0x0194, PIN_INPUT, 2) /* I2S_AB_MCLK (B11) MCASP0_AFSX.AUDIO_EXT_REFCLK1 */
 +		>;
 +	};
 +
@@ -1600,7 +1566,7 @@ index 00000000000..439f963f50e
 +
 +	osm_gpio_a_2_pins_default: osm-gpio-a-2-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x0194, PIN_INPUT, 7) /* GPIO_A_2 (B11) MCASP0_AFSX.GPIO0_84 */
++			AM62LX_IOPAD(0x01e4, PIN_INPUT, 7) /* GPIO_A_2 (D16) EXT_REFCLK1.GPIO0_104 */
 +		>;
 +	};
 +
@@ -1618,7 +1584,7 @@ index 00000000000..439f963f50e
 +
 +	osm_gpio_a_5_pins_default: osm-gpio-a-5-default-pins {
 +		pinctrl-single,pins = <
-+			AM62LX_IOPAD(0x0048, PIN_INPUT, 7) /* GPIO_A_5 (C22) OSPI0_D0.GPIO0_4 */
++			AM62LX_IOPAD(0x0048, PIN_INPUT, 7) /* GPIO_A_5 (C22) OSPI0_D0.GPIO0_3 */
 +		>;
 +	};
 +
@@ -1683,7 +1649,7 @@ index 00000000000..439f963f50e
 +	};
 +};
 diff --git a/arch/arm/mach-k3/am62lx/Kconfig b/arch/arm/mach-k3/am62lx/Kconfig
-index 1d89fe4e0b0..d2b6c5efcac 100644
+index 91c1e747dc2..34d09844463 100644
 --- a/arch/arm/mach-k3/am62lx/Kconfig
 +++ b/arch/arm/mach-k3/am62lx/Kconfig
 @@ -16,9 +16,16 @@ config TARGET_AM62L3_EVM
@@ -2390,10 +2356,10 @@ index 00000000000..7c4f2954562
 +}
 diff --git a/configs/carbon_am62l_defconfig b/configs/carbon_am62l_defconfig
 new file mode 100644
-index 00000000000..16b08f20066
+index 00000000000..427867c4291
 --- /dev/null
 +++ b/configs/carbon_am62l_defconfig
-@@ -0,0 +1,171 @@
+@@ -0,0 +1,172 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_K3=y
 +CONFIG_TEXT_BASE=0x84000000
@@ -2489,6 +2455,7 @@ index 00000000000..16b08f20066
 +CONFIG_ENV_IS_IN_NAND=y
 +CONFIG_ENV_REDUNDANT=y
 +CONFIG_ENV_FAT_DEVICE_AND_PART=":1"
++CONFIG_ENV_FAT_FILE_REDUND="uboot.env"
 +CONFIG_ENV_WRITEABLE_LIST=y
 +CONFIG_NO_NET=y
 +CONFIG_SPL_DM=y

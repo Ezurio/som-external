@@ -333,7 +333,7 @@
 			"W_DISABLE1", "W_DISABLE2", "CARRIER_PWR_EN",
 			"BT_DEVICE_WAKE", "WL_DEVICE_WAKE", "GPIO_C_2",
 			"CARRIER_STBY", "SDIO_B_PWR_EN", "GPIO_B_6",
-			"GPIO_B_7", "USB_A_ID","USB_A_OC",
+			"GPIO_B_7", "USB_A_ID", "USB_B_ID",
 			"ETH_B_RST", "ETH_B_INT", "GPIO_C_4",
 			"GPIO_C_5";
 
@@ -343,6 +343,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&exp0_pins_default>;
 		interrupts-extended = <&gpio0 102 IRQ_TYPE_EDGE_FALLING>;
+		wakeup-source;
 	};
 
 	tps65214: pmic@30 {
@@ -470,6 +471,24 @@
 
 &gpio0 {
 	status = "okay";
+
+	gpio-line-names =
+		"GPIO_B_3", "", "", "GPIO_A_5", "GPIO_A_3", "BT_HOST_WAKE", "VPP_EN", "", /* 0 - 7 */
+		"", "", "", "GPIO_C_6", "GPIO_B_2", "GPIO_A_6", "GPIO_A_4", "", /* 8 - 15 */
+		"", "", "", "", "", "", "", "", /* 16 - 23 */
+		"", "", "", "", "", "", "", "", /* 24 - 31 */
+		"", "", "", "", "", "", "", "", /* 32 - 39 */
+		"", "", "", "GPIO_B_4", "GPIO_B_5", "", "", "", /* 40 - 47 */
+		"", "", "", "MMC1_POWER_EN", "EMMC_RESET#", "", "", "", /* 48 - 55 */
+		"", "", "", "", "", "", "", "", /* 56 - 63 */
+		"", "", "", "", "", "", "", "", /* 64 - 71 */
+		"", "", "", "", "", "", "", "", /* 72 - 79 */
+		"", "", "SDIO_WAKE#", "ETH_A_RST", "", "", "", "", /* 80 - 87 */
+		"GPIO_A_7", "", "", "", "", "", "", "", /* 88 - 95 */
+		"", "", "", "", "", "", "EXP0_INT", "RTC_INT", /* 96 - 103 */
+		"ETH_A_INT", "", "", "", "", "", "", "", /* 104 - 111 */
+		"", "", "", "", "", "", "", "", /* 112 - 119 */
+		"", "", "SDIO_A_CD", "GPIO_C_3", "USB_A_EN", "USB_B_EN", "", ""; /* 120 - 127 */
 };
 
 &gpio2 {
@@ -537,16 +556,16 @@
 	status = "disabled";
 	phy-mode = "rgmii-id";
 
-	nvmem-cells = <&eth_mac0>;
-	nvmem-cell-names = "mac-address";
+	//nvmem-cells = <&eth_mac0>;
+	//nvmem-cell-names = "mac-address";
 };
 
 &cpsw_port2 {
 	status = "disabled";
 	phy-mode = "rgmii-id";
 
-	nvmem-cells = <&eth_mac1>;
-	nvmem-cell-names = "mac-address";
+	//nvmem-cells = <&eth_mac1>;
+	//nvmem-cell-names = "mac-address";
 };
 
 &cpsw3g_mdio {
@@ -688,6 +707,16 @@
 
 &usbss1 {
 	ti,vbus-divider;
+};
+
+&usb0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb0_en_pins_default>;
+};
+
+&usb1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb1_en_pins_default>;
 };
 
 &mcasp2 {
@@ -990,19 +1019,19 @@
 
 	rgmii_phy0_irq_pins_default: rgmii-phy0-irq-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x0194, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (B11) MCASP0_AFSX.GPIO0_84 */
+			AM62LX_IOPAD(0x01e4, PIN_INPUT_PULLUP, 7) /* ETH_A_INT (D16) EXT_REFCLK1.GPIO0_104 */
 		>;
 	};
 
 	usb0_en_pins_default: usb0-en-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x0244, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_A_EN (C6) USB0_DRVVBUS */
+			AM62LX_IOPAD(0x0244, PIN_INPUT, 0) /* USB_A_EN (C6) USB0_DRVVBUS */
 		>;
 	};
 
 	usb1_en_pins_default: usb1-en-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x0248, PIN_INPUT | PIN_DS_PULLUD_ENABLE | PIN_DS_PULL_UP, 0) /* USB_B_EN (A5) USB1_DRVVBUS */
+			AM62LX_IOPAD(0x0248, PIN_INPUT, 0) /* USB_B_EN (A5) USB1_DRVVBUS */
 		>;
 	};
 
@@ -1029,7 +1058,7 @@
 
 	mcasp2_mclk_pins_default: mcasp2-mclk-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x01e4, PIN_OUTPUT, 3) /* I2S_AB_MCLK (D16) EXT_REFCLK1 */
+			AM62LX_IOPAD(0x0194, PIN_INPUT, 2) /* I2S_AB_MCLK (B11) MCASP0_AFSX.AUDIO_EXT_REFCLK1 */
 		>;
 	};
 
@@ -1095,7 +1124,7 @@
 
 	osm_gpio_a_2_pins_default: osm-gpio-a-2-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x0194, PIN_INPUT, 7) /* GPIO_A_2 (B11) MCASP0_AFSX.GPIO0_84 */
+			AM62LX_IOPAD(0x01e4, PIN_INPUT, 7) /* GPIO_A_2 (D16) EXT_REFCLK1.GPIO0_104 */
 		>;
 	};
 
@@ -1113,7 +1142,7 @@
 
 	osm_gpio_a_5_pins_default: osm-gpio-a-5-default-pins {
 		pinctrl-single,pins = <
-			AM62LX_IOPAD(0x0048, PIN_INPUT, 7) /* GPIO_A_5 (C22) OSPI0_D0.GPIO0_4 */
+			AM62LX_IOPAD(0x0048, PIN_INPUT, 7) /* GPIO_A_5 (C22) OSPI0_D0.GPIO0_3 */
 		>;
 	};
 

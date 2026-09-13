@@ -328,6 +328,8 @@ emmc_common_params() {
 		export FIT_PAD_ALG='pss'
 }
 
+
+
 rm -f "${TARGET_DIR}/etc/fw_env.config"
 touch "${TARGET_DIR}/etc/fw_env.config"
 
@@ -421,10 +423,27 @@ case "${BUILD_TYPE}" in
 		esac
 		;;
 
-	am6*)
+	am62l*)
 		emmc_common_params
 
 		create_fw_env_flash
+		echo "/boot/uboot.env 0 ${ENV_SIZE}" >> "${TARGET_DIR}/etc/fw_env_sd.config"
+
+		ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
+		ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
+
+		export UBOOT_LOADADDRESS=0x82000000
+		export UBOOT_ENTRYPOINT=0x82000000
+		export UBOOT_DTB_LOADADDRESS=0x88000000
+		export UBOOT_DTBO_LOADADDRESS=0x88080000
+		export FIT_HASH_ALG='sha512'
+		export FIT_SIGN_ALG='rsa4096'
+		export FIT_SIGN_NUMBITS='4096'
+		;;
+
+	am6*)
+		emmc_common_params
+
 		ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
 		ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
 

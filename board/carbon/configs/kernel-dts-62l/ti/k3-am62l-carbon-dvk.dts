@@ -51,18 +51,6 @@
 		regulator-always-on;
 	};
 
-	reg_usb0_vbus: regulator-usb0-vbus {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_usb0_vbus";
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&usb0_en_pins_default>;
-		gpios = <&gpio0 124 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
 	codec_audio: sound {
 		compatible = "simple-audio-card";
 
@@ -127,7 +115,7 @@
 
 		wakeup {
 			label = "Wakeup";
-			interrupts-extended = <&gpio0 88 IRQ_TYPE_EDGE_FALLING>, 
+			interrupts-extended = <&gpio0 88 IRQ_TYPE_EDGE_FALLING>,
 				<&pmx0 0x1a4>;
 			interrupt-names = "irq", "wakeup";
 			linux,code = <KEY_WAKEUP>;
@@ -159,8 +147,6 @@
 		self-powered;
 
 		id-gpios = <&exp0 10 GPIO_ACTIVE_HIGH>;
-
-		vbus-supply = <&reg_usb0_vbus>;
 
 		port {
 			usb0_dr_connector: endpoint {
@@ -208,7 +194,7 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&rgmii_phy0_irq_pins_default>;
-		interrupts-extended = <&gpio0 84 IRQ_TYPE_EDGE_FALLING>;
+		interrupts-extended = <&gpio0 104 IRQ_TYPE_EDGE_FALLING>;
 
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
 		tx-fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
@@ -304,7 +290,7 @@
 
 		interrupts-extended = <&gpio0 4 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-names = "irq";
-		//wakeup-source;
+		wakeup-source;
 	};
 
 	tac5112: audio-codec@51 {
@@ -349,12 +335,6 @@
 &mcan2 { /* CAN_B */
 	status = "okay";
 	phys = <&transceiver2>;
-};
-
-&usb0_en_pins_default {
-	pinctrl-single,pins = <
-		AM62LX_IOPAD(0x244, PIN_INPUT, 7) /* USB_A_EN (C6) USB0_DRVVBUS.GPIO0_124 */
-	>;
 };
 
 &osm_gpio_a_7_pins_default {
@@ -452,9 +432,4 @@
 			remote-endpoint = <&usb0_dr_connector>;
 		};
 	};
-};
-
-&usb1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb1_en_pins_default>;
 };

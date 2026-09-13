@@ -95,30 +95,6 @@
 		startup-delay-us = <50000>;
 	};
 
-	reg_usb0_vbus: regulator-usb0-vbus {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_usb0_vbus";
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb0_en_pins_default>;
-		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
-	reg_usb1_vbus: regulator-usb1-vbus {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_usb1_vbus";
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb1_en_pins_default>;
-		gpios = <&main_gpio1 51 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
 	reg_usb1_oe: regulator-usb1-oe {
 		compatible = "regulator-fixed";
 		regulator-name = "reg_usb1_oe";
@@ -240,8 +216,6 @@
 		pinctrl-0 = <&main_usb0_id_pins_default>;
 		id-gpios = <&main_gpio0 23 GPIO_ACTIVE_HIGH>;
 
-		vbus-supply = <&reg_usb0_vbus>;
-
 		port {
 			usb0_dr_connector: endpoint {
 				remote-endpoint = <&usb0_ep>;
@@ -258,8 +232,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb1_id_pins_default>;
 		id-gpios = <&main_gpio0 25 GPIO_ACTIVE_HIGH>;
-
-		vbus-supply = <&reg_usb1_vbus>;
 
 		port {
 			usb1_dr_connector: endpoint {
@@ -526,18 +498,6 @@
 	phys = <&transceiver1>;
 };
 
-&main_usb0_en_pins_default {
-	pinctrl-single,pins = <
-		J722S_IOPAD(0x254, PIN_OUTPUT, 7) /* USB_C_EN (E25) USB0_DRVVBUS.GPIO1_50 */
-	>;
-};
-
-&main_usb1_en_pins_default {
-	pinctrl-single,pins = <
-		J722S_IOPAD(0x258, PIN_OUTPUT, 7) /* USB_D_EN (B27) USB1_DRVVBUS.GPIO1_51 */
-	>;
-};
-
 &main_spi0 { /* SPI_A */
 	status = "okay";
 
@@ -612,12 +572,10 @@
 
 &usbss0 {
 	status = "okay";
-	ti,vbus-divider;
 };
 
 &usbss1 {
 	status = "okay";
-	ti,vbus-divider;
 };
 
 &usb0 {
@@ -648,30 +606,3 @@
 &serdes_wiz0 {
 	status = "okay";
 };
-
-/* MCUs not loaded currently because of UART conflict */
-/*
-&wkup_r5fss0 {
-	status = "okay";
-};
-
-&mcu_r5fss0 {
-	status = "okay";
-};
-
-&main_r5fss0 {
-	status = "okay";
-};
-
-&mailbox0_cluster0 {
-	status = "okay";
-};
-
-&mailbox0_cluster1 {
-	status = "okay";
-};
-
-&mailbox0_cluster3 {
-	status = "okay";
-};
-*/

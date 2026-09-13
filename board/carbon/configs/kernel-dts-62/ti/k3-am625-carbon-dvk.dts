@@ -61,18 +61,6 @@
 		startup-delay-us = <50000>;
 	};
 
-	reg_usb0_vbus: regulator-usb0-vbus {
-		compatible = "regulator-fixed";
-		regulator-name = "reg_usb0_vbus";
-		regulator-max-microvolt = <5000000>;
-		regulator-min-microvolt = <5000000>;
-		vin-supply = <&reg_5v0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&main_usb0_en_pins_default>;
-		gpios = <&main_gpio1 50 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
 	codec_audio: sound {
 		compatible = "simple-audio-card";
 
@@ -183,8 +171,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&main_usb0_id_pins_default>;
 		id-gpios = <&main_gpio1 30 GPIO_ACTIVE_HIGH>;
-
-		vbus-supply = <&reg_usb0_vbus>;
 
 		port {
 			usb0_dr_connector: endpoint {
@@ -423,12 +409,6 @@
 	phys = <&transceiver1>;
 };
 
-&main_usb0_en_pins_default {
-	pinctrl-single,pins = <
-		AM62X_IOPAD(0x254, PIN_INPUT, 7) /* USB_A_EN (C20) USB0_DRVVBUS.GPIO1_50 */
-	>;
-};
-
 &osm_gpio_a_7_pins_default {
 	pinctrl-single,pins = <
 		AM62X_MCU_IOPAD(0x004, PIN_INPUT_PULLUP, 7) /* GPIO_A_7 (B8) MCU_SPI0_CS1.MCU_GPIO0_1 */
@@ -510,11 +490,6 @@
 
 &usbss0 {
 	status = "okay";
-	ti,vbus-divider;
-};
-
-&usbss1 {
-	ti,vbus-divider;
 };
 
 &usb0 {
@@ -526,9 +501,4 @@
 			remote-endpoint = <&usb0_dr_connector>;
 		};
 	};
-};
-
-&usb1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_en_pins_default>;
 };
