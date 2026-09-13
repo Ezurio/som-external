@@ -29,7 +29,7 @@ Before=graphical.target
 # Prevent starting on systems without virtual consoles, Weston requires one
 # for now.
 ConditionPathExists=/dev/tty0
-ConditionPathExistsGlob=/sys/class/drm/card0-*
+ConditionPathExistsGlob=/sys/class/drm/card*-*
 
 [Service]
 # Requires systemd-notify.so Weston plugin.
