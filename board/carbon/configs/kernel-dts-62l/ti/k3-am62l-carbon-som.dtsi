@@ -618,10 +618,10 @@
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&gpmc0_pins_default>;
-	
+
 	#address-cells = <2>;
 	#size-cells = <1>;
-	
+
 	ranges = <0 0 0x00 0x51000000 0x01000000>; /* CS0 space. Min partition = 16MB */
 
 	nand@0,0 {
