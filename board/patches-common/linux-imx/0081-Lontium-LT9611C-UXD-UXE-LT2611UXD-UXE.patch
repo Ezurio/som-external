@@ -20,6 +20,8 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
  drivers/gpu/drm/bridge/lontium-lt96xx.h            |  213 ++++
  9 files changed, 2609 insertions(+)
 
+Upstream-Status: Pending
+
 diff --git a/Documentation/ABI/testing/sysfs-lontium-firmware b/Documentation/ABI/testing/sysfs-lontium-firmware
 new file mode 100644
 index 0000000..75fb74f

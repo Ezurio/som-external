@@ -1,4 +1,4 @@
-From b489627e7ce00dda36da782226237a8db2e7a1bf Mon Sep 17 00:00:00 2001
+From 30c9d11d6811342b61a55e70916aea235c220e31 Mon Sep 17 00:00:00 2001
 From: Boris Krasnovskiy <boris.krasnovskiy@lairdconnect.com>
 Date: Fri, 6 May 2022 11:29:01 -0400
 Subject: [PATCH] Revert "tools: Remove legacy code for CSR controllers"
@@ -32,10 +32,10 @@ This reverts commit e2e198ced468122df7b431cb06158123ba60a2f2.
  create mode 100644 tools/ubcsp.h
 
 diff --git a/Makefile.tools b/Makefile.tools
-index b7d893248..8b32a57f1 100644
+index 6188449..1f58743 100644
 --- a/Makefile.tools
 +++ b/Makefile.tools
-@@ -236,7 +236,7 @@
+@@ -236,7 +236,7 @@ endif
  
  if TOOLS
  bin_PROGRAMS += tools/rctest tools/l2test tools/l2ping tools/bluemoon \
@@ -43,8 +43,8 @@ index b7d893248..8b32a57f1 100644
 +		tools/hex2hcd tools/mpris-proxy tools/btattach tools/isotest tools/bccmd
  
  noinst_PROGRAMS += tools/bdaddr tools/avinfo tools/avtest \
-			tools/scotest tools/hwdb \
-@@ -326,6 +326,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
+ 			tools/scotest tools/hwdb \
+@@ -330,6 +330,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
  
  tools_l2ping_LDADD = lib/libbluetooth-internal.la
  
@@ -57,17 +57,17 @@ index b7d893248..8b32a57f1 100644
  tools_bluemoon_SOURCES = tools/bluemoon.c monitor/bt.h
  tools_bluemoon_LDADD = src/libshared-mainloop.la
  
-@@ -350,7 +350,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
+@@ -351,7 +357,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
  profiles_iap_iapd_LDADD = gdbus/libgdbus-internal.la $(GLIB_LIBS) $(DBUS_LIBS)
  
  if MANPAGES
 -man_MANS += doc/rctest.1 doc/l2ping.1 doc/btattach.1 doc/isotest.1 \
 +man_MANS += doc/rctest.1 doc/l2ping.1 doc/btattach.1 doc/isotest.1 doc/bccmd.1 \
-		doc/bluetoothctl.1 \
-		doc/bluetoothctl-mgmt.1 \
-		doc/bluetoothctl-monitor.1 doc/bluetoothctl-admin.1 \
-@@ -420,7 +420,7 @@ tools_hciattach_SOURCES = tools/hciattach.c tools/hciattach.h \
-						tools/hciattach_bcm43xx.c
+ 		doc/bluetoothctl.1 \
+ 		doc/bluetoothctl-mgmt.1 \
+ 		doc/bluetoothctl-monitor.1 doc/bluetoothctl-admin.1 \
+@@ -430,7 +436,7 @@ tools_hciattach_SOURCES = tools/hciattach.c tools/hciattach.h \
+ 						tools/hciattach_bcm43xx.c
  tools_hciattach_LDADD = lib/libbluetooth-internal.la
  
 -tools_hciconfig_SOURCES = tools/hciconfig.c
@@ -75,18 +75,18 @@ index b7d893248..8b32a57f1 100644
  tools_hciconfig_LDADD = lib/libbluetooth-internal.la
  
  tools_hcitool_SOURCES = tools/hcitool.c src/oui.h src/oui.c
-@@ -477,7 +477,7 @@
-			doc/hcitool.1 doc/hcidump.1 \
-			doc/rfcomm.1 doc/sdptool.1 doc/ciptool.1 \
-			doc/rctest.1 doc/l2ping.1 doc/btattach.1 \
+@@ -452,7 +458,7 @@ endif
+ manual_pages += doc/hciattach.1 doc/hciconfig.1 doc/hcitool.1 \
+ 			doc/rfcomm.1 doc/sdptool.1 doc/ciptool.1 \
+ 			doc/rctest.1 doc/l2ping.1 doc/btattach.1 \
 -			doc/bdaddr.1 doc/isotest.1 doc/btmgmt.1 \
 +			doc/bdaddr.1 doc/isotest.1 doc/btmgmt.1 doc/bccmd.1 \
-			doc/bluetoothctl.1 \
-			doc/bluetoothctl-mgmt.1 \
+ 			doc/bluetoothctl.1 \
+ 			doc/bluetoothctl-mgmt.1 \
  			doc/bluetoothctl-monitor.1 \
 diff --git a/tools/bccmd.1 b/tools/bccmd.1
 new file mode 100644
-index 000000000..26c83a6a2
+index 0000000..26c83a6
 --- /dev/null
 +++ b/tools/bccmd.1
 @@ -0,0 +1,130 @@
@@ -222,7 +222,7 @@ index 000000000..26c83a6a2
 +.PP
 diff --git a/tools/bccmd.c b/tools/bccmd.c
 new file mode 100644
-index 000000000..2c215ace7
+index 0000000..8a113b4
 --- /dev/null
 +++ b/tools/bccmd.c
 @@ -0,0 +1,1248 @@
@@ -1476,7 +1476,7 @@ index 000000000..2c215ace7
 +}
 diff --git a/tools/csr.c b/tools/csr.c
 new file mode 100644
-index 000000000..61bdaa0cf
+index 0000000..28ff89f
 --- /dev/null
 +++ b/tools/csr.c
 @@ -0,0 +1,2856 @@
@@ -4338,7 +4338,7 @@ index 000000000..61bdaa0cf
 +}
 diff --git a/tools/csr.h b/tools/csr.h
 new file mode 100644
-index 000000000..cc245a550
+index 0000000..cc245a5
 --- /dev/null
 +++ b/tools/csr.h
 @@ -0,0 +1,555 @@
@@ -4899,7 +4899,7 @@ index 000000000..cc245a550
 +int psr_print(void);
 diff --git a/tools/csr_3wire.c b/tools/csr_3wire.c
 new file mode 100644
-index 000000000..33fcf389a
+index 0000000..33fcf38
 --- /dev/null
 +++ b/tools/csr_3wire.c
 @@ -0,0 +1,62 @@
@@ -4967,7 +4967,7 @@ index 000000000..33fcf389a
 +}
 diff --git a/tools/csr_bcsp.c b/tools/csr_bcsp.c
 new file mode 100644
-index 000000000..e3eea34df
+index 0000000..e3eea34
 --- /dev/null
 +++ b/tools/csr_bcsp.c
 @@ -0,0 +1,257 @@
@@ -5230,7 +5230,7 @@ index 000000000..e3eea34df
 +}
 diff --git a/tools/csr_h4.c b/tools/csr_h4.c
 new file mode 100644
-index 000000000..2dcaec1e5
+index 0000000..2dcaec1
 --- /dev/null
 +++ b/tools/csr_h4.c
 @@ -0,0 +1,166 @@
@@ -5402,7 +5402,7 @@ index 000000000..2dcaec1e5
 +}
 diff --git a/tools/csr_hci.c b/tools/csr_hci.c
 new file mode 100644
-index 000000000..d2e4ab9c6
+index 0000000..20d0d08
 --- /dev/null
 +++ b/tools/csr_hci.c
 @@ -0,0 +1,160 @@
@@ -5568,7 +5568,7 @@ index 000000000..d2e4ab9c6
 +}
 diff --git a/tools/csr_usb.c b/tools/csr_usb.c
 new file mode 100644
-index 000000000..32fdf1f14
+index 0000000..32fdf1f
 --- /dev/null
 +++ b/tools/csr_usb.c
 @@ -0,0 +1,308 @@
@@ -5881,7 +5881,7 @@ index 000000000..32fdf1f14
 +	handle = -1;
 +}
 diff --git a/tools/hciconfig.c b/tools/hciconfig.c
-index e4d521583..34b39a973 100644
+index 8653e93..dd43c8e 100644
 --- a/tools/hciconfig.c
 +++ b/tools/hciconfig.c
 @@ -33,6 +33,7 @@
@@ -5935,7 +5935,7 @@ index e4d521583..34b39a973 100644
  		break;
 diff --git a/tools/ubcsp.c b/tools/ubcsp.c
 new file mode 100644
-index 000000000..b3f883a03
+index 0000000..94319ac
 --- /dev/null
 +++ b/tools/ubcsp.c
 @@ -0,0 +1,1180 @@
@@ -7121,7 +7121,7 @@ index 000000000..b3f883a03
 +}
 diff --git a/tools/ubcsp.h b/tools/ubcsp.h
 new file mode 100644
-index 000000000..6a74e9a16
+index 0000000..59ce007
 --- /dev/null
 +++ b/tools/ubcsp.h
 @@ -0,0 +1,208 @@
@@ -7334,4 +7334,5 @@ index 000000000..6a74e9a16
 +/*****************************************************************************/
 +#endif
 -- 
-2.36.0
+2.55.0
+
