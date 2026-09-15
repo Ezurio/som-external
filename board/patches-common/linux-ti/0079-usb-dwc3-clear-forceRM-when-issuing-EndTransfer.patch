@@ -34,6 +34,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  drivers/usb/dwc3/gadget.c | 21 +++++++++++++--------
  1 file changed, 13 insertions(+), 8 deletions(-)
 
+Upstream-Status: Backport
+
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
 index a2c735276909..050ea2b463bf 100644
 --- a/drivers/usb/dwc3/gadget.c

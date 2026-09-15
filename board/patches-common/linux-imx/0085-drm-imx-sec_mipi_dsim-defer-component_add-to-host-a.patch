@@ -23,6 +23,8 @@ Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
  include/drm/bridge/sec_mipi_dsim.h      | 10 ++-
  3 files changed, 94 insertions(+), 61 deletions(-)
 
+Upstream-Status: Inappropriate Local requirement
+
 diff -Naur a/drivers/gpu/drm/bridge/sec-dsim.c b/drivers/gpu/drm/bridge/sec-dsim.c
 --- a/drivers/gpu/drm/bridge/sec-dsim.c	2026-09-03 13:04:27.730553481 -0400
 +++ b/drivers/gpu/drm/bridge/sec-dsim.c	2026-09-03 13:05:16.171423858 -0400

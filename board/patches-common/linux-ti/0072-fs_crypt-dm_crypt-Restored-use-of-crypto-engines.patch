@@ -12,6 +12,8 @@ PROD-62700
  fs/crypto/fscrypt_private.h |  5 ++++-
  2 files changed, 9 insertions(+), 6 deletions(-)
 
+Upstream-Status: Inappropriate Local requirement
+
 diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
 index 5ef43231fe77..cdf14c4506b8 100644
 --- a/drivers/md/dm-crypt.c

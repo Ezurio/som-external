@@ -6,7 +6,7 @@ new file mode 100644
 index 00000000000..21a3aea6551
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-binman.dtsi
-@@ -0,0 +1,247 @@
+@@ -0,0 +1,246 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -249,7 +249,6 @@ index 00000000000..21a3aea6551
 +					};
 +#endif
 +				};
-+
 +			};
 +		};
 +	};
@@ -259,7 +258,7 @@ new file mode 100644
 index 00000000000..a6a2c8d5860
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-minimal-u-boot.dtsi
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,146 @@
 +// SPDX-License-Identifier: GPL-2.0-only or MIT
 +/*
 + * Copyright (C) 2026 Ezurio LLC
@@ -391,6 +390,10 @@ index 00000000000..a6a2c8d5860
 +	bootph-all;
 +};
 +
++&usb0 {
++	/delete-property/ bootph-all;
++};
++
 +&dphy_tx0 {
 +	/delete-property/ bootph-all;
 +};
@@ -439,7 +442,7 @@ new file mode 100644
 index 00000000000..a1c753a44bc
 --- /dev/null
 +++ b/arch/arm/dts/k3-am62l-carbon-som.dtsi
-@@ -0,0 +1,1208 @@
+@@ -0,0 +1,1209 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * AM62L Carbon SOM
@@ -492,6 +495,7 @@ index 00000000000..a1c753a44bc
 +	};
 +
 +	memory: memory@80000000 {
++		device_type = "memory";
 +		/* 2G RAM */
 +		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
 +	};
