@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only OR MIT
 /*
- * DSI A to HDMI Expansion Board for Carbon AM67x
+ * DSI A to HDMI LT9611UXD Expansion Board for Carbon AM67x
  *
- * Copyright (C) 2025 Ezurio LLC
+ * Copyright (C) 2026 Ezurio LLC
  */
 
 /dts-v1/;
@@ -20,7 +20,7 @@
 
 		port {
 			hdmi_connector_a_in: endpoint {
-				remote-endpoint = <&adv7535_out>;
+				remote-endpoint = <&lt9611uxd_out>;
 			};
 		};
 	};
@@ -37,7 +37,7 @@
 		pinctrl-0 = <&main_dsi_a_power_default>;
 		gpios = <&main_gpio0 28 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		startup-delay-us = <10000>;
+		startup-delay-us = <20000>;
 		regulator-always-on;
 	};
 };
@@ -82,7 +82,7 @@
 			reg = <0>;
 
 			dsi0_out: endpoint {
-				remote-endpoint = <&adv7535_in>;
+				remote-endpoint = <&lt9611uxd_in>;
 			};
 		};
 
@@ -100,18 +100,17 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	hdmi-bridge-dsi-a@3d {
-		compatible = "adi,adv7535";
-		reg = <0x3d>;
-		interrupts-extended = <&exp2 0 IRQ_TYPE_EDGE_FALLING>;
-		adi,dsi-lanes = <4>;
-		v3p3-supply = <&reg_dsi_a>;
+	hdmi-bridge-dsi-a@4f {
+		compatible = "lontium,lt9611uxd";
+		reg = <0x4f>;
 
-		areg-supply = <&reg_3v3_carrier>;
-		dreg-supply = <&reg_3v3_carrier>;
-		preg-supply = <&reg_3v3_carrier>;
-		a2reg-supply = <&reg_3v3_carrier>;
-		v1p2-supply = <&reg_3v3_carrier>;
+		reset-gpios = <&exp2 1 GPIO_ACTIVE_LOW>;
+
+		interrupts-extended = <&exp2 15 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "irq";
+
+		vdd-supply = <&reg_1v8>;
+		vcc-supply = <&reg_dsi_a>;
 
 		ports {
 			#address-cells = <1>;
@@ -120,15 +119,16 @@
 			port@0 {
 				reg = <0>;
 
-				adv7535_in: endpoint {
+				lt9611uxd_in: endpoint {
 					remote-endpoint = <&dsi0_out>;
+					data-lanes = <1 2 3 4>;
 				};
 			};
 
-			port@1 {
-				reg = <1>;
+			port@2 {
+				reg = <2>;
 
-				adv7535_out: endpoint {
+				lt9611uxd_out: endpoint {
 					remote-endpoint = <&hdmi_connector_a_in>;
 				};
 			};
