@@ -60,7 +60,7 @@ if pgrep weston >/dev/null 2>&1; then
 
     case "${soc_id}" in
         i.MX93)
-            if ! grep -q 'use-g2d=true' /etc/xdg/weston/weston.conf 2>/dev/null; then
+            if ! grep -q 'use-g2d=true' /etc/xdg/weston/weston.ini 2>/dev/null; then
                 SINK="videoconvert ! waylandsink sync=false"
             fi
             ;;
