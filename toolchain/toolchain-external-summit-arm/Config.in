@@ -39,6 +39,6 @@ config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_ID
 
 config BR2_TOOLCHAIN_EXTERNAL_SUMMIT_ARM_VERSION
 	string
-	default 14.0.0.37
+	default 14.0.0.40
 
 endif
