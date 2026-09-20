@@ -20,13 +20,12 @@
 openssl_fipsinit() {
 	[ -f /usr/lib/libcrypto.so.3 ] || return 0
 
-	openssl fipsinstall -in /etc/ssl/fipsmodule.cnf \
+	openssl fipsinstall -in /etc/ssl/openssl.cnf.d/fips.cnf \
 			-module /usr/lib/ossl-modules/fips.so \
-			-self_test_onload -verify -quiet
-	if [ $? -ne 0 ]; then
-		echo "ERROR: openssl-3 fips module verification failed"
+			-self_test_onload -verify -quiet || {
+		echo "ERROR: openssl-3 fips module verification failed" >&2
 		return 1
-	fi
+	}
 	return 0
 }
 
