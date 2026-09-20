@@ -63,11 +63,7 @@ endif
 
 SUMMIT_RCM_RUST_CARGO_INSTALL_OPTS = $(SUMMIT_RCM_RUST_CARGO_BUILD_OPTS) --profile release
 
-# Rust still embeds source locations used by panic and tracing metadata in
-# .rodata even for stripped release binaries. Remap the package build root so
-# shipped artifacts do not expose absolute Buildroot paths.
 SUMMIT_RCM_RUST_CARGO_ENV += \
-	RUSTFLAGS="--remap-path-prefix=$(SUMMIT_RCM_RUST_SRCDIR)=." \
 	SWUPDATE_INCLUDE_DIR="$(STAGING_DIR)/usr/include" \
 	CARGO_PROFILE_RELEASE_LTO="true"
 
@@ -129,7 +125,7 @@ SUMMIT_RCM_RUST_POST_INSTALL_TARGET_HOOKS += SUMMIT_RCM_RUST_INSTALL_CONFIG
 ifeq ($(BR2_PACKAGE_SUMMIT_RCM_RUST_REST_API_DOCS_JSON),y)
 define SUMMIT_RCM_RUST_GENERATE_OPENAPI_DOC
 	cd $(SUMMIT_RCM_RUST_SRCDIR) && \
-		RUSTFLAGS="--remap-path-prefix=$(SUMMIT_RCM_RUST_SRCDIR)=." \
+		$(HOST_PKG_CARGO_ENV) \
 		SUMMIT_RCM_OPENAPI_OUTPUT="$(TARGET_DIR)/etc/summit-rcm-openapi.json" \
 		$(HOST_DIR)/bin/cargo run \
 			--release \
