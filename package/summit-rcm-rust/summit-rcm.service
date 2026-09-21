@@ -1,6 +1,9 @@
 [Unit]
 Description=Summit RCM (Rust/Axum)
-After=network.target NetworkManager.service
+Wants=network.target
+After=network.target
+#Wants=network-online.target
+#After=network-online.target
 
 [Service]
 Type=simple
