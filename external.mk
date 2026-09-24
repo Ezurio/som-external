@@ -40,6 +40,11 @@ SPSDK_HAB_IMG_SIGNER ?= type=file;file_path=$(SIG_DATA_PATH)/keys/IMG1_1_sha256_
 CSF_KEY ?= $(SPSDK_HAB_CSF_CERT)
 IMG_KEY ?= $(SPSDK_HAB_IMG_CERT)
 
+ifneq ($(CLOUD_HSM_SIGNING),)
+SPSDK_HAB_CSF_SIGNER := type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(shell printf '%s' '$(HSM_CSF_KEY_ID)' | sed 's|.*/||' | cut -c1-32);key_label=$(shell printf '%s' '$(HSM_CSF_KEY_ID)' | sed 's|.*/||');user_pin=unused;$(HSM_SPSDK_PKCS11_OPTIONS)
+SPSDK_HAB_IMG_SIGNER := type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(shell printf '%s' '$(HSM_IMG_KEY_ID)' | sed 's|.*/||' | cut -c1-32);key_label=$(shell printf '%s' '$(HSM_IMG_KEY_ID)' | sed 's|.*/||');user_pin=unused;$(HSM_SPSDK_PKCS11_OPTIONS)
+endif
+
 export SIG_DATA_PATH SPSDK_HAB_SRK_TABLE SPSDK_HAB_CSF_CERT SPSDK_HAB_IMG_CERT
 export SPSDK_HAB_CSF_SIGNER SPSDK_HAB_IMG_SIGNER CSF_KEY IMG_KEY
 endif
