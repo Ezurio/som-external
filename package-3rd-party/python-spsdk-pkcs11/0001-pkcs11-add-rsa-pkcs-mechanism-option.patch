@@ -1,0 +1,40 @@
+pkcs11: add rsa_pkcs_mechanism option
+
+AWS KMS's PKCS#11 provider implements CKM_RSA_PKCS, but not CKM_RSA_X_509.
+Allow callers to request CKM_RSA_PKCS while retaining the upstream default.
+
+Upstream-Status: Inappropriate [OE-specific]
+
+--- a/spsdk_pkcs11/provider.py
++++ b/spsdk_pkcs11/provider.py
+@@ -37,6 +37,7 @@
+         key_label: str | None = None,
+         key_id: str | None = None,
+         pss_padding: bool = False,
++        rsa_pkcs_mechanism: bool = False,
+         **kwargs: Any,
+     ) -> None:
+         """Initialize PKCS11 interface.
+@@ -72,6 +73,7 @@
+             key_id_len += 1 if key_id_len % 2 else 0
+             self.key_id = bytes.fromhex(key_id.zfill(key_id_len))
+         self.pss_padding = pss_padding
++        self.rsa_pkcs_mechanism = rsa_pkcs_mechanism
+ 
+         lib = pkcs11.lib(self._get_so_path(so_path))
+         self.token: pkcs11.Token = lib.get_token(
+@@ -162,6 +164,14 @@
+                 if self.pss_padding:
+                     mechanism = pkcs11.Mechanism.RSA_PKCS_PSS
+                     mechanism_param = (pkcs11.Mechanism.SHA256, pkcs11.MGF.SHA256, 32)
++                elif self.rsa_pkcs_mechanism:
++                    # CKM_RSA_PKCS expects DigestInfo || digest; the token
++                    # performs the PKCS#1 v1.5 encoding itself.
++                    mechanism = pkcs11.Mechanism.RSA_PKCS
++                    digest = (
++                        b"\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65"
++                        b"\x03\x04\x02\x01\x05\x00\x04\x20" + digest
++                    )
+                 else:
+                     mechanism = pkcs11.Mechanism.RSA_X_509
+                     digest = self._get_pkcs1_1_5_padding(

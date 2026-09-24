@@ -33,7 +33,7 @@ SUMMIT_KEY_PROVIDER_PKGDIR = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/summit-key-
 # auto-detected from these, or set explicitly via CLOUD_HSM_BACKEND.
 CLOUD_HSM_BACKEND ?=
 ifeq ($(CLOUD_HSM_BACKEND),)
-ifneq ($(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN))),)
+ifneq ($(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN),$(AWS_KMS_AHAB_KEY_ARN))),)
 CLOUD_HSM_BACKEND := aws-kms
 endif
 endif
@@ -48,7 +48,8 @@ endif
 HSM_GEN_CONFIG_CMD ?=
 
 export CLOUD_HSM_SIGNING CLOUD_HSM_BACKEND
-export HSM_KEY_ID HSM_CSF_KEY_ID HSM_IMG_KEY_ID HSM_FIT_KEY_ID
+export HSM_KEY_ID HSM_CSF_KEY_ID HSM_IMG_KEY_ID HSM_FIT_KEY_ID HSM_AHAB_KEY_ID
+export HSM_PKCS11_LIBRARY HSM_SPSDK_PKCS11_OPTIONS
 
 # ─── Platform selector ──────────────────────────────────────────────────────────
 ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
@@ -125,7 +126,7 @@ endif
 ifneq ($(CLOUD_HSM_SIGNING),)
 UBOOT_MAKE_OPTS += $(HSM_MAKE_OPTS)
 TI_K3_R5_LOADER_MAKE_OPTS += $(HSM_MAKE_OPTS)
-export OPENSSL_CONF = $(HOST_DIR)/host_pkcs11config.cnf
+export OPENSSL_CONF = $(HOST_DIR)/etc/ssl/openssl.cnf.d/pkcs11-aws-kms.cnf
 endif
 
 # ─── host-summit-key-provider dependency ─────────────────────────────────────────
@@ -178,9 +179,14 @@ SUMMIT_KEY_PROVIDER_ENV = \
 	CLOUD_HSM_BACKEND="$(CLOUD_HSM_BACKEND)" \
 	HSM_KEY_ID="$(HSM_KEY_ID)" HSM_CSF_KEY_ID="$(HSM_CSF_KEY_ID)" \
 	HSM_IMG_KEY_ID="$(HSM_IMG_KEY_ID)" HSM_FIT_KEY_ID="$(HSM_FIT_KEY_ID)" \
+	HSM_AHAB_KEY_ID="$(HSM_AHAB_KEY_ID)" \
+	HSM_PKCS11_LIBRARY="$(HSM_PKCS11_LIBRARY)" \
+	HSM_SPSDK_PKCS11_OPTIONS="$(HSM_SPSDK_PKCS11_OPTIONS)" \
 	SUMMIT_KEY_PROVIDER_PLATFORM="$(SUMMIT_KEY_PROVIDER_PLATFORM)" \
 	OPENSSL_CONF="$(OPENSSL_CONF)" \
-	AWS_KMS_PKCS11_CONFIG="$(AWS_KMS_PKCS11_CONFIG)"
+	AWS_KMS_PKCS11_CONFIG="$(AWS_KMS_PKCS11_CONFIG)" \
+	SPSDK_PKCS11_CONFIG_ENV="$(SPSDK_PKCS11_CONFIG_ENV)" \
+	SPSDK_PKCS11_CONFIG_PATH="$(SPSDK_PKCS11_CONFIG_PATH)"
 
 # HAB (i.MX8M) Cloud HSM: stage the SIG_DATA_PATH tree after materializing.
 SUMMIT_KEY_PROVIDER_STAGE_HAB_CMD =
@@ -199,6 +205,15 @@ define HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS
 		$(SUMMIT_KEY_PROVIDER_PKGDIR)/summit-key-provider.sh materialize
 	$(SUMMIT_KEY_PROVIDER_STAGE_HAB_CMD)
 endef
+
+# Do not let a previous Cloud-HSM HAB build leak its staged PKI tree into a
+# subsequent local HAB build.  Local HAB signing must consume the source key
+# tree selected by SIG_DATA_PATH; the stale staged tree may contain an AHAB
+# ECC SRK table, which SPSDK cannot parse as a HAB4 RSA table.
+ifeq ($(SUMMIT_KEY_PROVIDER_STAGE_HAB),)
+HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS += \
+	rm -rf $(BUILD_DIR)/summit-key-provider/sig-data
+endif
 
 # host-generic-package derives pkgname/pkgdir from $(lastword $(MAKEFILE_LIST)).
 # The backend include above appended backends/<name>/<name>.mk to MAKEFILE_LIST,
