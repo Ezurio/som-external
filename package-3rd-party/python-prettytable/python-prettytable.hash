@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/prettytable/json
+md5  85a6f1812e31ea2dcf8119f219c1a032  prettytable-3.16.0.tar.gz
+sha256  3c64b31719d961bf69c9a7e03d0c1e477320906a98da63952bc6698d6164ff57  prettytable-3.16.0.tar.gz
+# Locally computed sha256 checksums
+sha256  0c8adcc204c8af6cdfdf7887dfd1f99c29901f6c1d505a78bba96efa4fb2cb05  LICENSE

@@ -1,0 +1,147 @@
+Upstream-Status: Inappropriate [Yocto native integration adjustments]
+--- a/spsdk/uboot/spsdk_uuu.py
++++ b/spsdk/uboot/spsdk_uuu.py
+@@ -18,8 +18,11 @@
+ from types import TracebackType
+ from typing import Any, no_type_check
+ 
+-from libuuu import LibUUU, UUUNotifyCallback, UUUState
+-from libuuu.libuuu import UUUNotifyStruct, UUUNotifyType, _default_notify_callback
++try:
++    from libuuu import LibUUU, UUUNotifyCallback, UUUState
++    from libuuu.libuuu import UUUNotifyStruct, UUUNotifyType, _default_notify_callback
++except ImportError:
++    pass
+ 
+ from spsdk import get_logger
+ from spsdk.exceptions import SPSDKError, SPSDKValueError
+@@ -44,8 +47,7 @@
+ )
+ 
+ 
+-@UUUNotifyCallback
+-def _spsdk_notify_callback(struct: UUUNotifyStruct, data) -> int:  # type: ignore
++def _spsdk_notify_callback(struct, data) -> int:  # type: ignore
+     """Default callback function that stores UUU response in class variable.
+ 
+     This callback processes UUU notifications and updates the internal state. For command info
+@@ -62,7 +64,7 @@
+     return 1 if SPSDKUUU._state.error else 0
+ 
+ 
+-class SPSDKUUUState(UUUState):
++class SPSDKUUUState:
+     """SPSDK UUU State Manager.
+ 
+     This class extends UUUState to provide enhanced state management for UUU operations
+@@ -87,7 +89,7 @@
+         # so that trace() calls work correctly.
+         self.logger = get_logger(__name__)
+ 
+-    def update(self, struct: UUUNotifyStruct) -> None:
++    def update(self, struct) -> None:
+         """Update the state with a notification from uuu.
+ 
+         This method processes different types of notifications from the uuu tool and updates
+--- a/spsdk/utils/devicedescription.py
++++ b/spsdk/utils/devicedescription.py
+@@ -13,7 +13,10 @@
+ 
+ from abc import ABC, abstractmethod
+ 
+-from libusbsio.libusbsio import LIBUSBSIO
++try:
++    from libusbsio.libusbsio import LIBUSBSIO
++except ImportError:
++    pass
+ 
+ from spsdk.mboot.interfaces.usb import MbootUSBInterface
+ from spsdk.sdp.interfaces.usb import SdpUSBInterface
+--- a/spsdk/utils/interfaces/device/usb_device.py
++++ b/spsdk/utils/interfaces/device/usb_device.py
+@@ -12,7 +12,10 @@
+ 
+ import logging
+ 
+-import libusbsio
++try:
++    import libusbsio
++except ImportError:
++    pass
+ from typing_extensions import Self
+ 
+ from spsdk import get_logger
+--- a/spsdk/utils/interfaces/device/usbsio_device.py
++++ b/spsdk/utils/interfaces/device/usbsio_device.py
+@@ -15,8 +15,11 @@
+ import re
+ from dataclasses import dataclass
+ 
+-import libusbsio
+-from libusbsio.libusbsio import LIBUSBSIO
++try:
++    import libusbsio
++    from libusbsio.libusbsio import LIBUSBSIO
++except ImportError:
++    pass
+ from typing_extensions import Self
+ 
+ from spsdk import get_logger
+@@ -395,7 +398,7 @@
+         return (args, kwargs)
+ 
+     @staticmethod
+-    def _get_usbsio() -> LIBUSBSIO:
++    def _get_usbsio():
+         """Get USBSIO library instance with SPSDK error handling.
+ 
+         Wraps the libusbsio library initialization to provide consistent SPSDK error handling
+@@ -425,7 +428,7 @@
+         :return: List of port indexes of found USBSIO devices
+         """
+ 
+-        def _filter_usb(sio: LIBUSBSIO, ports: list[int], flt: str) -> list[int]:
++        def _filter_usb(sio, ports: list[int], flt: str) -> list[int]:
+             """Filter LIBUSBSIO devices based on provided criteria.
+ 
+             Filters the list of available LIBUSBSIO ports using the specified filter string which can
+--- a/spsdk/utils/nxpdevscan.py
++++ b/spsdk/utils/nxpdevscan.py
+@@ -18,7 +18,10 @@
+ import struct
+ from typing import Any
+ 
+-from libusbsio import LIBUSBSIO_Exception, usbsio
++try:
++    from libusbsio import LIBUSBSIO_Exception, usbsio
++except ImportError:
++    pass
+ from serial import SerialException
+ from serial.tools.list_ports import comports
+ from serial.tools.list_ports_common import ListPortInfo
+--- a/spsdk/crypto/keys.py
++++ b/spsdk/crypto/keys.py
+@@ -27,8 +27,15 @@
+-from cryptography.hazmat.primitives.asymmetric.mldsa import (
+-    MLDSA44PrivateKey,
+-    MLDSA44PublicKey,
+-    MLDSA65PrivateKey,
+-    MLDSA65PublicKey,
+-    MLDSA87PrivateKey,
+-    MLDSA87PublicKey,
+-)
++try:
++    from cryptography.hazmat.primitives.asymmetric.mldsa import (
++        MLDSA44PrivateKey,
++        MLDSA44PublicKey,
++        MLDSA65PrivateKey,
++        MLDSA65PublicKey,
++        MLDSA87PrivateKey,
++        MLDSA87PublicKey,
++    )
++except ImportError:
++    class _UnsupportedMLDSA:
++        pass
++    MLDSA44PrivateKey = MLDSA44PublicKey = _UnsupportedMLDSA
++    MLDSA65PrivateKey = MLDSA65PublicKey = _UnsupportedMLDSA
++    MLDSA87PrivateKey = MLDSA87PublicKey = _UnsupportedMLDSA

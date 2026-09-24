@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/sly/json
+md5  8d7db75f22add808e0b812fc8a5b59cb  sly-0.5.tar.gz
+sha256  251d42015e8507158aec2164f06035df4a82b0314ce6450f457d7125e7649024  sly-0.5.tar.gz
+# Locally computed sha256 checksums
+sha256  4ba3cec82a1d122c8f03f3c8f71b9cab86645ee6cfdc5891720f3c7056ac354e  LICENSE

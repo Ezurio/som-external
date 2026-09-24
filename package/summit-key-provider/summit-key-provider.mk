@@ -74,17 +74,15 @@ endif
 # Require one of:
 #   - an explicit KEY_PATH,
 #   - a Cloud HSM backend, or
-#   - a HAB (host-cst) / AHAB (host-python-spsdk) signing anchor.
+#   - a HAB/AHAB host-python-spsdk signing anchor.
 # On i.MX the root of trust is the HAB/AHAB PKI under SIG_DATA_PATH (the SRK
 # hash is fused into the SoC), so when that anchor is configured the FIT "dev"
 # key is allowed to default to the board key.
 ifeq ($(SUMMIT_KEY_PROVIDER_USER_KEY_PATH),)
 ifneq ($(SECURE_TARGET_BUILD),)
 ifeq ($(CLOUD_HSM_SIGNING),)
-ifneq ($(BR2_PACKAGE_HOST_CST),y)
 ifneq ($(BR2_PACKAGE_HOST_PYTHON_SPSDK),y)
 $(error KEY_PATH is not set for secure target build (set KEY_PATH, a Cloud HSM backend, or SIG_DATA_PATH for a HAB/AHAB build))
-endif
 endif
 endif
 endif
@@ -103,9 +101,9 @@ export KEY_PATH KEYS_DIR LOCAL_KEYS_DIR
 # ─── HAB (i.MX8M) SIG_DATA_PATH staging for Cloud HSM ────────────────────────────
 # For HSM builds, redirect SIG_DATA_PATH to a staging tree that the host
 # package build step (below) populates with crts/ and PKCS#11 CSF/IMG wrappers.
-# For local HAB builds SIG_DATA_PATH is left untouched (the host-cst block in external.mk validates
+# For local HAB builds SIG_DATA_PATH is left untouched (the HAB block in external.mk validates
 # and defaults it).
-ifeq ($(BR2_PACKAGE_HOST_CST),y)
+ifeq ($(BR2_SUMMIT_IMX_HAB),y)
 ifneq ($(CLOUD_HSM_SIGNING),)
 ifndef SIG_DATA_PATH_ORIG
 SIG_DATA_PATH_ORIG := $(SIG_DATA_PATH)

@@ -86,8 +86,8 @@ hsm_gen_cert() {
 
 # ─── HAB (i.MX8M) SIG_DATA_PATH staging ────────────────────────────────────────
 # Copy crts/ from the original PKI tree and generate PKCS#11 wrappers for the
-# CSF/IMG private keys.  CST locates private keys by swapping crts/ -> keys/
-# and _crt.pem -> _key.pem.  The FIT key ("dev") is also staged.
+# CSF/IMG private keys. The staged signer paths are consumed by the SPSDK HAB4
+# configuration. The FIT key ("dev") is also staged.
 hsm_stage_hab() {
     _orig="${SIG_DATA_PATH_ORIG:?SIG_DATA_PATH_ORIG not set}"
     _stage="${SIG_DATA_PATH:?SIG_DATA_PATH not set}"
@@ -104,8 +104,8 @@ hsm_stage_hab() {
     hsm_gen_wrapper_id "${HSM_IMG_KEY_ID}" "${_stage}/keys/${_img_base}" || \
         die "HSM wrapper failed for IMG key (HSM_IMG_KEY_ID=${HSM_IMG_KEY_ID})"
 
-    # CST reads the passphrase from keys/key_pass.txt — for PKCS#11 wrappers
-    # the passphrase is unused, but the file must exist.
+    # The SPSDK file-signer configuration expects a password file. For
+    # PKCS#11 wrappers the passphrase is unused, but the file must exist.
     printf '\n\n' > "${_stage}/keys/key_pass.txt"
 
     # FIT signing key "dev" (hardcoded as the key-name-hint in kernel.its,

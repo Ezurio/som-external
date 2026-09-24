@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/click-option-group/json
+md5  6948f452fa3c42101aad04caf1b5b454  click-option-group-0.5.6.tar.gz
+sha256  97d06703873518cc5038509443742b25069a3c7562d1ea72ff08bfadde1ce777  click-option-group-0.5.6.tar.gz
+# Locally computed sha256 checksums
+sha256  70f5099d4daeee00d82e2cdd096b1a33228095e34a7e8a8408b21e358fc894f0  LICENSE

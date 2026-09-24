@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HOST_PYTHON_X690
+	bool "host python-x690"
+	help
+	  X.690 encoding support for Python.

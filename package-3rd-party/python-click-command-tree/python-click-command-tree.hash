@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/click-command-tree/json
+md5  0f841d8408151bb8ced250449175822a  click_command_tree-1.2.0.tar.gz
+sha256  3e7f5db9f3eccc2eccab40f7979355efe6d5123c958b748dee9c242a38364d6c  click_command_tree-1.2.0.tar.gz
+# Locally computed sha256 checksums
+sha256  00f3da4da8618f1d8e55986a2024b290801fe9db843728a4da03367e0f12c19a  LICENSE
