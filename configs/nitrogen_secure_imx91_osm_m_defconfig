@@ -93,6 +93,7 @@ BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL=y
 BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL_LOCATION="$(call github,nxp-imx,imx-optee-client,lf-6.18.20_2.0.0)/imx-optee-client-lf-6.18.20_2.0.0.tar.gz"
 BR2_PACKAGE_OPTEE_CLIENT_TEE_FS_PATH="/perm/tee"
 BR2_PACKAGE_SWUPDATE_CONFIG="$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/swupdate_emmc.config"
+BR2_PACKAGE_SWUPDATE_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/swupdate_sig.cfg $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/swupdate_cms.cfg $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/swupdate_cms_ignore_expired_certs.cfg"
 # BR2_PACKAGE_SWUPDATE_WEBSERVER is not set
 # BR2_PACKAGE_SYSTEMD_PSTORE is not set
 # BR2_PACKAGE_SYSTEMD_HWDB is not set
