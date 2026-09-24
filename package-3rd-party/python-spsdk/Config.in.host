@@ -1,7 +1,11 @@
 config BR2_PACKAGE_HOST_PYTHON_SPSDK
 	bool "host python-spsdk"
+	select BR2_PACKAGE_HOST_PYTHON3_BZIP2
+	select BR2_PACKAGE_HOST_PYTHON3_SSL
+	select BR2_PACKAGE_HOST_PYTHON3_XZ
 	help
 	  NXP Secure Provisioning SDK (SPSDK) provides the nxpimage
-	  tool used for signing AHAB containers on i.MX9x platforms.
+	  tool used for signing HAB4 images on i.MX8M and AHAB
+	  containers on i.MX9x platforms.
 
 	  https://github.com/nxp-mcuxpresso/spsdk

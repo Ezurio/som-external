@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/x690/json
+md5  56bcab45aa3bd83560a7af5b977e43fb  x690-1.0.0.tar.gz
+sha256  d20068d3891c5710d6f25fc4db85d62b4b46bbcd07a4b994c5751ea777aa4fc0  x690-1.0.0.tar.gz
+# Locally computed sha256 checksums
+sha256  6285929deeab2041744bac5c79f00cfe5654fd87d7c8247264d60715d06aff97  LICENSE.txt

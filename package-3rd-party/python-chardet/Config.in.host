@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HOST_PYTHON_CHARDET
+	bool "host python-chardet"
+	help
+	  Character encoding detection library for Python.

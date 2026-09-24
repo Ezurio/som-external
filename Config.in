@@ -7,8 +7,8 @@ config BR2_SUMMIT_SECURE_BOOT
 		rootfs security provided by Summit Encrypted Storage Toolkit
 
 config BR2_SUMMIT_IMX_HAB
-	bool "i.MX HAB Signed Boot (CST)"
-	select BR2_PACKAGE_HOST_CST
+	bool "i.MX HAB Signed Boot (SPSDK)"
+	select BR2_PACKAGE_HOST_PYTHON_SPSDK
 	select BR2_TARGET_UBOOT_NEEDS_OPENSSL
 	depends on BR2_SUMMIT_SECURE_BOOT
 	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MM || \
@@ -17,8 +17,8 @@ config BR2_SUMMIT_IMX_HAB
 	default y
 	help
 		Enable NXP HABv4 (High Assurance Boot) signing for i.MX8M
-		platforms. When enabled, U-Boot's binman uses the NXP Code
-		Signing Tool (CST) to sign SPL and FIT images.
+		platforms. When enabled, U-Boot's binman uses SPSDK to
+		generate CSFs and sign SPL and FIT images.
 
 		Requires SIG_DATA_PATH environment variable to point to a
 		directory containing HAB PKI certificates and keys:
@@ -215,20 +215,36 @@ source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-kms-pkcs11/Config.in
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/aws-sdk-cpp/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fbida/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/fscryptctl_1/Config.in"
-source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/cst/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/libplanes/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/mesa-pvr/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/minehunt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/pkcs11-provider/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awscrt/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-awsiotsdk/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-argparse-addons/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-btsocket/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-bincopy/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-bitstring/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-chardet/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-colorama/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-click-command-tree/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-click-option-group/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-deepmerge/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-fastjsonschema/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-gatt/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-hexdump/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-httptools/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-importlib-metadata/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-oscrypto/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-platformdirs/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-prettytable/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-pyasn1/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-pyserial/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-sly/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spectree/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-spsdk/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-t61codec/Config.in.host"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/python-x690/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/qt5quick1d/Config.in"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/secure-sam-ba-cipher/Config.in.host"
 source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/package-3rd-party/tac5x1x/Config.in"

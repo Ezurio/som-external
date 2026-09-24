@@ -22,33 +22,35 @@ include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))
 # by summit-key-provider above (notably the redirected SIG_DATA_PATH for Cloud
 # HSM HAB builds), so they must come after the wildcard include.
 
-# HAB signing support: make host-cst a dependency of U-Boot and export
-# SRK_TABLE/CSF_KEY/IMG_KEY so binman's nxp-imx8mcst etype can locate
-# the HAB PKI tree during the U-Boot build.
-ifeq ($(BR2_PACKAGE_HOST_CST),y)
-UBOOT_DEPENDENCIES += host-cst
-
-SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/hab4
-
-SRK_TABLE ?= $(SIG_DATA_PATH)/crts/SRK_1_2_3_4_table.bin
-CSF_KEY ?= $(SIG_DATA_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
-IMG_KEY ?= $(SIG_DATA_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
-
-export SRK_TABLE CSF_KEY IMG_KEY
-endif
-
-# AHAB signing support: make host-python-spsdk a dependency of U-Boot and export
-# SIG_DATA_PATH so the post-image script can locate the AHAB PKI tree
-# when signing flash.bin after the U-Boot build.
 ifeq ($(BR2_PACKAGE_HOST_PYTHON_SPSDK),y)
 UBOOT_DEPENDENCIES += host-python-spsdk
+$(UBOOT_TARGET_CONFIGURE): | host-python-spsdk
+endif
 
+# HAB4 (i.MX8M): export the explicit SPSDK signing inputs consumed by binman's
+# nxp-imx8mspsdk etype during the U-Boot build.
+ifeq ($(BR2_SUMMIT_IMX_HAB),y)
+SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/hab4
+
+SPSDK_HAB_SRK_TABLE ?= $(SIG_DATA_PATH)/crts/SRK_1_2_3_4_table.bin
+SPSDK_HAB_CSF_CERT ?= $(SIG_DATA_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
+SPSDK_HAB_IMG_CERT ?= $(SIG_DATA_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
+SPSDK_HAB_CSF_SIGNER ?= type=file;file_path=$(SIG_DATA_PATH)/keys/CSF1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_DATA_PATH)/keys/key_pass.txt;password-index=0
+SPSDK_HAB_IMG_SIGNER ?= type=file;file_path=$(SIG_DATA_PATH)/keys/IMG1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_DATA_PATH)/keys/key_pass.txt;password-index=1
+CSF_KEY ?= $(SPSDK_HAB_CSF_CERT)
+IMG_KEY ?= $(SPSDK_HAB_IMG_CERT)
+
+export SIG_DATA_PATH SPSDK_HAB_SRK_TABLE SPSDK_HAB_CSF_CERT SPSDK_HAB_IMG_CERT
+export SPSDK_HAB_CSF_SIGNER SPSDK_HAB_IMG_SIGNER CSF_KEY IMG_KEY
+endif
+
+# AHAB (i.MX9x): export SIG_DATA_PATH so the post-image script can locate the
+# AHAB PKI tree when signing flash.bin after the U-Boot build.
+ifeq ($(BR2_SUMMIT_IMX_AHAB),y)
 SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
 
 export SIG_DATA_PATH
-endif
 
-ifeq ($(BR2_SUMMIT_IMX_AHAB),y)
 ifeq ($(BR2_SUMMIT_IMX_AHAB_AUTO_LOCK),y)
 UBOOT_KCONFIG_FIXUP_CMDS += $(call KCONFIG_ENABLE_OPT,CONFIG_SUMMIT_AHAB_AUTO_LOCK)
 else

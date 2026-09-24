@@ -2,8 +2,8 @@
 #
 # host-python-spsdk
 #
-# NXP Secure Provisioning SDK – provides the nxpimage tool used for
-# AHAB container signing on i.MX9x platforms.
+# NXP Secure Provisioning SDK – provides nxpimage and the HAB4 binman
+# adapter used for i.MX8M signing, as well as AHAB container signing.
 #
 ################################################################################
 
@@ -15,7 +15,25 @@ PYTHON_SPSDK_LICENSE = BSD-3-Clause
 PYTHON_SPSDK_LICENSE_FILES = LICENSE
 
 HOST_PYTHON_SPSDK_DEPENDENCIES = \
+	host-python-bincopy \
+	host-python-bitstring \
+	host-python-chardet \
+	host-python-colorama \
+	host-python-click-command-tree \
+	host-python-click-option-group \
+	host-python-hexdump \
+	host-python-platformdirs \
+	host-python-pyasn1 \
 	host-python-click \
+	host-python-humanfriendly \
+	host-python-importlib-metadata \
+	host-python-jinja2 \
+	host-python-oscrypto \
+	host-python-prettytable \
+	host-python-pyserial \
+	host-python-sly \
+	host-python-t61codec \
+	host-python-x690 \
 	host-python-crcmod \
 	host-python-cryptography \
 	host-python-deepmerge \
@@ -26,6 +44,14 @@ HOST_PYTHON_SPSDK_DEPENDENCIES = \
 	host-python-ruamel-yaml \
 	host-python-serial \
 	host-python-setuptools-scm \
-	host-python-typing-extensions
+	host-python-typing-extensions \
+	host-python-asn1crypto \
+	host-python-packaging
+
+define HOST_PYTHON_SPSDK_INSTALL_HAB4_WRAPPER
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/python-spsdk/spsdk-hab4-sign.py $(HOST_DIR)/bin/spsdk-hab4-sign.py
+endef
+
+HOST_PYTHON_SPSDK_POST_INSTALL_HOOKS += HOST_PYTHON_SPSDK_INSTALL_HAB4_WRAPPER
 
 $(eval $(host-python-package))

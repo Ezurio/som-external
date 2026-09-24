@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HOST_PYTHON_BINCOPY
+	bool "host python-bincopy"
+	help
+	  Binary image manipulation library for Python.

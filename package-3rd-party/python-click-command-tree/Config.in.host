@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HOST_PYTHON_CLICK_COMMAND_TREE
+	bool "host python-click-command-tree"
+	help
+	  Command-tree support for Click-based command-line applications.

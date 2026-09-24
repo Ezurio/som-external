@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/t61codec/json
+md5  5cb36742fd7a8c2041df16c3e8e0c7ea  t61codec-2.0.0.tar.gz
+sha256  21c238fbf897b32e5fe9450b71193a1d223abb591dd84b5da8fbc50a2c9277db  t61codec-2.0.0.tar.gz
+# Locally computed sha256 checksums
+sha256  1f5586b9be7b89e45cf269ef079ff3c2c5bb23314b8570a15f156062cba2d023  LICENSE
