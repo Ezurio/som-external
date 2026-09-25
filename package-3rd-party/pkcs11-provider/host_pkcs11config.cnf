@@ -10,8 +10,8 @@ default = default_sect
 pkcs11 = pkcs11_sect
 
 [pkcs11_sect]
-module = @@HOST_DIR@@/lib/ossl-modules/pkcs11.so
-pkcs11-module-path = @@HOST_DIR@@/lib/pkcs11/aws_kms_pkcs11.so
+module = @@HOST_DIR@@/usr/lib/ossl-modules/pkcs11.so
+pkcs11-module-path = @@HOST_DIR@@/usr/lib/pkcs11/aws_kms_pkcs11.so
 activate = 1
 
 # When activating a custom provider, the default provider must also be activated

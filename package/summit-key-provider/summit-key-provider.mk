@@ -126,7 +126,7 @@ endif
 ifneq ($(CLOUD_HSM_SIGNING),)
 UBOOT_MAKE_OPTS += $(HSM_MAKE_OPTS)
 TI_K3_R5_LOADER_MAKE_OPTS += $(HSM_MAKE_OPTS)
-export OPENSSL_CONF = $(HOST_DIR)/etc/ssl/openssl.cnf.d/pkcs11-aws-kms.cnf
+export OPENSSL_CONF = $(HOST_DIR)/etc/ssl/openssl.cnf
 endif
 
 # ─── host-summit-key-provider dependency ─────────────────────────────────────────

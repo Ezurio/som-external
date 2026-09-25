@@ -119,29 +119,3 @@ Upstream-Status: Inappropriate [Yocto native integration adjustments]
  from serial import SerialException
  from serial.tools.list_ports import comports
  from serial.tools.list_ports_common import ListPortInfo
---- a/spsdk/crypto/keys.py
-+++ b/spsdk/crypto/keys.py
-@@ -27,8 +27,15 @@
--from cryptography.hazmat.primitives.asymmetric.mldsa import (
--    MLDSA44PrivateKey,
--    MLDSA44PublicKey,
--    MLDSA65PrivateKey,
--    MLDSA65PublicKey,
--    MLDSA87PrivateKey,
--    MLDSA87PublicKey,
--)
-+try:
-+    from cryptography.hazmat.primitives.asymmetric.mldsa import (
-+        MLDSA44PrivateKey,
-+        MLDSA44PublicKey,
-+        MLDSA65PrivateKey,
-+        MLDSA65PublicKey,
-+        MLDSA87PrivateKey,
-+        MLDSA87PublicKey,
-+    )
-+except ImportError:
-+    class _UnsupportedMLDSA:
-+        pass
-+    MLDSA44PrivateKey = MLDSA44PublicKey = _UnsupportedMLDSA
-+    MLDSA65PrivateKey = MLDSA65PublicKey = _UnsupportedMLDSA
-+    MLDSA87PrivateKey = MLDSA87PublicKey = _UnsupportedMLDSA

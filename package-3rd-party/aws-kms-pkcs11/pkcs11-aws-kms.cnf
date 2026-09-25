@@ -1,17 +1,21 @@
-openssl_conf = openssl_init
-
-[openssl_init]
-providers = provider_sect
-
-[provider_sect]
-default = default_sect
-pkcs11 = pkcs11_sect
-
 [pkcs11_sect]
-module = @@HOST_DIR@@/lib/ossl-modules/pkcs11.so
-pkcs11-module-path = @@HOST_DIR@@/lib/pkcs11/aws_kms_pkcs11.so
+module = @@LIBDIR@@/ossl-modules/pkcs11.so
+pkcs11-module-path = @@LIBDIR@@/pkcs11/aws_kms_pkcs11.so
 activate = 1
 
-# When activating a custom provider, the default provider must also be activated explicitly.
+[provider_sect]
+aws_kms_pkcs11 = pkcs11_sect
+
+[openssl_init]
+alg_section = aws_kms_evp_properties
+
+[aws_kms_evp_properties]
+# Prefer the default provider for unconstrained operations such as the AWS
+# SDK's TLS certificate verification. Operations bound to a PKCS#11 key still
+# use the PKCS#11 provider.
+default_properties = ?provider=default
+
+# When activating a custom provider, the default provider must also be activated
+# explicitly.
 [default_sect]
 activate = 1

@@ -24,7 +24,7 @@ HSM_CSF_KEY_ID := $(AWS_KMS_CSF_KEY_ARN)
 HSM_IMG_KEY_ID := $(AWS_KMS_IMG_KEY_ARN)
 HSM_FIT_KEY_ID := $(AWS_KMS_FIT_KEY_ARN)
 HSM_AHAB_KEY_ID := $(AWS_KMS_AHAB_KEY_ARN)
-HSM_PKCS11_LIBRARY := $(HOST_DIR)/lib/pkcs11/aws_kms_pkcs11.so
+HSM_PKCS11_LIBRARY := $(HOST_DIR)/usr/lib/pkcs11/aws_kms_pkcs11.so
 HSM_SPSDK_PKCS11_OPTIONS := rsa_pkcs_mechanism=true
 
 # Host packages required by this backend
@@ -33,7 +33,7 @@ HSM_HOST_DEPENDENCIES += host-python-spsdk-pkcs11
 
 # Make opts and environment for the PKCS#11 module
 HSM_MAKE_OPTS = \
-	OPENSSL_CONF=$(HOST_DIR)/etc/ssl/openssl.cnf.d/pkcs11-aws-kms.cnf \
+	OPENSSL_CONF=$(HOST_DIR)/etc/ssl/openssl.cnf \
 	AWS_KMS_PKCS11_CONFIG=$(HOST_DIR)/aws-kms-pkcs11-config.json \
 	SPSDK_PKCS11_CONFIG_ENV=AWS_KMS_PKCS11_CONFIG \
 	SPSDK_PKCS11_CONFIG_PATH=$(HOST_DIR)/aws-kms-pkcs11-config.json \
@@ -52,8 +52,12 @@ define HSM_GEN_CONFIG_CMD
 	$(INSTALL) -D -m 0644 \
 		$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/aws-kms-pkcs11/pkcs11-aws-kms.cnf \
 		$(HOST_DIR)/etc/ssl/openssl.cnf.d/pkcs11-aws-kms.cnf
-	$(SED) 's|@@HOST_DIR@@|$(HOST_DIR)|g' \
+	$(SED) 's|@@LIBDIR@@|$(HOST_DIR)/usr/lib|g' \
 		$(HOST_DIR)/etc/ssl/openssl.cnf.d/pkcs11-aws-kms.cnf
+	grep -qF '.include $(HOST_DIR)/etc/ssl/openssl.cnf.d' \
+		$(HOST_DIR)/etc/ssl/openssl.cnf || \
+		printf '\n.include $(HOST_DIR)/etc/ssl/openssl.cnf.d\n' >> \
+		$(HOST_DIR)/etc/ssl/openssl.cnf
 endef
 
 # Export the ARN variables so aws_kms_config.py (invoked from the
