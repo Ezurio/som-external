@@ -1,0 +1,13 @@
+config BR2_PACKAGE_AWS_KMS_PKCS11
+	bool "aws-kms-pkcs11"
+	depends on BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_AWS_SDK_CPP
+	select BR2_PACKAGE_JSON_C
+	select BR2_PACKAGE_LIBCURL
+	select BR2_PACKAGE_P11_KIT
+	select BR2_PACKAGE_PKCS11_PROVIDER
+	select BR2_PACKAGE_ZLIB
+	help
+	  PKCS#11 provider using AWS KMS as the signing backend.
+
+	  https://github.com/JackOfMostTrades/aws-kms-pkcs11

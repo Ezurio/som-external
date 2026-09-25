@@ -98,8 +98,15 @@ def main() -> None:
         blocks=[ImageBlock(base_address=args.address, start=0, size=len(payload))],
         base_data_address=args.address,
     )
-    output = csf.export()[:CSF_OUTPUT_SIZE]
-    Path(args.output).write_bytes(output)
+    output = csf.export()
+    if len(output) != CSF_OUTPUT_SIZE + 0x20:
+        raise ValueError(
+            f"unexpected HAB4 CSF size {len(output)} bytes; expected "
+            f"{CSF_OUTPUT_SIZE + 0x20} bytes"
+        )
+    if any(output[CSF_OUTPUT_SIZE:]):
+        raise ValueError("HAB4 CSF alignment area contains non-zero data")
+    Path(args.output).write_bytes(output[:CSF_OUTPUT_SIZE])
 
 
 if __name__ == "__main__":
