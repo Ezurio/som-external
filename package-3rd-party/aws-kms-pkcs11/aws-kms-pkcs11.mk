@@ -19,10 +19,12 @@ AWS_KMS_PKCS11_DEPENDENCIES = \
 HOST_AWS_KMS_PKCS11_DEPENDENCIES += \
 	host-aws-sdk-cpp \
 	host-openssl \
+	host-libcurl \
 	host-p11-kit \
 	host-json-c \
 	host-pkgconf \
-	host-pkcs11-provider
+	host-pkcs11-provider \
+	host-zlib
 
 HOST_AWS_KMS_PKCS11_ENV += \
 	$(HOST_MAKE_ENV) \
