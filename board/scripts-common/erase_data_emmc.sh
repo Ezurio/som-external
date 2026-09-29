@@ -64,15 +64,15 @@ migrate_data() {
 	/bin/mount -o noatime,noexec,nosuid,nodev -t auto /dev/mapper/data_enc_o \
 		${MOUNT_POINT} || {
 		/usr/sbin/dmsetup remove data_enc_o
-		rmdir ${MOUNT_POINT}
+		rmdir "${MOUNT_POINT}"
 		die "Mounting ${1} to ${MOUNT_POINT} Failed"
 	}
 
-	find ${DATA_SRC} -maxdepth 1 -path ${DATA_SRC}/lost+found -prune -o \
-		-exec cp -fav -t ${MOUNT_POINT} {} \; || {
-		/bin/umount ${MOUNT_POINT} || true
+	find "${DATA_SRC}" -mindepth 1 -maxdepth 1 -path "${DATA_SRC}/lost+found" -prune -o \
+		-exec cp -fav -t "${MOUNT_POINT}" {} \; || {
+		/bin/umount "${MOUNT_POINT}" || true
 		/usr/sbin/dmsetup remove data_enc_o
-		rmdir ${MOUNT_POINT}
+		rmdir "${MOUNT_POINT}"
 		die "Data Copying.. Failed"
 	}
 
