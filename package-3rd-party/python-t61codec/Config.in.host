@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_T61CODEC
-	bool "host python-t61codec"
-	help
-	  T.61 codec support for Python, used by the x690 ASN.1 decoder.

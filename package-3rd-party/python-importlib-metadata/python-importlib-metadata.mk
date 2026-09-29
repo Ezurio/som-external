@@ -10,9 +10,13 @@ PYTHON_IMPORTLIB_METADATA_SITE = https://files.pythonhosted.org/packages/76/66/6
 PYTHON_IMPORTLIB_METADATA_SETUP_TYPE = setuptools
 PYTHON_IMPORTLIB_METADATA_LICENSE = Apache-2.0
 PYTHON_IMPORTLIB_METADATA_LICENSE_FILES = LICENSE
+PYTHON_IMPORTLIB_METADATA_DEPENDENCIES = \
+	host-python-setuptools-scm \
+	host-python-tomli
 HOST_PYTHON_IMPORTLIB_METADATA_DEPENDENCIES = \
 	host-python-setuptools \
 	host-python-setuptools-scm \
 	host-python-tomli
 
+$(eval $(python-package))
 $(eval $(host-python-package))

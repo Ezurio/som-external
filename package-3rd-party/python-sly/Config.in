@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYTHON_SLY
+	bool "python-sly"
+	help
+	  Lexer and parser tools for Python.

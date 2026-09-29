@@ -12,4 +12,5 @@ PYTHON_SLY_SETUP_TYPE = setuptools
 PYTHON_SLY_LICENSE = BSD-3-Clause
 PYTHON_SLY_LICENSE_FILES = LICENSE
 
+$(eval $(python-package))
 $(eval $(host-python-package))

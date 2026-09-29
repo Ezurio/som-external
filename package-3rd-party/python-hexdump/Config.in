@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYTHON_HEXDUMP
+	bool "python-hexdump"
+	help
+	  Hex dump helper for Python.

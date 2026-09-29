@@ -10,6 +10,10 @@ PYTHON_BINCOPY_SITE = https://files.pythonhosted.org/packages/dc/81/6cbb95b67abc
 PYTHON_BINCOPY_SETUP_TYPE = setuptools
 PYTHON_BINCOPY_LICENSE = MIT
 PYTHON_BINCOPY_LICENSE_FILES = LICENSE
+PYTHON_BINCOPY_DEPENDENCIES = \
+	python-argparse-addons \
+	python-humanfriendly \
+	python-pyelftools
 HOST_PYTHON_BINCOPY_DEPENDENCIES = \
 	host-python-argparse-addons \
 	host-python-humanfriendly \

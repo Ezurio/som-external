@@ -11,4 +11,5 @@ PYTHON_T61CODEC_SETUP_TYPE = poetry
 PYTHON_T61CODEC_LICENSE = MIT
 PYTHON_T61CODEC_LICENSE_FILES = LICENSE
 
+$(eval $(python-package))
 $(eval $(host-python-package))

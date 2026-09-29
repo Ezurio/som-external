@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_CLICK_OPTION_GROUP
+	bool "python-click-option-group"
+	select BR2_PACKAGE_PYTHON_CLICK
+	help
+	  Option-group support for Click-based command-line applications.

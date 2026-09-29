@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_BITSTRING
-	bool "host python-bitstring"
-	help
-	  Binary data manipulation library for Python.

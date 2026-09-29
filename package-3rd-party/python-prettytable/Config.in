@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PRETTYTABLE
+	bool "python-prettytable"
+	select BR2_PACKAGE_PYTHON_WCWIDTH
+	help
+	  Formatted table output for Python applications.

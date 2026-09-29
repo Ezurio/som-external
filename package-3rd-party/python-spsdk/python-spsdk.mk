@@ -14,6 +14,39 @@ PYTHON_SPSDK_SETUP_TYPE = setuptools
 PYTHON_SPSDK_LICENSE = BSD-3-Clause
 PYTHON_SPSDK_LICENSE_FILES = LICENSE
 
+PYTHON_SPSDK_DEPENDENCIES = \
+	python-bincopy \
+	python-bitstring \
+	python-chardet \
+	python-colorama \
+	python-click-command-tree \
+	python-click-option-group \
+	python-hexdump \
+	python-platformdirs \
+	python-pyasn1 \
+	python-click \
+	python-humanfriendly \
+	python-importlib-metadata \
+	python-jinja2 \
+	python-oscrypto \
+	python-prettytable \
+	python-serial \
+	python-sly \
+	python-t61codec \
+	python-x690 \
+	python-crcmod \
+	python-cryptography \
+	python-deepmerge \
+	python-fastjsonschema \
+	python-filelock \
+	python-pyyaml \
+	python-requests \
+	python-ruamel-yaml \
+	python-typing-extensions \
+	python-asn1crypto \
+	python-packaging \
+	host-python-setuptools-scm
+
 HOST_PYTHON_SPSDK_DEPENDENCIES = \
 	host-python-bincopy \
 	host-python-bitstring \
@@ -30,7 +63,7 @@ HOST_PYTHON_SPSDK_DEPENDENCIES = \
 	host-python-jinja2 \
 	host-python-oscrypto \
 	host-python-prettytable \
-	host-python-pyserial \
+	host-python-serial \
 	host-python-sly \
 	host-python-t61codec \
 	host-python-x690 \
@@ -42,7 +75,6 @@ HOST_PYTHON_SPSDK_DEPENDENCIES = \
 	host-python-pyyaml \
 	host-python-requests \
 	host-python-ruamel-yaml \
-	host-python-serial \
 	host-python-setuptools-scm \
 	host-python-typing-extensions \
 	host-python-asn1crypto \
@@ -54,4 +86,5 @@ endef
 
 HOST_PYTHON_SPSDK_POST_INSTALL_HOOKS += HOST_PYTHON_SPSDK_INSTALL_HAB4_WRAPPER
 
+$(eval $(python-package))
 $(eval $(host-python-package))

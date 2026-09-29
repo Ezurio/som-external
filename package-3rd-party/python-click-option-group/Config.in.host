@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_CLICK_OPTION_GROUP
-	bool "host python-click-option-group"
-	help
-	  Option-group support for Click-based command-line applications.

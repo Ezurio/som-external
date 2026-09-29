@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_COLORAMA
-	bool "host python-colorama"
-	help
-	  Cross-platform terminal color support for Python applications.
