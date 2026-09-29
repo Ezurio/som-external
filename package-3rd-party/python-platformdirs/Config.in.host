@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_PLATFORMDIRS
-	bool "host python-platformdirs"
-	help
-	  Platform-specific directory helpers for Python applications.

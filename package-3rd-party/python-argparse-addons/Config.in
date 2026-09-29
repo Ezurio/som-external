@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYTHON_ARGPARSE_ADDONS
+	bool "python-argparse-addons"
+	help
+	  Additional argparse types and actions for Python.

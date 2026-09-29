@@ -15,4 +15,9 @@ define HOST_PYTHON_HEXDUMP_EXTRACT_CMDS
 	$(UNZIP) $(HOST_PYTHON_HEXDUMP_DL_DIR)/$(HOST_PYTHON_HEXDUMP_SOURCE) -d $(@D)
 endef
 
+define PYTHON_HEXDUMP_EXTRACT_CMDS
+	$(UNZIP) $(PYTHON_HEXDUMP_DL_DIR)/$(PYTHON_HEXDUMP_SOURCE) -d $(@D)
+endef
+
+$(eval $(python-package))
 $(eval $(host-python-package))

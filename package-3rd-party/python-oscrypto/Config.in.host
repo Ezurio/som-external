@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_OSCRYPTO
-	bool "host python-oscrypto"
-	help
-	  OpenSSL-backed cryptography primitives for Python.

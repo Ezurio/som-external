@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_X690
+	bool "python-x690"
+	select BR2_PACKAGE_PYTHON_T61CODEC
+	help
+	  X.690 encoding support for Python.

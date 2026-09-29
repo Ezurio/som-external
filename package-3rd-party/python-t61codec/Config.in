@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYTHON_T61CODEC
+	bool "python-t61codec"
+	help
+	  T.61 codec support for Python.

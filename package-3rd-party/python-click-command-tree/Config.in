@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_CLICK_COMMAND_TREE
+	bool "python-click-command-tree"
+	select BR2_PACKAGE_PYTHON_CLICK
+	help
+	  Command-tree support for Click-based command-line applications.

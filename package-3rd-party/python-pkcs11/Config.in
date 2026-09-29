@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PKCS11
+	bool "python-pkcs11"
+	select BR2_PACKAGE_PYTHON_ASN1CRYPTO
+	help
+	  Python PKCS#11 wrapper for applications using hardware security modules.

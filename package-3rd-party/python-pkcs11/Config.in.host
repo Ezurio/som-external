@@ -1,6 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_PKCS11
-	bool "host python-pkcs11"
-	select BR2_PACKAGE_HOST_PYTHON3
-	select BR2_PACKAGE_HOST_PYTHON_ASN1CRYPTO
-	help
-	  Python PKCS#11 wrapper used by the SPSDK PKCS#11 signature provider.

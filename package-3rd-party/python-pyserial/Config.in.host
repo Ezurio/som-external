@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_PYSERIAL
-	bool "host python-pyserial"
-	help
-	  Serial-port support for Python.

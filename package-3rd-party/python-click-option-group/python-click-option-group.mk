@@ -10,5 +10,8 @@ PYTHON_CLICK_OPTION_GROUP_SITE = https://files.pythonhosted.org/packages/e7/b8/9
 PYTHON_CLICK_OPTION_GROUP_SETUP_TYPE = setuptools
 PYTHON_CLICK_OPTION_GROUP_LICENSE = BSD-3-Clause
 PYTHON_CLICK_OPTION_GROUP_LICENSE_FILES = LICENSE
+PYTHON_CLICK_OPTION_GROUP_DEPENDENCIES = python-click
+HOST_PYTHON_CLICK_OPTION_GROUP_DEPENDENCIES = host-python-click
 
+$(eval $(python-package))
 $(eval $(host-python-package))

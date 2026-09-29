@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_SLY
-	bool "host python-sly"
-	help
-	  Lexer and parser tools for Python.

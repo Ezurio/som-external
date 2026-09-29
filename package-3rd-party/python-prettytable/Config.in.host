@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_PRETTYTABLE
-	bool "host python-prettytable"
-	help
-	  Formatted table output for Python applications.

@@ -1,4 +1,0 @@
-config BR2_PACKAGE_HOST_PYTHON_HEXDUMP
-	bool "host python-hexdump"
-	help
-	  Hex dump helper for Python.

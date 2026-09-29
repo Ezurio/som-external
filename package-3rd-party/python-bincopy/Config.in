@@ -1,0 +1,7 @@
+config BR2_PACKAGE_PYTHON_BINCOPY
+	bool "python-bincopy"
+	select BR2_PACKAGE_PYTHON_ARGPARSE_ADDONS
+	select BR2_PACKAGE_PYTHON_HUMANFRIENDLY
+	select BR2_PACKAGE_PYTHON_PYELFTOOLS
+	help
+	  Binary image manipulation library for Python.
