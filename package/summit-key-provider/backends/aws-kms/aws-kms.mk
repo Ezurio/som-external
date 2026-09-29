@@ -24,7 +24,7 @@ HSM_CSF_KEY_ID := $(AWS_KMS_CSF_KEY_ARN)
 HSM_IMG_KEY_ID := $(AWS_KMS_IMG_KEY_ARN)
 HSM_FIT_KEY_ID := $(AWS_KMS_FIT_KEY_ARN)
 HSM_AHAB_KEY_ID := $(AWS_KMS_AHAB_KEY_ARN)
-HSM_PKCS11_LIBRARY := $(HOST_DIR)/usr/lib/pkcs11/aws_kms_pkcs11.so
+HSM_PKCS11_LIBRARY = $(HOST_DIR)/usr/lib/pkcs11/aws_kms_pkcs11.so
 HSM_SPSDK_PKCS11_OPTIONS := rsa_pkcs_mechanism=true
 
 # Host packages required by this backend
