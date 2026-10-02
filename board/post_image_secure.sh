@@ -281,7 +281,13 @@ imx*)
         # the key password file so nxpimage does not prompt interactively.
         AHAB_SIGN_YAML="${BINARIES_DIR}/spsdk_ahab_sign.yaml"
         KEY_PASS_TXT="${SIG_DATA_PATH}/keys/key_pass.txt"
-        if [ -f "${KEY_PASS_TXT}" ]; then
+        if [ -n "${SPSDK_AHAB_SIGNER}" ]; then
+            # Cloud HSM: sign through the key provider's PKCS#11 module
+            if [ -z "${HSM_PKCS11_LIBRARY}" ] || [ ! -e "${HSM_PKCS11_LIBRARY}" ]; then
+                die "Cloud HSM backend did not provide a usable PKCS#11 library"
+            fi
+            SIGNER_SED="s|^signer:.*|signer: ${SPSDK_AHAB_SIGNER}|"
+        elif [ -f "${KEY_PASS_TXT}" ]; then
             SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1;password=${KEY_PASS_TXT}|"
         else
             SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1|"
@@ -292,6 +298,7 @@ imx*)
             "${SIG_DATA_PATH}/spsdk_ahab.yaml" > "${AHAB_SIGN_YAML}"
 
         # Sign all OEM AHAB containers in flash.bin
+        CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1 \
         ${nxpimage} ahab sign \
             -c "${AHAB_SIGN_YAML}" \
             -b flash.bin \

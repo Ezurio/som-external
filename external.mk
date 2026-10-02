@@ -58,6 +58,23 @@ SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
 
 export SIG_DATA_PATH
 
+# Cloud HSM: sign AHAB containers (flash.bin in post_image_secure.sh) through
+# the backend's PKCS#11 module.
+# The certificates in SIG_DATA_PATH are still used; the KMS key must be an
+# ECC_NIST_P256 key matching the SRK certificate selected by used_srk_id.
+ifneq ($(CLOUD_HSM_SIGNING),)
+ifneq ($(HSM_AHAB_KEY_ID),)
+# The token label is the key ID truncated to 32 characters. The key ID comes
+# from the environment, so single quotes are escaped before the shell call.
+SPSDK_AHAB_KEY_LABEL := $(notdir $(HSM_AHAB_KEY_ID))
+SPSDK_AHAB_TOKEN_LABEL := $(shell printf '%.32s' '$(subst ','\'',$(SPSDK_AHAB_KEY_LABEL))')
+SPSDK_AHAB_SIGNER = type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(SPSDK_AHAB_TOKEN_LABEL);key_label=$(SPSDK_AHAB_KEY_LABEL);user_pin=unused
+export SPSDK_AHAB_SIGNER
+else
+$(warning Cloud HSM signing is enabled but no AHAB key is set; AHAB images are signed with the local SRK key from SIG_DATA_PATH)
+endif
+endif
+
 ifeq ($(BR2_SUMMIT_IMX_AHAB_AUTO_LOCK),y)
 UBOOT_KCONFIG_FIXUP_CMDS += $(call KCONFIG_ENABLE_OPT,CONFIG_SUMMIT_AHAB_AUTO_LOCK)
 else
