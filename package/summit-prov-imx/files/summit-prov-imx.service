@@ -1,0 +1,15 @@
+[Unit]
+Description=Summit i.MX Provisioning Service
+Requires=mount_data.service nvm_daemon.service
+After=mount_data.service nvm_daemon.service
+Wants=tee-supplicant@teepriv0.service
+After=tee-supplicant@teepriv0.service
+ConditionPathExists=!/data/.provisioned
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/summit-prov-imx.sh
+
+[Install]
+WantedBy=multi-user.target
