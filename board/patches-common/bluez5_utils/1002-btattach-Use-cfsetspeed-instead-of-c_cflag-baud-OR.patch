@@ -1,4 +1,4 @@
-From: Ezurio
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
 Subject: [PATCH] btattach: Use cfsetspeed() instead of OR-ing baud into c_cflag
 
 Upstream-Status: Inappropriate [not submitted upstream]
