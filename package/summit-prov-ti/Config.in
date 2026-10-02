@@ -1,0 +1,14 @@
+config BR2_PACKAGE_SUMMIT_PROV_TI
+	bool "summit-prov-ti"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_PKCS11_PROVIDER
+	select BR2_PACKAGE_OPTEE_CLIENT
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_LIBOPENSSL_BIN
+	select BR2_PACKAGE_KEYUTILS
+	help
+	  Summit Provisioning Service for TI AM6x processors.
+
+	  Imports the encrypted provisioning data bundle
+	  (prov_data.tar.gz_sign_enc.bin) into the OP-TEE PKCS#11
+	  token on first boot.

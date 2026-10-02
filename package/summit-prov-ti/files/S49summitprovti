@@ -2,14 +2,14 @@
 
 case "${1}" in
 	start)
-		/usr/bin/summit-prov.sh
+		/usr/sbin/summit-prov-ti.sh
 		;;
 
 	stop)
 		;;
 
 	restart|reload)
-		/usr/bin/summit-prov.sh
+		/usr/sbin/summit-prov-ti.sh
 		;;
 
 	*)
