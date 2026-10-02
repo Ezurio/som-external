@@ -1,0 +1,49 @@
+config BR2_PACKAGE_SUMMIT_PROV_IMX
+	bool "summit-prov-imx"
+	depends on BR2_INIT_SYSTEMD
+	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX93
+	depends on BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT
+	depends on BR2_aarch64
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_MMU
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+	select BR2_PACKAGE_IMX_SECURE_ENCLAVE
+	select BR2_PACKAGE_OPENSC
+	select BR2_PACKAGE_OPTEE_CLIENT
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_LIBOPENSSL_BIN
+	help
+	  Summit Provisioning Service for NXP i.MX 93.
+
+	  On first boot, decrypts the provisioning archive built from
+	  $SIG_DATA_PATH/prov_data and imports the keys and
+	  certificates it contains into the OP-TEE PKCS#11 token.
+	  The compressed archive must not exceed 65520 bytes.
+
+	  With BR2_SUMMIT_IMX_AHAB, the EdgeLock Enclave derives a
+	  persistent OEM import master key, imports the wrapped fleet
+	  key, and decrypts an AES-GCM payload. The device must have
+	  the product SRK table hash fused and be in OEM Closed or
+	  OEM Locked; the helper refuses any other lifecycle. The
+	  artifacts are generated from $SIG_DATA_PATH/spsdk_ahab.yaml
+	  and $SIG_DATA_PATH/summit-prov-imx (nxp-prod-ka-public.bin,
+	  oem-ka-private.pem, fleet-aes-256.bin).
+
+	  nxp-prod-ka-public.bin is the NXP production key-agreement
+	  public key that ELE reports for key ID 0x70000000. It is
+	  bound to the fused SRK table hash, so export it from a
+	  device in OEM Closed or later, for example from U-Boot:
+
+	    nxpele --family mx93 --device uboot_serial \
+	      --port /dev/ttyUSB0,115200 export-nxp-prod-ka-puk \
+	      --key-id 0x70000000 --output nxp-prod-ka-public.bin
+
+	  Without BR2_SUMMIT_IMX_AHAB, ELE is not used. The archive
+	  is encrypted with AES-256-CBC using a random per-build key
+	  stored in cleartext in summit-prov-imx.sh, so it works in
+	  any lifecycle but does not protect prov_data. Use it only
+	  for evaluation with test data.
+
+	  Run "make summit-prov-imx-rebuild" after changing any of
+	  the inputs.

@@ -1,0 +1,18 @@
+config BR2_PACKAGE_IMX_SECURE_ENCLAVE
+	bool "imx-secure-enclave"
+	depends on BR2_aarch64
+	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX93
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	help
+	  NXP EdgeLock Enclave (ELE) HSM and NVM libraries, se_tools,
+	  and the nvm_daemon key store service.
+
+	  On systemd images the nvm_daemon key store is kept in
+	  /perm/ele so persistent ELE keys survive reboots.
+
+	  https://github.com/nxp-imx/imx-secure-enclave
+
+comment "imx-secure-enclave needs a toolchain w/ threads"
+	depends on BR2_aarch64
+	depends on BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX93
+	depends on !BR2_TOOLCHAIN_HAS_THREADS

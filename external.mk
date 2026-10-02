@@ -58,8 +58,8 @@ SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
 
 export SIG_DATA_PATH
 
-# Cloud HSM: sign AHAB containers (flash.bin in post_image_secure.sh) through
-# the backend's PKCS#11 module.
+# Cloud HSM: sign AHAB containers (flash.bin in post_image_secure.sh and the
+# summit-prov-imx key-exchange message) through the backend's PKCS#11 module.
 # The certificates in SIG_DATA_PATH are still used; the KMS key must be an
 # ECC_NIST_P256 key matching the SRK certificate selected by used_srk_id.
 ifneq ($(CLOUD_HSM_SIGNING),)
