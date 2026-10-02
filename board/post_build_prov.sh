@@ -4,7 +4,7 @@ die() { echo "$@" >&2; exit 1; }
 
 case "${BUILD_TYPE}" in
     *am6*)
-        if ! grep -qF "BR2_PACKAGE_SUMMIT_PROV=y" "${BR2_CONFIG}"; then
+        if ! grep -qF "BR2_PACKAGE_SUMMIT_PROV_TI=y" "${BR2_CONFIG}"; then
             touch "${BINARIES_DIR}/prov_data.tar.gz_sign_enc.bin"
             exit 0
         fi
@@ -40,17 +40,17 @@ case "${BUILD_TYPE}" in
             shred -zn 0 "${BINARIES_DIR}/cert_prov_data.tar.gz.bin" "${BINARIES_DIR}/prov_data.tar.gz-ENC"
         else
             # If not a secure target build, encrypt the prov_data.tar.gz using SMEK and inject the SMEK
-            # and IV into the summit-prov.sh script using sed (for decryption during provisioning)
+            # and IV into the summit-prov-ti.sh script using sed (for decryption during provisioning)
             KEY_SIZE=$(stat -c%s "${smek_path}")
             KEY=$(xxd -p -c "${KEY_SIZE}" "${smek_path}")
             IV=$(openssl rand -hex 16)
             openssl enc -aes-256-cbc -in "${BINARIES_DIR}/prov_data.tar.gz" -out "${BINARIES_DIR}/prov_data.tar.gz_sign_enc.bin" -K "${KEY}" -iv "${IV}"
 
-            # Update the decryption key and IV variables for summit-prov.sh using sed
+            # Update the decryption key and IV variables for summit-prov-ti.sh using sed
             sed -i -r \
                 -e "s/^(DECRYPT_KEY=).*/\1\"${KEY}\"/" \
                 -e "s/^(DECRYPT_IV=).*/\1\"${IV}\"/" \
-                "${TARGET_DIR}/usr/bin/summit-prov.sh"
+                "${TARGET_DIR}/usr/sbin/summit-prov-ti.sh"
         fi
         shred -zn 0 "${BINARIES_DIR}/prov_data.tar.gz"
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=Summit Provisioning Service
+Description=Summit TI Provisioning Service
 After=mount_boot.service
 Requires=mount_boot.service
 After=tee-supplicant@teepriv0.service
@@ -7,7 +7,7 @@ Wants=tee-supplicant@teepriv0.service
 
 [Service]
 RemainAfterExit=yes
-ExecStart=/usr/sbin/summit-prov.sh
+ExecStart=/usr/sbin/summit-prov-ti.sh
 
 [Install]
 WantedBy=multi-user.target
