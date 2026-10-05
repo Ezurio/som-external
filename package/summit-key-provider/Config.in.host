@@ -1,6 +1,5 @@
 config BR2_PACKAGE_HOST_SUMMIT_KEY_PROVIDER
 	bool "host summit-key-provider"
-	default y
 	help
 	  Secure-boot signing key provider.  Materializes the signing
 	  keys directory (KEYS_DIR) at build time from the local platform
