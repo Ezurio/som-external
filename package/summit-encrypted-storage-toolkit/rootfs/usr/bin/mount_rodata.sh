@@ -65,7 +65,7 @@ start)
 	;;
 
 stop)
-	unmount_dmcrypt
+	umount_dmcrypt
 	;;
 
 *)
