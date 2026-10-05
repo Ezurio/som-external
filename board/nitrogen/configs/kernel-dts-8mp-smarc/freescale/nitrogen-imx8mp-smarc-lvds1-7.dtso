@@ -55,7 +55,7 @@
 
 	touchscreen_lvds: touchscreen-lvds@5d {
 		compatible = "goodix,gt911";
-		reg = <0x5d>;
+		reg = <0x14>;
 
 		AVDD28-supply = <&reg_vdd_3v3>;
 		VDDIO-supply = <&reg_vdd_3v3>;
