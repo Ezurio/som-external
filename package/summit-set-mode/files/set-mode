@@ -64,8 +64,8 @@ print_regdomain() {
 }
 
 overlay_append() {
-    overlay_names="${overlay_names}${overlay_names:+
-}${1}"
+    overlay_names=$(printf '%s\n%s\n' "${overlay_names}" "${1}" |
+        awk 'NF && !seen[$0]++')
 }
 
 overlay_remove() {
