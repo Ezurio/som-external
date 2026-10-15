@@ -1,0 +1,102 @@
+From: Summit <noreply@example.com>
+Subject: [PATCH] ASoC: fsl_sai: constrain rates to MCLK sources
+
+When the SAI is clock provider and no pll8k/pll11k clocks are described,
+only offer sample rates for which an MCLK source can produce the BCLK
+within the tolerance fsl_sai_set_bclk() accepts. This avoids offering
+rates that later fail in hw_params.
+
+Upstream-Status: Inappropriate [board-specific rate constraint]
+
+Signed-off-by: Summit <noreply@example.com>
+---
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 911c6d2..91d99c1 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -902,6 +902,59 @@ static int fsl_sai_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	return 0;
+ }
+ 
++static bool fsl_sai_mclk_fits_rate(struct fsl_sai *sai, unsigned long mclk,
++				   unsigned int rate, unsigned int fs)
++{
++	unsigned long bclk = (unsigned long)rate * fs;
++	unsigned long div = DIV_ROUND_CLOSEST(mclk, bclk);
++	long diff;
++
++	/* Same divider limits and tolerance as fsl_sai_set_bclk() */
++	if (!div || div > 512 || (div > 1 && (div & 1)))
++		return false;
++	if (div == 1 && sai->verid.version < 0x0301)
++		return false;
++
++	diff = abs((long)mclk - (long)(div * bclk));
++
++	return !diff || mclk / diff >= 1000;
++}
++
++static void fsl_sai_constrain_rates_to_mclk(struct fsl_sai *sai)
++{
++	struct snd_pcm_hw_constraint_list *constr = &sai->constraint_rates;
++	static const unsigned int frame_sizes[] = { 32, 64 };
++	unsigned int i, id, f, count = 0;
++
++	for (i = 0; i < ARRAY_SIZE(fsl_sai_rates); i++) {
++		bool ok = false;
++
++		for (id = 1; id < FSL_SAI_MCLK_MAX && !ok; id++) {
++			unsigned long mclk = clk_get_rate(sai->mclk_clk[id]);
++
++			if (!mclk)
++				continue;
++
++			for (f = 0; f < ARRAY_SIZE(frame_sizes) && !ok; f++)
++				ok = fsl_sai_mclk_fits_rate(sai, mclk,
++							    fsl_sai_rates[i],
++							    frame_sizes[f]);
++		}
++
++		if (ok)
++			sai->constraint_rates_list[count++] = fsl_sai_rates[i];
++	}
++
++	if (!count) {
++		*constr = fsl_sai_rate_constraints;
++		return;
++	}
++
++	constr->list = sai->constraint_rates_list;
++	constr->count = count;
++	constr->mask = 0;
++}
++
+ static int fsl_sai_startup(struct snd_pcm_substream *substream,
+ 		struct snd_soc_dai *cpu_dai)
+ {
+@@ -919,14 +972,20 @@ static int fsl_sai_startup(struct snd_pcm_substream *substream,
+ 					   tx ? sai->dma_params_tx.maxburst :
+ 					   sai->dma_params_rx.maxburst);
+ 
+-	if (sai->is_consumer_mode[tx])
++	if (sai->is_consumer_mode[tx]) {
+ 		ret = snd_pcm_hw_constraint_list(substream->runtime, 0,
+ 						 SNDRV_PCM_HW_PARAM_RATE,
+ 						 &fsl_sai_rate_constraints);
+-	else
+-		ret = snd_pcm_hw_constraint_list(substream->runtime, 0,
+-						 SNDRV_PCM_HW_PARAM_RATE,
+-						 &sai->constraint_rates);
++		return ret;
++	}
++
++	/* Without PLL clocks, only offer rates that an MCLK source can generate */
++	if (!sai->pll8k_clk && !sai->pll11k_clk)
++		fsl_sai_constrain_rates_to_mclk(sai);
++
++	ret = snd_pcm_hw_constraint_list(substream->runtime, 0,
++					 SNDRV_PCM_HW_PARAM_RATE,
++					 &sai->constraint_rates);
+ 
+ 	return ret;
+ }
