@@ -293,6 +293,8 @@ export FIT_SUMMIT_VERSION=Linux-${kver}-${BR2_SUMMIT_BUILD_VERSION}
 ENV_SIZE=$(sed -rn 's,^CONFIG_ENV_SIZE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 ENV_OFFSET=$(sed -rn 's,^CONFIG_ENV_OFFSET=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
 TEXT_BASE=$(sed -rn 's,^CONFIG_TEXT_BASE=(.*),\1,p' "${BUILD_DIR}/uboot-${UBOOT_VER}/.config")
+grep -qF "CONFIG_ENV_REDUNDANT=y" "${BUILD_DIR}/uboot-${UBOOT_VER}/.config" && \
+	ENV_REDUNDANT=true || ENV_REDUNDANT=false
 
 ENV_OFFSET_EMMC=$(fdtget "${BUILD_DIR}/uboot-${UBOOT_VER}/u-boot.dtb" /config u-boot,mmc-env-offset 2>/dev/null || true)
 if [ -n "${ENV_OFFSET_EMMC}" ] ; then
@@ -301,11 +303,21 @@ else
 	ENV_OFFSET_EMMC=${ENV_OFFSET}
 fi
 
-create_fw_env_emmc_sd() {
+create_fw_env_emmc() {
 	emmc=$(sed -rn 's,^BR2_SUMMIT_EMMC_DEVICE=([0-9]+).*,\1,p' "${BR2_CONFIG}")
 	echo "/dev/mmcblk${emmc}boot0 ${ENV_OFFSET_EMMC} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-a.config"
 	echo "/dev/mmcblk${emmc}boot1 ${ENV_OFFSET_EMMC} ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_emmc-b.config"
+	if "${ENV_REDUNDANT}" ; then
+		echo "/dev/mmcblk${emmc}boot0 ${ENV_OFFSET_EMMC} ${ENV_SIZE}" >> "${TARGET_DIR}/etc/fw_env_emmc-a.config"
+		echo "/dev/mmcblk${emmc}boot1 ${ENV_OFFSET_EMMC} ${ENV_SIZE}" >> "${TARGET_DIR}/etc/fw_env_emmc-b.config"
+	fi
+}
+
+create_fw_env_sd() {
 	echo "/boot/uboot.env 0 ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_sd.config"
+	if "${ENV_REDUNDANT}" ; then
+		echo "/boot/uboot.env 0 ${ENV_SIZE}" >> "${TARGET_DIR}/etc/fw_env_sd.config"
+	fi
 }
 
 create_fw_env_flash() {
@@ -316,7 +328,8 @@ create_fw_env_flash() {
 
 emmc_common_params() {
 		mkdir -p "${TARGET_DIR}/boot"
-		create_fw_env_emmc_sd
+		create_fw_env_emmc
+		create_fw_env_sd
 
 		ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
 		ln -rsf "${CSCRIPT_DIR}/mksdimg.sh" "${BINARIES_DIR}/mksdimg.sh"
@@ -375,7 +388,7 @@ case "${BUILD_TYPE}" in
 			fi
 
 			mkdir -p "${TARGET_DIR}/boot"
-			echo "/boot/uboot.env 0 ${ENV_SIZE}" > "${TARGET_DIR}/etc/fw_env_sd.config"
+			create_fw_env_sd
 
 			# Copy mksdcard.sh and mksdimg.sh to images
 			ln -rsf "${CSCRIPT_DIR}/mksdcard.sh" "${BINARIES_DIR}/mksdcard.sh"
@@ -427,7 +440,7 @@ case "${BUILD_TYPE}" in
 		emmc_common_params
 
 		create_fw_env_flash
-		echo "/boot/uboot.env 0 ${ENV_SIZE}" >> "${TARGET_DIR}/etc/fw_env_sd.config"
+		create_fw_env_sd
 
 		ln -rsf "${CSCRIPT_DIR}/erase_data.sh" "${BINARIES_DIR}/erase_data.sh"
 		ln -rsf "${CSCRIPT_DIR}/copy_partitions.sh" "${BINARIES_DIR}/copy_partitions.sh"
