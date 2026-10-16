@@ -84,10 +84,11 @@ if ! grep -qF BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW=y "${BR2_CONFIG}" ; then
 	sed -i -r '\,/dev/root, s,rw,ro,' "${TARGET_DIR}/etc/fstab"
 fi
 
-if ! grep -qF BR2_INIT_SYSTEMD=y "${BR2_CONFIG}" && \
-	! grep -qF /sys/kernel/debug "${TARGET_DIR}/etc/fstab" ; 
-then
-	echo 'debugfs    /sys/kernel/debug      debugfs  defaults  0 0' >> "${TARGET_DIR}/etc/fstab"
+if ! grep -qF BR2_INIT_SYSTEMD=y "${BR2_CONFIG}" ; then
+	 grep -qF /sys/kernel/debug "${TARGET_DIR}/etc/fstab" || \
+		echo 'debugfs    /sys/kernel/debug      debugfs  defaults  0 0' >> "${TARGET_DIR}/etc/fstab"
+	 grep -qF /sys/kernel/config "${TARGET_DIR}/etc/fstab" || \
+		echo 'configfs    /sys/kernel/config      configfs  defaults  0 0' >> "${TARGET_DIR}/etc/fstab"
 fi
 
 # No need to detect SmartMedia cards, thus remove errors and speedup boot
