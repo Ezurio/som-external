@@ -17,9 +17,10 @@
 # via CLOUD_HSM_BACKEND (default: aws-kms) and only affects how a key
 # identifier is mapped to a PKCS#11 token label.
 #
-# Invoked from post_build_common.sh (see summit-key-provider.mk):
+# Invoked from the host-summit-key-provider build step
+# (HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS in summit-key-provider.mk):
 #   summit-key-provider.sh materialize
-# Invoked from the U-Boot pre-build hook for HAB (i.MX8M) builds:
+# and, after materializing, for HAB (i.MX8M) Cloud HSM builds:
 #   summit-key-provider.sh stage-hab
 #
 # May also be invoked directly for debugging:
