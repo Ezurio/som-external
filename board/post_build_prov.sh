@@ -27,24 +27,15 @@ case "${BUILD_TYPE}" in
         tar -C "${prov_data_path}" -cf - . | zstd -fo "${BINARIES_DIR}/prov_data.tar.gz"
 
         if [ -n "${SECURE_TARGET_BUILD}" ]; then
-            # Secure target build, sign and encrypt the provisioning data using SMPK and SMEK.
-            # For Cloud HSM builds smpk.key is a PKCS#11 wrapper, and the module
-            # needs the host libraries.  Post-build runs after host-finalize,
-            # so LD_LIBRARY_PATH is safe to set here, scoped to this call.
-            (
-                if [ -n "${HSM_LD_LIBRARY_PATH}" ]; then
-                    LD_LIBRARY_PATH="${HSM_LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-                    export LD_LIBRARY_PATH
-                fi
-                exec "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/scripts/gen_core_x509_cert.sh" \
-                    -b "${BINARIES_DIR}/prov_data.tar.gz" \
-                    -k "${smpk_path}" \
-                    -a 2 \
-                    -n \
-                    -y ENCRYPT \
-                    -e "${smek_path}" \
-                    -o "${BINARIES_DIR}/cert_prov_data.tar.gz.bin"
-            )
+            # Secure target build, sign and encrypt the provisioning data using SMPK and SMEK
+            "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/carbon/scripts/gen_core_x509_cert.sh" \
+                -b "${BINARIES_DIR}/prov_data.tar.gz" \
+                -k "${smpk_path}" \
+                -a 2 \
+                -n \
+                -y ENCRYPT \
+                -e "${smek_path}" \
+                -o "${BINARIES_DIR}/cert_prov_data.tar.gz.bin"
             cat "${BINARIES_DIR}/cert_prov_data.tar.gz.bin" "${BINARIES_DIR}/prov_data.tar.gz-ENC" > "${BINARIES_DIR}/prov_data.tar.gz_sign_enc.bin"
             shred -zn 0 "${BINARIES_DIR}/cert_prov_data.tar.gz.bin" "${BINARIES_DIR}/prov_data.tar.gz-ENC"
         else

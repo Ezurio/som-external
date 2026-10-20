@@ -30,12 +30,6 @@ mapfile -t < <(make -j1 -s --no-print-directory -C "${BASE_DIR}" \
 read -r UBOOT_VER SWUPDATE_VER <<< "${MAPFILE[@]}"
 export UBOOT_VER SWUPDATE_VER
 
-# Cloud HSM signing: the PKCS#11 module needs the host libraries.  Set it here
-# (after host-finalize) rather than exporting LD_LIBRARY_PATH from make.
-if [ -n "${HSM_LD_LIBRARY_PATH}" ]; then
-	export LD_LIBRARY_PATH="${HSM_LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-fi
-
 # Generate all build artifacts
 "${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh"
 

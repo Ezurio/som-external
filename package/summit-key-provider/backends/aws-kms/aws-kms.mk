@@ -26,7 +26,6 @@ HSM_FIT_KEY_ID := $(AWS_KMS_FIT_KEY_ARN)
 HSM_AHAB_KEY_ID := $(AWS_KMS_AHAB_KEY_ARN)
 HSM_PKCS11_LIBRARY = $(HOST_DIR)/usr/lib/pkcs11/aws_kms_pkcs11.so
 HSM_SPSDK_PKCS11_OPTIONS := rsa_pkcs_mechanism=true
-HSM_LD_LIBRARY_PATH = $(HOST_DIR)/lib:$(HOST_DIR)/lib64
 
 # Host packages required by this backend
 HSM_HOST_DEPENDENCIES = host-pkcs11-provider host-aws-kms-pkcs11
@@ -37,8 +36,7 @@ HSM_MAKE_OPTS = \
 	OPENSSL_CONF=$(HOST_DIR)/etc/ssl/openssl.cnf \
 	AWS_KMS_PKCS11_CONFIG=$(HOST_DIR)/aws-kms-pkcs11-config.json \
 	SPSDK_PKCS11_CONFIG_ENV=AWS_KMS_PKCS11_CONFIG \
-	SPSDK_PKCS11_CONFIG_PATH=$(HOST_DIR)/aws-kms-pkcs11-config.json \
-	LD_LIBRARY_PATH=$(HSM_LD_LIBRARY_PATH)
+	SPSDK_PKCS11_CONFIG_PATH=$(HOST_DIR)/aws-kms-pkcs11-config.json
 
 # (Re)generate the multi-slot PKCS#11 config from the ARN variables.
 # Invoked by the host-summit-key-provider build step (HOST_SUMMIT_KEY_PROVIDER

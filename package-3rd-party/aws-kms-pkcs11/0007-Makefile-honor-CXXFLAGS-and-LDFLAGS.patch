@@ -1,0 +1,28 @@
+Makefile: honor CXXFLAGS and LDFLAGS
+
+The aws_kms_pkcs11.so link rule ignores the standard CXXFLAGS and
+LDFLAGS variables, so flags supplied by the build system never reach
+the compiler or linker.
+
+For Buildroot host builds this drops "-Wl,-rpath,$(HOST_DIR)/lib", so
+the module is linked without a RUNPATH. When it is dlopen()ed, its
+dependencies (libcrypto.so.3, libjson-c.so.5) are then resolved from the
+build machine instead of the host directory, and loading fails with
+"version `OPENSSL_3.4.0' not found" unless LD_LIBRARY_PATH is set.
+
+Pass the standard flags to the module build so the build system can set
+compiler flags and the library search path.
+
+--- a/Makefile
++++ b/Makefile
+@@ -187,8 +187,8 @@
+         aws_kms_pkcs11_test.c -o aws_kms_pkcs11_test -ldl
+ 
+ aws_kms_pkcs11.so: aws_kms_pkcs11.cpp unsupported.cpp aws_kms_slot.cpp debug.cpp util.cpp attributes.cpp certificates.cpp
+-	$(CXX) -shared -fPIC -Wall -I$(AWS_SDK_PATH)/include $(PKCS11_INC) $(JSON_C_INC) $(PROXY_CFLAGS) -fno-exceptions -std=c++17 $(SRC) \
+-	    -o aws_kms_pkcs11.so $(STATIC_LIBS) $(LIBS) -lcrypto -ljson-c -lcurl -lz
++	$(CXX) -shared -fPIC -Wall -I$(AWS_SDK_PATH)/include $(PKCS11_INC) $(JSON_C_INC) $(PROXY_CFLAGS) -fno-exceptions -std=c++17 $(CXXFLAGS) $(SRC) \
++	    -o aws_kms_pkcs11.so $(LDFLAGS) $(STATIC_LIBS) $(LIBS) -lcrypto -ljson-c -lcurl -lz
+ 
+ install: aws_kms_pkcs11.so
+ 	mkdir -p $(DESTDIR)$(PKCS11_MOD_PATH)

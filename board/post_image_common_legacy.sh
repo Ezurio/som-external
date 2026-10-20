@@ -14,12 +14,6 @@ if [ -z "${BR2_SUMMIT_PRODUCT}" ]; then
 	export BR2_SUMMIT_PRODUCT
 fi
 
-# Cloud HSM signing: the PKCS#11 module needs the host libraries.  Set it here
-# (after host-finalize) rather than exporting LD_LIBRARY_PATH from make.
-if [ -n "${HSM_LD_LIBRARY_PATH}" ]; then
-	export LD_LIBRARY_PATH="${HSM_LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-fi
-
 if grep -qF "BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y" "${BR2_CONFIG}"; then
 	# Generate all build artifacts
 	"${BR2_EXTERNAL_SUMMIT_SOM_PATH}/board/post_image_secure.sh"
