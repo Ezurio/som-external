@@ -10,17 +10,13 @@ SUMMIT_PROV_IMX_DEPENDENCIES = imx-secure-enclave
 
 SUMMIT_PROV_IMX_DATADIR = /usr/share/summit-prov-imx
 
-# SIG_DATA_PATH and SPSDK_AHAB_SIGNER are set in external.mk, which is
-# parsed after this file, so they are only referenced in recipe commands.
-# external.mk only sets SIG_DATA_PATH for AHAB builds, so fall back to the
-# same default for the prov_data of non-secure builds.
-SUMMIT_PROV_IMX_SIG_DATA_PATH = \
-	$(or $(SIG_DATA_PATH),$(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab)
-
+# SIG_SUPPORT_PATH and SIG_KEY_PATH come from summit-key-provider, and
+# SPSDK_AHAB_SIGNER from external.mk, which is parsed after this file, so they
+# are only referenced in recipe commands.
 SUMMIT_PROV_IMX_GENERATE_ENV = \
 	$(HOST_MAKE_ENV) \
 	SECURE="$(BR2_SUMMIT_IMX_AHAB)" \
-	SIG_DATA_PATH="$(SUMMIT_PROV_IMX_SIG_DATA_PATH)"
+	SIG_SUPPORT_PATH="$(SIG_SUPPORT_PATH)"
 
 ifeq ($(BR2_SUMMIT_IMX_AHAB),y)
 # Secure builds use ELE to unwrap the fleet key and decrypt an AES-GCM
@@ -41,6 +37,7 @@ SUMMIT_PROV_IMX_GENERATE_ENV += \
 	PYTHON="$(HOST_DIR)/bin/python3" \
 	FAMILY="$(call qstrip,$(BR2_SUMMIT_IMX_AHAB_FAMILY))" \
 	ISSUE_DATE=2026-08 \
+	SIG_KEY_PATH="$(SIG_KEY_PATH)" \
 	SIGNER="$(SPSDK_AHAB_SIGNER)" \
 	HSM_PKCS11_LIBRARY="$(HSM_PKCS11_LIBRARY)"
 

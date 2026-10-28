@@ -17,7 +17,7 @@ config BR2_PACKAGE_SUMMIT_PROV_IMX
 	  Summit Provisioning Service for NXP i.MX 93.
 
 	  On first boot, decrypts the provisioning archive built from
-	  $SIG_DATA_PATH/prov_data and imports the keys and
+	  $SIG_SUPPORT_PATH/prov_data and imports the keys and
 	  certificates it contains into the OP-TEE PKCS#11 token.
 	  The compressed archive must not exceed 65520 bytes.
 
@@ -26,8 +26,8 @@ config BR2_PACKAGE_SUMMIT_PROV_IMX
 	  key, and decrypts an AES-GCM payload. The device must have
 	  the product SRK table hash fused and be in OEM Closed or
 	  OEM Locked; the helper refuses any other lifecycle. The
-	  artifacts are generated from $SIG_DATA_PATH/spsdk_ahab.yaml
-	  and $SIG_DATA_PATH/summit-prov-imx (nxp-prod-ka-public.bin,
+	  artifacts are generated from $SIG_SUPPORT_PATH/spsdk_ahab.yaml
+	  and $SIG_SUPPORT_PATH/summit-prov-imx (nxp-prod-ka-public.bin,
 	  oem-ka-private.pem, fleet-aes-256.bin).
 
 	  nxp-prod-ka-public.bin is the NXP production key-agreement

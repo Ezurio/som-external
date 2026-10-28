@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: LicenseRef-Ezurio-Clause
 # Copyright (C) 2026 Ezurio
 #
-# summit-key-provider: assemble the secure-boot keys directory for any source.
+# summit-key-provider: check the secure-boot signing keys and generate the
+# Cloud HSM key wrappers.
 #
-# This script is the single materialization point for signing key material.
-# It produces a self-contained KEYS_DIR (and, for HAB platforms, a staged
-# SIG_DATA_PATH) that downstream build steps consume without needing to know
-# whether keys come from local files or a cloud HSM (PKCS#11).
+# On Carbon and Nitrogen (SUMMIT_KEY_PROVIDER_PLATFORM set) local keys are used
+# in place from SIG_KEY_PATH.  For Cloud HSM builds this script writes PKCS#11
+# PEM wrappers, and the FIT certificate, to WRAP_DIR, which SIG_KEY_PATH
+# points at.  Certificates and other support files stay in SIG_SUPPORT_PATH.
 #
-# For LOCAL builds it simply copies the platform key material into KEYS_DIR.
-# For Cloud HSM builds it additionally overlays PKCS#11 PEM wrappers (and,
-# where required, self-signed certificates) in place of the private keys.
+# Other boards get a copy of SIG_KEY_PATH in KEYS_DIR.
 #
 # The HSM backend (AWS KMS, GCP Cloud KMS, Azure Key Vault, ...) is selected
 # via CLOUD_HSM_BACKEND (default: aws-kms) and only affects how a key
@@ -20,22 +19,17 @@
 # Invoked from the host-summit-key-provider build step
 # (HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS in summit-key-provider.mk):
 #   summit-key-provider.sh materialize
-# and, after materializing, for HAB (i.MX8M) Cloud HSM builds:
-#   summit-key-provider.sh stage-hab
 #
 # May also be invoked directly for debugging:
 #   summit-key-provider.sh gen-wrapper <key_id> <output_path>
 #   summit-key-provider.sh gen-cert    <key_path> <cert_path> <common_name>
 #
-# Required environment (exported/passed by summit-key-provider.mk):
-#   HOST_DIR, KEYS_DIR, LOCAL_KEYS_DIR
-#   CLOUD_HSM_SIGNING, CLOUD_HSM_BACKEND,
-#   HSM_KEY_ID, HSM_CSF_KEY_ID, HSM_IMG_KEY_ID, HSM_FIT_KEY_ID, HSM_AHAB_KEY_ID,
+# Required environment (passed by summit-key-provider.mk):
+#   HOST_DIR, KEYS_DIR, WRAP_DIR, SIG_KEY_PATH, SIG_SUPPORT_PATH,
+#   CLOUD_HSM_SIGNING, CLOUD_HSM_BACKEND, CLOUD_HSM_REQUIRED_ROLES,
+#   HSM_KEY_ID, HSM_FIT_KEY_ID, HSM_UPDATE_KEY_ID,
 #   SUMMIT_KEY_PROVIDER_PLATFORM
-#   OPENSSL_CONF (HSM only)
-#   AWS_KMS_PKCS11_CONFIG, SPSDK_PKCS11_CONFIG_ENV, SPSDK_PKCS11_CONFIG_PATH
-# For HAB staging (stage-hab): SIG_DATA_PATH, SIG_DATA_PATH_ORIG, CSF_KEY,
-#   IMG_KEY, HSM_CSF_KEY_ID, HSM_IMG_KEY_ID, HSM_FIT_KEY_ID
+#   OPENSSL_CONF, AWS_KMS_PKCS11_CONFIG (HSM only)
 
 die() { echo "summit-key-provider: $*" >&2; exit 1; }
 
@@ -86,87 +80,84 @@ hsm_gen_cert() {
         -subj "/CN=$3"
 }
 
-# ─── HAB (i.MX8M) SIG_DATA_PATH staging ────────────────────────────────────────
-# Copy crts/ from the original PKI tree and generate PKCS#11 wrappers for the
-# CSF/IMG private keys. The staged signer paths are consumed by the SPSDK HAB4
-# configuration. The FIT key ("dev") is also staged.
-hsm_stage_hab() {
-    _orig="${SIG_DATA_PATH_ORIG:?SIG_DATA_PATH_ORIG not set}"
-    _stage="${SIG_DATA_PATH:?SIG_DATA_PATH not set}"
+# Public key of a private key (file or PKCS#11 wrapper) or a certificate, as
+# text: the PKCS#11 provider emits PKCS#1 PEM while certificates give SPKI.
+key_pub_text() {
+    openssl pkey -in "$1" -pubout 2>/dev/null | \
+        openssl pkey -pubin -text_pub -noout 2>/dev/null
+}
+crt_pub_text() {
+    openssl x509 -in "$1" -pubkey -noout 2>/dev/null | \
+        openssl pkey -pubin -text_pub -noout 2>/dev/null
+}
 
-    rm -rf "${_stage}"
-    mkdir -p "${_stage}/keys"
-    cp -a "${_orig}/crts" "${_stage}/crts"
-
-    _csf_base=$(basename "${CSF_KEY}" | sed 's/_crt\.pem$/_key.pem/')
-    hsm_gen_wrapper_id "${HSM_CSF_KEY_ID}" "${_stage}/keys/${_csf_base}" || \
-        die "HSM wrapper failed for CSF key (HSM_CSF_KEY_ID=${HSM_CSF_KEY_ID})"
-
-    _img_base=$(basename "${IMG_KEY}" | sed 's/_crt\.pem$/_key.pem/')
-    hsm_gen_wrapper_id "${HSM_IMG_KEY_ID}" "${_stage}/keys/${_img_base}" || \
-        die "HSM wrapper failed for IMG key (HSM_IMG_KEY_ID=${HSM_IMG_KEY_ID})"
-
-    # The SPSDK file-signer configuration expects a password file. For
-    # PKCS#11 wrappers the passphrase is unused, but the file must exist.
-    printf '\n\n' > "${_stage}/keys/key_pass.txt"
-
-    # FIT signing key "dev" (hardcoded as the key-name-hint in kernel.its,
-    # see UBOOT_SIGN_KEYNAME in post_build_common.sh).
-    _fit_id="${HSM_FIT_KEY_ID:-${HSM_KEY_ID}}"
-    if [ -n "${_fit_id}" ]; then
-        hsm_gen_wrapper_id "${_fit_id}" "${_stage}/keys/dev.key" || \
-            die "HSM wrapper failed for FIT key"
-        hsm_gen_cert "${_stage}/keys/dev.key" "${_stage}/keys/dev.crt" dev
-    elif [ -f "${_orig}/keys/dev.key" ]; then
-        cp -a "${_orig}/keys/dev.key" "${_stage}/keys/dev.key"
-        [ ! -f "${_orig}/keys/dev.crt" ] || \
-            cp -a "${_orig}/keys/dev.crt" "${_stage}/keys/dev.crt"
+# Devices pin update_signing.crt (SWUpdate CMS), so it must be supplied and
+# match the update signing key.
+check_update_cert() {
+    _crt="${SIG_SUPPORT_PATH}/update_signing.crt"
+    _key="${SIG_KEY_PATH}/update_signing.key"
+    [ -f "${_crt}" ] || \
+        die "update_signing.crt not found in SIG_SUPPORT_PATH (${SIG_SUPPORT_PATH});" \
+            "devices pin this certificate"
+    _crt_pub=$(crt_pub_text "${_crt}") || _crt_pub=""
+    _key_pub=$(key_pub_text "${_key}") || _key_pub=""
+    if [ -z "${_key_pub}" ] || [ "${_key_pub}" != "${_crt_pub}" ]; then
+        die "${_crt} does not match ${_key}"
     fi
 }
 
-# ─── Materialize ───────────────────────────────────────────────────────────────
-# Assemble KEYS_DIR from the local platform key material, then overlay HSM
-# PKCS#11 wrappers where a cloud key is configured.
-do_materialize() {
+# ─── Carbon and Nitrogen ───────────────────────────────────────────────────────
+# Generate the Cloud HSM wrappers in WRAP_DIR, then check the keys that
+# SIG_KEY_PATH points at.
+hsm_wrap() {
+    hsm_gen_wrapper_id "$1" "${WRAP_DIR}/$2" || \
+        die "HSM wrapper failed for the $3 key; check the Cloud HSM credentials"
+}
+
+do_platform() {
+    : "${SIG_KEY_PATH:?SIG_KEY_PATH not set}"
+    : "${SIG_SUPPORT_PATH:?SIG_SUPPORT_PATH not set}"
+
+    [ -d "${SIG_SUPPORT_PATH}" ] || \
+        die "SIG_SUPPORT_PATH not found: ${SIG_SUPPORT_PATH}"
+
+    if [ -n "${CLOUD_HSM_SIGNING}" ]; then
+        : "${WRAP_DIR:?WRAP_DIR not set}"
+        rm -rf "${WRAP_DIR}"
+        mkdir -p "${WRAP_DIR}"
+        # mkimage needs a certificate next to the FIT key.
+        hsm_wrap "${HSM_FIT_KEY_ID}" dev.key FIT
+        hsm_gen_cert "${WRAP_DIR}/dev.key" "${WRAP_DIR}/dev.crt" dev
+        case " ${CLOUD_HSM_REQUIRED_ROLES} " in
+        *" KEY "*)
+            hsm_wrap "${HSM_KEY_ID}" smpk.key SMPK
+            hsm_gen_cert "${WRAP_DIR}/smpk.key" "${WRAP_DIR}/smpk.crt" smpk ;;
+        esac
+        hsm_wrap "${HSM_UPDATE_KEY_ID}" update_signing.key update
+    else
+        [ -z "${WRAP_DIR}" ] || rm -rf "${WRAP_DIR}"
+    fi
+
+    [ -f "${SIG_KEY_PATH}/dev.key" ] || \
+        die "dev.key not found in SIG_KEY_PATH (${SIG_KEY_PATH})"
+    check_update_cert
+}
+
+# ─── Other boards ──────────────────────────────────────────────────────────────
+# Copy SIG_KEY_PATH into KEYS_DIR.
+do_copy() {
     : "${KEYS_DIR:?KEYS_DIR not set}"
-    : "${LOCAL_KEYS_DIR:?LOCAL_KEYS_DIR not set}"
+    : "${SIG_KEY_PATH:?SIG_KEY_PATH not set}"
 
-    [ -d "${LOCAL_KEYS_DIR}" ] || \
-        die "Local keys directory not found: ${LOCAL_KEYS_DIR}"
+    [ -d "${SIG_KEY_PATH}" ] || \
+        die "SIG_KEY_PATH not found: ${SIG_KEY_PATH}"
 
-    # Fresh copy of the platform key material (provisioning data, local dev
-    # signing keys, filesystem-encryption keys, secure-mode ciphers, ...).
     rm -rf "${KEYS_DIR}"
     mkdir -p "${KEYS_DIR}"
-    cp -a "${LOCAL_KEYS_DIR}/." "${KEYS_DIR}/"
+    cp -a "${SIG_KEY_PATH}/." "${KEYS_DIR}/"
 
-    if [ -z "${CLOUD_HSM_SIGNING}" ]; then
-        # Local build: the copied dev.key/dev.crt are authoritative.
-        [ -f "${KEYS_DIR}/dev.key" ] || \
-            die "No dev.key in ${LOCAL_KEYS_DIR} (needed for signing)"
-        return 0
-    fi
-
-    # ── Cloud HSM overlays ──
-    # FIT signing key "dev": replace with a PKCS#11 wrapper + self-signed cert.
-    # The copied dev.key/dev.crt may be symlinks (e.g. carbon: dev.* -> smpk.*);
-    # remove them first so the wrapper/cert are written as regular files and do
-    # not clobber the symlink target.
-    _fit_id="${HSM_FIT_KEY_ID:-${HSM_KEY_ID}}"
-    if [ -n "${_fit_id}" ]; then
-        rm -f "${KEYS_DIR}/dev.key" "${KEYS_DIR}/dev.crt"
-        hsm_gen_wrapper_id "${_fit_id}" "${KEYS_DIR}/dev.key" || \
-            die "HSM wrapper failed for FIT signing key"
-        hsm_gen_cert "${KEYS_DIR}/dev.key" "${KEYS_DIR}/dev.crt" dev
-    fi
-
-    # SMPK (AM6xx provisioning): replace with a PKCS#11 wrapper.  Remove first
-    # in case dev.key was a symlink to smpk.key in the source tree.
-    if [ "${SUMMIT_KEY_PROVIDER_PLATFORM}" = am6 ] && [ -n "${HSM_KEY_ID}" ]; then
-        rm -f "${KEYS_DIR}/smpk.key"
-        hsm_gen_wrapper_id "${HSM_KEY_ID}" "${KEYS_DIR}/smpk.key" || \
-            die "HSM wrapper failed for SMPK key"
-    fi
+    [ -f "${KEYS_DIR}/dev.key" ] || \
+        die "No dev.key in ${SIG_KEY_PATH} (needed for signing)"
 }
 
 # ─── Dispatch ───────────────────────────────────────────────────────────────────
@@ -176,13 +167,15 @@ set -e
 PATH="${HOST_DIR}/bin:${HOST_DIR}/sbin:${PATH}"
 export PATH
 
-cmd="${1:?Usage: $0 <materialize|stage-hab|gen-wrapper|gen-cert> ...}"
+cmd="${1:?Usage: $0 <materialize|gen-wrapper|gen-cert> ...}"
 shift || true
 case "${cmd}" in
     materialize)
-        do_materialize ;;
-    stage-hab)
-        hsm_stage_hab ;;
+        if [ -n "${SUMMIT_KEY_PROVIDER_PLATFORM}" ]; then
+            do_platform
+        else
+            do_copy
+        fi ;;
     gen-wrapper)
         [ $# -ge 2 ] || die "Usage: $0 gen-wrapper <key_id> <output_path>"
         hsm_gen_wrapper_id "$1" "$2" ;;

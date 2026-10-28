@@ -22,7 +22,7 @@ index 00000000000..21a3aea6551
 +	custMpk {
 +		filename = "custMpk.pem";
 +
-+		custmpk_pem: blob-ext {
++		signing-key-path {
 +			filename = "arch/arm/mach-k3/keys/custMpk.pem";
 +		};
 +	};
@@ -31,14 +31,14 @@ index 00000000000..21a3aea6551
 +		filename = "custMpk.crt";
 +
 +		custmpk_crt: blob-ext {
-+			filename = "arch/arm/mach-k3/keys/custMpk.crt";
++			filename = "smpk.crt";
 +		};
 +	};
 +
 +	custMpk-key {
 +		filename = "custMpk.key";
 +
-+		custmpk_key: blob-ext {
++		signing-key-path {
 +			filename = "arch/arm/mach-k3/keys/custMpk.key";
 +		};
 +	};

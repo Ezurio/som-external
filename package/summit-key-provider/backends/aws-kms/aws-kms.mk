@@ -1,22 +1,23 @@
 # AWS KMS backend for Cloud HSM signing
 #
 # User-facing variables (set on command line or environment):
-#   AWS_KMS_KEY_ARN         — umbrella ARN, used as default for all roles
+#   AWS_KMS_KEY_ARN         — TI SMPK; default for CSF, IMG and AHAB
 #   AWS_KMS_CSF_KEY_ARN     — HAB CSF signing key
 #   AWS_KMS_IMG_KEY_ARN     — HAB IMG signing key
 #   AWS_KMS_FIT_KEY_ARN     — FIT image signing key
 #   AWS_KMS_AHAB_KEY_ARN    — AHAB container signing key (i.MX9)
+#   AWS_KMS_UPDATE_KEY_ARN  — SWUpdate CMS signing key
 #
 # This fragment maps the AWS-specific variables into generic HSM_* names
 # consumed by summit-key-provider.sh and the rest of the build system.
 
-# Role-specific ARNs default to the umbrella ARN.
+# The boot image roles default to the umbrella ARN; FIT and UPDATE do not.
 AWS_KMS_CSF_KEY_ARN ?= $(AWS_KMS_KEY_ARN)
 AWS_KMS_IMG_KEY_ARN ?= $(AWS_KMS_KEY_ARN)
 AWS_KMS_AHAB_KEY_ARN ?= $(AWS_KMS_KEY_ARN)
 
 # Derive the signing flag from the presence of any ARN.
-CLOUD_HSM_SIGNING := $(if $(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN),$(AWS_KMS_AHAB_KEY_ARN))),y)
+CLOUD_HSM_SIGNING := $(if $(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN),$(AWS_KMS_AHAB_KEY_ARN),$(AWS_KMS_UPDATE_KEY_ARN))),y)
 
 # Map to generic key IDs used by summit-key-provider.sh
 HSM_KEY_ID     := $(AWS_KMS_KEY_ARN)
@@ -24,6 +25,18 @@ HSM_CSF_KEY_ID := $(AWS_KMS_CSF_KEY_ARN)
 HSM_IMG_KEY_ID := $(AWS_KMS_IMG_KEY_ARN)
 HSM_FIT_KEY_ID := $(AWS_KMS_FIT_KEY_ARN)
 HSM_AHAB_KEY_ID := $(AWS_KMS_AHAB_KEY_ARN)
+HSM_UPDATE_KEY_ID := $(AWS_KMS_UPDATE_KEY_ARN)
+
+# Cloud HSM signing is all-or-nothing: every role in CLOUD_HSM_REQUIRED_ROLES
+# (set per platform in summit-key-provider.mk) needs its ARN.
+AWS_KMS_ROLE_VAR_KEY = AWS_KMS_KEY_ARN
+AWS_KMS_ROLE_VAR_CSF = AWS_KMS_CSF_KEY_ARN
+AWS_KMS_ROLE_VAR_IMG = AWS_KMS_IMG_KEY_ARN
+AWS_KMS_ROLE_VAR_FIT = AWS_KMS_FIT_KEY_ARN
+AWS_KMS_ROLE_VAR_AHAB = AWS_KMS_AHAB_KEY_ARN
+AWS_KMS_ROLE_VAR_UPDATE = AWS_KMS_UPDATE_KEY_ARN
+CLOUD_HSM_MISSING_ROLE_VARS = $(strip $(foreach r,$(CLOUD_HSM_REQUIRED_ROLES),\
+	$(if $($(AWS_KMS_ROLE_VAR_$(r))),,$(AWS_KMS_ROLE_VAR_$(r)))))
 HSM_PKCS11_LIBRARY = $(HOST_DIR)/usr/lib/pkcs11/aws_kms_pkcs11.so
 HSM_SPSDK_PKCS11_OPTIONS := rsa_pkcs_mechanism=true
 
@@ -64,7 +77,7 @@ endef
 # AWS_KMS_KEY_ARN and AWS_KMS_AHAB_KEY_ARN are command-line origin (already
 # auto-exported by make) but are listed here explicitly for clarity/robustness.
 export AWS_KMS_KEY_ARN AWS_KMS_CSF_KEY_ARN AWS_KMS_IMG_KEY_ARN
-export AWS_KMS_FIT_KEY_ARN AWS_KMS_AHAB_KEY_ARN
+export AWS_KMS_FIT_KEY_ARN AWS_KMS_AHAB_KEY_ARN AWS_KMS_UPDATE_KEY_ARN
 export AWS_KMS_PKCS11_CONFIG = $(HOST_DIR)/aws-kms-pkcs11-config.json
 export SPSDK_PKCS11_CONFIG_ENV = AWS_KMS_PKCS11_CONFIG
 export SPSDK_PKCS11_CONFIG_PATH = $(HOST_DIR)/aws-kms-pkcs11-config.json

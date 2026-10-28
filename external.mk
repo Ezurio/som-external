@@ -12,15 +12,14 @@ export SUMMIT_SOM_URI_BASE_INTERNAL ?= https://$(RFPROS_FILESHARE_AUTH)files.dev
 # Package, 3rd-party package, and toolchain fragments.  The summit-key-provider
 # host package (package/summit-key-provider/) is discovered here like any other
 # package; it derives and exports the secure-boot signing variables
-# (KEY_PATH / KEYS_DIR / LOCAL_KEYS_DIR and, for Cloud HSM HAB builds, a
-# redirected SIG_DATA_PATH) and injects the U-Boot / TI R5 loader dependencies.
+# (SIG_SUPPORT_PATH / SIG_KEY_PATH / KEYS_DIR) and injects the U-Boot / TI R5
+# loader dependencies.
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package-3rd-party/*/*.mk))
 include $(sort $(wildcard $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/toolchain/*/*.mk))
 
 # HAB / AHAB signing support.  These consume the variables derived and exported
-# by summit-key-provider above (notably the redirected SIG_DATA_PATH for Cloud
-# HSM HAB builds), so they must come after the wildcard include.
+# by summit-key-provider above, so they must come after the wildcard include.
 
 ifeq ($(BR2_PACKAGE_HOST_PYTHON_SPSDK),y)
 UBOOT_DEPENDENCIES += host-python-spsdk
@@ -30,15 +29,11 @@ endif
 # HAB4 (i.MX8M): export the explicit SPSDK signing inputs consumed by binman's
 # nxp-imx8mspsdk etype during the U-Boot build.
 ifeq ($(BR2_SUMMIT_IMX_HAB),y)
-SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/hab4
-
-SPSDK_HAB_SRK_TABLE ?= $(SIG_DATA_PATH)/crts/SRK_1_2_3_4_table.bin
-SPSDK_HAB_CSF_CERT ?= $(SIG_DATA_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
-SPSDK_HAB_IMG_CERT ?= $(SIG_DATA_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
-SPSDK_HAB_CSF_SIGNER ?= type=file;file_path=$(SIG_DATA_PATH)/keys/CSF1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_DATA_PATH)/keys/key_pass.txt;password-index=0
-SPSDK_HAB_IMG_SIGNER ?= type=file;file_path=$(SIG_DATA_PATH)/keys/IMG1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_DATA_PATH)/keys/key_pass.txt;password-index=1
-CSF_KEY ?= $(SPSDK_HAB_CSF_CERT)
-IMG_KEY ?= $(SPSDK_HAB_IMG_CERT)
+SPSDK_HAB_SRK_TABLE ?= $(SIG_SUPPORT_PATH)/crts/SRK_1_2_3_4_table.bin
+SPSDK_HAB_CSF_CERT ?= $(SIG_SUPPORT_PATH)/crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
+SPSDK_HAB_IMG_CERT ?= $(SIG_SUPPORT_PATH)/crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
+SPSDK_HAB_CSF_SIGNER ?= type=file;file_path=$(SIG_KEY_PATH)/CSF1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_KEY_PATH)/key_pass.txt;password-index=0
+SPSDK_HAB_IMG_SIGNER ?= type=file;file_path=$(SIG_KEY_PATH)/IMG1_1_sha256_2048_65537_v3_usr_key.pem;password-file=$(SIG_KEY_PATH)/key_pass.txt;password-index=1
 
 ifneq ($(CLOUD_HSM_SIGNING),)
 SPSDK_HAB_CSF_TOKEN_LABEL := $(shell printf '%s' '$(HSM_CSF_KEY_ID)' | sed 's|.*/||' | cut -c1-32)
@@ -47,32 +42,23 @@ SPSDK_HAB_CSF_SIGNER = type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(S
 SPSDK_HAB_IMG_SIGNER = type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(SPSDK_HAB_IMG_TOKEN_LABEL);key_label=$(notdir $(HSM_IMG_KEY_ID));user_pin=unused;$(HSM_SPSDK_PKCS11_OPTIONS)
 endif
 
-export SIG_DATA_PATH SPSDK_HAB_SRK_TABLE SPSDK_HAB_CSF_CERT SPSDK_HAB_IMG_CERT
-export SPSDK_HAB_CSF_SIGNER SPSDK_HAB_IMG_SIGNER CSF_KEY IMG_KEY
+export SPSDK_HAB_SRK_TABLE SPSDK_HAB_CSF_CERT SPSDK_HAB_IMG_CERT
+export SPSDK_HAB_CSF_SIGNER SPSDK_HAB_IMG_SIGNER
 endif
 
-# AHAB (i.MX9x): export SIG_DATA_PATH so the post-image script can locate the
-# AHAB PKI tree when signing flash.bin after the U-Boot build.
+# AHAB (i.MX9x): the post-image script signs flash.bin after the U-Boot build.
 ifeq ($(BR2_SUMMIT_IMX_AHAB),y)
-SIG_DATA_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
-
-export SIG_DATA_PATH
-
 # Cloud HSM: sign AHAB containers (flash.bin in post_image_secure.sh and the
 # summit-prov-imx key-exchange message) through the backend's PKCS#11 module.
-# The certificates in SIG_DATA_PATH are still used; the KMS key must be an
+# The certificates in SIG_SUPPORT_PATH are still used; the KMS key must be an
 # ECC_NIST_P256 key matching the SRK certificate selected by used_srk_id.
 ifneq ($(CLOUD_HSM_SIGNING),)
-ifneq ($(HSM_AHAB_KEY_ID),)
 # The token label is the key ID truncated to 32 characters. The key ID comes
 # from the environment, so single quotes are escaped before the shell call.
 SPSDK_AHAB_KEY_LABEL := $(notdir $(HSM_AHAB_KEY_ID))
 SPSDK_AHAB_TOKEN_LABEL := $(shell printf '%.32s' '$(subst ','\'',$(SPSDK_AHAB_KEY_LABEL))')
 SPSDK_AHAB_SIGNER = type=pkcs11;so_path=$(HSM_PKCS11_LIBRARY);token_label=$(SPSDK_AHAB_TOKEN_LABEL);key_label=$(SPSDK_AHAB_KEY_LABEL);user_pin=unused
 export SPSDK_AHAB_SIGNER
-else
-$(warning Cloud HSM signing is enabled but no AHAB key is set; AHAB images are signed with the local SRK key from SIG_DATA_PATH)
-endif
 endif
 
 ifeq ($(BR2_SUMMIT_IMX_AHAB_AUTO_LOCK),y)

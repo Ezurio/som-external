@@ -106,8 +106,8 @@ case ${BUILD_TYPE} in
 esac
 
 # Create Kernel FIT image, and store signature in u-boot.
-# KEYS_DIR is materialized by summit-key-provider and holds the "dev"
-# signing key+cert (a local key or a PKCS#11 HSM wrapper).
+# KEYS_DIR holds the "dev" signing key+cert (a local key or a PKCS#11 HSM
+# wrapper).
 if ${SECURE_BOOT} ; then
     # Key name is "dev": hardcoded as the key-name-hint in kernel.its
     # (see UBOOT_SIGN_KEYNAME in post_build_common.sh).
@@ -258,13 +258,13 @@ imx*)
 
     # AHAB: sign flash.bin containers using SPSDK nxpimage
     AHAB_FAMILY=$(sed -rn 's/^BR2_SUMMIT_IMX_AHAB_FAMILY="(.+)"/\1/p' "${BR2_CONFIG}")
-    if [ -n "${AHAB_FAMILY}" ] && [ -n "${SIG_DATA_PATH}" ]; then
+    if [ -n "${AHAB_FAMILY}" ] && [ -n "${SIG_SUPPORT_PATH}" ]; then
         nxpimage=${HOST_DIR}/bin/nxpimage
         [ -x "${nxpimage}" ] || \
             die "nxpimage not found (host-python-spsdk has not been built?)"
 
-        [ -f "${SIG_DATA_PATH}/spsdk_ahab.yaml" ] || \
-            die "spsdk_ahab.yaml not found in SIG_DATA_PATH (${SIG_DATA_PATH})"
+        [ -f "${SIG_SUPPORT_PATH}/spsdk_ahab.yaml" ] || \
+            die "spsdk_ahab.yaml not found in SIG_SUPPORT_PATH (${SIG_SUPPORT_PATH})"
 
         [ -f flash.bin ] || \
             die "flash.bin not found in ${BINARIES_DIR}"
@@ -280,7 +280,7 @@ imx*)
         # Copy signing YAML, update family, absolutize paths, and wire up
         # the key password file so nxpimage does not prompt interactively.
         AHAB_SIGN_YAML="${BINARIES_DIR}/spsdk_ahab_sign.yaml"
-        KEY_PASS_TXT="${SIG_DATA_PATH}/keys/key_pass.txt"
+        KEY_PASS_TXT="${SIG_KEY_PATH}/key_pass.txt"
         if [ -n "${SPSDK_AHAB_SIGNER}" ]; then
             # Cloud HSM: sign through the key provider's PKCS#11 module
             if [ -z "${HSM_PKCS11_LIBRARY}" ] || [ ! -e "${HSM_PKCS11_LIBRARY}" ]; then
@@ -288,14 +288,14 @@ imx*)
             fi
             SIGNER_SED="s|^signer:.*|signer: ${SPSDK_AHAB_SIGNER}|"
         elif [ -f "${KEY_PASS_TXT}" ]; then
-            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1;password=${KEY_PASS_TXT}|"
+            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_KEY_PATH}/\1;password=${KEY_PASS_TXT}|"
         else
-            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_DATA_PATH}/keys/\1|"
+            SIGNER_SED="s|^signer: *\(.*\)|signer: type=file;file_path=${SIG_KEY_PATH}/\1|"
         fi
         sed -e "s|^\(family:\).*|\1 ${AHAB_FAMILY}|" \
             -e "${SIGNER_SED}" \
-            -e "/srk_array/,/^[^ #]/{s|- \([^/][^ ]*\.pem\)|- ${SIG_DATA_PATH}/crts/\1|}" \
-            "${SIG_DATA_PATH}/spsdk_ahab.yaml" > "${AHAB_SIGN_YAML}"
+            -e "/srk_array/,/^[^ #]/{s|- \([^/][^ ]*\.pem\)|- ${SIG_SUPPORT_PATH}/crts/\1|}" \
+            "${SIG_SUPPORT_PATH}/spsdk_ahab.yaml" > "${AHAB_SIGN_YAML}"
 
         # Sign all OEM AHAB containers in flash.bin
         CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1 \

@@ -1,16 +1,15 @@
 config BR2_PACKAGE_HOST_SUMMIT_KEY_PROVIDER
 	bool "host summit-key-provider"
 	help
-	  Secure-boot signing key provider.  Materializes the signing
-	  keys directory (KEYS_DIR) at build time from the local platform
-	  key material and, for Cloud HSM (PKCS#11) builds, overlays key
-	  wrappers and certificates.  For i.MX8M HAB it also stages the
-	  SIG_DATA_PATH tree consumed by U-Boot's binman.
+	  Secure-boot signing key provider.  On Carbon and Nitrogen it
+	  checks the keys in SIG_KEY_PATH and SIG_SUPPORT_PATH and, for
+	  Cloud HSM (PKCS#11) builds, generates the key wrappers that
+	  SIG_KEY_PATH then points to.  Other boards get a copy of
+	  SIG_KEY_PATH in the build tree (KEYS_DIR).
 
 	  U-Boot and the TI K3 R5 loader depend on this package, so the
-	  keys are in place before any signing step.  Materialization runs
-	  once; changing the signing keys or Cloud HSM ARNs requires a
-	  manual rebuild:
+	  keys are in place before any signing step.  It runs once;
+	  changing the signing keys or Cloud HSM ARNs requires a manual
+	  reconfigure:
 
-	    make host-summit-key-provider-rebuild uboot-rebuild \
-	         ti-k3-r5-loader-rebuild
+	    make host-summit-key-provider-reconfigure && make

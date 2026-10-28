@@ -84,18 +84,21 @@ if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 		die "no openssl found"
 
 	# Create keys if not present
-	if [ ! -f keys/update_signing.key ]; then
-		mkdir -p keys
-		${openssl} genrsa -out keys/update_signing.key 2048
-		${openssl} req -batch -new -x509 -key keys/update_signing.key -out keys/update_signing.crt
+	if [ ! -f "${SWUPDATE_CMS_KEY}" ]; then
+		# A throwaway update key would leave field devices unable to update.
+		[ -z "${SECURE_TARGET_BUILD}" ] || \
+			die "${SWUPDATE_CMS_KEY} missing; supply update_signing.key/.crt with the signing keys"
+		mkdir -p "$(dirname "${SWUPDATE_CMS_KEY}")"
+		${openssl} genrsa -out "${SWUPDATE_CMS_KEY}" 2048
+		${openssl} req -batch -new -x509 -key "${SWUPDATE_CMS_KEY}" -out "${SWUPDATE_CMS_CERT}"
 	fi
 
 	if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
 		${openssl} cms -sign -in sw-description -out sw-description.sig \
-			-signer keys/update_signing.crt -inkey keys/update_signing.key \
+			-signer "${SWUPDATE_CMS_CERT}" -inkey "${SWUPDATE_CMS_KEY}" \
 			-outform DER -nosmimecap -binary
 	else
-		${openssl} dgst -sha256 -sign keys/update_signing.key -out sw-description.sig \
+		${openssl} dgst -sha256 -sign "${SWUPDATE_CMS_KEY}" -out sw-description.sig \
 			sw-description
 	fi
 

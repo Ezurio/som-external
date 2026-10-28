@@ -4,22 +4,25 @@
 #
 # Secure-boot signing key provisioning.  Owns:
 #   - Cloud HSM backend auto-detection and variable mapping (backends/<name>/)
-#   - KEY_PATH / KEYS_DIR / LOCAL_KEYS_DIR / SIG_DATA_PATH derivation
-#   - the SECURE_TARGET_BUILD safety check
+#   - SIG_SUPPORT_PATH / SIG_KEY_PATH / KEYS_DIR derivation
+#   - the Cloud HSM required-role and SECURE_TARGET_BUILD checks
 #   - make-opts injection for U-Boot / TI K3 R5 loader signing
-#   - the host package that materializes KEYS_DIR (local key copy and/or
-#     PKCS#11 HSM wrappers) and stages the HAB (i.MX8M) SIG_DATA_PATH tree
+#   - the host package that checks the keys and, for Cloud HSM builds,
+#     generates the PKCS#11 key wrappers
 #
-# The materialization runs once, as the host-summit-key-provider build step.
-# U-Boot and the TI K3 R5 loader depend on it, so the keys are in place before
-# any signing step (during the U-Boot build and at the post-image rebuild).
-# Changing the signing keys/ARNs therefore requires a manual rebuild:
-#   make host-summit-key-provider-rebuild uboot-rebuild ti-k3-r5-loader-rebuild
+# SIG_SUPPORT_PATH holds certificates, SRK tables, provisioning data and other
+# static secrets.  SIG_KEY_PATH holds the private keys; local keys are used in
+# place, and with a Cloud HSM it points at the generated wrappers.
+#
+# The host package build runs once.  U-Boot and the TI K3 R5 loader depend on
+# it, so the keys are in place before any signing step.  Changing the signing
+# keys/ARNs therefore requires a manual reconfigure (so per-package host
+# directories are refreshed too):
+#   make host-summit-key-provider-reconfigure && make
 #
 # external.mk discovers this file via its package/*/*.mk wildcard, ahead of the
-# HAB / AHAB signing blocks that consume the derived, exported variables —
-# including the redirected SIG_DATA_PATH.  The include guard keeps that single
-# wildcard inclusion idempotent.
+# HAB / AHAB signing blocks that consume the exported variables.  The include
+# guard keeps that single wildcard inclusion idempotent.
 #
 ################################################################################
 
@@ -31,15 +34,21 @@ SUMMIT_KEY_PROVIDER_PKGDIR = $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/package/summit-key-
 # ─── Cloud HSM backend auto-detection and mapping ───────────────────────────────
 # Users set backend-specific variables (e.g. AWS_KMS_*_ARN); the backend is
 # auto-detected from these, or set explicitly via CLOUD_HSM_BACKEND.
+# Only active when secure boot is enabled, so environment ARNs do not affect
+# non-secure builds.
+ifeq ($(BR2_SUMMIT_SECURE_BOOT),y)
 CLOUD_HSM_BACKEND ?=
 ifeq ($(CLOUD_HSM_BACKEND),)
-ifneq ($(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN),$(AWS_KMS_AHAB_KEY_ARN))),)
+ifneq ($(strip $(or $(AWS_KMS_KEY_ARN),$(AWS_KMS_CSF_KEY_ARN),$(AWS_KMS_IMG_KEY_ARN),$(AWS_KMS_FIT_KEY_ARN),$(AWS_KMS_AHAB_KEY_ARN),$(AWS_KMS_UPDATE_KEY_ARN))),)
 CLOUD_HSM_BACKEND := aws-kms
 endif
 endif
 
 ifneq ($(CLOUD_HSM_BACKEND),)
 include $(SUMMIT_KEY_PROVIDER_PKGDIR)/backends/$(CLOUD_HSM_BACKEND)/$(CLOUD_HSM_BACKEND).mk
+endif
+else
+override CLOUD_HSM_BACKEND =
 endif
 
 # Optional backend hook: command to (re)generate any HSM PKCS#11 config as part
@@ -49,80 +58,95 @@ HSM_GEN_CONFIG_CMD ?=
 
 export CLOUD_HSM_SIGNING CLOUD_HSM_BACKEND
 export HSM_KEY_ID HSM_CSF_KEY_ID HSM_IMG_KEY_ID HSM_FIT_KEY_ID HSM_AHAB_KEY_ID
+export HSM_UPDATE_KEY_ID
 export HSM_PKCS11_LIBRARY HSM_SPSDK_PKCS11_OPTIONS
 
 # ─── Platform selector ──────────────────────────────────────────────────────────
 ifneq ($(findstring am6,$(BR2_ROOTFS_POST_SCRIPT_ARGS)),)
 SUMMIT_KEY_PROVIDER_PLATFORM := am6
+else ifneq ($(findstring imx,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(BR2_SUMMIT_IMX_HAB)$(BR2_SUMMIT_IMX_AHAB),)
+SUMMIT_KEY_PROVIDER_PLATFORM := imx
 endif
 export SUMMIT_KEY_PROVIDER_PLATFORM
 
-# ─── Local (source) keys directory ──────────────────────────────────────────────
-# Directory of platform key material that materialization copies from:
-# the user's KEY_PATH directory, or the per-platform default.
-SUMMIT_KEY_PROVIDER_USER_KEY_PATH := $(KEY_PATH)
-ifeq ($(LOCAL_KEYS_DIR),)
-ifneq ($(SUMMIT_KEY_PROVIDER_USER_KEY_PATH),)
-LOCAL_KEYS_DIR := $(dir $(SUMMIT_KEY_PROVIDER_USER_KEY_PATH))
-else ifeq ($(SUMMIT_KEY_PROVIDER_PLATFORM),am6)
-LOCAL_KEYS_DIR := $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys/
+# ─── Signing key locations ──────────────────────────────────────────────────────
+# Silently ignoring a custom key location would sign with the demo keys.
+ifneq ($(filter environment command,$(origin SIG_DATA_PATH) $(origin KEY_PATH) $(origin CUSTOM_KEYS_DIR)),)
+$(error SIG_DATA_PATH, KEY_PATH and CUSTOM_KEYS_DIR are no longer used; set SIG_SUPPORT_PATH, and SIG_KEY_PATH if the private keys are elsewhere)
+endif
+
+# Carbon uses a flat layout; Nitrogen keeps the private keys in keys/.
+ifeq ($(SUMMIT_KEY_PROVIDER_PLATFORM),am6)
+SIG_SUPPORT_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/carbon/keys
+SIG_KEY_PATH_LOCAL = $(SIG_SUPPORT_PATH)
+CLOUD_HSM_REQUIRED_ROLES = KEY FIT UPDATE
+else ifeq ($(SUMMIT_KEY_PROVIDER_PLATFORM),imx)
+ifneq ($(BR2_SUMMIT_IMX_HAB)$(BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MM)$(BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MN)$(BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MP),)
+SIG_SUPPORT_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/hab4
+CLOUD_HSM_REQUIRED_ROLES = CSF IMG FIT UPDATE
 else
-LOCAL_KEYS_DIR := $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys/
+SIG_SUPPORT_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/nitrogen/keys/ahab
+CLOUD_HSM_REQUIRED_ROLES = AHAB FIT UPDATE
 endif
+SIG_KEY_PATH_LOCAL = $(SIG_SUPPORT_PATH)/keys
 endif
 
-# A secure *target* build must not silently fall back to the shared dev keys.
-# Require one of:
-#   - an explicit KEY_PATH,
-#   - a Cloud HSM backend, or
-#   - a HAB/AHAB host-python-spsdk signing anchor.
-# On i.MX the root of trust is the HAB/AHAB PKI under SIG_DATA_PATH (the SRK
-# hash is fused into the SoC), so when that anchor is configured the FIT "dev"
-# key is allowed to default to the board key.
-ifeq ($(SUMMIT_KEY_PROVIDER_USER_KEY_PATH),)
+# A secure target build must name its keys (on the command line or in the
+# environment), never use the in-tree demo defaults above.  On Carbon and
+# Nitrogen SIG_SUPPORT_PATH holds secrets and certificates even with a Cloud HSM.
 ifneq ($(SECURE_TARGET_BUILD),)
-ifeq ($(CLOUD_HSM_SIGNING),)
-ifneq ($(BR2_PACKAGE_HOST_PYTHON_SPSDK),y)
-$(error KEY_PATH is not set for secure target build (set KEY_PATH, a Cloud HSM backend, or SIG_DATA_PATH for a HAB/AHAB build))
+ifneq ($(SUMMIT_KEY_PROVIDER_PLATFORM),)
+ifeq ($(filter environment command,$(origin SIG_SUPPORT_PATH)),)
+$(error SIG_SUPPORT_PATH not set for secure target build)
 endif
-endif
+else ifeq ($(filter environment command,$(origin SIG_KEY_PATH)),)
+$(error Signing keys not set for secure target build (set SIG_KEY_PATH))
 endif
 endif
 
-# ─── Materialized (output) keys directory ───────────────────────────────────────
-# Assembled by the host-summit-key-provider build step (summit-key-provider.sh).
-# All consumers use these paths and stay agnostic to whether the underlying keys
-# are local files or PKCS#11 HSM wrappers.  KEY_PATH points at the "dev" FIT
-# signing key.
+# Cloud HSM key wrappers (and legacy-board key copy) generated by the host
+# package build step.
 SUMMIT_KEY_PROVIDER_KEYS_DIR = $(BUILD_DIR)/summit-key-provider/keys
-KEYS_DIR = $(SUMMIT_KEY_PROVIDER_KEYS_DIR)
-KEY_PATH = $(SUMMIT_KEY_PROVIDER_KEYS_DIR)/dev.key
-export KEY_PATH KEYS_DIR LOCAL_KEYS_DIR
 
-# ─── HAB (i.MX8M) SIG_DATA_PATH staging for Cloud HSM ────────────────────────────
-# For HSM builds, redirect SIG_DATA_PATH to a staging tree that the host
-# package build step (below) populates with crts/ and PKCS#11 CSF/IMG wrappers.
-# For local HAB builds SIG_DATA_PATH is left untouched (the HAB block in external.mk validates
-# and defaults it).
-ifeq ($(BR2_SUMMIT_IMX_HAB),y)
+ifneq ($(SUMMIT_KEY_PROVIDER_PLATFORM),)
+override SIG_SUPPORT_PATH := $(abspath $(SIG_SUPPORT_PATH))
 ifneq ($(CLOUD_HSM_SIGNING),)
-ifndef SIG_DATA_PATH_ORIG
-SIG_DATA_PATH_ORIG := $(SIG_DATA_PATH)
+SIG_KEY_PATH ?= $(SUMMIT_KEY_PROVIDER_KEYS_DIR)
+ifneq ($(CLOUD_HSM_MISSING_ROLE_VARS),)
+$(error Cloud HSM signing needs a key for every role; set: $(CLOUD_HSM_MISSING_ROLE_VARS))
 endif
-ifeq ($(SIG_DATA_PATH_ORIG),)
-$(error SIG_DATA_PATH is not set for HAB signing (BR2_SUMMIT_IMX_HAB=y))
+else
+SIG_KEY_PATH ?= $(SIG_KEY_PATH_LOCAL)
 endif
-SIG_DATA_PATH = $(BUILD_DIR)/summit-key-provider/sig-data
-SUMMIT_KEY_PROVIDER_STAGE_HAB := y
-export SIG_DATA_PATH SIG_DATA_PATH_ORIG SUMMIT_KEY_PROVIDER_STAGE_HAB
+override SIG_KEY_PATH := $(abspath $(SIG_KEY_PATH))
+KEYS_DIR = $(SIG_KEY_PATH)
+SWUPDATE_CMS_KEY = $(SIG_KEY_PATH)/update_signing.key
+SWUPDATE_CMS_CERT = $(SIG_SUPPORT_PATH)/update_signing.crt
+else
+# Other boards copy SIG_KEY_PATH into the build tree, where the post-image
+# scripts may add generated keys.
+SIG_KEY_PATH ?= $(BR2_EXTERNAL_SUMMIT_SOM_PATH)/board/configs-common/keys
+override SIG_KEY_PATH := $(abspath $(SIG_KEY_PATH))
+KEYS_DIR = $(SUMMIT_KEY_PROVIDER_KEYS_DIR)
+SWUPDATE_CMS_KEY = $(KEYS_DIR)/update_signing.key
+SWUPDATE_CMS_CERT = $(KEYS_DIR)/update_signing.crt
 endif
-endif
+export SIG_SUPPORT_PATH SIG_KEY_PATH KEYS_DIR SWUPDATE_CMS_KEY SWUPDATE_CMS_CERT
 
-# ─── Cloud HSM signing make-opts for U-Boot / TI K3 R5 loader ────────────────────
+# ─── U-Boot / TI K3 R5 loader signing make-opts ─────────────────────────────────
 # This file is wildcard-included by external.mk after boot/uboot/uboot.mk and
-# boot/ti-k3-r5-loader/ti-k3-r5-loader.mk, so we append the backend make-opts
-# here for them to take effect.  The host tooling itself is pulled in
-# transitively via the host-summit-key-provider dependency below.
+# boot/ti-k3-r5-loader/ti-k3-r5-loader.mk, so we append the make-opts here for
+# them to take effect.  TI binman signs tiboot3, tispl and u-boot.img (custMpk)
+# with the SMPK (SIGNING_KEY in U-Boot 2026.01, KEY_PATH in older trees, and
+# smpk.crt via BINMAN_INDIRS on AM62L).
+ifeq ($(SUMMIT_KEY_PROVIDER_PLATFORM),am6)
+SUMMIT_KEY_PROVIDER_TI_MAKE_OPTS = \
+	KEY_PATH=$(SIG_KEY_PATH)/smpk.key \
+	SIGNING_KEY=$(SIG_KEY_PATH)/smpk.key \
+	"BINMAN_INDIRS=$(BINARIES_DIR) $(SIG_KEY_PATH)"
+UBOOT_MAKE_OPTS += $(SUMMIT_KEY_PROVIDER_TI_MAKE_OPTS)
+TI_K3_R5_LOADER_MAKE_OPTS += $(SUMMIT_KEY_PROVIDER_TI_MAKE_OPTS)
+endif
 ifneq ($(CLOUD_HSM_SIGNING),)
 UBOOT_MAKE_OPTS += $(HSM_MAKE_OPTS)
 TI_K3_R5_LOADER_MAKE_OPTS += $(HSM_MAKE_OPTS)
@@ -132,8 +156,8 @@ endif
 # ─── host-summit-key-provider dependency ─────────────────────────────────────────
 # U-Boot embeds the FIT public key and (on i.MX HAB) signs via binman during
 # its own build, and the TI K3 R5 loader / U-Boot are re-signed at post-image;
-# all of these need KEYS_DIR (and the staged SIG_DATA_PATH) materialized first.
-# Making them depend on the host package guarantees that ordering.
+# all of these need the keys checked (and any Cloud HSM wrappers generated)
+# first.  Making them depend on the host package guarantees that ordering.
 #
 # Note: external.mk includes this file after boot/uboot/uboot.mk and
 # boot/ti-k3-r5-loader/ti-k3-r5-loader.mk have already run
@@ -153,67 +177,54 @@ $(UBOOT_TARGET_CONFIGURE): | host-summit-key-provider
 $(TI_K3_R5_LOADER_TARGET_CONFIGURE): | host-summit-key-provider
 endif
 
-# ─── host package: materialize KEYS_DIR (and stage HAB SIG_DATA_PATH) ────────────
-# Source-less package: the "build" step assembles the keys directory from the
-# local platform key material and, for Cloud HSM builds, overlays PKCS#11
-# wrappers/certs.  For HSM HAB (i.MX8M) it also stages the SIG_DATA_PATH tree
-# that binman consumes during the U-Boot build.
+# ─── host package: check the keys and generate Cloud HSM wrappers ─────────────────
+# Source-less package.  On Carbon and Nitrogen the "build" step generates the
+# PKCS#11 wrappers for Cloud HSM builds and checks the keys; other boards get a
+# copy of SIG_KEY_PATH in KEYS_DIR.
 HOST_SUMMIT_KEY_PROVIDER_VERSION = 1.0
 HOST_SUMMIT_KEY_PROVIDER_SITE = $(SUMMIT_KEY_PROVIDER_PKGDIR)
 HOST_SUMMIT_KEY_PROVIDER_SITE_METHOD = local
 HOST_SUMMIT_KEY_PROVIDER_LICENSE = LicenseRef-Ezurio-Clause
 
-# HSM materialization needs the PKCS#11 host tooling plus OpenSSL and Python
-# (uri2pem.py wrapper generation and self-signed cert creation).
+# OpenSSL checks the certificates in every build.  HSM materialization also
+# needs the PKCS#11 host tooling and Python (uri2pem.py wrapper generation).
+HOST_SUMMIT_KEY_PROVIDER_DEPENDENCIES = host-openssl
 ifneq ($(CLOUD_HSM_SIGNING),)
-HOST_SUMMIT_KEY_PROVIDER_DEPENDENCIES += \
-	host-openssl host-python3 $(HSM_HOST_DEPENDENCIES)
+HOST_SUMMIT_KEY_PROVIDER_DEPENDENCIES += host-python3 $(HSM_HOST_DEPENDENCIES)
 endif
 
-# Common environment passed to the materialization helper.
+# Common environment passed to the helper.
 SUMMIT_KEY_PROVIDER_ENV = \
 	HOST_DIR="$(HOST_DIR)" \
 	KEYS_DIR="$(KEYS_DIR)" \
-	LOCAL_KEYS_DIR="$(LOCAL_KEYS_DIR)" \
+	WRAP_DIR="$(SUMMIT_KEY_PROVIDER_KEYS_DIR)" \
+	SIG_KEY_PATH="$(SIG_KEY_PATH)" \
+	SIG_SUPPORT_PATH="$(SIG_SUPPORT_PATH)" \
 	CLOUD_HSM_SIGNING="$(CLOUD_HSM_SIGNING)" \
 	CLOUD_HSM_BACKEND="$(CLOUD_HSM_BACKEND)" \
-	HSM_KEY_ID="$(HSM_KEY_ID)" HSM_CSF_KEY_ID="$(HSM_CSF_KEY_ID)" \
-	HSM_IMG_KEY_ID="$(HSM_IMG_KEY_ID)" HSM_FIT_KEY_ID="$(HSM_FIT_KEY_ID)" \
-	HSM_AHAB_KEY_ID="$(HSM_AHAB_KEY_ID)" \
-	HSM_PKCS11_LIBRARY="$(HSM_PKCS11_LIBRARY)" \
-	HSM_SPSDK_PKCS11_OPTIONS="$(HSM_SPSDK_PKCS11_OPTIONS)" \
+	CLOUD_HSM_REQUIRED_ROLES="$(CLOUD_HSM_REQUIRED_ROLES)" \
+	HSM_KEY_ID="$(HSM_KEY_ID)" HSM_FIT_KEY_ID="$(HSM_FIT_KEY_ID)" \
+	HSM_UPDATE_KEY_ID="$(HSM_UPDATE_KEY_ID)" \
 	SUMMIT_KEY_PROVIDER_PLATFORM="$(SUMMIT_KEY_PROVIDER_PLATFORM)" \
 	OPENSSL_CONF="$(OPENSSL_CONF)" \
-	AWS_KMS_PKCS11_CONFIG="$(AWS_KMS_PKCS11_CONFIG)" \
-	SPSDK_PKCS11_CONFIG_ENV="$(SPSDK_PKCS11_CONFIG_ENV)" \
-	SPSDK_PKCS11_CONFIG_PATH="$(SPSDK_PKCS11_CONFIG_PATH)"
-
-# HAB (i.MX8M) Cloud HSM: stage the SIG_DATA_PATH tree after materializing.
-SUMMIT_KEY_PROVIDER_STAGE_HAB_CMD =
-ifeq ($(SUMMIT_KEY_PROVIDER_STAGE_HAB),y)
-define SUMMIT_KEY_PROVIDER_STAGE_HAB_CMD
-	$(SUMMIT_KEY_PROVIDER_ENV) \
-	SIG_DATA_PATH="$(SIG_DATA_PATH)" SIG_DATA_PATH_ORIG="$(SIG_DATA_PATH_ORIG)" \
-	CSF_KEY="$(CSF_KEY)" IMG_KEY="$(IMG_KEY)" \
-		$(SUMMIT_KEY_PROVIDER_PKGDIR)/summit-key-provider.sh stage-hab
-endef
-endif
+	AWS_KMS_PKCS11_CONFIG="$(AWS_KMS_PKCS11_CONFIG)"
 
 define HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS
 	$(HSM_GEN_CONFIG_CMD)
 	$(SUMMIT_KEY_PROVIDER_ENV) \
 		$(SUMMIT_KEY_PROVIDER_PKGDIR)/summit-key-provider.sh materialize
-	$(SUMMIT_KEY_PROVIDER_STAGE_HAB_CMD)
 endef
 
-# Do not let a previous Cloud-HSM HAB build leak its staged PKI tree into a
-# subsequent local HAB build.  Local HAB signing must consume the source key
-# tree selected by SIG_DATA_PATH; the stale staged tree may contain an AHAB
-# ECC SRK table, which SPSDK cannot parse as a HAB4 RSA table.
-ifeq ($(SUMMIT_KEY_PROVIDER_STAGE_HAB),)
-HOST_SUMMIT_KEY_PROVIDER_BUILD_CMDS += \
-	rm -rf $(BUILD_DIR)/summit-key-provider/sig-data
-endif
+# Refresh U-Boot and the TI K3 R5 loader whenever this package is reconfigured
+# (after changing keys or ARNs) so their per-package host directories and
+# signed outputs pick up the change.
+host-summit-key-provider-clean-for-reconfigure:
+	rm -rf $(PER_PACKAGE_DIR)/host-summit-key-provider \
+		$(PER_PACKAGE_DIR)/uboot $(PER_PACKAGE_DIR)/ti-k3-r5-loader
+	rm -f $(UBOOT_DIR)/.stamp_configured $(UBOOT_DIR)/.stamp_built \
+		$(UBOOT_DIR)/.stamp_target_installed $(UBOOT_DIR)/.stamp_images_installed \
+		$(TI_K3_R5_LOADER_DIR)/.stamp_configured $(TI_K3_R5_LOADER_DIR)/.stamp_built \
+		$(TI_K3_R5_LOADER_DIR)/.stamp_images_installed
 
 # host-generic-package derives pkgname/pkgdir from $(lastword $(MAKEFILE_LIST)).
 # The backend include above appended backends/<name>/<name>.mk to MAKEFILE_LIST,

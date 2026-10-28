@@ -30,6 +30,7 @@ ARN_VARS = (
     "AWS_KMS_IMG_KEY_ARN",
     "AWS_KMS_FIT_KEY_ARN",
     "AWS_KMS_AHAB_KEY_ARN",
+    "AWS_KMS_UPDATE_KEY_ARN",
 )
 
 

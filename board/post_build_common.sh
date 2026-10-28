@@ -241,9 +241,8 @@ done
 
 export LINUX_VER UBOOT_VER SWUPDATE_VER KERNEL_DEVICETREE FIT_CONF_DEFAULT_DTB
 
-# Copy keys if present.  KEYS_DIR is materialized by the host-summit-key-provider
-# package build step (a dependency of U-Boot / TI R5), so it is already in place.
-if [ -f "${KEY_PATH}" ]; then
+# Legacy sama5 boards read ${BINARIES_DIR}/keys during post-image signing.
+if [ -z "${SUMMIT_KEY_PROVIDER_PLATFORM}" ] && [ -d "${KEYS_DIR}" ]; then
 	rm -rf "${BINARIES_DIR}/keys"
 	ln -rsf "${KEYS_DIR}" "${BINARIES_DIR}/keys"
 fi
@@ -267,7 +266,7 @@ if [ -n "${SWUPDATE_VER}" ]; then
 	if grep -qF 'CONFIG_SIGNED_IMAGES=y' "${SWUPDATE_CONF}"; then
 		mkdir -p "${TARGET_DIR}"/etc/swupdate/conf.d
 		if grep -qF 'CONFIG_SIGALG_CMS=y' "${SWUPDATE_CONF}"; then
-			cp "${BINARIES_DIR}/keys/update_signing.crt" "${TARGET_DIR}/etc/swupdate/dev.crt"
+			cp "${SWUPDATE_CMS_CERT}" "${TARGET_DIR}/etc/swupdate/dev.crt"
 			# Configure dev.crt if swupdate CMS is enabled
 			# shellcheck disable=SC2016
 			echo 'SWUPDATE_ARGS="${SWUPDATE_ARGS} -k /etc/swupdate/dev.crt"' > \

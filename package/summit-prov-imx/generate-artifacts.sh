@@ -13,10 +13,12 @@
 # Environment:
 #   SECURE              "y" to wrap the fleet key for ELE (AHAB builds);
 #                       empty for the non-secure AES-CBC payload
-#   SIG_DATA_PATH       directory with prov_data/. Secure builds also read
-#                       spsdk_ahab.yaml and summit-prov-imx/
+#   SIG_SUPPORT_PATH    directory with prov_data/. Secure builds also read
+#                       spsdk_ahab.yaml, crts/ and summit-prov-imx/
 #                       {nxp-prod-ka-public.bin,oem-ka-private.pem,
 #                       fleet-aes-256.bin}
+#   SIG_KEY_PATH        directory with the SRK private keys and key_pass.txt
+#                       (secure only, unless SIGNER is set)
 #   PYTHON              host python3 with cryptography and PyYAML; nxpimage
 #                       must be on PATH (secure only)
 #   FAMILY              SPSDK family name, e.g. mx93 (secure only)
@@ -35,8 +37,8 @@ die() {
 src_dir=$1
 out_dir=$2
 work_dir="${out_dir}.work"
-prov_data_dir="${SIG_DATA_PATH}/prov_data"
-crypto_dir="${SIG_DATA_PATH}/summit-prov-imx"
+prov_data_dir="${SIG_SUPPORT_PATH}/prov_data"
+crypto_dir="${SIG_SUPPORT_PATH}/summit-prov-imx"
 archive="${out_dir}/prov-data.tar.gz"
 
 [ -d "${prov_data_dir}/keystore" ] || \
@@ -86,8 +88,8 @@ fi
 # Secure builds wrap the fleet key for ELE and encrypt the archive with
 # AES-256-GCM. Only public or wrapped material is installed; the fleet key
 # never enters the image.
-[ -f "${SIG_DATA_PATH}/spsdk_ahab.yaml" ] || \
-	die "SPSDK AHAB configuration not found: ${SIG_DATA_PATH}/spsdk_ahab.yaml"
+[ -f "${SIG_SUPPORT_PATH}/spsdk_ahab.yaml" ] || \
+	die "SPSDK AHAB configuration not found: ${SIG_SUPPORT_PATH}/spsdk_ahab.yaml"
 
 for artifact in nxp-prod-ka-public.bin oem-ka-private.pem fleet-aes-256.bin; do
 	[ -f "${crypto_dir}/${artifact}" ] || \
@@ -119,7 +121,8 @@ if [ -n "${SIGNER:-}" ]; then
 fi
 
 "${PYTHON}" "${src_dir}/generate_ele_artifacts.py" \
-	--sig-data-path "${SIG_DATA_PATH}" \
+	--sig-support-path "${SIG_SUPPORT_PATH}" \
+	--sig-key-path "${SIG_KEY_PATH}" \
 	--crypto-dir "${crypto_dir}" \
 	--nxp-prod-ka-public "${crypto_dir}/nxp-prod-ka-public.bin" \
 	--output-dir "${out_dir}" \

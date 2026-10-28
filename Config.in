@@ -20,12 +20,14 @@ config BR2_SUMMIT_IMX_HAB
 		platforms. When enabled, U-Boot's binman uses SPSDK to
 		generate CSFs and sign SPL and FIT images.
 
-		Requires SIG_DATA_PATH environment variable to point to a
-		directory containing HAB PKI certificates and keys:
+		SIG_SUPPORT_PATH points to the HAB PKI tree (default
+		board/nitrogen/keys/hab4):
 		  crts/SRK_1_2_3_4_table.bin
 		  crts/CSF1_1_sha256_2048_65537_v3_usr_crt.pem
 		  crts/IMG1_1_sha256_2048_65537_v3_usr_crt.pem
-		  keys/ (private keys and key_pass.txt)
+		  update_signing.crt
+		SIG_KEY_PATH points to the private keys and key_pass.txt
+		(default ${SIG_SUPPORT_PATH}/keys).
 
 config BR2_SUMMIT_IMX_AHAB
 	bool "i.MX AHAB Signed Boot (SPSDK)"
@@ -47,15 +49,17 @@ config BR2_SUMMIT_IMX_AHAB
 		nxpimage tool signs the AHAB containers in a post-build
 		step.
 
-		Requires SIG_DATA_PATH environment variable to point to a
-		directory containing AHAB PKI certificates and keys
-		(ECC secp256r1):
+		SIG_SUPPORT_PATH points to the AHAB PKI tree (ECC secp256r1,
+		default board/nitrogen/keys/ahab):
 		  spsdk_ahab.yaml
 		  crts/SRK1_sha256_secp256r1_v3_usr_crt.pem (SRK 1-4)
 		  crts/SRK_1_2_3_4_table.bin
 		  crts/SRK_1_2_3_4_fuse.bin
-		  keys/SRK1_sha256_secp256r1_v3_usr_key.pem (SRK 1-4)
-		  keys/key_pass.txt (optional, for non-interactive signing)
+		  update_signing.crt
+		SIG_KEY_PATH points to the private keys (default
+		${SIG_SUPPORT_PATH}/keys):
+		  SRK1_sha256_secp256r1_v3_usr_key.pem (SRK 1-4)
+		  key_pass.txt (optional, for non-interactive signing)
 
 config BR2_SUMMIT_IMX_AHAB_FAMILY
 	string "SPSDK family name"

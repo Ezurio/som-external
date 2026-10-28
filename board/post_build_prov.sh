@@ -9,16 +9,16 @@ case "${BUILD_TYPE}" in
             exit 0
         fi
 
-        # Assume SMEK and SMPK are in the keys directory
-        smek_path="${KEYS_DIR}/smek.key"
+        # SMEK and prov_data are support files; the SMPK is a signing key.
+        smek_path="${SIG_SUPPORT_PATH}/smek.key"
         [ -f "${smek_path}" ] || \
-            die "No SMEK key found in the keys directory"
-        smpk_path="${KEYS_DIR}/smpk.key"
+            die "No SMEK key found in SIG_SUPPORT_PATH (${SIG_SUPPORT_PATH})"
+        smpk_path="${SIG_KEY_PATH}/smpk.key"
         [ -f "${smpk_path}" ] || \
-            die "No SMPK key found in the keys directory"
-        prov_data_path="${KEYS_DIR}/prov_data"
+            die "No SMPK key found in SIG_KEY_PATH (${SIG_KEY_PATH})"
+        prov_data_path="${SIG_SUPPORT_PATH}/prov_data"
         [ -d "${prov_data_path}" ] || \
-            die "No provisioning data directory found in the keys directory"
+            die "No provisioning data directory found in SIG_SUPPORT_PATH (${SIG_SUPPORT_PATH})"
         keystore_source_path="${prov_data_path}/keystore"
         [ -d "${keystore_source_path}" ] || \
             die "No keystore directory found in the prov_data directory"

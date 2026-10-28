@@ -27,7 +27,8 @@ def main() -> None:
     """Generate the signed ELE key-exchange message and wrapped-key TLV."""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sig-data-path", required=True, type=Path)
+    parser.add_argument("--sig-support-path", required=True, type=Path)
+    parser.add_argument("--sig-key-path", required=True, type=Path)
     parser.add_argument("--crypto-dir", required=True, type=Path)
     parser.add_argument("--nxp-prod-ka-public", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
@@ -37,7 +38,8 @@ def main() -> None:
     parser.add_argument("--signer")
     args = parser.parse_args()
 
-    sig_data_path = args.sig_data_path.resolve()
+    sig_support_path = args.sig_support_path.resolve()
+    sig_key_path = args.sig_key_path.resolve()
     crypto_dir = args.crypto_dir.resolve()
     nxp_prod_ka_public = args.nxp_prod_ka_public.resolve()
     output_dir = args.output_dir.resolve()
@@ -52,19 +54,19 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     assets_dir.mkdir(parents=True, exist_ok=True)
 
-    with (sig_data_path / "spsdk_ahab.yaml").open(encoding="utf-8") as stream:
+    with (sig_support_path / "spsdk_ahab.yaml").open(encoding="utf-8") as stream:
         ahab = yaml.safe_load(stream)
 
     signer = args.signer or str(ahab["signer"])
     if not args.signer and not signer.startswith("type="):
-        signer = f"type=file;file_path={absolute_input(signer, sig_data_path / 'keys')}"
-        password_file = sig_data_path / "keys" / "key_pass.txt"
+        signer = f"type=file;file_path={absolute_input(signer, sig_key_path)}"
+        password_file = sig_key_path / "key_pass.txt"
         if password_file.is_file():
             signer += f";password={password_file}"
 
     srk_table = ahab["srk_table"]
     srk_table["srk_array"] = [
-        absolute_input(str(certificate), sig_data_path / "crts")
+        absolute_input(str(certificate), sig_support_path / "crts")
         for certificate in srk_table["srk_array"]
     ]
 
