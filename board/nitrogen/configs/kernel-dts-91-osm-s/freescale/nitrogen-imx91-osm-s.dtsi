@@ -157,7 +157,7 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 8 IRQ_TYPE_LEVEL_LOW>;	/* SDIO_HOST_WAKE# */
+			interrupts-extended = <&gpio2 8 IRQ_TYPE_EDGE_FALLING>;	/* SDIO_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 
@@ -166,7 +166,7 @@
 			linux,code = <KEY_WAKEUP>;
 			wakeup-source;
 
-			interrupts-extended = <&gpio2 2 IRQ_TYPE_LEVEL_LOW>;	/* UART_HOST_WAKE# */
+			interrupts-extended = <&gpio2 2 IRQ_TYPE_EDGE_FALLING>;	/* UART_HOST_WAKE# */
 			interrupt-names = "irq";
 		};
 	};
