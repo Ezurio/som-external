@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * This file was generated with the
  * AM62Lx SysConfig DDR Configuration Tool for AM64x, AM625, AM623, AM62Ax, AM62Px, AM62Dx, AM62Lx v0.10.40
@@ -10,7 +10,10 @@
  * Number of Ranks: 1
 */
 
+#ifndef AM62LX_CARBON_2G_LP4_50_800_H
+#define AM62LX_CARBON_2G_LP4_50_800_H
 
+#define DDRSS_PLL_FREQUENCY_0 25000000
 #define DDRSS_PLL_FHS_CNT 3
 #define DDRSS_PLL_FREQUENCY_1 400000000
 #define DDRSS_PLL_FREQUENCY_2 400000000
@@ -2192,3 +2195,5 @@
 #define DDRSS_PHY_1403_DATA 0x00018011
 #define DDRSS_PHY_1404_DATA 0x0089FF00
 #define DDRSS_PHY_1405_DATA 0x20040004
+
+#endif /* AM62LX_CARBON_2G_LP4_50_800_H */
