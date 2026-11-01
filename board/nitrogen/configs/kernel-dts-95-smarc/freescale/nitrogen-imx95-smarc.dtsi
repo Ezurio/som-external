@@ -275,7 +275,19 @@
 	phy-handle = <&ethphy1>;
 	phy-mode = "rgmii-id";
 
+	/* enetc_port1 has no fused MAC (eth_mac1): port0 MAC + 1 */
+	nvmem-cells = <&eth_mac0>;
+	nvmem-cell-names = "mac-address";
+	nvmem-mac-offset = <1>;
+
 	status = "okay";
+};
+
+&enetc_port2 {
+	/* No fused MAC (eth_mac2): port0 MAC + 2 */
+	nvmem-cells = <&eth_mac0>;
+	nvmem-cell-names = "mac-address";
+	nvmem-mac-offset = <2>;
 };
 
 &flexcan1 {

@@ -1,0 +1,38 @@
+From: Summit <noreply@example.com>
+Subject: [PATCH] of: net: add nvmem-mac-offset to derive MAC from nvmem cell
+
+Allow a device node to specify "nvmem-mac-offset" so that several
+interfaces can share one MAC base address stored in an nvmem cell, each
+using the base address plus a fixed offset.
+
+---
+--- a/net/core/of_net.c
++++ b/net/core/of_net.c
+@@ -64,6 +64,7 @@
+ 	struct nvmem_cell *cell;
+ 	const void *mac;
+ 	size_t len;
++	u32 offset;
+ 	int ret;
+ 
+ 	/* Try lookup by device first, there might be a nvmem_cell_lookup
+@@ -72,6 +73,8 @@
+ 	if (pdev) {
+ 		ret = nvmem_get_mac_address(&pdev->dev, addr);
+ 		put_device(&pdev->dev);
++		if (!ret && !of_property_read_u32(np, "nvmem-mac-offset", &offset))
++			eth_addr_add(addr, offset);
+ 		return ret;
+ 	}
+ 
+@@ -93,6 +96,10 @@
+ 	memcpy(addr, mac, ETH_ALEN);
+ 	kfree(mac);
+ 
++	/* Allow several interfaces to derive their address from one base cell */
++	if (!of_property_read_u32(np, "nvmem-mac-offset", &offset))
++		eth_addr_add(addr, offset);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(of_get_mac_address_nvmem);

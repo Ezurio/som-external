@@ -218,6 +218,11 @@
 	phy-mode = "rgmii-id";
 	phy-handle = <&ethphy0>;
 
+	/* eqos has no fused MAC (eth_mac2): fec MAC + 1 */
+	nvmem-cells = <&eth_mac1>;
+	nvmem-cell-names = "mac-address";
+	nvmem-mac-offset = <1>;
+
 	status = "okay";
 
 	mdio {
