@@ -28,6 +28,17 @@
 		linux,cma {
 			size = <0 0x20000000>;
 		};
+
+		/*
+		 * The default is above 4GB, where the smaller boards have no
+		 * RAM. Put it in the top of the first 2GB.
+		 */
+		/delete-node/ gpu_reserved@100000000;
+
+		gpu_reserved: gpu_reserved@b0000000 {
+			no-map;
+			reg = <0 0xb0000000 0 0x10000000>;
+		};
 	};
 
 	reg_vdd_1v8: regulator-vdd-1v8 {
